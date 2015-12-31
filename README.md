@@ -1,6 +1,6 @@
-# narjure
+# Narjure
 
-FIXME: description
+A Clojure implementation of the [Non-Axiomatic Reasoning System](https://github.com/opennars/opennars) proposed by Pei Wang.
 
 ## Installation
 
@@ -30,7 +30,7 @@ FIXME: listing of options this app accepts.
 
 ## License
 
-Copyright © 2015 FIXME
+Copyright © 2015 Jarrad Hope
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
