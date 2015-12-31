@@ -2,6 +2,8 @@
 
 A Clojure implementation of the [Non-Axiomatic Reasoning System](https://github.com/opennars/opennars) proposed by Pei Wang.
 
+Special thanks to [automenta/SeH](https://github.com/automenta) and [patham9](https://github.com/patham9) for putting up with all my questions :)
+
 ## Installation
 
 Download from http://example.com/FIXME.
