@@ -11,7 +11,7 @@
 ;(db-rel c p)
 ;
 ;(defn a [X Y]
-;  (fresh [] (onceo (b X)) (c Y)))
+;  (all (onceo (b X)) (c Y)))
 ;
 ;(with-db
 ;  (db [b 'k]

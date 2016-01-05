@@ -1,179 +1,508 @@
 (ns nal.core
-  (:refer-clojure :exclude [== reduce replace])
+  (:refer-clojure :exclude [!= == reduce replace >= <= > < =])
   (:require [clojure.core.logic :refer
              [run* project fresh conde conda defna conso run membero
-              nonlvaro == emptyo succeed fail defne appendo] :as l]
+              nonlvaro == != emptyo succeed fail defne appendo]
+             :as l]
+            [clojure.core.logic.arithmetic :refer :all]
             [nal.utils :refer :all]
             [nal.truth-value :refer :all]
             [nal.args-processing :refer :all]
             [clojure.core.logic.pldb :refer [db-rel db with-db]]))
 
 (declare similarity inheritance ext-intersection int-intersection
-         instance property union ext-set int-set product negation
-         inst-prop ext-difference)
-
-(db-rel ext-intersection p)
-(db-rel int-intersection p)
-(db-rel ext-set p)
-(db-rel int-set p)
-(db-rel product p)
-(db-rel negation p)
-(db-rel inst-prop p)
-(db-rel ext-difference p1 p2)
-(db-rel property p1 p2)
-(db-rel instance p1 p2)
-(db-rel inst-prop p1 p2)
+         instance property ext-set int-set product negation
+         inst-prop ext-difference revision inference equivalence
+         inference2 inference3 equivalence-list reduce replace-var
+         replace-all implication)
 
 ;===============================================================================
 ;revision
 
-(defn revision [R1 R2 R]
-  (fresh [S T1 T2 T]
-    (== R1 [S T1])
-    (== R2 [S T2])
-    (== R [S T])
-    (f-rev T1 T2 T)))
+(defna revision [R1 R2 R]
+  ([[S T1] [S T2] [S T]] (f-rev T1 T2 T)))
 
 ;===============================================================================
 ;choice
 
-(defn choice [A1 A2 A3]
-  (fresh [S1 S2 T1 T2 F1 F2 C1 C2]
-    (== [A1 A2] [[S1 T1] [S2 T2]])
-    (== [T1 T2] [[F1 C1] [F2 C2]])
-    (conde
-      [(== [S1 A3] [S2 [S1 T1]])
-       (project [C1 C2] (== true (>= C1 C2)))]
-      [(== [S1 A3] [S2 [S1 T2]])
-       (project [C1 C2] (== true (< C1 C2)))]
-      [(l/!= S1 S2)
-       (fresh [E1 E2]
-         (f-exp T1 E1) (f-exp T2 E2)
-         (conde [(project [E1 E2] (== true (>= E1 E2)))
-                 (== A3 [S1 T1])]
-                [(project [E1 E2] (== true (< E1 E2)))
-                 (== A3 [S2 T2])]))])))
+(defna choice [A1 A2 A3]
+  ([[S [F1 C1]] [S [_F2 C2]] [S [F1 C1]]] (>= C1 C2))
+  ([[S [_F1 C1]] [S [F2 C2]] [S [F2 C2]]] (< C1 C2))
+  ([[S1 T1] [S2 T2] [S1 T1]]
+    (fresh [E1 E2]
+      (!= S1 S2) (f-exp T1 E1) (f-exp T2 E2) (>= E1 E2)))
+  ([[S1 T1] [S2 T2] [S2 T2]]
+    (fresh [E1 E2]
+      (!= S1 S2) (f-exp T1 E1) (f-exp T2 E2) (< E1 E2))))
+
 ;===============================================================================
 ;simplified version
 
+(defne infer3 [T1 T2 T3]
+  ([['inheritance W1 ['ext_image ['ext_image 'represent [nil ['inheritance ['product [X T2]] R]]] [nil W2 W3]]]
+    ['inheritance W1 ['ext_image 'represent [nil X]]]
+    [['inheritance ['ext_image 'represent [nil Y]] ['ext_image ['ext_image 'represent [nil ['inheritance ['product [Y T2]] R]]] [nil W2 W3]]] V]]
+    (f-ind [10.9] [1 0.9] V))
+
+  ([['inheritance W3 ['ext_image ['ext_image 'represent [nil ['inheritance ['product [T1 X]] R]]] [W1 W2 nil]]]
+    ['inheritance W3 ['ext_image 'represent [nil X]]]
+    [['inheritance ['ext_image 'represent [nil Y]] ['ext_image ['ext_image 'represent [nil ['inheritance ['product [T1 Y]] R]]] [W1 W2 nil]]] V]]
+    (f-ind [10.9] [1 0.9] V))
+
+  ([T1 T2 T] (inference [T1 [1 0.9]] [T2 [1 0.9]] T)))
+
+(defn infer
+  ([T1 T2] (inference [T1 [1 0.9]] T2))
+  ([T1 T2 T3] (infer3 T1 T2 T3)))
+
 ;===============================================================================
 ;inference
-;(with-db
-;  (db [ext-intersection 'bird]
-;      [ext-intersection 'animal])
-;  (run 1 [q1]
-;       (inference [['animal 'bird] [1 0.9]] q1)))
-;=> ([[bird animal] [1 0.4736842105263158]])
+
+
+(defne inference2 [A1 A2]
+  ;immediate inference
+  ([[['inheritance S P] T1] [['inheritance P S] T]] (f-cnv T1 T))
+  ([[['implication S P] T1] [['implication P S] T]] (f-cnv T1 T))
+  ([[['implication ['negation S] P] T1] [['implication ['negation P] S] T]]
+    (f-cnt T1 T))
+  ([[['negation S] T1] [S T]] (f-neg T1 T))
+  ([[S [F1 C1]] [['negation S] T]] (< F1 0.5) (f-neg [F1 C1] T))
+  ;structural inference
+  ([[S1 T] [S T]]
+    (reduce S1 S) (!= S1 S))
+  ([[S1 T] [S T]] (equivalence S1 S) (equivalence S S1))
+  ;;TODO call
+  ([P C]
+    (fresh [S]
+      (conde [(inference3 P [S [1 1]] C) #_(call S)]
+             [(inference3 [S [1 1]] P C) #_(call S)]))))
+
+(defne inference3 [A1 A2 A3]
+  ;inheritance-based syllogism
+  ([[['inheritance M P] T1] [['inheritance S M] T2] [['inheritance S P] T]]
+    (!= S P) (f-ded T1 T2 T))
+  ([[['inheritance P M] T1] [['inheritance S M] T2] [['inheritance S P] T]]
+    (!= S P) (f-abd T1 T2 T))
+  ([[['inheritance M P] T1] [['inheritance M S] T2] [['inheritance S P] T]]
+    (!= S P) (f-ind T1 T2 T))
+  ([[['inheritance P M] T1] [['inheritance M S] T2] [['inheritance S P] T]]
+    (!= S P) (f-exe T1 T2 T))
+  ; similarity from inheritance
+  ([[['inheritance S P] T1] [['inheritance P S] T2] [['similarity S P] T]]
+    (f-int T1 T2 T))
+  ; similarity-based syllogism
+  ([[['inheritance P M] T1] [['inheritance S M] T2] [['similarity S P] T]]
+    (!= S P) (f-com T1 T2 T))
+  ([[['inheritance M P] T1] [['inheritance M S] T2] [['similarity S P] T]]
+    (!= S P) (f-com T1 T2 T))
+  ([[['inheritance M P] T1] [['similarity S M] T2] [['inheritance S P] T]]
+    (!= S P) (f-ana T1 T2 T))
+  ([[['inheritance P M] T1] [['similarity S M] T2] [['inheritance P S] T]]
+    (!= S P) (f-ana T1 T2 T))
+  ([[['similarity M P] T1] [['similarity S M] T2] [['similarity S P] T]]
+    (!= S P) (f-res T1 T2 T))
+  ; inheritance-based composition
+  ([[['inheritance P M] T1] [['inheritance S M] T2] [['inheritance N M] T]]
+    (!= S P) (reduce ['int-intersection [P S]] N) (f-int T1 T2 T))
+  ([[['inheritance P M] T1] [['inheritance S M] T2] [['inheritance N M] T]]
+    (!= S P) (reduce ['ext-intersection [P S]] N) (f-uni T1 T2 T))
+  ([[['inheritance P M] T1] [['inheritance S M] T2] [['inheritance N M] T]]
+    (!= S P) (reduce ['int-difference P S] N) (f-dif T1 T2 T))
+  ([[['inheritance M P] T1] [['inheritance M S] T2] [['inheritance M N] T]]
+    (!= S P) (reduce ['ext-intersection [P S]] N) (f-int T1 T2 T))
+  ([[['inheritance M P] T1] [['inheritance M S] T2] [['inheritance M N] T]]
+    (!= S P) (reduce ['int-intersection [P S]] N) (f-uni T1 T2 T))
+  ([[['inheritance M P] T1] [['inheritance M S] T2] [['inheritance M N] T]]
+    (!= S P) (reduce ['ext-difference P S] N) (f-dif T1 T2 T))
+  ; inheirance-based decomposition
+  ([[['inheritance S M] T1] [['inheritance ['int-intersection L] M] T2] [['inheritance P M] T]]
+    (nonlvaro S) (nonlvaro L) (membero S L)
+    (fresh [N]
+      (subtract L [S] N) (reduce ['int-intersection N] P) (f-pnn T1 T2 T)))
+  ([[['inheritance S M] T1] [['inheritance ['ext-intersection L] M] T2] [['inheritance P M] T]]
+    (nonlvaro S) (nonlvaro L) (membero S L)
+    (fresh [N]
+      (subtract L [S] N) (reduce ['ext-intersection N] P) (f-npp T1 T2 T)))
+  ([[['inheritance S M] T1] [['inheritance ['int-difference S P] M] T2] [['inheritance P M] T]]
+    (atomo S) (atomo P) (f-pnp T1 T2 T))
+  ([[['inheritance S M] T1] [['inheritance ['int-difference P S] M] T2] [['inheritance P M] T]]
+    (atomo S) (atomo P) (f-nnn T1 T2 T))
+  ([[['inheritance M S] T1] [['inheritance M ['ext-intersection L]] T2] [['inheritance M P] T]]
+    (nonlvaro S) (nonlvaro L) (membero S L)
+    (fresh [N]
+      (subtract L [S] N) (reduce ['ext-intersection N] P) (f-pnn T1 T2 T)))
+  ([[['inheritance M S] T1] [['inheritance M ['int-intersection L]] T2] [['inheritance M P] T]]
+    (nonlvaro S) (nonlvaro L) (membero S L)
+    (fresh [N]
+      (subtract L [S] N) (reduce ['int-intersection N] P) (f-npp T1 T2 T)))
+  ([[['inheritance M S] T1] [['inheritance M ['ext-difference S P]] T2] [['inheritance M P] T]]
+    (atomo S) (atomo P) (f-pnp T1 T2 T))
+  ([[['inheritance M S] T1] [['inheritance M ['ext-difference P S]] T2] [['inheritance M P] T]]
+    (atomo S) (atomo P) (f-nnn T1 T2 T))
+  ; implication-based syllogism
+  ([[['implication M P] T1] [['implication S M] T2] [['implication S P] T]]
+    (!= S P) (f-ded T1 T2 T))
+  ([[['implication P M] T1] [['implication S M] T2] [['implication S P] T]]
+    (!= S P) (f-abd T1 T2 T))
+  ([[['implication M P] T1] [['implication M S] T2] [['implication S P] T]]
+    (!= S P) (f-ind T1 T2 T))
+  ([[['implication P M] T1] [['implication M S] T2] [['implication S P] T]]
+    (!= S P) (f-exe T1 T2 T))
+  ; implication to equivalence
+  ([[['implication S P] T1] [['implication P S] T2] [['equivalence S P] T]]
+    (f-int T1 T2 T))
+  ; equivalence-based syllogism
+  ([[['implication P M] T1] [['implication S M] T2] [['equivalence S P] T]]
+    (!= S P) (f-com T1 T2 T))
+  ([[['implication M P] T1] [['implication M S] T2] [['equivalence S P] T]]
+    (!= S P) (f-com T1 T2 T))
+  ([[['implication M P] T1] [['equivalence S M] T2] [['implication S P] T]]
+    (!= S P) (f-ana T1 T2 T))
+  ([[['implication P M] T1] [['equivalence S M] T2] [['implication P S] T]]
+    (!= S P) (f-ana T1 T2 T))
+  ([[['equivalence M P] T1] [['equivalence S M] T2] [['equivalence S P] T]]
+    (!= S P) (f-res T1 T2 T))
+  ; implication-based composition
+  ([[['implication P M] T1] [['implication S M] T2] [['implication N M] T]]
+    (!= S P) (reduce ['disjunction [P S]] N) (f-int T1 T2 T))
+  ([[['implication P M] T1] [['implication S M] T2] [['implication N M] T]]
+    (!= S P) (reduce ['conjunction [P S]] N) (f-uni T1 T2 T))
+  ([[['implication M P] T1] [['implication M S] T2] [['implication M N] T]]
+    (!= S P) (reduce ['conjunction [P S]] N) (f-int T1 T2 T))
+  ([[['implication M P] T1] [['implication M S] T2] [['implication M N] T]]
+    (!= S P) (reduce ['disjunction [P S]] N) (f-uni T1 T2 T))
+  ; implication-based decomposition
+  ([[['implication S M] T1] [['implication ['disjunction L] M] T2] [['implication P M] T]]
+    (nonlvaro S) (nonlvaro L) (membero S L)
+    (fresh [N]
+      (subtract L [S] N) (reduce ['disjunction N] P) (f-pnn T1 T2 T)))
+  ([[['implication S M] T1] [['implication ['conjunction L] M] T2] [['implication P M] T]]
+    (nonlvaro S) (nonlvaro L) (membero S L)
+    (fresh [N]
+      (subtract L [S] N) (reduce ['conjunction N] P) (f-npp T1 T2 T)))
+  ([[['implication M S] T1] [['implication M ['conjunction L]] T2] [['implication M P] T]]
+    (nonlvaro S) (nonlvaro L) (membero S L)
+    (fresh [N]
+      (subtract L [S] N) (reduce ['conjunction N] P) (f-pnn T1 T2 T)))
+  ([[['implication M S] T1] [['implication M ['disjunction L]] T2] [['implication M P] T]]
+    (nonlvaro S) (nonlvaro L) (membero S L)
+    (fresh [N]
+      (subtract L [S] N) (reduce ['disjunction N] P) (f-npp T1 T2 T)))
+  ; conditional syllogism
+  ([[['implication M P] T1] [M T2] [P T]]
+    (nonlvaro P) (f-ded T1 T2 T))
+  ([[['implication P M] T1] [M T2] [P T]]
+    (nonlvaro P) (f-abd T1 T2 T))
+  ([[M T1] [['equivalence S M] T2] [S T]]
+    (nonlvaro S) (f-ana T1 T2 T))
+  ; conditional composition
+  ([[P T1] [S T2] [C T]]
+    ;TODO check this
+    (== C (implication S P)) (f-ind T1 T2 T))
+  ([[P T1] [S T2] [C T]]
+    ;TODO check this
+    (== C (equivalence S P)) (f-com T1 T2 T))
+  ([[P T1] [S T2] [C T]]
+    (fresh [N]
+      (reduce ['conjunction [P S]] N) (== N C) (f-int T1 T2 T)))
+  ([[P T1] [S T2] [C T]]
+    (fresh [N]
+      (reduce ['disjunction [P S]] N) (== N C) (f-uni T1 T2 T)))
+  ; propositional decomposition
+  ([[S T1] [['conjunction L] T2] [P T]]
+    (nonlvaro S) (nonlvaro L) (membero S L)
+    (fresh [N]
+      (subtract L [S] N) (reduce ['conjunction N] P) (f-pnn T1 T2 T)))
+  ([[S T1] [['disjunction L] T2] [P T]]
+    (nonlvaro S) (nonlvaro L) (membero S L)
+    (fresh [N]
+      (subtract L [S] N) (reduce ['disjunction N] P) (f-npp T1 T2 T)))
+  ; multi-conditional syllogism
+  ([[['implication ['conjunction L] C] T1] [M T2] [['implication P C] T]]
+    (fresh [A]
+      (nonlvaro L) (membero M L) (subtract L [M] A)
+      (!= A []) (reduce ['conjunction A] P) (f-ded T1 T2 T)))
+  ([[['implication ['conjunction L] C] T1] [['implication P C] T2] [M T]]
+    (fresh [A]
+      (nonlvaro L) (membero M L) (subtract L [M] A) (!= A [])
+      (reduce ['conjunction A] P) (f-abd T1 T2 T)))
+  ([[['implication ['conjunction L] C] T1] [M T2] [S T]]
+    ;TODO check this
+    (fresh [x] (conso M L x)
+      (== S (implication ['conjunction x] C)) (f-ind T1 T2 T)))
+  ([[['implication ['conjunction Lm] C] T1] [['implication A M] T2] [['implication P C] T]]
+    (fresh [La]
+      (nonlvaro Lm) (replace Lm M La A)
+      (reduce ['conjunction La] P) (f-ded T1 T2 T)))
+  ([[['implication ['conjunction Lm] C] T1] [['implication ['conjunction La] C] T2] [['implication A M] T]]
+    (nonlvaro Lm) (replace Lm M La A) (f-abd T1 T2 T))
+  ([[['implication ['conjunction La] C] T1] [['implication A M] T2] [['implication P C] T]]
+    (fresh [Lm]
+      (nonlvaro La) (replace Lm M La A)
+      (reduce ['conjunction Lm] P) (f-ind T1 T2 T)))
+  ; variable introduction
+  ([[['inheritance M P] T1] [['inheritance M S] T2] [['implication ['inheritance X S] ['inheritance X P]] T]]
+    (!= S P) (f-ind T1 T2 T))
+  ([[['inheritance P M] T1] [['inheritance S M] T2] [['implication ['inheritance P X] ['inheritance S X]] T]]
+    (!= S P) (f-abd T1 T2 T))
+  ([[['inheritance M P] T1] [['inheritance M S] T2] [['equivalence ['inheritance X S] ['inheritance X P]] T]]
+    (!= S P) (f-com T1 T2 T))
+  ([[['inheritance P M] T1] [['inheritance S M] T2] [['equivalence ['inheritance P X] ['inheritance S X]] T]]
+    (!= S P) (f-com T1 T2 T))
+  ([[['inheritance M P] T1] [['inheritance M S] T2] [['conjunction [['inheritance ['var Y []] S] ['inheritance ['var Y []] P]]] T]]
+    (!= S P) (f-int T1 T2 T))
+  ([[['inheritance P M] T1] [['inheritance S M] T2] [['conjunction [['inheritance S ['var Y []]] ['inheritance P ['var Y []]]]] T]]
+    (!= S P) (f-int T1 T2 T))
+  ; 2nd variable introduction
+  ([[['implication A ['inheritance M1 P]] T1] [['inheritance M2 S] T2] [['implication ['conjunction [A ['inheritance X S]]] ['inheritance X P]] T]]
+    (!= S P) (== M1 M2) (!= A ['inheritance M2 S]) (f-ind T1 T2 T))
+  ([[['implication A ['inheritance M1 P]] T1] [['inheritance M2 S] T2] [['conjunction [['implication A ['inheritance ['var Y []] P]] ['inheritance ['var Y []] S]]] T]]
+    (!= S P) (== M1 M2) (!= A ['inheritance M2 S]) (f-int T1 T2 T))
+  ([[['conjunction L1] T1] [['inheritance M S] T2] [['implication ['inheritance Y S] ['conjunction [['inheritance Y P2] . L3]]] T]]
+    (fresh [P L2]
+      (subtract L1 [['inheritance M P]] L2) (!= L1 L2)
+      (!= S P) (dependent P Y P2) (dependent L2 Y L3) (f-ind T1 T2 T)))
+  ([[['conjunction L1] T1] [['inheritance M S] T2] [['conjunction [['inheritance ['var Y []] S] ['inheritance ['var Y []] P] . L2]] T]]
+    (subtract L1 [['inheritance M P]] L2) (!= L1 L2) (!= S P) (f-int T1 T2 T))
+  ([[['implication A ['inheritance P M1]] T1] [['inheritance S M2] T2] [['implication ['conjunction [A ['inheritance P X]]] ['inheritance S X]] T]]
+    (!= S P) (== M1 M2) (!= A ['inheritance S M2]) (f-abd T1 T2 T))
+  ([[['implication A ['inheritance P M1]] T1] [['inheritance S M2] T2] [['conjunction [['implication A ['inheritance P ['var Y []]]] ['inheritance S ['var Y []]]]] T]]
+    (!= S P) (== M1 M2) (!= A ['inheritance S M2]) (f-int T1 T2 T))
+  ([[['conjunction L1] T1] [['inheritance S M] T2] [['implication ['inheritance S Y] ['conjunction [['inheritance P2 Y] . L3]]] T]]
+    (fresh [P L2]
+      (subtract L1 [['inheritance P M]] L2) (!= L1 L2) (!= S P)
+      (dependent P Y P2) (dependent L2 Y L3) (f-abd T1 T2 T)))
+  ([[['conjunction L1] T1] [['inheritance S M] T2] [['conjunction [['inheritance S ['var Y []]] ['inheritance P ['var Y []]] . L2]] T]]
+    (subtract L1 [['inheritance P M]] L2) (!= L1 L2) (!= S P) (f-int T1 T2 T))
+  ; dependent variable elimination
+  ([[['conjunction L1] T1] [['inheritance M S] T2] [C T]]
+    (fresh [N D L2 L3 T0]
+      (subtract L1 [['inheritance ['var N D] S]] L2) (!= L1 L2)
+      (replace-var L2 ['var N D] L3 M) (reduce ['conjunction L3] C)
+      (f-cnv T2 T0) (f-ana T1 T0 T)))
+  ([[['conjunction L1] T1] [['inheritance S M] T2] [C T]]
+    (fresh [N D L2 L3 T0]
+      (subtract L1 [['inheritance S ['var N D]]] L2) (!= L1 L2)
+      (replace-var L2 ['var N D] L3 M) (reduce ['conjunction L3] C)
+      (f-cnv T2 T0) (f-ana T1 T0 T))))
+
 (defn inference
-  ([A1 A2]
-   (fresh [S P T1 T]
-     ;[['animal 'bird] T1]
-     (== A1 [[S P] T1])
-     ;[['bird 'animal T]]
-     (== A2 [[P S] T])
-     (conde [(inheritance S P)
-             (inheritance P S)
-             (f-cnv T1 T)])))
-  ([A1 A2 A3]
-   (fresh [S P M T1 T2 T]
-     (== A3 [[S P] T])
-     (l/!= S P)
-     (conde [(== A1 [[M P] T1]) (== A2 [[S M] T2]) (f-ded T1 T2 T)]))))
+  ([A1 A2] (inference2 A1 A2))
+  ([A1 A2 A3] (inference3 A1 A2 A3)))
 
+(defne replace-var [A1 A2 A3 A4]
+  ([[] _ [] _])
+  ([[['inheritance S1 P] . T1] S1 [['inheritance S2 P] . T2] S2]
+    (replace-var T1 S1 T2 S2))
+  ([[['inheritance S P1] . T1] P1 [['inheritance S P2] . T2] P2]
+    (replace-var T1 P1 T2 P2)))
 
-
+(defne replace-all [A1 A2 A3 A4]
+  ([[H . T1] H1 [H . T2] H2]
+    (replace-var T1 H1 T2 H2)))
 
 ;===============================================================================
 ;inheritance
 
-(defn inheritance [A1 A2]
-  (fresh [X]
-    (conde [(ext-intersection A1) (include [A2] A1)]
-           [(ext-intersection A2) (include [A1] A2)]
-           [(ext-intersection A1) (ext-intersection A2)
-
-            (conde [(include A2 A1) (l/!= A2 [X])]
-                   ;warning! I'm not sure about this check (l/!= A2 [X])
-                   [(include A1 A2) (l/!= A1 [X])])]
-           [(int-intersection A1) (int-intersection A2)
-            (include A1 A2) (l/!= A1 [X])]
-           [(ext-set A1) (ext-set A2) (include A1 A2)]
-           [(int-set A1) (int-set A2) (include A2 A1)]
-           [(== A1 [A2 X]) (ext-difference A2 X) (nonlvaro A2) (nonlvaro X)]
-           [(== A2 [A1 X]) (ext-difference A1 X) (nonlvaro A1) (nonlvaro X)]
-           [(product A1) (nonlvaro A1)])))
+(defne inheritance [A1 A2]
+  ([['ext_intersection Ls] P] (include [P] Ls))
+  ([S ['int_intersection Lp]] (include [S] Lp))
+  ([['ext_intersection S] ['ext_intersection P]] (include P S) (!= P [(l/lvar)]))
+  ([['int_intersection S] ['int_intersection P]] (include S P) (!= S [(l/lvar)]))
+  ([['ext-set S] ['ext-set P]] (include S P))
+  ([['int-set S] ['int-set P]] (include P S))
+  ([['ext-difference S P] S] (nonlvaro S) (nonlvaro P))
+  ([S ['int-difference S P]] (nonlvaro S) (nonlvaro P))
+  ([['product L1] R]
+    (fresh [L2]
+      (nonlvaro L1) (membero ['ext-image R L2] L1)
+      (replace L1 ['ext-image R L2] L2)))
+  ([R ['product L1]]
+    (fresh [L2]
+      (nonlvaro L1) (membero ['int-image R L2] L1)
+      (replace L1 ['int-image R L2] L2))))
 
 ;===============================================================================
-;reduce
-(defn reduce [A1 A2]
-  (conde
-    [(fresh [S P]
-       (== A1 [[S] [P]])
-       (== A2 [S P])
-       (conde
-         [(ext-set [S]) (ext-set [P]) (similarity S P)]
-         [(int-set [S]) (int-set [P]) (similarity S P)]))]
-    #_[(fresh [S P]
-         (== A1 [S P])
-         (conda
-           [(instance S P) (== A2 [[S] P]) (ext-set [S]) (inheritance [S] P)]
-           [(property S P) (== A2 [S [P]]) (int-set [P]) (inheritance S [P])]
-           [(inst-prop S P) (== A2 [S [P]]) (int-set [P]) (inheritance S [P])]))]))
+;similarity
+(defne similarity [A1 A2]
+  ([X Y] (nonlvaro X) (reduce X Y) (!= X Y))
+  ([['ext-intersection L1] ['ext-intersection L2]] (same-set L1 L2))
+  ([['int-intersection L1] ['int-intersection L2]] (same-set L1 L2))
+  ([['ext-set L1] ['ext-set L2]] (same-set L1 L2))
+  ([['int-set L1] ['int-set L2]] (same-set L1 L2)))
 
-;TODO I'm not sure about this, because is defined as relation there
-; https://github.com/opennars/opennars/blob/radical2/nal/original/prolog/NAL%20User's%20Guide.html
-; there is instance/2 in swi prolog
-;(defn instance [S P] l/s#)
+;===============================================================================
+;implication
 
-(defne union [S1 S2 S3]
-  ([[] S2 S3] (== S2 S3))
-  ([S1 [] S3] (== S1 S3))
-  ([S1 S2 []] (== S1 []) (== S1 S3))
-  ([S1 S2 S3]
-    (fresh [x]
-      (conda
-        [(nonlvaro S1) (nonlvaro S2)
-         (subtract S1 S2 x) (appendo x S2 S3)]
-        [(nonlvaro S1) (== S2 S3) (appendo S1 x S3)]
-        [(nonlvaro S2) (== S1 S3) (appendo S2 x S3)]))))
+(defne implication [A1 A2]
+  ([['similarity S P] ['inheritance S P]])
+  ([['equivalence S P] ['implication S P]])
+  ([['conjunction L] M] (nonlvaro L) (membero M L))
+  ([M ['disjunction L]] (nonlvaro L) (membero M L))
+  ([['conjunction L1] ['conjunction L2]]
+    (nonlvaro L1) (nonlvaro L2) (subseto L2 L1))
+  ([['disjunction L1] ['disjunction L2]]
+    (nonlvaro L1) (nonlvaro L2) (subseto L1 L2))
+  ([['inheritance S P]
+    ['inheritance ['ext_intersection Ls] ['ext_intersection Lp]]]
+    (fresh [L] (nonlvaro Ls) (nonlvaro Lp) (replace Ls S L P) (same L Lp)))
+  ([['inheritance S P]
+    ['inheritance ['int-intersection Ls] ['int-intersection Lp]]]
+    (fresh [L] (nonlvaro Ls) (nonlvaro Lp) (replace Ls S L P) (same L Lp)))
+  ([['similarity S P]
+    ['similarity ['ext_intersection Ls] ['ext_intersection Lp]]]
+    (fresh [L] (nonlvaro Ls) (nonlvaro Lp) (replace Ls S L P) (same L Lp)))
+  ([['similarity S P]
+    ['similarity ['int-intersection Ls] ['int-intersection Lp]]]
+    (fresh [L] (nonlvaro Ls) (nonlvaro Lp) (replace Ls S L P) (same L Lp)))
+  ([['inheritance S P]
+    ['inheritance ['ext-difference S M] ['ext-difference P M]]] (nonlvaro M))
+  ([['inheritance S P]
+    ['inheritance ['int-difference S M] ['int-difference P M]]] (nonlvaro M))
+  ([['similarity S P] ['similarity ['ext-difference S M] ['ext-difference P M]]]
+    (nonlvaro M))
+  ([['similarity S P] ['similarity ['int-difference S M] ['int-difference P M]]]
+    (nonlvaro M))
+  ([['inheritance S P] ['inheritance ['ext-difference M P] ['ext-difference M S]]]
+    (nonlvaro M))
+  ([['inheritance S P] ['inheritance ['int-difference M P] ['int-difference M S]]]
+    (nonlvaro M))
+  ([['similarity S P] ['similarity ['ext-difference M P] ['ext-difference M S]]]
+    (nonlvaro M))
+  ([['similarity S P] ['similarity ['int-difference M P] ['int-difference M S]]]
+    (nonlvaro M))
+  ([['inheritance S P] ['negation ['inheritance S ['ext-difference M P]]]]
+    (nonlvaro M))
+  ([['inheritance S ['ext-difference M P]] ['negation ['inheritance S P]]]
+    (nonlvaro M))
+  ([['inheritance S P] ['negation ['inheritance ['int-difference M S] P]]]
+    (nonlvaro M))
+  ([['inheritance ['int-difference M S] P] ['negation ['inheritance S P]]]
+    (nonlvaro M))
+  ([['inheritance S P] ['inheritance ['ext-image S M] ['ext-image P M]]]
+    (nonlvaro M))
+  ([['inheritance S P] ['inheritance ['int-image S M] ['int-image P M]]]
+    (nonlvaro M))
+  ([['inheritance S P] [inheritance ['ext-image M Lp] ['ext-image M Ls]]]
+    (fresh [L1 L2 x1 x2] (nonlvaro Ls) (nonlvaro Lp)
+      (conso S L2 x1) (appendo L1 x1 Ls)
+      (conso P L2 x2) (appendo L1 x2 Lp)))
+  ([['inheritance S P] [inheritance ['int-image M Lp] ['int-image M Ls]]]
+    (fresh [L1 L2 x1 x2]
+      (nonlvaro Ls) (nonlvaro Lp)
+      (conso S L2 x1) (appendo L1 x1 Ls)
+      (conso P L2 x2) (appendo L1 x2 Lp)))
+  ([['negation M] ['negation ['conjunction L]]] (include [M] L))
+  ([['negation ['disjunction L]] ['negation M]] (include [M] L))
 
-(defne intersection [S1 S2 S3]
-  #_([[] _ []])
-  ([S1 S2 S3]
-    (== S3 (run* [q1]
-             (fresh [a]
-               (membero q1 S2)
-               (membero a S1)
-               (== a q1))))))
+  ([['implication S P] ['implication ['conjunction Ls] ['conjunction Lp]]]
+    (fresh [L] (nonlvaro Ls) (nonlvaro Lp) (replace Ls S L P) (same L Lp)))
+  ([['implication S P] ['implication ['disjunction Ls] ['disjunction Lp]]]
+    (fresh [L] (nonlvaro Ls) (nonlvaro Lp) (replace Ls S L P) (same L Lp)))
+  ([['equivalence S P] ['equivalence ['conjunction Ls] ['conjunction Lp]]]
+    (fresh [L] (nonlvaro Ls) (nonlvaro Lp) (replace Ls S L P) (same L Lp)))
+  ([['equivalence S P] ['equivalence ['disjunction Ls] ['disjunction Lp]]]
+    (fresh [L] (nonlvaro Ls) (nonlvaro Lp) (replace Ls S L P) (same L Lp))))
 
-;TODO test if with defna
-(defne reduce2 [A1 A2]
-  ([[S] [P]]
-    (conde [(ext-set [S]) (ext-set [P])]
-           [(int-set [S]) (int-set [P])])
-    (similarity [S] [P])
-    (similarity S P))
-  ([[S P] [[S] P]]
-    (instance S P) (inheritance [S] P) (ext-set [S]))
-  ([[S P] [S [P]]]
-    (property S P) (inheritance S [P]) (int-set [P]))
-  ([[S P] [[S] [P]]]
-    (inst-prop S P) (inheritance [S] [P]) (ext-set [S]) (int-set [P]))
-  ([[T] T]
-    (conda [(ext-intersection [T])]
-           [(int-intersection [T])]))
-  ([[L1 L2] L]
-    (conde
-      [(ext-intersection L1) (ext-intersection L2) (ext-intersection L)
-       (ext-intersection [L1 L2]) (union L1 L2 L)]
-      [(ext-intersection L1) (ext-intersection L)
-       (ext-intersection [L1 L2]) (union L1 [L2] L)]
-      [(ext-intersection L2) (ext-intersection L)
-       (ext-intersection [L1 L2]) (union L1 [L2] L)])))
 
-(defn similarity [X Y]
-  (conde [(nonlvaro X) (reduce X Y) (project [X] (l/!= X Y))]
-         [(ext-intersection X) (ext-intersection Y) (same-set X Y)]
-         [(int-intersection X) (int-intersection Y) (same-set X Y)]
-         [(ext-set X) (ext-set Y) (same-set X Y)]
-         [(int-set X) (int-set Y) (same-set X Y)]))
+;===============================================================================
+;equialence
+(defne equivalence [A1 A2]
+  ([X Y] (nonlvaro X) (reduce X Y) (!= X Y))
+  ([['similarity S P] ['similarity P S]])
+  ([['inheritance S ['ext_set [P]]] ['similarity S ['ext_set [P]]]])
+  ([['inheritance ['int-set [S]] P] ['similarity ['int-set [S]] P]])
+  ([['inheritance S ['ext-intersection Lp]] ['conjunction L]]
+    (fresh [P] (findallo ['inheritance S P] (membero P Lp) L)))
+  ([['inheritance ['int-intersection Ls] P] ['conjunction L]]
+    (fresh [S] (findallo ['inheritance S P] (membero S Ls) L)))
+  ([['inheritance S ['ext-difference P1 P2]]
+    ['conjunction [['inheritance S P1] ['negation ['inheritance S P2]]]]])
+  ([['inheritance ['int-difference S1 S2] P]
+    ['conjunction [['inheritance S1 P] ['negation ['inheritance S2 P]]]]])
+  ([['inheritance ['product Ls] ['product Lp]] ['conjunction L]]
+    (equ-product Ls Lp L))
+  ([['inheritance ['product [S . L]] ['product [P . L]]] ['inheritance S P]]
+    (nonlvaro L))
+  ([['inheritance S P] ['inheritance ['product [H . Ls]] ['product [H . Lp]]]]
+    (nonlvaro H)
+    (equivalence ['inheritance ['product Ls] ['product Lp]] ['inheritance S P]))
+  ([['inheritance ['product L] R] ['inheritance T ['ext-image R L1]]]
+    (replace L T L1))
+  ([['inheritance R ['product L]] ['inheritance ['int-image R L1] T]]
+    (replace L T L1))
+  ([['equivalence S P] ['equivalence P S]])
+  ([['equivalence ['negation S] P] ['equivalence ['negation P] S]])
+  ([['conjunction L1] ['conjunction L2]] (same-set L1 L2))
+  ([['disjunction L1] ['disjunction L2]] (same-set L1 L2))
+  ([['implication S ['conjunction Lp]] ['conjunction L]]
+    (fresh [P] (findallo ['implication S P] (membero P Lp) L)))
+  ([['implication ['disjunction Ls] P] ['conjunction L]]
+    (fresh [S] (findallo ['implication S P] (membero S Ls) L)))
+  ([T1 T2]
+    (noto (atomo T1)) (noto (atomo T2)) (nonlvaro T1) (nonlvaro T2)
+    (fresh [L1 L2] (== T1 L1) (== T2 L2) (equivalence-list L1 L2))))
+
+(defne equivalence-list [A1 A2]
+  ([L L])
+  ([[H . L1] [H . L2]] (equivalence-list L1 L2))
+  ([[H1 . L1] [H2 . L2]] (similarity H1 H2) (equivalence-list L1 L2))
+  ([[H1 . L1] [H2 . L2]] (equivalence H1 H2) (equivalence-list L1 L2)))
+
+;===============================================================================
+;compound term structure reduction
+
+(defna reduce [A1 A2]
+  ([X X])
+  ([['similarity ['ext-set [S]] ['ext-set [P]]] ['similarity S P]])
+  ([['similarity ['int-set [S]] ['int-set [P]]] ['similarity S P]])
+  ([['instance S P] ['inheritance ['ext-set [S]] P]])
+  ([['property S P] ['inheritance S ['int-set [P]]]])
+  ([['inst-prop S P] ['inheritance ['ext-set [S]] ['int-set [P]]]])
+  ([['ext_intersection [T]] T])
+  ([['int-intersection [T]] T])
+  ([['ext_intersection [['ext_intersection L1] ['ext_intersection L2]]] ['ext_intersection L]]
+    (union L1 L2 L))
+  ([['ext_intersection [['ext_intersection L1] L2]] ['ext_intersection L]]
+    (union L1 [L2] L))
+  ([['ext_intersection [L1 ['ext_intersection L2]]] ['ext_intersection L]]
+    (union [L1] L2 L))
+  ([['ext_intersection [['ext-set L1] ['ext-set L2]]] ['ext-set L]]
+    (intersection L1 L2 L))
+  ([['ext_intersection [['int-set L1] ['int-set L2]]] ['int-set L]]
+    (union L1 L2 L))
+  ([['int-intersection [['int-intersection L1] ['int-intersection L2]]] ['int-intersection L]]
+    (union L1 L2 L))
+  ([['int-intersection [['int_intersection L1] L2]] ['int-intersection L]]
+    (union L1 [L2] L))
+  ([['int-intersection [L1 ['int_intersection L2]]] ['int-intersection L]]
+    (union [L1] L2 L))
+  ([['int-intersection [['int-set L1] ['int-set L2]]] ['int-set L]]
+    (intersection L1 L2 L))
+  ([['int-intersection [['ext-set L1] ['ext-set L2]]] ['ext-set L]]
+    (union L1 L2 L))
+  ([['ext-difference ['ext-set L1] ['ext-set L2]] ['ext-set L]]
+    (subtract L1 L2 L))
+  ([['int-difference ['int-set L1] ['int-set L2]] ['int-set L]]
+    (subtract L1 L2 L))
+  ([['product ['product L] T] ['product L1]]
+    (appendo L [T] L1))
+  ([['ext-image ['product L1] L2] T1]
+    (membero T1 L1) (replace L1 T1 L2))
+  ([['int-image ['product L1] L2] T1]
+    (membero T1 L1) (replace L1 T1 L2))
+  ([['negation ['negation S]] S])
+  ([['conjunction [T]] T])
+  ([['disjunction [T]] T])
+  ([['conjunction [['conjunction L1] ['conjunction L2]]] ['conjunction L]]
+    (union L1 L2 L))
+  ([['conjunction [['conjunction L1] L2]] ['conjunction L]]
+    (union L1 [L2] L))
+  ([['conjunction [L1 ['conjunction L2]]] ['conjunction L]]
+    (union [L1] L2 L))
+  ([['disjunction ['disjunction L1] ['disjunction L2]] ['disjunction L]]
+    (union L1 L2 L))
+  ([['disjunction ['disjunction L1] L2] ['disjunction L]]
+    (union L1 [L2] L))
+  ([['disjunction L1 ['disjunction L2]] ['disjunction L]]
+    (union [L1] L2 L)))
