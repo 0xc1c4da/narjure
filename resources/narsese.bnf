@@ -1,0 +1,51 @@
+           <task> ::= [<budget>] <sentence>
+       <sentence> ::= <statement>"." [<tense>] [<truth>]
+                    | <statement>"?" [<tense>]
+                    | <statement>"@" [<tense>]
+                    | <statement>"!" [<truth>]
+      <statement> ::= "<"<term> <copula> <term>">"
+                    | <term>
+                    | "(^"<word> {","<term>} ")"
+         <copula> ::= "-->"
+                    | "<->"
+                    | "{--"
+                    | "--]"
+                    | "{-]"
+                    | "==>"
+                    | "=/>"
+                    | "=|>"
+                    | "=\\>"
+                    | "<=>"
+                    | "</>"
+                    | "<|>"
+           <term> ::= <word>
+                    | <variable>
+                    | <compound-term>
+                    | <statement>
+  <compound-term> ::= "{" <term> {","<term>} "}"
+                    | "[" <term> {","<term>} "]"
+                    | "(&," <term> {","<term>} ")"
+                    | "(|," <term> {","<term>} ")"
+                    | "(-," <term> "," <term> ")"
+                    | "(~," <term> "," <term> ")"
+                    | "(*," <term> {","<term>} ")"
+                    | "(/," <term> {","<term>} ")"
+                    | "(\\," <term> {","<term>} ")"
+                    | "(--," <term> ")"
+                    | "(||," <term> {","<term>} ")"
+                    | "(&&," <term> {","<term>} ")"
+                    | "(&/," <term> {","<term>} ")"
+                    | "(&|," <term> {","<term>} ")"
+       <variable> ::= "$"<word>
+                    | "#"[<word>]
+                    | "?"[<word>]
+          <tense> ::= ":/:"
+                    | ":|:"
+                    | ":\\:"
+          <truth> ::= "%"<frequency>[";"<confidence>]"%"
+         <budget> ::= "$"<priority>[";"<durability>]"$"
+             <word> : #"\w+"
+         <priority> : #"\d+"
+       <durability> : #"\d+"
+        <frequency> : #"\d+"
+       <confidence> : #"\d+"

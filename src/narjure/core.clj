@@ -1,7 +1,8 @@
 (ns narjure.core
-  (:gen-class))
+    (:require [instaparse.core :as insta])
+    (:gen-class))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (println "Hello, World!"))
+  ((insta/parser (clojure.java.io/resource "narsese.bnf") :auto-whitespace :standard) "<human --> lifeform>. "))
