@@ -1,12 +1,12 @@
-           task ::= [budget] sentence
-       sentence ::= statement"." [tense] [truth]
+             task ::= [budget] sentence
+         sentence ::= statement"." [tense] [truth]
                     | statement"?" [tense]
                     | statement"@" [tense]
                     | statement"!" [truth]
-      statement ::= "<"term copula term">"
+        statement ::= "<"term copula term">"
                     | term
                     | "(^"word {","term} ")"
-         copula ::= "-->"
+           copula ::= "-->"
                     | "<->"
                     | "{--"
                     | "--]"
@@ -18,7 +18,7 @@
                     | "<=>"
                     | "</>"
                     | "<|>"
-           term ::= word
+             term ::= word
                     | variable
                     | <compound-term>
                     | statement
@@ -36,16 +36,16 @@
                     | "(&&," term {","term} ")"
                     | "(&/," term {","term} ")"
                     | "(&|," term {","term} ")"
-       variable ::= "$"word
+         variable ::= "$"word
                     | "#"[word]
                     | "?"[word]
-          tense ::= ":/:"
+            tense ::= ":/:"
                     | ":|:"
                     | ":\\:"
-          truth ::= "%"frequency[";"confidence]"%"
-         budget ::= "$"priority[";"durability]"$"
-             word : #"\w+"
-         priority : #"\d+"
-       durability : #"\d+"
-        frequency : #"\d+"
-       confidence : #"\d+"
+            truth ::= "%"frequency[";"confidence]"%"
+           budget ::= "$"priority[";"durability]"$"
+               word : #"\w+"
+           priority : #"[0-9]*(\.[0-9]+)?"
+         durability : #"[0-9]*(\.[0-9]+)?"
+          frequency : #"[0-9]*(\.[0-9]+)?"
+         confidence : #"[0-9]*(\.[0-9]+)?"
