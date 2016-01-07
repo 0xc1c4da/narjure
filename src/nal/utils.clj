@@ -31,10 +31,10 @@
 ;http://eclipseclp.org/doc/bips/lib/lists/subtract-3.html
 (defna subtract [L1 L2 L3]
   ([[] _ []])
-  ([[Head . Tail] L2 L3]  
+  ([[Head . Tail] L2 L3]
     (onceo (membero Head L2))
     (subtract Tail L2 L3))
-  ([[Head . Tail1] L2 [Head . Tail3]]  
+  ([[Head . Tail1] L2 [Head . Tail3]]
     (subtract Tail1 L2 Tail3)))
 
 ;ported from prolog
@@ -74,3 +74,21 @@
   ([[] A2])
   ([[X . L] [X . S]] (subseto L S))
   ([L [_ . S]] (subseto L S)))
+
+(defn nonlvarso [lvars]
+  (l/and* (map (fn [l] (nonlvaro l)) lvars)))
+
+;TODO
+(defn groundo [T]
+  (l/all
+    (nonlvaro T)
+    (project [T]
+      (conda [(== true (coll? T))
+              (nonlvarso T)
+              #_(== #{} (clojure.set/intersection #{'_0 '_1} (set (flatten T))))]
+             [s#]))))
+#_(run* [K S P T]
+    (inference3 [K [1 1]]
+                ['(inheritance (ext-set [tweety]) (ext-set [birdie]))
+                 [1 0.8]]
+                [['similarity S P] T]))
