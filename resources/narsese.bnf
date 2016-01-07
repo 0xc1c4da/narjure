@@ -52,8 +52,8 @@
                     | ":|:"                                 (* present event *)
                     | ":\\:"                                (* :\: past event *)
             
-            truth ::= <"%">frequency[<";">confidence]<"%">  (* two numbers between 0..1 *)
-           budget ::= <"$">priority[<";">durability]<"$">   (* two numbers between 0..1 *)
+            truth ::= <"%">frequency[<";">confidence]<"%">  (* two numbers in [0,1]x(0,1) *)
+           budget ::= <"$">priority[<";">durability]<"$">   (* two numbers in [0,1]x(0,1) *)
                
                word : #"\w+"
            priority : #"[0-9]*(\.[0-9]+)?"
