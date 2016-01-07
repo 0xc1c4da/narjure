@@ -20,9 +20,9 @@
                     | "<|>"
              term ::= word
                     | variable
-                    | <compound-term>
+                    | compound-term
                     | statement
-  <compound-term> ::= "{" term {","term} "}"
+    compound-term ::= "{" term {","term} "}"
                     | "[" term {","term} "]"
                     | "(&," term {","term} ")"
                     | "(|," term {","term} ")"
