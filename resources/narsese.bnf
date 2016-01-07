@@ -1,4 +1,4 @@
-(* Narsese Grammar - https://code.google.com/p/open-nars/wiki/InputOutputFormat *)
+(* Narsese Grammar - https://github.com/opennars/opennars/wiki/Input-Output-Format *)
 
              task ::= [budget] sentence                 (* task to be processed *)
          
