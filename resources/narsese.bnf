@@ -1,49 +1,60 @@
-             task ::= [budget] sentence
-         sentence ::= statement"." [tense] [truth]
-                    | statement"?" [tense]
-                    | statement"@" [tense]
-                    | statement"!" [truth]
-        statement ::= <"<">term copula term<">">
-                    | term
-                    | "(^"word {","term} ")"
-           copula ::= "-->"
-                    | "<->"
-                    | "{--"
-                    | "--]"
-                    | "{-]"
-                    | "==>"
-                    | "=/>"
-                    | "=|>"
-                    | "=\\>"
-                    | "<=>"
-                    | "</>"
-                    | "<|>"
-             term ::= word
-                    | variable
-                    | compound-term
-                    | statement
-    compound-term ::= "{" term {","term} "}"
-                    | "[" term {","term} "]"
-                    | "(&," term {","term} ")"
-                    | "(|," term {","term} ")"
-                    | "(-," term "," term ")"
-                    | "(~," term "," term ")"
-                    | "(*," term {","term} ")"
-                    | "(/," term {","term} ")"
-                    | "(\\," term {","term} ")"
-                    | "(--," term ")"
-                    | "(||," term {","term} ")"
-                    | "(&&," term {","term} ")"
-                    | "(&/," term {","term} ")"
-                    | "(&|," term {","term} ")"
-         variable ::= "$"word
-                    | "#"[word]
-                    | "?"[word]
-            tense ::= ":/:"
-                    | ":|:"
-                    | ":\\:"
+(* Narsese Grammar - https://code.google.com/p/open-nars/wiki/InputOutputFormat *)
+
+             task ::= [budget] sentence                 (* task to be processed *)
+         
+         sentence ::= statement"." [tense] [truth]      (* judgment to be remembered *)
+                    | statement"?" [tense]              (* question to be answered *)
+                    | statement"@" [tense]              (* question on desire value to be answered *)
+                    | statement"!" [truth]              (* goal to be realized *)
+        
+        statement ::= <"<">term copula term<">">        (* two terms related to each other *)
+                    | term                              (* a term can name a statement *)
+                    | "(^"word {","term} ")"            (* an operation to be executed *)
+           
+           copula ::= "-->"                             (* inheritance *)
+                    | "<->"                             (* similarity *)
+                    | "{--"                             (* instance *)
+                    | "--]"                             (* property *)
+                    | "{-]"                             (* instance-property *)
+                    | "==>"                             (* implication *)
+                    | "=/>"                             (* predictive implication *)
+                    | "=|>"                             (* concurrent implication *)
+                    | "=\\>"                            (* =\> retrospective implication *)
+                    | "<=>"                             (* equivalence *)
+                    | "</>"                             (* predictive equivalence *)
+                    | "<|>"                             (* concurrent equivalence *)
+             
+             term ::= word                              (* an atomic constant term *)
+                    | variable                          (* an atomic variable term *)
+                    | compound-term                     (* a term with internal structure *)
+                    | statement                         (* a statement can serve as a term *)
+   
+   compound-term ::= "{" term {","term} "}"             (* extensional set *)
+                    | "[" term {","term} "]"            (* intensional set *)
+                    | "(&," term {","term} ")"          (* extensional intersection *)
+                    | "(|," term {","term} ")"          (* intensional intersection *)
+                    | "(-," term "," term ")"           (* extensional difference *)
+                    | "(~," term "," term ")"           (* intensional difference *)
+                    | "(*," term {","term} ")"          (* product *)
+                    | "(/," term {","term} ")"          (* extensional image *)
+                    | "(\\," term {","term} ")"         (* intensional image *)
+                    | "(--," term ")"                   (* negation *)
+                    | "(||," term {","term} ")"         (* disjunction *)
+                    | "(&&," term {","term} ")"         (* conjunction *)
+                    | "(&/," term {","term} ")"         (* sequential events *)
+                    | "(&|," term {","term} ")"         (* parallel events *)
+         
+         variable ::= "$"word                           (* independent variable *)
+                    | "#"[word]                         (* dependent variable *)
+                    | "?"[word]                         (* query variable in question *)
+            
+            tense ::= ":/:"                             (* future event *)
+                    | ":|:"                             (* present event *)
+                    | ":\\:"                            (* :\: past event *)
+            
             truth ::= <"%">frequency[<";">confidence]<"%">
            budget ::= <"$">priority[<";">durability]<"$">
+               
                word : #"\w+"
            priority : #"[0-9]*(\.[0-9]+)?"
          durability : #"[0-9]*(\.[0-9]+)?"
