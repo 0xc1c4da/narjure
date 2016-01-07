@@ -22,7 +22,7 @@
                     | variable
                     | compound-term
                     | statement
-   compound-term ::= "{" term {","term} "}"
+    compound-term ::= "{" term {","term} "}"
                     | "[" term {","term} "]"
                     | "(&," term {","term} ")"
                     | "(|," term {","term} ")"
