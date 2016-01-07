@@ -3,7 +3,7 @@
                     | statement"?" [tense]
                     | statement"@" [tense]
                     | statement"!" [truth]
-        statement ::= "<"term copula term">"
+        statement ::= <"<">term copula term<">">
                     | term
                     | "(^"word {","term} ")"
            copula ::= "-->"
@@ -22,7 +22,7 @@
                     | variable
                     | compound-term
                     | statement
-    compound-term ::= "{" term {","term} "}"
+   compound-term ::= "{" term {","term} "}"
                     | "[" term {","term} "]"
                     | "(&," term {","term} ")"
                     | "(|," term {","term} ")"
@@ -42,8 +42,8 @@
             tense ::= ":/:"
                     | ":|:"
                     | ":\\:"
-            truth ::= "%"frequency[";"confidence]"%"
-           budget ::= "$"priority[";"durability]"$"
+            truth ::= <"%">frequency[<";">confidence]<"%">
+           budget ::= <"$">priority[<";">durability]<"$">
                word : #"\w+"
            priority : #"[0-9]*(\.[0-9]+)?"
          durability : #"[0-9]*(\.[0-9]+)?"
