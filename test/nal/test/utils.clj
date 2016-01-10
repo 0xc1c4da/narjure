@@ -18,5 +18,5 @@
   (is (= '(3/4) (run* [q] (u-w2c 3 q)))))
 
 (deftest test-subtract
-  (is (= '([2 4]) (run* [q] (subtract [1 1 2 3 4] [1 3 5] q))))
-  (is (= '([]) (run* [q] (subtract [] [] q)))))
+  (is (= '([2 4]) (run* [q] (subtracto [1 1 2 3 4] [1 3 5] q))))
+  (is (= '([]) (run* [q] (subtracto [] [] q)))))
