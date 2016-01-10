@@ -54,3 +54,8 @@
 ;
 ; k(X, _) :- X = 2, !.
 ; k(_, Y) :- Y = 1.
+;
+; == acts as =/2
+; = acts as ==/2
+; != acts as \==/2
+; noto= acts as \=/2

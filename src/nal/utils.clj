@@ -2,10 +2,11 @@
   (:refer-clojure :exclude [!= == reduce replace >= <= > < =])
   (:require [clojure.core.logic
              :refer [project fresh == defne lvaro conda nonlvaro run* membero
-                     conso run defna onceo u# s# appendo]
-             :as l]))
+                     conso defna onceo u# s# appendo != and* all]
+             :as l]
+            [clojure.core.logic.arithmetic :refer [=]]))
 
-(declare u-and u-or subtract intersection union subseto deleteo)
+(declare u-and u-or subtracto intersectiono uniono subseto deleteo)
 
 (defn u-not [n0 n]
   (project [n0] (== n (- 1 n0))))
@@ -29,41 +30,41 @@
 
 ;ported from prlog
 ;http://eclipseclp.org/doc/bips/lib/lists/subtract-3.html
-(defna subtract [L1 L2 L3]
+(defna subtracto [L1 L2 L3]
   ([[] _ []])
   ([[Head . Tail] L2 L3]
     (onceo (membero Head L2))
-    (subtract Tail L2 L3))
+    (subtracto Tail L2 L3))
   ([[Head . Tail1] L2 [Head . Tail3]]
-    (subtract Tail1 L2 Tail3)))
+    (subtracto Tail1 L2 Tail3)))
 
 ;ported from prolog
 ;http://eclipseclp.org/doc/bips/lib/lists/intersection-3.html
-(defna intersection [S1 S2 S3]
+(defna intersectiono [S1 S2 S3]
   ([[] _ []])
   ([[Head . L1tail] L2 L3]
     (onceo (membero Head L2))
     (fresh [L3tail]
       (conso Head L3tail L3)
-      (intersection L1tail L2 L3tail)))
+      (intersectiono L1tail L2 L3tail)))
   ([[_ . L1tail] L2 L3]
-    (intersection L1tail L2 L3)))
+    (intersectiono L1tail L2 L3)))
 
 ;ported from prolog
 ;http://eclipseclp.org/doc/bips/lib/lists/union-3.html
-(defna union [L1 L2 L3]
+(defna uniono [L1 L2 L3]
   ([[] L L])
   ([[Head . L1tail] L2 L3]
     (onceo (membero Head L2))
-    (union L1tail L2 L3))
+    (uniono L1tail L2 L3))
   ([[Head . L1tail] L2 [Head . L3tail]]
-    (union L1tail L2 L3tail)))
+    (uniono L1tail L2 L3tail)))
+
+(defn trueo [a] (== true a))
 
 ;http://eclipseclp.org/doc/bips/kernel/typetest/atom-1.html
 (defn atomo [a]
-  (conda [(lvaro a)]
-         [(== true (number? a))]
-         [(== true (coll? a))]))
+  (nonlvaro a) (project [a] (trueo (symbol? a))))
 
 (defn noto [a] (conda [a u#] [s#]))
 
@@ -76,19 +77,14 @@
   ([L [_ . S]] (subseto L S)))
 
 (defn nonlvarso [lvars]
-  (l/and* (map (fn [l] (nonlvaro l)) lvars)))
+  (and* (map (fn [l] (nonlvaro l)) lvars)))
 
-;TODO
 (defn groundo [T]
-  (l/all
-    (nonlvaro T)
-    (project [T]
-      (conda [(== true (coll? T))
-              (nonlvarso T)
-              #_(== #{} (clojure.set/intersection #{'_0 '_1} (set (flatten T))))]
-             [s#]))))
-#_(run* [K S P T]
-    (inference3 [K [1 1]]
-                ['(inheritance (ext-set [tweety]) (ext-set [birdie]))
-                 [1 0.8]]
-                [['similarity S P] T]))
+  (all (nonlvaro T)
+       (project [T]
+         (conda [(trueo (coll? T)) (nonlvarso T)]
+                [s#]))))
+
+(defn noto= [x y]
+  "Like \\= in prolog."
+  (noto (== x y)))

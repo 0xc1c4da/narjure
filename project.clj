@@ -7,5 +7,6 @@
                  [org.clojure/core.logic "0.8.10"]
                  [instaparse "1.4.1"]]
   :main ^:skip-aot narjure.core
+  :plugins [[lein-cloverage "1.0.6"]]
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
