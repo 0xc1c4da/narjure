@@ -1,16 +1,16 @@
 (* Narsese Grammar - https://github.com/opennars/opennars/wiki/Input-Output-Format *)
 
              task ::= [budget] sentence                     (* task to be processed *)
-         
+
          sentence ::= statement"." [tense] [truth]          (* judgement to be remembered *)
                     | statement"?" [tense]                  (* question to be answered *)
                     | statement"@" [tense]                  (* question on desire value to be answered *)
                     | statement"!" [truth]                  (* goal to be realized *)
-        
+
         statement ::= <"<">term copula term<">">            (* two terms related to each other *)
                     | term                                  (* a term can name a statement *)
                     | "(^"word {","term} ")"                (* an operation to be executed *)
-           
+
            copula ::= "-->"                                 (* inheritance *)
                     | "<->"                                 (* similarity *)
                     | "{--"                                 (* instance *)
@@ -23,12 +23,12 @@
                     | "<=>"                                 (* equivalence *)
                     | "</>"                                 (* predictive equivalence *)
                     | "<|>"                                 (* concurrent equivalence *)
-             
+
              term ::= word                                  (* an atomic constant term *)
                     | variable                              (* an atomic variable term *)
                     | compound-term                         (* a term with internal structure *)
                     | statement                             (* a statement can serve as a term *)
-   
+
     compound-term ::= "{" term {","term} "}"                (* extensional set *)
                     | "[" term {","term} "]"                (* intensional set *)
                     | "(&," term {","term} ")"              (* extensional intersection *)
@@ -43,20 +43,20 @@
                     | "(&&," term {","term} ")"             (* conjunction *)
                     | "(&/," term {","term} ")"             (* sequential events *)
                     | "(&|," term {","term} ")"             (* parallel events *)
-         
+
          variable ::= "$"word                               (* independent variable *)
                     | "#"[word]                             (* dependent variable *)
                     | "?"[word]                             (* query variable in question *)
-            
+
             tense ::= ":/:"                                 (* future event *)
                     | ":|:"                                 (* present event *)
                     | ":\\:"                                (* :\: past event *)
-            
+
             truth ::= <"%">frequency[<";">confidence]<"%">  (* two numbers in [0,1]x(0,1) *)
            budget ::= <"$">priority[<";">durability]<"$">   (* two numbers in [0,1]x(0,1) *)
-               
+
                word : #"\w+"
-           priority : #"[0-9]*(\.[0-9]+)?"
-         durability : #"[0-9]*(\.[0-9]+)?"
-          frequency : #"[0-9]*(\.[0-9]+)?"
-         confidence : #"[0-9]*(\.[0-9]+)?"
+           priority : #"([0]?\.[0-9]+|1|0)"
+         durability : #"(?!0$|[0]?\.[0]+$)[0]?\.[0-9]+"
+          frequency : #"([0]?\.[0-9]+|1|0)"
+         confidence : #"(?!0$|[0]?\.[0]+$)[0]?\.[0-9]+"
