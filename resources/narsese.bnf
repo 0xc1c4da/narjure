@@ -3,9 +3,9 @@
              task ::= [budget] sentence                     (* task to be processed *)
 
          sentence ::= statement"." [tense] [truth]          (* judgement to be remembered *)
-                    | statement"?" [tense] [truth]          (* question to be answered, tense added 1.7 *)
-                    | statement"@" [tense] [truth]          (* question on desire value to be answered, tense added 1.7 *)
-                    | statement"!" [tense] [truth]          (* goal to be realized, tense added 1.7 *)
+                    | statement"?" [tense] [truth]          (* question to be answered, tense added in OpenNARS 1.7 *)
+                    | statement"@" [tense] [truth]          (* question on desire value to be answered, tense added in OpenNARS 1.7 *)
+                    | statement"!" [tense] [truth]          (* goal to be realized, tense added in OpenNARS 1.7 *)
 
         statement ::= <"<">term copula term<">">            (* two terms related to each other *)
                     | <"(">term copula term<")">            (* two terms related to each other, new notation *)
@@ -40,7 +40,7 @@
                     | "(*," term {","term} ")"              (* product *)
                     | "(" term {","term} ")"                (* product, new notation *)
                     | "(/," term {","term} ")"              (* extensional image *)
-                    | "(\\," term {","term} ")"             (* intensional image *)
+                    | "(\\," term {","term} ")"             (* \ intensional image *)
                     | "(--," term ")"                       (* negation *)
                     | "(||," term {","term} ")"             (* disjunction *)
                     | "(&&," term {","term} ")"             (* conjunction *)
@@ -55,7 +55,7 @@
                     | "(" term "~" term ")"                 (* intensional difference *)
                     | "(" term {"*"term} ")"                (* product *)
                     | "(" term {"/"term} ")"                (* extensional image *)
-                    | "(" term {"\\"term} ")"               (* intensional image *)
+                    | "(" term {"\\"term} ")"               (* \ intensional image *)
                     | "(" term {"||"term} ")"               (* disjunction *)
                     | "(" term {"&&"term} ")"               (* conjunction *)
                     | "(" term {"&/"term} ")"               (* sequential events *)
@@ -73,8 +73,8 @@
             truth ::= <"%">frequency[<";">confidence]<"%">  (* two numbers in [0,1]x(0,1) *)
            budget ::= <"$">priority[<";">durability]<"$">   (* two numbers in [0,1]x(0,1) *)
 
-               word : #"\w+"
-           priority : #"([0]?\.[0-9]+|1|0)"
-         durability : #"(?!0$|[0]?\.[0]+$)[0]?\.[0-9]+"
-          frequency : #"([0]?\.[0-9]+|1|0)"
-         confidence : #"(?!0$|[0]?\.[0]+$)[0]?\.[0-9]+"
+               word : #"\w+"                                (* unicode string *)
+           priority : #"([0]?\.[0-9]+|1|0)"                 (* 0 <= x <= 1 *)
+         durability : #"(?!0$|[0]?\.[0]+$)[0]?\.[0-9]+"     (* 0 <  x <  1 *)
+          frequency : #"([0]?\.[0-9]+|1|0)"                 (* 0 <= x <= 1 *)
+         confidence : #"(?!0$|[0]?\.[0]+$)[0]?\.[0-9]+"     (* 0 <  x <  1 *)
