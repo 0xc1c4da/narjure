@@ -3,13 +3,15 @@
              task ::= [budget] sentence                     (* task to be processed *)
 
          sentence ::= statement"." [tense] [truth]          (* judgement to be remembered *)
-                    | statement"?" [tense]                  (* question to be answered *)
-                    | statement"@" [tense]                  (* question on desire value to be answered *)
-                    | statement"!" [truth]                  (* goal to be realized *)
+                    | statement"?" [tense] [truth]          (* question to be answered, tense added 1.7 *)
+                    | statement"@" [tense] [truth]          (* question on desire value to be answered, tense added 1.7 *)
+                    | statement"!" [tense] [truth]          (* goal to be realized, tense added 1.7 *)
 
         statement ::= <"<">term copula term<">">            (* two terms related to each other *)
+                    | <"(">term copula term<")">            (* two terms related to each other, new notation *)
                     | term                                  (* a term can name a statement *)
                     | "(^"word {","term} ")"                (* an operation to be executed *)
+                    | word"("term {","term} ")"             (* an operation to be executed, new notation *)
 
            copula ::= "-->"                                 (* inheritance *)
                     | "<->"                                 (* similarity *)
@@ -36,6 +38,7 @@
                     | "(-," term "," term ")"               (* extensional difference *)
                     | "(~," term "," term ")"               (* intensional difference *)
                     | "(*," term {","term} ")"              (* product *)
+                    | "(" term {","term} ")"                (* product, new notation *)
                     | "(/," term {","term} ")"              (* extensional image *)
                     | "(\\," term {","term} ")"             (* intensional image *)
                     | "(--," term ")"                       (* negation *)
@@ -43,6 +46,21 @@
                     | "(&&," term {","term} ")"             (* conjunction *)
                     | "(&/," term {","term} ")"             (* sequential events *)
                     | "(&|," term {","term} ")"             (* parallel events *)
+
+                    (* new compound-term notation *)
+
+                    | "(" term {"&"term} ")"                (* extensional intersection *)
+                    | "(" term {"|"term} ")"                (* intensional intersection *)
+                    | "(" term "-" term ")"                 (* extensional difference *)
+                    | "(" term "~" term ")"                 (* intensional difference *)
+                    | "(" term {"*"term} ")"                (* product *)
+                    | "(" term {"/"term} ")"                (* extensional image *)
+                    | "(" term {"\\"term} ")"               (* intensional image *)
+                    | "(" term {"||"term} ")"               (* disjunction *)
+                    | "(" term {"&&"term} ")"               (* conjunction *)
+                    | "(" term {"&/"term} ")"               (* sequential events *)
+                    | "(" term {"&|"term} ")"               (* parallel events *)
+
 
          variable ::= "$"word                               (* independent variable *)
                     | "#"[word]                             (* dependent variable *)
