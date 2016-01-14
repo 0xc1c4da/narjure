@@ -29,7 +29,7 @@
    "(-,"  'ext-difference
    "(~,"  'int-difference
    "(*,"  'product
-   "("  'product
+   "("    'product
    "(/,"  'ext-image
    "(\\," 'int-image
    "(--," 'negation
@@ -38,11 +38,12 @@
    "(&/," 'sequential-events
    "(&|," 'parallel-events})
 
-(def actions {"." 'judgement
-              "?" 'question})
+(def actions {"." :judgement
+              "?" :question})
 
 (def ^:dynamic *action* (atom nil))
 (def ^:dynamic *lvars* (atom []))
+(def ^:dynamic *truth* (atom []))
 
 (defn keep-cat [fun col]
   (into [] (comp (mapcat fun) (filter (complement nil?))) col))
@@ -87,8 +88,12 @@
   [[_ & data]]
   `[[~@(mapv element data)]])
 
-(defmethod element :frequency [[_ d]] (Double/parseDouble d))
-(defmethod element :confidence [[_ d]] (Double/parseDouble d))
+(defmethod element :frequency [[_ d]]
+  (let [d (Double/parseDouble d)]
+    (swap! *truth* conj d) d))
+(defmethod element :confidence [[_ d]]
+  (let [d (Double/parseDouble d)]
+    (swap! *truth* conj d) d))
 (defmethod element :priority [[_ d]] (Double/parseDouble d))
 (defmethod element :durability [[_ d]] (Double/parseDouble d))
 
@@ -100,9 +105,11 @@
   (let [data (parser narsese-str)]
     (if-not (i/failure? data)
       (binding [*action* (atom nil)
-                *lvars* (atom [])]
+                *lvars* (atom [])
+                *truth* (atom [])]
         (let [parsed-code (element data)]
           {:action @*action*
            :lvars  @*lvars*
+           :truth  @*truth*
            :data   parsed-code}))
       data)))
