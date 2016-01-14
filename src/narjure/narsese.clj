@@ -29,6 +29,7 @@
    "(-,"  'ext-difference
    "(~,"  'int-difference
    "(*,"  'product
+   "("  'product
    "(/,"  'ext-image
    "(\\," 'int-image
    "(--," 'negation
