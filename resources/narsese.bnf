@@ -30,6 +30,7 @@
                     | variable                              (* an atomic variable term *)
                     | compound-term                         (* a term with internal structure *)
                     | statement                             (* a statement can serve as a term *)
+                    | interval                              (* time measure between events *)
 
     compound-term ::= "{" term {","term} "}"                (* extensional set *)
                     | "[" term {","term} "]"                (* intensional set *)
@@ -50,19 +51,19 @@
 
                     (* new compound-term notation *)
 
-                    | "(" term {infix-op-multi term} ")"    (* compound-term with infix operator *)
+                    | "(" term {infix-op-multi term} ")"    (* compound term with infix operator *)
                     | "(" term infix-op-single term ")"
 
-     infix-op-multi::= "&&"                                 (* conjunction *)
-                    |  "*"                                  (* product *)
-                    |  "||"                                 (* disjunction *)
-                    |  "&|"                                 (* parallel events *)
-                    |  "&/"                                 (* sequential events *)
-                    |  "|"                                  (* intensional intersection *)
-                    |  "&"                                  (* extensional intersection *)
+   infix-op-multi ::= "&&"                                  (* conjunction *)
+                    | "*"                                   (* product *)
+                    | "||"                                  (* disjunction *)
+                    | "&|"                                  (* parallel events *)
+                    | "&/"                                  (* sequential events *)
+                    | "|"                                   (* intensional intersection *)
+                    | "&"                                   (* extensional intersection *)
 
-    infix-op-single::= "-"                                  (* extensional difference *)
-                    |  "~"                                  (* intensional difference *)
+  infix-op-single ::= "-"                                   (* extensional difference *)
+                    | "~"                                   (* intensional difference *)
 
          variable ::= "$"word                               (* independent variable *)
                     | "#"[word]                             (* dependent variable *)
@@ -72,6 +73,8 @@
                     | ":|:"                                 (* present event *)
                     | ":\\:"                                (* :\: past event *)
                     | <":">#"\d+"<":">                      (* defined event, output only *)
+
+         interval ::= <"/">#"\d+"                           (* integer *)
 
             truth ::= <"%">frequency[<";">confidence]<"%">  (* two numbers in [0,1]x(0,1) *)
            budget ::= <"$">priority[<";">durability][<";">quality]<"$">   (* three numbers in [0,1]x(0,1)x[0,1] *)
