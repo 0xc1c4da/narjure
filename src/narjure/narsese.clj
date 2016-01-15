@@ -91,8 +91,8 @@
     ~@(keep-cat element (filter (complement string?) data))])
 
 (defmethod element :copula [_])
-(defmethod element :infix-operator1 [_])
-(defmethod element :infix-operator2 [_])
+(defmethod element :infix-op-multi [_])
+(defmethod element :infix-op-single [_])
 
 (defmethod element :variable [[_ _ [_ v]]]
   (let [v (symbol v)]
