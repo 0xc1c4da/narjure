@@ -50,18 +50,20 @@
 
                     (* new compound-term notation *)
 
-                    | "(" term {infix-op-multi term} ")"    (* comp term with infix operator *)
+                    | "(" term {infix-op-multi term} ")"    (* compound-term with infix operator *)
                     | "(" term infix-op-single term ")"
 
-     infix-op-multi::= "&&"                                  (* conjunction-s *)
+     infix-op-multi::= "&&"                                 (* conjunction *)
                     |  "*"                                  (* product *)
                     |  "||"                                 (* disjunction *)
                     |  "&|"                                 (* parallel events *)
                     |  "&/"                                 (* sequential events *)
-                    |   "|"                                 (* intensional intersection *)
+                    |  "|"                                  (* intensional intersection *)
                     |  "&"                                  (* extensional intersection *)
+
     infix-op-single::= "-"                                  (* extensional difference *)
                     |  "~"                                  (* intensional difference *)
+
          variable ::= "$"word                               (* independent variable *)
                     | "#"[word]                             (* dependent variable *)
                     | "?"[word]                             (* query variable in question *)
@@ -69,14 +71,14 @@
             tense ::= ":/:"                                 (* future event *)
                     | ":|:"                                 (* present event *)
                     | ":\\:"                                (* :\: past event *)
-                    | <":">#"\d+"<":">                      (* defined event *)
+                    | <":">#"\d+"<":">                      (* defined event, output only *)
 
             truth ::= <"%">frequency[<";">confidence]<"%">  (* two numbers in [0,1]x(0,1) *)
-           budget ::= <"$">priority[<";">durability][<";">quality]<"$">   (* three numbers in [0,1]x(0,1)x??? TODO *)
+           budget ::= <"$">priority[<";">durability][<";">quality]<"$">   (* three numbers in [0,1]x(0,1)x[0,1] *)
 
                word : #"\w+"                                (* unicode string *)    
            priority : #"([0]?\.[0-9]+|1|0)"                 (* 0 <= x <= 1 *)
          durability : #"[0]?\.[0]*[1-9]{1}[0-9]*"           (* 0 <  x <  1 *)
-            quality : #"([0]?\.[0-9]+|1|0)"                 (* 0 <= x <= 1 TODO: verify bounds *)
+            quality : #"([0]?\.[0-9]+|1|0)"                 (* 0 <= x <= 1 *)
           frequency : #"([0]?\.[0-9]+|1|0)"                 (* 0 <= x <= 1 *)
          confidence : #"[0]?\.[0]*[1-9]{1}[0-9]*"           (* 0 <  x <  1 *)
