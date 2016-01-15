@@ -50,18 +50,17 @@
 
                     (* new compound-term notation *)
 
-                    | "(" term {infix-operator1 term} ")"    (* comp term with infix operator *)
+                    | "(" term {infix-op-multi term} ")"    (* comp term with infix operator *)
+                    | "(" term infix-op-single term ")"
 
-                    | "(" term infix-operator2 term ")"
-
-    infix-operator1::= "&&"                                  (* conjunction-s *)
+     infix-op-multi::= "&&"                                  (* conjunction-s *)
                     |  "*"                                  (* product *)
                     |  "||"                                 (* disjunction *)
                     |  "&|"                                 (* parallel events *)
                     |  "&/"                                 (* sequential events *)
                     |   "|"                                 (* intensional intersection *)
                     |  "&"                                  (* extensional intersection *)
-    infix-operator2::= "-"                                  (* extensional difference *)
+    infix-op-single::= "-"                                  (* extensional difference *)
                     |  "~"                                  (* intensional difference *)
          variable ::= "$"word                               (* independent variable *)
                     | "#"[word]                             (* dependent variable *)
