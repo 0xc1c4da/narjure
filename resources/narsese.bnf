@@ -50,19 +50,19 @@
 
                     (* new compound-term notation *)
 
-                    | "(" term {"&&"term} ")"               (* conjunction *)
-                (*
-                    | "(" term {"&"term} ")"                (* extensional intersection *)
-                    | "(" term {"|"term} ")"                (* intensional intersection *)
-                    | "(" term "-" term ")"                 (* extensional difference *)
-                    | "(" term "~" term ")"                 (* intensional difference *)
-                    | "(" term {"*"term} ")"                (* product *)
-                    | "(" term {"||"term} ")"               (* disjunction *)
-                    | "(" term {"&/"term} ")"               (* sequential events *)
-                    | "(" term {"&|"term} ")"               (* parallel events *)
-                *)
+                    | "(" term {infix-operator1 term} ")"    (* comp term with infix operator *)
 
+                    | "(" term infix-operator2 term ")"
 
+    infix-operator1::= "&&"                                  (* conjunction-s *)
+                    |  "*"                                  (* product *)
+                    |  "||"                                 (* disjunction *)
+                    |  "&|"                                 (* parallel events *)
+                    |  "&/"                                 (* sequential events *)
+                    |   "|"                                 (* intensional intersection *)
+                    |  "&"                                  (* extensional intersection *)
+    infix-operator2::= "-"                                  (* extensional difference *)
+                    |  "~"                                  (* intensional difference *)
          variable ::= "$"word                               (* independent variable *)
                     | "#"[word]                             (* dependent variable *)
                     | "?"[word]                             (* query variable in question *)

@@ -26,25 +26,34 @@
   {"{"    'ext-set
    "["    'int-set
    "(&,"  'ext-intersection
+   "&"    'ext-intersection
    "(|,"  'int-intersection
+   "|"    'int-intersection
    "(-,"  'ext-difference
+   "-"    'ext-difference
    "(~,"  'int-difference
+   "~"    'int-difference
    "(*,"  'product
+   "*"    'product
    "("    'product
    "(/,"  'ext-image
    "(\\," 'int-image
    "(--," 'negation
    "--"   'negation
    "(||," 'disjunction
+   "||"   'disjunction
    "(&&," 'conjunction
-   "&&" 'conjunction
+   "&&"   'conjunction
    "(&/," 'sequential-events
-   "(&|," 'parallel-events})
+   "&/" 'sequential-events
+   "(&|," 'parallel-events
+   "&|" 'parallel-events
+   })
 
-(defn get-compound-term [s1 s2]
-  (if (or (nil? s2) (= s2 ","))
+(defn get-compound-term [s1 operator]
+  (if (or (nil? operator) (= operator ","))
     (compound-terms s1)
-    (compound-terms s2)))
+    (compound-terms (second operator))))
 
 (def actions {"." :judgement
               "?" :question})
@@ -82,6 +91,8 @@
     ~@(keep-cat element (filter (complement string?) data))])
 
 (defmethod element :copula [_])
+(defmethod element :infix-operator1 [_])
+(defmethod element :infix-operator2 [_])
 
 (defmethod element :variable [[_ _ [_ v]]]
   (let [v (symbol v)]
