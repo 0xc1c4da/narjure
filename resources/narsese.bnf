@@ -55,8 +55,6 @@
                     | "(" term "-" term ")"                 (* extensional difference *)
                     | "(" term "~" term ")"                 (* intensional difference *)
                     | "(" term {"*"term} ")"                (* product *)
-                    | "(" term {"/"term} ")"                (* extensional image *)
-                    | "(" term {"\\"term} ")"               (* \ intensional image *)
                     | "(" term {"||"term} ")"               (* disjunction *)
                     | "(" term {"&&"term} ")"               (* conjunction *)
                     | "(" term {"&/"term} ")"               (* sequential events *)

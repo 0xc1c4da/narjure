@@ -5,6 +5,7 @@
 (def bnf-file "narsese.bnf")
 
 (def parser
+  "Loads narsese.bnf into instaparse"
   (i/parser (io/resource bnf-file) :auto-whitespace :standard))
 
 (def copulas
@@ -101,7 +102,9 @@
   (when (seq? data)
     (keep element data)))
 
-(defn parse [narsese-str]
+(defn parse
+  "Parses a Narsese string into task ready for inference"
+  [narsese-str]
   (let [data (parser narsese-str)]
     (if-not (i/failure? data)
       (binding [*action* (atom nil)
