@@ -34,25 +34,18 @@
 
     compound-term ::= "{" term {","term} "}"                (* extensional set *)
                     | "[" term {","term} "]"                (* intensional set *)
-                    | "(&," term {","term} ")"              (* extensional intersection *)
-                    | "(|," term {","term} ")"              (* intensional intersection *)
-                    | "(-," term "," term ")"               (* extensional difference *)
-                    | "(~," term "," term ")"               (* intensional difference *)
-                    | "(*," term {","term} ")"              (* product *)
+                    | "("infix-op-multi","term{","term} ")" (* compound term with infix operator *)
+                    | "("infix-op-single","term"," term ")" (* compound term with infix operator *)
                     | "(" term {","term} ")"                (* product, new notation *)
                     | "(/," term {","term} ")"              (* extensional image *)
                     | "(\\," term {","term} ")"             (* \ intensional image *)
                     | "(--," term ")"                       (* negation *)
                     | "--"term                              (* negation, new notation *)
-                    | "(||," term {","term} ")"             (* disjunction *)
-                    | "(&&," term {","term} ")"             (* conjunction *)
-                    | "(&/," term {","term} ")"             (* sequential events *)
-                    | "(&|," term {","term} ")"             (* parallel events *)
 
                     (* new compound-term notation *)
 
                     | "(" term {infix-op-multi term} ")"    (* compound term with infix operator *)
-                    | "(" term infix-op-single term ")"
+                    | "(" term infix-op-single term ")"     (* compound term with infix operator *)
 
    infix-op-multi ::= "&&"                                  (* conjunction *)
                     | "*"                                   (* product *)
