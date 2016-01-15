@@ -34,6 +34,7 @@
    "(/,"  'ext-image
    "(\\," 'int-image
    "(--," 'negation
+   "--"   'negation
    "(||," 'disjunction
    "(&&," 'conjunction
    "(&/," 'sequential-events

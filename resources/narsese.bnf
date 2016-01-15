@@ -42,6 +42,7 @@
                     | "(/," term {","term} ")"              (* extensional image *)
                     | "(\\," term {","term} ")"             (* \ intensional image *)
                     | "(--," term ")"                       (* negation *)
+                    | "--"term                             (* negation, new notation *)
                     | "(||," term {","term} ")"             (* disjunction *)
                     | "(&&," term {","term} ")"             (* conjunction *)
                     | "(&/," term {","term} ")"             (* sequential events *)
