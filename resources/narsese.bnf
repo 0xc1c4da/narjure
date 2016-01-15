@@ -49,7 +49,7 @@
 
                     (* new compound-term notation *)
 
-                    | "(" term {"&"term} ")"                (* extensional intersection *)
+                    (* | "(" term {"&"term} ")"                (* extensional intersection *)
                     | "(" term {"|"term} ")"                (* intensional intersection *)
                     | "(" term "-" term ")"                 (* extensional difference *)
                     | "(" term "~" term ")"                 (* intensional difference *)
@@ -59,7 +59,7 @@
                     | "(" term {"||"term} ")"               (* disjunction *)
                     | "(" term {"&&"term} ")"               (* conjunction *)
                     | "(" term {"&/"term} ")"               (* sequential events *)
-                    | "(" term {"&|"term} ")"               (* parallel events *)
+                    | "(" term {"&|"term} ")"               (* parallel events *) *)
 
 
          variable ::= "$"word                               (* independent variable *)
