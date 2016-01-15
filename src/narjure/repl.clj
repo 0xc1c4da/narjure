@@ -5,11 +5,22 @@
             [nal.core :as c]
             [clojure.core.logic :as l]))
 
-(def db (atom {}))
-(def buffer (atom []))
+(defonce narsese-repl-mode (atom false))
+(def stop-word "stop!")
 
-(def ^:dynamic *collect-to-buffer* true)
-(defn reset-db! [] (reset! db {}))
+(defn start-narsese-repl! []
+  (reset! narsese-repl-mode true)
+  (println "Narsese repl was started."))
+
+(defn stop-narsese-repl! []
+  (reset! narsese-repl-mode false)
+  (println "Narsese repl was stopped."))
+
+(defonce db (atom {}))
+(defonce buffer (atom []))
+
+(defn clear-db! [] (reset! db {}))
+(defn clear-buffer! [] (reset! buffer {}))
 
 (defmulti collect! :action)
 
@@ -39,7 +50,7 @@
 
 (defn handle-narsese [code]
   (let [result (parse code)]
-    (if (and (not (i/failure? result)) *collect-to-buffer*)
+    (if (and (not (i/failure? result)))
       (do (swap! buffer conj result)
           (collect! result))
       result)))
@@ -47,7 +58,7 @@
 (defn- wrap-code [code]
   (str "(narjure.repl/handle-narsese \"" code "\")"))
 
-(defn- sentence [{:keys [truth data]}]
+(defn- sentence [{:keys [data]}]
   (let [statement (first data)]
     [statement (@db statement)]))
 
@@ -59,16 +70,21 @@
                    [])]
     (into forward backward)))
 
-(defn- wrap-run-code [code] () (str "(narjure.repl/run " code ")"))
-
+(defn- wrap-run-code [code] (str "(narjure.repl/run " code ")"))
+(defn- wrap-stop-repl [_] "(narjure.repl/stop-narsese-repl!)")
 (defn- narsese? [code]
   (#{\< \$} (first code)))
 
+(defn wrapper [code]
+  (cond
+    (= stop-word code) wrap-stop-repl
+    (integer? (parse-int code)) wrap-run-code
+    :default wrap-code))
+
+;TODO No nREPL middleware descriptor in metadata of #'narjure.repl/narsese-handler,
+; see clojure.tools.middleware/set-descriptor!
 (defn narsese-handler [handler]
   (fn [{:keys [code] :as args} & tail]
-    (cond
-      (narsese? code)
-      (apply handler [(update args :code wrap-code)])
-      (integer? (parse-int code))
-      (apply handler [(update args :code wrap-run-code)])
-      :default (apply handler (cons args tail)))))
+    (apply handler (if @narsese-repl-mode
+                     [(update args :code (wrapper code))]
+                     (cons args tail)))))

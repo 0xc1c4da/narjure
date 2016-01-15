@@ -10,6 +10,6 @@
   :main ^:skip-aot narjure.core
   :plugins [[lein-cloverage "1.0.6"]]
   :target-path "target/%s"
-  :repl-options {:init-ns narjure.narsese
+  :repl-options {:init-ns narjure.repl
                  :nrepl-middleware [narjure.repl/narsese-handler]}
   :profiles {:uberjar {:aot :all}})
