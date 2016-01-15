@@ -37,8 +37,14 @@
    "--"   'negation
    "(||," 'disjunction
    "(&&," 'conjunction
+   "&&" 'conjunction
    "(&/," 'sequential-events
    "(&|," 'parallel-events})
+
+(defn get-compound-term [s1 s2]
+  (if (or (nil? s2) (= s2 ","))
+    (compound-terms s1)
+    (compound-terms s2)))
 
 (def actions {"." :judgement
               "?" :question})
@@ -64,14 +70,16 @@
     (keep element (filtered false))))
 
 (defmethod element :statement [[_ & data]]
-  (let [copula (get-copula data)]
-    `[~copula ~@(keep-cat element data)]))
+  (if-let [copula (get-copula data)]
+    `[~copula ~@(keep-cat element data)]
+    (keep-cat element data)))
 
 (defmethod element :task [[_ & data]]
   `[~@(keep-cat element data)])
 
 (defmethod element :compound-term [[_ term-symbol & data]]
-  `[~(compound-terms term-symbol) ~@(keep-cat element data)])
+  `[~(get-compound-term term-symbol (second data))
+    ~@(keep-cat element (filter (complement string?) data))])
 
 (defmethod element :copula [_])
 

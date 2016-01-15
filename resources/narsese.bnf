@@ -50,14 +50,14 @@
 
                     (* new compound-term notation *)
 
-                (*  
+                    | "(" term {"&&"term} ")"               (* conjunction *)
+                (*
                     | "(" term {"&"term} ")"                (* extensional intersection *)
                     | "(" term {"|"term} ")"                (* intensional intersection *)
                     | "(" term "-" term ")"                 (* extensional difference *)
                     | "(" term "~" term ")"                 (* intensional difference *)
                     | "(" term {"*"term} ")"                (* product *)
                     | "(" term {"||"term} ")"               (* disjunction *)
-                    | "(" term {"&&"term} ")"               (* conjunction *)
                     | "(" term {"&/"term} ")"               (* sequential events *)
                     | "(" term {"&|"term} ")"               (* parallel events *)
                 *)
