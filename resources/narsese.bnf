@@ -70,11 +70,10 @@
             tense ::= ":/:"                                 (* future event *)
                     | ":|:"                                 (* present event *)
                     | ":\\:"                                (* :\: past event *)
-                    | ":"#"\d+"":"                          (* defined event *)
+                    | <":">#"\d+"<":">                      (* defined event *)
 
             truth ::= <"%">frequency[<";">confidence]<"%">  (* two numbers in [0,1]x(0,1) *)
            budget ::= <"$">priority[<";">durability][<";">quality]<"$">   (* three numbers in [0,1]x(0,1)x??? TODO *)
-                    (* priority (current), durability (decay), and quality (long-term average) *)
 
                word : #"\w+"                                (* unicode string *)    
            priority : #"([0]?\.[0-9]+|1|0)"                 (* 0 <= x <= 1 *)
