@@ -34,8 +34,8 @@
 
     compound-term ::= "{" term {","term} "}"                (* extensional set *)
                     | "[" term {","term} "]"                (* intensional set *)
-                    | "("infix-op-multi","term{","term} ")" (* compound term with infix operator *)
-                    | "("infix-op-single","term"," term ")" (* compound term with infix operator *)
+                    | "("op-multi","term{","term} ")"       (* compound term with infix operator *)
+                    | "("op-single","term"," term ")"       (* compound term with infix operator *)
                     | "(" term {","term} ")"                (* product, new notation *)
                     | "(/," term {","term} ")"              (* extensional image *)
                     | "(\\," term {","term} ")"             (* \ intensional image *)
@@ -44,10 +44,10 @@
 
                     (* new compound-term notation *)
 
-                    | "(" term {infix-op-multi term} ")"    (* compound term with infix operator *)
-                    | "(" term infix-op-single term ")"     (* compound term with infix operator *)
+                    | "(" term {op-multi term} ")"    (* compound term with infix operator *)
+                    | "(" term op-single term ")"     (* compound term with infix operator *)
 
-   infix-op-multi ::= "&&"                                  (* conjunction *)
+         op-multi ::= "&&"                                  (* conjunction *)
                     | "*"                                   (* product *)
                     | "||"                                  (* disjunction *)
                     | "&|"                                  (* parallel events *)
@@ -55,7 +55,7 @@
                     | "|"                                   (* intensional intersection *)
                     | "&"                                   (* extensional intersection *)
 
-  infix-op-single ::= "-"                                   (* extensional difference *)
+        op-single ::= "-"                                   (* extensional difference *)
                     | "~"                                   (* intensional difference *)
 
          variable ::= "$"word                               (* independent variable *)

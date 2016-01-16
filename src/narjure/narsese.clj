@@ -91,8 +91,8 @@
       ~@(keep-cat element (remove string? data))]))
 
 (defmethod element :copula [_])
-(defmethod element :infix-op-multi [_])
-(defmethod element :infix-op-single [_])
+(defmethod element :op-multi [_])
+(defmethod element :op-single [_])
 
 (defmethod element :variable [[_ _ [_ v]]]
   (let [v (symbol v)]
