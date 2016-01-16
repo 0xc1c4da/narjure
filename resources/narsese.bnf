@@ -34,18 +34,15 @@
 
     compound-term ::= "{" term {","term} "}"                (* extensional set *)
                     | "[" term {","term} "]"                (* intensional set *)
-                    | "("op-multi","term{","term} ")"       (* compound term with infix operator *)
-                    | "("op-single","term"," term ")"       (* compound term with infix operator *)
+                    | "("op-multi","term{","term} ")"       (* compound term with prefix operator *)
+                    | "("op-single","term"," term ")"       (* compound term with prefix operator *)
+                    | "(" term {op-multi term} ")"          (* compound term with infix operator *)
+                    | "(" term op-single term ")"           (* compound term with infix operator *)
                     | "(" term {","term} ")"                (* product, new notation *)
                     | "(/," term {","term} ")"              (* extensional image *)
                     | "(\\," term {","term} ")"             (* \ intensional image *)
                     | "(--," term ")"                       (* negation *)
                     | "--"term                              (* negation, new notation *)
-
-                    (* new compound-term notation *)
-
-                    | "(" term {op-multi term} ")"    (* compound term with infix operator *)
-                    | "(" term op-single term ")"     (* compound term with infix operator *)
 
          op-multi ::= "&&"                                  (* conjunction *)
                     | "*"                                   (* product *)
