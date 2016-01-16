@@ -50,10 +50,8 @@
    "&|" 'parallel-events
    })
 
-(defn get-compound-term [s1 operator]
-  (if (or (nil? operator) (= operator ","))
-    (compound-terms s1)
-    (compound-terms (second operator))))
+(defn get-compound-term [[_ operator-srt]]
+  (compound-terms operator-srt))
 
 (def actions {"." :judgement
               "?" :question})
@@ -86,9 +84,11 @@
 (defmethod element :task [[_ & data]]
   `[~@(keep-cat element data)])
 
-(defmethod element :compound-term [[_ term-symbol & data]]
-  `[~(get-compound-term term-symbol (second data))
-    ~@(keep-cat element (filter (complement string?) data))])
+(defmethod element :compound-term [[_ _ & data]]
+  (let [first-el-type (get-in (vec data) [0 0])
+        comp-operator ((if (= :term first-el-type) second first) data)]
+    `[~(get-compound-term comp-operator)
+      ~@(keep-cat element (remove string? data))]))
 
 (defmethod element :copula [_])
 (defmethod element :infix-op-multi [_])
