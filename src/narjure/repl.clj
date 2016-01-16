@@ -3,7 +3,8 @@
             [narjure.narsese :refer [parse]]
             [instaparse.core :as i]
             [nal.core :as c]
-            [clojure.core.logic :as l]))
+            [clojure.core.logic :as l]
+            [clojure.tools.nrepl.middleware :refer [set-descriptor!]]))
 
 (defonce narsese-repl-mode (atom false))
 (def stop-word "stop!")
@@ -81,10 +82,18 @@
     (integer? (parse-int code)) wrap-run-code
     :default wrap-code))
 
-;TODO No nREPL middleware descriptor in metadata of #'narjure.repl/narsese-handler,
-; see clojure.tools.middleware/set-descriptor!
 (defn narsese-handler [handler]
   (fn [{:keys [code] :as args} & tail]
+    (println code)
     (apply handler (if @narsese-repl-mode
                      [(update args :code (wrapper code))]
                      (cons args tail)))))
+
+(set-descriptor! #'narsese-handler
+  {:requires #{}
+   :expects  #{"eval"}
+   :handles  {"stdin"
+              {:doc      "Parses Narsese"
+               :requires {}
+               :optional {}
+               :returns  {"status" "Clojure data structure."}}}})
