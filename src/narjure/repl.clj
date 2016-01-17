@@ -75,12 +75,13 @@
           result)))))
 
 (defn narsese-handler [handler]
-  (fn [{:keys [code] :as args} & tail]
+  (fn [args & tail]
     (apply handler (if @narsese-repl-mode
                      [(update args :code wrap-code)]
                      (cons args tail)))))
 
 (set-descriptor! #'narsese-handler
-  {:handles {"stdin"
+  {:expects #{"eval"}
+   :handles {"stdin"
              {:doc      "Parses Narsese"
               :requires #{"code" "Code."}}}})
