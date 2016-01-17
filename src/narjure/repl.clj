@@ -7,7 +7,6 @@
             [clojure.tools.nrepl.middleware :refer [set-descriptor!]]))
 
 (defonce narsese-repl-mode (atom false))
-(def stop-word "stop!")
 
 (defn start-narsese-repl! []
   (reset! narsese-repl-mode true)
@@ -49,13 +48,6 @@
 (defn- parse-int [s]
   (try (Integer/parseInt s) (catch Exception _)))
 
-(defn handle-narsese [code]
-  (let [result (parse code)]
-    (if (and (not (i/failure? result)))
-      (do (swap! buffer conj result)
-          (collect! result))
-      result)))
-
 (defn- wrap-code [code]
   (str "(narjure.repl/handle-narsese \"" code "\")"))
 
@@ -71,29 +63,25 @@
                    [])]
     (into forward backward)))
 
-(defn- wrap-run-code [code] (str "(narjure.repl/run " code ")"))
-(defn- wrap-stop-repl [_] "(narjure.repl/stop-narsese-repl!)")
-(defn- narsese? [code]
-  (#{\< \$} (first code)))
-
-(defn wrapper [code]
-  (cond
-    (= stop-word code) wrap-stop-repl
-    (integer? (parse-int code)) wrap-run-code
-    :default wrap-code))
+(defn handle-narsese [code]
+  (if-let [n (parse-int (clojure.string/trim code))]
+    (run n)
+    (if (= "stop!" (clojure.string/trim code))
+      (stop-narsese-repl!)
+      (let [result (parse code)]
+        (if (and (not (i/failure? result)))
+          (do (swap! buffer conj result)
+              (collect! result))
+          result)))))
 
 (defn narsese-handler [handler]
-  (fn [{:keys [code] :as args} & tail]
-    (println code)
+  (fn [args & tail]
     (apply handler (if @narsese-repl-mode
-                     [(update args :code (wrapper code))]
+                     [(update args :code wrap-code)]
                      (cons args tail)))))
 
 (set-descriptor! #'narsese-handler
-  {:requires #{}
-   :expects  #{"eval"}
-   :handles  {"stdin"
-              {:doc      "Parses Narsese"
-               :requires {}
-               :optional {}
-               :returns  {"status" "Clojure data structure."}}}})
+  {:expects #{"eval"}
+   :handles {"stdin"
+             {:doc      "Parses Narsese"
+              :requires #{"code" "Code."}}}})
