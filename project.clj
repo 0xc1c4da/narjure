@@ -8,8 +8,10 @@
                  [instaparse "1.4.1"]
                  [com.rpl/specter "0.9.1"]]
   :main ^:skip-aot narjure.core
-  :plugins [[lein-cloverage "1.0.6"]]
+  :plugins [[lein-cloverage "1.0.6"]
+            [cider/cider-nrepl "0.10.0-SNAPSHOT"]]
   :target-path "target/%s"
   :repl-options {:init-ns narjure.repl
-                 :nrepl-middleware [narjure.repl/narsese-handler]}
+                 :nrepl-middleware
+                 [narjure.repl/narsese-handler]}
   :profiles {:uberjar {:aot :all}})
