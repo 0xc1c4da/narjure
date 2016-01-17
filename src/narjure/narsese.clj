@@ -36,8 +36,8 @@
    "(*,"  'product
    "*"    'product
    "("    'product
-   "(/,"  'ext-image
-   "(\\," 'int-image
+   "/"    'ext-image
+   "\\"   'int-image
    "(--," 'negation
    "--"   'negation
    "(||," 'disjunction
@@ -45,10 +45,9 @@
    "(&&," 'conjunction
    "&&"   'conjunction
    "(&/," 'sequential-events
-   "&/" 'sequential-events
+   "&/"   'sequential-events
    "(&|," 'parallel-events
-   "&|" 'parallel-events
-   })
+   "&|"   'parallel-events})
 
 (defn get-compound-term [[_ operator-srt]]
   (compound-terms operator-srt))
@@ -84,15 +83,24 @@
 (defmethod element :task [[_ & data]]
   `[~@(keep-cat element data)])
 
-(defmethod element :compound-term [[_ _ & data]]
-  (let [first-el-type (get-in (vec data) [0 0])
-        comp-operator ((if (= :term first-el-type) second first) data)]
+;looks strange but it is because of special syntax for negation --bird.
+(defn get-comp-operator [second-el data]
+  (let [first-el-type (get-in (vec data) [0 0])]
+    (if (= :op-negation (first second-el))
+      second-el
+      ((if (= :term first-el-type) second first) data))))
+
+(defmethod element :compound-term [[_ second-el & data]]
+  (let [comp-operator (get-comp-operator second-el data)]
     `[~(get-compound-term comp-operator)
       ~@(keep-cat element (remove string? data))]))
 
 (defmethod element :copula [_])
 (defmethod element :op-multi [_])
 (defmethod element :op-single [_])
+(defmethod element :op-negation [_])
+(defmethod element :op-ext-image [_])
+(defmethod element :op-int-image [_])
 
 (defmethod element :variable [[_ _ [_ v]]]
   (let [v (symbol v)]
