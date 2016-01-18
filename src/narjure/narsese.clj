@@ -76,7 +76,7 @@
 ;looks strange but it is because of special syntax for negation --bird.
 (defn get-comp-operator [second-el data]
   (let [first-el-type (get-in (vec data) [0 0])]
-    (if (= :op-negation (first second-el))
+    (if (some #{(first second-el)} [:op-negation :op-int-set :op-ext-set])
       second-el
       ((if (= :term first-el-type) second first) data))))
 
@@ -89,11 +89,14 @@
 (defmethod element :op-multi [_])
 (defmethod element :op-single [_])
 (defmethod element :op-negation [_])
+(defmethod element :op-ext-set [_])
+(defmethod element :op-int-set [_])
 (defmethod element :op-ext-image [_])
 (defmethod element :op-int-image [_])
 
-(defmethod element :variable [[_ _ [_ v]]]
-  (let [v (symbol v)]
+(def var-prefixes {"#" "d_" "?" "q_"})
+(defmethod element :variable [[_ type [_ v]]]
+  (let [v (symbol (str (var-prefixes type) v))]
     (swap! *lvars* conj v)
     v))
 

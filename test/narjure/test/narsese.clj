@@ -18,7 +18,10 @@
   (is (= [1.0 0.9] (get-truth "<bird --> swimmer>. %1;0.9%")))
   (is (= '[[[negation bird]]] (:data (parse "--bird."))))
   (is (= '[[[negation bird]]] (:data (parse "(--,bird)."))))
-  (is (= '[[[int-image bird animal]]] (:data (parse "(\\,bird,animal).")))))
+  (is (= '[[[int-image bird animal]]] (:data (parse "(\\,bird,animal)."))))
+  (is (= '[[[conjunction [inheritance d_1 [int-set red]] [inheritance d_1 apple]]]]
+         (:data (parse "(&&,<#1 --> [red]>,<#1 --> apple>)."))))
+  )
 
 (deftest test-numbers-validation
   (is (not (failure? (parse "<bird --> swimmer>. %1;0.9%"))))
