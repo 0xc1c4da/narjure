@@ -25,28 +25,18 @@
 (def compound-terms
   {"{"    'ext-set
    "["    'int-set
-   "(&,"  'ext-intersection
    "&"    'ext-intersection
-   "(|,"  'int-intersection
    "|"    'int-intersection
-   "(-,"  'ext-difference
    "-"    'ext-difference
-   "(~,"  'int-difference
    "~"    'int-difference
-   "(*,"  'product
    "*"    'product
    "("    'product
    "/"    'ext-image
    "\\"   'int-image
-   "(--," 'negation
    "--"   'negation
-   "(||," 'disjunction
    "||"   'disjunction
-   "(&&," 'conjunction
    "&&"   'conjunction
-   "(&/," 'sequential-events
    "&/"   'sequential-events
-   "(&|," 'parallel-events
    "&|"   'parallel-events})
 
 (defn get-compound-term [[_ operator-srt]]
