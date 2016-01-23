@@ -14,7 +14,7 @@
          instance property ext-set int-set product negation
          inst-prop ext-difference revision inference equivalence
          inference2 inference3 equivalence-list reduceo replace-var
-         replace-all implication)
+         replace-all implication choice)
 
 ;===============================================================================
 ;revision
