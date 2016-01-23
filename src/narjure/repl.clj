@@ -4,6 +4,8 @@
             [instaparse.core :as i]
             [nal.core :as c]
             [clojure.core.logic :as l]
+            [clojure.string :refer [trim]]
+            [clojure.pprint :as p]
             [clojure.tools.nrepl.middleware :refer [set-descriptor!]]))
 
 (defonce narsese-repl-mode (atom false))
@@ -63,16 +65,21 @@
                    [])]
     (into forward backward)))
 
+(defn- get-result [code]
+  (let [result (parse code)]
+    (if (and (not (i/failure? result)))
+      (do (swap! buffer conj result)
+          (collect! result))
+      result)))
+
 (defn handle-narsese [code]
-  (if-let [n (parse-int (clojure.string/trim code))]
-    (run n)
-    (if (= "stop!" (clojure.string/trim code))
-      (stop-narsese-repl!)
-      (let [result (parse code)]
-        (if (and (not (i/failure? result)))
-          (do (swap! buffer conj result)
-              (collect! result))
-          result)))))
+  (let [n (parse-int (trim code))]
+    (cond
+      (integer? n) (p/pprint (run n))
+      (= "stop!" (trim code)) (stop-narsese-repl!)
+      (= \* (first code)) (reset! buffer [])
+      (= \/ (first code)) ""
+      :default (get-result code))))
 
 (defn narsese-handler [handler]
   (fn [args & tail]
