@@ -23,21 +23,21 @@
    "<|>"  'concurrent-equivalence})
 
 (def compound-terms
-  {"{"    'ext-set
-   "["    'int-set
-   "&"    'ext-intersection
-   "|"    'int-intersection
-   "-"    'ext-difference
-   "~"    'int-difference
-   "*"    'product
-   "("    'product
-   "/"    'ext-image
-   "\\"   'int-image
-   "--"   'negation
-   "||"   'disjunction
-   "&&"   'conjunction
-   "&/"   'sequential-events
-   "&|"   'parallel-events})
+  {"{"  'ext-set
+   "["  'int-set
+   "&"  'ext-intersection
+   "|"  'int-intersection
+   "-"  'ext-difference
+   "~"  'int-difference
+   "*"  'product
+   "("  'product
+   "/"  'ext-image
+   "\\" 'int-image
+   "--" 'negation
+   "||" 'disjunction
+   "&&" 'conjunction
+   "&/" 'sequential-events
+   "&|" 'parallel-events})
 
 (defn get-compound-term [[_ operator-srt]]
   (compound-terms operator-srt))
@@ -48,6 +48,7 @@
 (def ^:dynamic *action* (atom nil))
 (def ^:dynamic *lvars* (atom []))
 (def ^:dynamic *truth* (atom []))
+(def ^:dynamic *budget* (atom []))
 
 (defn keep-cat [fun col]
   (into [] (comp (mapcat fun) (filter (complement nil?))) col))
@@ -63,7 +64,11 @@
 (defmethod element :sentence [[_ & data]]
   (let [filtered (group-by string? data)]
     (reset! *action* (actions (first (filtered true))))
-    (keep element (filtered false))))
+    (let [cols (filtered false)
+          last-el (last cols)]
+      (when (= :truth (first last-el))
+        (element last-el))
+      (element (first cols)))))
 
 (defmethod element :statement [[_ & data]]
   (if-let [copula (get-copula data)]
@@ -110,18 +115,35 @@
   [[_ & data]]
   `[[~@(mapv element data)]])
 
-(defmethod element :frequency [[_ d]]
-  (let [d (Double/parseDouble d)]
-    (swap! *truth* conj d) d))
-(defmethod element :confidence [[_ d]]
-  (let [d (Double/parseDouble d)]
-    (swap! *truth* conj d) d))
-(defmethod element :priority [[_ d]] (Double/parseDouble d))
-(defmethod element :durability [[_ d]] (Double/parseDouble d))
+(defmacro double-element [n a]
+  `(defmethod element ~n [[t# d#]]
+     (let [d# (Double/parseDouble d#)]
+       (swap! ~a conj d#) d#)))
+
+(double-element :frequency *truth*)
+(double-element :confidence *truth*)
+(double-element :priority *budget*)
+(double-element :durability *budget*)
+(double-element :quality *budget*)
+
+(defmethod element :task [[_ & data]]
+  (when (= :budget (first (first data)))
+    (element (first data)))
+  (element (last data)))
 
 (defmethod element :default [[_ & data]]
   (when (seq? data)
     (keep element data)))
+
+;TODO check if this assumption about terms/concepts is correct or not
+(defn terms
+  "Fetch terms from task."
+  [statement]
+  (if (coll? statement)
+    (if (= 1 (count statement))
+      (terms (first statement))
+      (concat [statement] (mapcat terms (next statement))))
+    [statement]))
 
 (defn parse
   "Parses a Narsese string into task ready for inference"
@@ -130,10 +152,13 @@
     (if-not (i/failure? data)
       (binding [*action* (atom nil)
                 *lvars* (atom [])
-                *truth* (atom [])]
-        (let [parsed-code (element data)]
-          {:action @*action*
-           :lvars  @*lvars*
-           :truth  @*truth*
-           :data   parsed-code}))
+                *truth* (atom [])
+                *budget* (atom [])]
+        (let [statement (element data)]
+          {:action    @*action*
+           :lvars     @*lvars*
+           :truth     @*truth*
+           :budget    @*budget*
+           :statement statement
+           :terms     (terms statement)}))
       data)))

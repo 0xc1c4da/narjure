@@ -1,12 +1,12 @@
 (ns narjure.bag
   (:require [clojure.data.priority-map :refer [priority-map-keyfn-by]]))
 
+;TODO take/get semantic and names to be decided
 (defprotocol Bag
   (put-el [this item])
-  (get-el
-    [this]
-    [this k])
+  (get-el [this] [this k])
   (remove-el [this k])
+  (take-el [this] [this k])
   (count-els [this]))
 
 ;TODO must be discussed
@@ -31,6 +31,12 @@
   (get-el [_] (peek queue))
   (get-el [_ key] (when (contains? queue key) [key (queue key)]))
   (remove-el [_ key] (DefaultBag. capacity (dissoc queue key)))
+  (take-el [bag]
+    (let [[k el] (get-el bag)]
+      [el (remove-el bag k)]))
+  (take-el [bag k]
+    (let [[_ el] (get-el bag k)]
+      [el (remove-el bag k)]))
   (count-els [_] (count queue)))
 
 (defn default-bag

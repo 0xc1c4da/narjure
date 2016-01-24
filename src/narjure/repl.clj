@@ -37,9 +37,8 @@
 (defn inference [n st1 st2]
   (l/run n [q] (c/inference st1 st2 q)))
 
-(defmethod collect! :judgement [{:keys [truth data]}]
+(defmethod collect! :judgement [{:keys [truth statement]}]
   (let [truth (if (empty? truth) [1 0.9] truth)
-        statement (first data)
         known-truth (@db statement)]
     (cond (nil? known-truth) (do (swap! db assoc statement truth) [statement truth])
           (not= known-truth truth) (revision! statement known-truth truth)
@@ -53,9 +52,8 @@
 (defn- wrap-code [code]
   (str "(narjure.repl/handle-narsese \"" code "\")"))
 
-(defn- sentence [{:keys [data]}]
-  (let [statement (first data)]
-    [statement (@db statement)]))
+(defn- sentence [{:keys [statement]}]
+  [statement (@db statement)])
 
 (defn run [n]
   (let [last-two (map sentence (take-last 2 @buffer))
