@@ -28,14 +28,14 @@
   Bag
   (put-el [_ item]
     (DefaultBag. capacity (assoc-to-bag queue item capacity)))
-  (get-el [_] (peek queue))
-  (get-el [_ key] (when (contains? queue key) [key (queue key)]))
+  (get-el [_] (second (peek queue)))
+  (get-el [_ key] (when-let [el (queue key)] el))
   (remove-el [_ key] (DefaultBag. capacity (dissoc queue key)))
   (take-el [bag]
-    (let [[k el] (get-el bag)]
-      [el (remove-el bag k)]))
+    (when-let [el (get-el bag)]
+      [el (remove-el bag (:key el))]))
   (take-el [bag k]
-    (let [[_ el] (get-el bag k)]
+    (when-let [el (get-el bag k)]
       [el (remove-el bag k)]))
   (count-els [_] (count queue)))
 

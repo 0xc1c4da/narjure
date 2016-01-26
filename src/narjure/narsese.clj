@@ -135,15 +135,11 @@
   (when (seq? data)
     (keep element data)))
 
-;TODO check if this assumption about terms/concepts is correct or not
+;TODO check for variables in statemnts, ignore subterm if it contains variable
 (defn terms
   "Fetch terms from task."
   [statement]
-  (if (coll? statement)
-    (if (= 1 (count statement))
-      (terms (first statement))
-      (concat [statement] (mapcat terms (next statement))))
-    [statement]))
+  (into #{statement} (rest statement)))
 
 (defn parse
   "Parses a Narsese string into task ready for inference"
