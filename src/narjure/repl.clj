@@ -6,7 +6,8 @@
             [clojure.core.logic :as l]
             [clojure.string :refer [trim]]
             [clojure.pprint :as p]
-            [clojure.tools.nrepl.middleware :refer [set-descriptor!]]))
+            [clojure.tools.nrepl.middleware :refer [set-descriptor!]]
+            [narjure.cycle :as cycle]))
 
 (defonce narsese-repl-mode (atom false))
 
@@ -18,31 +19,16 @@
   (reset! narsese-repl-mode false)
   (println "Narsese repl was stopped."))
 
-(defonce db (atom {}))
-(defonce buffer (atom []))
+(defonce db (atom (cycle/default-memory)))
 
-(defn clear-db! [] (reset! db {}))
-(defn clear-buffer! [] (reset! buffer {}))
+(defn clear-db! [] (reset! db (cycle/default-memory)))
 
 (defmulti collect! :action)
 
-(defn revision! [statement known-truth truth]
-  ;I think that core.logic usage is not necesssary for revision calculation
-  (let [[[_ new-truth]]
-        (l/run* [q]
-          (c/revision [statement known-truth] [statement truth] q))]
-    (swap! db assoc statement new-truth)
-    [statement new-truth]))
-
-(defn inference [n st1 st2]
-  (l/run n [q] (c/inference st1 st2 q)))
-
-(defmethod collect! :judgement [{:keys [truth statement]}]
-  (let [truth (if (empty? truth) [1 0.9] truth)
-        known-truth (@db statement)]
-    (cond (nil? known-truth) (do (swap! db assoc statement truth) [statement truth])
-          (not= known-truth truth) (revision! statement known-truth truth)
-          :default [statement known-truth])))
+(defmethod collect! :judgement
+  [{:keys [statement truth] :as task}]
+  (swap! db cycle/task->buffer task)
+  [statement truth])
 
 (defmethod collect! :default [_])
 
@@ -52,30 +38,25 @@
 (defn- wrap-code [code]
   (str "(narjure.repl/handle-narsese \"" code "\")"))
 
-(defn- sentence [{:keys [statement]}]
-  [statement (@db statement)])
 
 (defn run [n]
-  (let [last-two (map sentence (take-last 2 @buffer))
-        forward (apply inference n last-two)
-        backward (if (> n (count forward))
-                   (apply inference n (reverse last-two))
-                   [])]
-    (into forward backward)))
+  (swap! db cycle/do-cycles n)
+  (cycle/print-results! @db)
+  (swap! db dissoc :forward-inf-results :local-inf-results)
+  nil)
 
 (defn- get-result [code]
   (let [result (parse code)]
     (if (and (not (i/failure? result)))
-      (do (swap! buffer conj result)
-          (collect! result))
+      (collect! result)
       result)))
 
 (defn handle-narsese [code]
   (let [n (parse-int (trim code))]
     (cond
-      (integer? n) (p/pprint (run n))
+      (integer? n) (do (run n) nil)
       (= "stop!" (trim code)) (stop-narsese-repl!)
-      (= \* (first code)) (reset! buffer [])
+      (= \* (first code)) (do (clear-db!) nil)
       (= \/ (first code)) ""
       :default (get-result code))))
 

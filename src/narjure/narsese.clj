@@ -153,7 +153,7 @@
         (let [statement (element data)]
           {:action    @*action*
            :lvars     @*lvars*
-           :truth     @*truth*
+           :truth     (if (not-empty @*truth*) @*truth* [1 0.9])
            :budget    @*budget*
            :statement statement
            :terms     (terms statement)}))

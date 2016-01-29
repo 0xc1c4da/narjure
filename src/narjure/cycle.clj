@@ -1,15 +1,23 @@
 (ns narjure.cycle
   (:require [narjure.bag :refer :all]
-            [narjure.narsese :refer [parse]]))
+            [narjure.narsese :refer [parse]]
+            [clojure.core.logic :as l]
+            [nal.core :as c]
+            [clojure.set :refer [intersection union]]))
+
+;TODO think about modules
 
 (declare task->buffer)
+
 ;TODO create record for memory abstraction, but only after
 ;api will become more/less stable
 (defn memory [buffer concepts]
-  {:concepts   concepts
-   :cycles-cnt 0
-   :tasks-cnt  0
-   :buffer     buffer})
+  {:concepts            concepts
+   :cycles-cnt          0
+   :tasks-cnt           0
+   :buffer              buffer
+   :local-inf-results   #{}
+   :forward-inf-results #{}})
 
 (defn default-memory
   ([] (default-memory 100 100))
@@ -24,29 +32,91 @@
    :beliefs  (default-bag 100)})
 
 (defn get-concept [concepts term]
+  "Check for concept in database, creates new in case in didn't find it."
   (if-let [concept (get-el concepts term)]
     concept
     (default-concept term)))
 
-(defn local-revision
-  [concept {:keys [statement] :as task}]
-  #_(if-let [old-beleife ()]
-    (if (overlaps?))))
+(defn overlapping-evidences?
+  [belief task]
+  (let [belief-ev-base (:evidental-base belief)
+        task-ev-base (:evidental-base task)]
+    (not-empty (intersection belief-ev-base task-ev-base))))
 
-;TODO local inefernce should be somewhere here
+;TODO should be configurable
+(def max-ev-base 100)
+
+(defn total-ev-base
+  ;TODO https://github.com/opennars/opennars/wiki/Stamp-In-NARS#evidential-base
+  [b1 b2]
+  (let [b1-ev-base (:evidental-base b1)
+        b2-ev-base (:evidental-base b2)]
+    (set (take max-ev-base (union b1-ev-base b2-ev-base)))))
+
+;TODO bad name for function
+(defn inf-statement
+  [{:keys [statement truth]}]
+  [statement truth])
+
+(defn choice [belief task]
+  (let [b (inf-statement belief)
+        t (inf-statement task)
+        [statement truth] (first (l/run* [q] (c/choice b t q)))]
+    {:statement      statement
+     :key            statement
+     :truth          truth
+     :evidental-base (total-ev-base belief task)}))
+
+(defn revision [belief task]
+  ;TODO selecting the one with lower complexity here
+  ;<(&/,<tim --> cat>,<tom --> cat>) =/> <sam --> cat>>.
+  ;<<tim --> cat> =/> <sam --> cat>>.
+  ;<?how =/> <sam --> cat>>?
+  ;
+  ;<<tim --> cat> =/> <sam --> cat>>. :12791129: %1.00;0.90%
+  ;
+  ; because the other ranking params, truth expectation and originality are in
+  ; both cases the same, so complexity is the determining factor
+  ; in this case
+  (let [b (inf-statement belief)
+        t (inf-statement task)
+        [statement truth] (first (l/run* [q] (c/revision b t q)))]
+    {:statement      statement
+     :key            statement
+     :truth          truth
+     :evidental-base (total-ev-base belief task)}))
+
+(defn local-inference
+  "Revision/choice"
+  [belief task]
+  (when belief
+    (if (overlapping-evidences? belief task)
+      (choice belief task)
+      (revision belief task))))
+
+;TODO sort out with terminology, some mess in tasks/beliefs/tasks buffer
 (defn task->concept
-  [task {:keys [concepts] :as m} term]
-  (->> task
-       (update (get-concept concepts term) :tasks put-el)
-       (update m :concepts put-el)))
+  [{:keys [statement] :as task} {:keys [concepts] :as m} term]
+  (let [{:keys [beliefs] :as concept} (get-concept concepts term)
+        belief (get-el beliefs statement)
+        result (local-inference belief task)
+        task (if result (merge task result) (assoc task :key statement))
+        upd-concept (-> concept
+                        (update :beliefs put-el task)
+                        (update :tasks put-el task))
+        upd-m (update m :concepts put-el upd-concept)]
+    (if result
+      (update upd-m :local-inf-results conj result)
+      upd-m)))
 
 (defn task->concepts
   [m {:keys [terms] :as task}]
   (reduce (partial task->concept task) m terms))
 
-(def tasks-to-fetch 1)
+(def tasks-to-fetch 100)
 
 (defn buffer->tasks
+  "Fetch portion of tasks from the buffer for processing"
   [{:keys [buffer] :as m}]
   (let [[buffer tasks]
         (reduce (fn [[buf tasks] _]
@@ -60,12 +130,20 @@
   "1. Select tasks in the buffer to insert into the corresponding concepts,
   which may include the creation of new concepts (I'm not sure about the rest)
   and beliefs, as well as direct processing on the tasks."
-  ;TODO Should revision/choice be implemented here?
   [{:keys [tasks] :as m}]
   (dissoc (reduce task->concepts m tasks) :tasks))
 
-(defn do-inference [task beleife]
-  [])
+(defn forward-inference [task belief]
+  (let [t (inf-statement task)
+        b (inf-statement belief)
+        conclusions (l/run* [q] (c/inference t b q))
+        total-ev-base (total-ev-base belief task)]
+    (map (fn [[statement truth]]
+           {:statement      statement
+            :key            statement
+            :truth          truth
+            :evidental-base total-ev-base})
+         conclusions)))
 
 (defn inference
   "2. Select a concept from the memory, then select a task and a belief
@@ -73,18 +151,40 @@
   3. Feed the task and the belief to the inference engine
   to produce derived tasks."
   [{:keys [concepts] :as m}]
-  (let [[{:keys [tasks beliefs] :as concept} concepts] (take-el concepts)
-        [task tasks] (take-el tasks)
-        [beleife beleifs] (take-el beliefs)]
-    (if (and task beleife)
-      (let [new-tasks (do-inference task beleife)
-            upd-beleifs (put-el beleifs beleife)
-            uod-concept (assoc concept :beliefs upd-beleifs)
+  (let [;select concept
+        [{:keys [tasks beliefs] :as concept} concepts] (take-el concepts)
+        ;select task
+        [{:keys [statement] :as task} tasks] (take-el tasks)
+        same-belief (get-el beliefs statement)
+        ;select beleife
+        [beliefe beliefs] (take-el (remove-el beliefs statement))]
+    (if (and task beliefe)
+      ;if both task and beleife were found start inference
+      ;just return memory otherwise
+      (let [new-tasks (forward-inference task beliefe)
+            ;update memory, putting tasks/beliefs/concepts back
+            upd-beleifs (-> beliefs
+                            (put-el beliefe)
+                            (put-el same-belief))
+            uod-concept (assoc concept :beliefs upd-beleifs
+                                       :tasks tasks)
             upd-concepts (put-el concepts uod-concept)
             upd-m (assoc m :tasks tasks)]
-        (-> (reduce task->buffer upd-m new-tasks)
-            (assoc :concepts upd-concepts)))
-      m)))
+        (->
+          ;filling buffer via new tasks and update memory
+          (reduce task->buffer upd-m new-tasks)
+          (assoc :concepts upd-concepts)
+          (update :forward-inf-results union (set new-tasks))))
+      (update m :concepts put-el (update concept :priority - 0.4)))))
+
+(defn print-results! [{:keys [local-inf-results
+                              forward-inf-results] :as m}]
+  (when (not-empty local-inf-results)
+    (println "Local inference:")
+    (doall (map (fn [r] (println (inf-statement r))) local-inf-results)))
+  (when (not-empty forward-inf-results)
+    (println "Forward inference:")
+    (doall (map (fn [r] (println (inf-statement r))) forward-inf-results))))
 
 (defn do-cycle
   "The cycle of NARS."
@@ -93,29 +193,48 @@
       (update :cycles-cnt inc)
       buffer->tasks
       filling-tasks
-      inference
-      ;save-results
-      ))
+      inference))
 
-;TODO
+;TODO what is default priority for the tasks that arrived from the inference?
 (defn task-priority [_] 0.8)
 
-(defn pack-task [task cycle n]
+(defn pack-task
+  "Adds some properties to the task to make usable in Bag"
+  ;TODO should be moved somewhere
+  [task cycle n]
   (merge task
-         {:key            (hash task)                       ;TODO to be replaced
+         {;TODO hash to be replaced
+          :key            (hash task)
           :priority       (task-priority task)
           :cycle          cycle
-          :evidental-base [n]}))
+          ;TODO data structure for evidental base should be discussed
+          :evidental-base #{n}}))
 
-(defn task->buffer [{:keys [cycles-cnt tasks-cnt] :as m} t]
+(defn task->buffer
+  "Put task into the buffer."
+  [{:keys [cycles-cnt tasks-cnt] :as m} t]
   (let [n-task (inc tasks-cnt)]
     (assoc (->> (pack-task t cycles-cnt n-task)
                 (update m :buffer put-el))
       :tasks-cnt n-task)))
 
 (comment
+  (let [task1 (parse "<bird --> swimmer>. %1.00;0.90%")
+        task2 (parse "<bird --> swimmer>. %0.10;0.60%")]
+    (def t-m (-> (default-memory)
+                 (task->buffer task1)
+                 (task->buffer task2))))
+  (do-cycle (do-cycle t-m))
+
   (let [task (parse "<a --> b>.")]
     (def t-m (task->buffer (default-memory) task)))
   (do-cycle t-m))
 
+(defn fill-memory [& expression]
+  (reduce #(task->buffer %1 (parse %2)) (default-memory) expression))
 
+(defn do-cycles [m n]
+  (reduce (fn [m _] (do-cycle m)) m (range n)))
+
+(defn do-cycles-no-results [n m]
+  (do (do-cycles n m) nil))
