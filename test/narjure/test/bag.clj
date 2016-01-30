@@ -19,7 +19,4 @@
                       (put-el {:key :a :priority 0.7})
                       :queue))))
   (is (= 2 (count-els (abc-bag 2))))
-
-  (is (= :a (-> a-bag get-el first)))
-  (is (= :a (-> a-bag (get-el :a) first)))
   (is (nil? (get-el a-bag :b))))

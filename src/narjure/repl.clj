@@ -38,7 +38,6 @@
 (defn- wrap-code [code]
   (str "(narjure.repl/handle-narsese \"" code "\")"))
 
-
 (defn run [n]
   (swap! db cycle/do-cycles n)
   (cycle/print-results! @db)

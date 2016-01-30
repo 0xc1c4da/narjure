@@ -20,7 +20,11 @@
   (is (= '[[negation bird]] (narsese->clj "(--,bird).")))
   (is (= '[[int-image bird animal]] (narsese->clj "(\\,bird,animal).")))
   (is (= '[[conjunction [inheritance d_1 [int-set red]] [inheritance d_1 apple]]]
-         (narsese->clj "(&&,<#1 --> [red]>,<#1 --> apple>)."))))
+         (narsese->clj "(&&,<#1 --> [red]>,<#1 --> apple>).")))
+  (is (= '[retrospective-implication
+           [inheritance [product x room_101] enter]
+           [inheritance [product x door_101] open]]
+         (narsese->clj "<<( $x, room_101) --> enter> =\\> <( $x, door_101) --> open>>. %0.9;0.1%"))))
 
 (deftest test-numbers-validation
   (is (not (failure? (parse "<bird --> swimmer>. %1;0.9%"))))

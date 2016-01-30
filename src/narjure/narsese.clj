@@ -81,7 +81,8 @@
 ;looks strange but it is because of special syntax for negation --bird.
 (defn get-comp-operator [second-el data]
   (let [first-el-type (get-in (vec data) [0 0])]
-    (if (some #{(first second-el)} [:op-negation :op-int-set :op-ext-set])
+    (if (some #{(first second-el)} [:op-negation :op-int-set
+                                    :op-ext-set :op-product])
       second-el
       ((if (= :term first-el-type) second first) data))))
 
@@ -89,15 +90,6 @@
   (let [comp-operator (get-comp-operator second-el data)]
     `[~(get-compound-term comp-operator)
       ~@(keep-cat element (remove string? data))]))
-
-(defmethod element :copula [_])
-(defmethod element :op-multi [_])
-(defmethod element :op-single [_])
-(defmethod element :op-negation [_])
-(defmethod element :op-ext-set [_])
-(defmethod element :op-int-set [_])
-(defmethod element :op-ext-image [_])
-(defmethod element :op-int-image [_])
 
 (def var-prefixes {"#" "d_" "?" "q_"})
 (defmethod element :variable [[_ type [_ v]]]
@@ -131,15 +123,24 @@
     (element (first data)))
   (element (last data)))
 
-(defmethod element :default [[_ & data]]
+(defmethod element :term [[_ & data]]
   (when (seq? data)
     (keep element data)))
+
+(defmethod element :default [_])
 
 ;TODO check for variables in statemnts, ignore subterm if it contains variable
 (defn terms
   "Fetch terms from task."
   [statement]
   (into #{statement} (rest statement)))
+
+(def default-truth-value [1 0.9])
+(defn check-truth-value [v]
+  (case (count v)
+    0 default-truth-value
+    1 (conj v (second default-truth-value))
+    2 v))
 
 (defn parse
   "Parses a Narsese string into task ready for inference"
@@ -153,7 +154,7 @@
         (let [statement (element data)]
           {:action    @*action*
            :lvars     @*lvars*
-           :truth     (if (not-empty @*truth*) @*truth* [1 0.9])
+           :truth     (check-truth-value @*truth*)
            :budget    @*budget*
            :statement statement
            :terms     (terms statement)}))
