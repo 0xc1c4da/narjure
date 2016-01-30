@@ -1,3 +1,5 @@
+[![Circle CI](https://circleci.com/gh/jarradh/narjure/tree/master.svg?style=svg)](https://circleci.com/gh/jarradh/narjure/tree/master)
+
 # Narjure
 
 A Clojure implementation of the [Non-Axiomatic Reasoning System](https://github.com/opennars/opennars) proposed by Pei Wang.
