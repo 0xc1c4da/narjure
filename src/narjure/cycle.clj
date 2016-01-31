@@ -94,7 +94,6 @@
       (choice belief task)
       (revision belief task))))
 
-;TODO sort out with terminology, some mess in tasks/beliefs/tasks buffer
 (defn task->concept
   [{:keys [statement] :as task} {:keys [concepts] :as m} term]
   (let [{:keys [beliefs] :as concept} (get-concept concepts term)
@@ -156,23 +155,22 @@
         ;select task
         [{:keys [statement] :as task} tasks] (take-el tasks)
         same-belief (get-el beliefs statement)
-        ;select beleife
-        [beliefe beliefs] (take-el (remove-el beliefs statement))]
-    (if (and task beliefe)
-      ;if both task and beleife were found start inference
+        ;select belief
+        [belief beliefs] (take-el (remove-el beliefs statement))]
+    (if (and task belief)
+      ;if both task and belief were found start inference
       ;just return memory otherwise
-      (let [new-tasks (forward-inference task beliefe)
+      (let [new-tasks (forward-inference task belief)
             ;update memory, putting tasks/beliefs/concepts back
-            upd-beleifs (-> beliefs
-                            (put-el beliefe)
+            upd-beliefs (-> beliefs
+                            (put-el belief)
                             (put-el same-belief))
-            uod-concept (assoc concept :beliefs upd-beleifs
+            upd-concept (assoc concept :beliefs upd-beliefs
                                        :tasks tasks)
-            upd-concepts (put-el concepts uod-concept)
-            upd-m (assoc m :tasks tasks)]
+            upd-concepts (put-el concepts upd-concept)]
         (->
           ;filling buffer via new tasks and update memory
-          (reduce task->buffer upd-m new-tasks)
+          (reduce task->buffer m new-tasks)
           (assoc :concepts upd-concepts)
           (update :forward-inf-results union (set new-tasks))))
       (update m :concepts put-el (update concept :priority - 0.4)))))
@@ -217,18 +215,6 @@
     (assoc (->> (pack-task t cycles-cnt n-task)
                 (update m :buffer put-el))
       :tasks-cnt n-task)))
-
-(comment
-  (let [task1 (parse "<bird --> swimmer>. %1.00;0.90%")
-        task2 (parse "<bird --> swimmer>. %0.10;0.60%")]
-    (def t-m (-> (default-memory)
-                 (task->buffer task1)
-                 (task->buffer task2))))
-  (do-cycle (do-cycle t-m))
-
-  (let [task (parse "<a --> b>.")]
-    (def t-m (task->buffer (default-memory) task)))
-  (do-cycle t-m))
 
 (defn fill-memory [& expression]
   (reduce #(task->buffer %1 (parse %2)) (default-memory) expression))

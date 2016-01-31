@@ -1,6 +1,7 @@
 (ns narjure.narsese
   (:require [instaparse.core :as i]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [narjure.defaults :refer :all]))
 
 (def bnf-file "narsese.bnf")
 
@@ -135,12 +136,12 @@
   [statement]
   (into #{statement} (rest statement)))
 
-(def default-truth-value [1 0.9])
 (defn check-truth-value [v]
-  (case (count v)
-    0 default-truth-value
-    1 (conj v (second default-truth-value))
-    2 v))
+  (concat v (nthrest truth-value (count v))))
+
+(defn check-budget [v act]
+  (let [budget (budgets act)]
+    (concat v (nthrest budget (count v)))))
 
 (defn parse
   "Parses a Narsese string into task ready for inference"
@@ -151,11 +152,12 @@
                 *lvars* (atom [])
                 *truth* (atom [])
                 *budget* (atom [])]
-        (let [statement (element data)]
-          {:action    @*action*
+        (let [statement (element data)
+              act @*action*]
+          {:action    act
            :lvars     @*lvars*
            :truth     (check-truth-value @*truth*)
-           :budget    @*budget*
+           :budget    (check-budget @*budget* act)
            :statement statement
            :terms     (terms statement)}))
       data)))
