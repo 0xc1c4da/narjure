@@ -9,14 +9,6 @@
   (take-el [this] [this k])
   (count-els [this]))
 
-(extend-protocol Bag
-  nil
-  (put-el [_ _])
-  (get-el ([_]) ([_ _]))
-  (remove-el [_ _])
-  (take-el ([_]) ([_ _]))
-  (count-els [_]))
-
 ;TODO must be discussed
 (defn randomize-priority [priority]
   (* (rand) priority))
@@ -51,3 +43,11 @@
   ([] (default-bag 100))
   ([capacity]
    (DefaultBag. capacity (priority-map-keyfn-by :rand-priority >))))
+
+(extend-protocol Bag
+  nil
+  (put-el [_ el] (put-el (default-bag) el))
+  (get-el ([_]) ([_ _]))
+  (remove-el [_ _] (default-bag))
+  (take-el ([_]) ([_ _]))
+  (count-els [_] 0))

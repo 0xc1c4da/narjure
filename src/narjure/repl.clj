@@ -23,14 +23,10 @@
 
 (defn clear-db! [] (reset! db (cycle/default-memory)))
 
-(defmulti collect! :action)
-
-(defmethod collect! :judgement
+(defn collect!
   [{:keys [statement truth] :as task}]
   (swap! db cycle/task->buffer task)
   [statement truth])
-
-(defmethod collect! :default [_])
 
 (defn- parse-int [s]
   (try (Integer/parseInt s) (catch Exception _)))
@@ -41,7 +37,7 @@
 (defn run [n]
   (swap! db cycle/do-cycles n)
   (cycle/print-results! @db)
-  (swap! db dissoc :forward-inf-results :local-inf-results)
+  (swap! db dissoc :forward-inf-results :local-inf-results :answers)
   nil)
 
 (defn- get-result [code]

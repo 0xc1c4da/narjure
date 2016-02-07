@@ -17,7 +17,8 @@
    :tasks-cnt           0
    :buffer              buffer
    :local-inf-results   #{}
-   :forward-inf-results #{}})
+   :forward-inf-results #{}
+   :answers             []})
 
 (defn default-memory
   ([] (default-memory 100 100))
@@ -29,7 +30,9 @@
   {:key      term
    :priority 1
    :tasks    (default-bag 100)
-   :beliefs  (default-bag 100)})
+   :beliefs  (default-bag 100)
+   ;here will be the map with patterns for possible questions
+   :answers  {}})
 
 (defn get-concept [concepts term]
   "Check for concept in database, creates new in case in didn't find it."
@@ -58,10 +61,13 @@
   [{:keys [statement truth]}]
   [statement truth])
 
+(defn raw-choice [b t]
+  (first (l/run* [q] (c/choice b t q))))
+
 (defn choice [belief task]
   (let [b (inf-statement belief)
         t (inf-statement task)
-        [statement truth] (first (l/run* [q] (c/choice b t q)))]
+        [statement truth] (raw-choice b t)]
     {:statement      statement
      :key            statement
      :truth          truth
@@ -94,15 +100,47 @@
       (choice belief task)
       (revision belief task))))
 
-(defn task->concept
+(defn possible-questions
+  "Vector of questions that can be answered by the term."
+  [[copula term1 term2 :as term]]
+  [term [copula term1 '_0] [copula '_0 term2]])
+
+(defn choice-with-nil [b t]
+  (if (nil? b)
+    t
+    (choice b t)))
+
+(defn update-answers
+  [concept questions belief]
+  (reduce
+    (fn [c q]
+      (update-in c [:answers q] choice-with-nil belief))
+    concept questions))
+
+(defmulti task->concept (fn [& args] (:action (first args))))
+
+(defmethod task->concept :question
+  [{:keys [statement] :as task} {:keys [concepts] :as m} term]
+  (let [concept (get-concept concepts term)
+        answer (get-in concept [:answers statement])
+        upd-concept (-> concept
+                        (update :tasks put-el task))
+        upd-m (update m :concepts put-el upd-concept)]
+    (if answer
+      (update upd-m :answers conj [task answer])
+      (task->buffer upd-m task))))
+
+(defmethod task->concept :default
   [{:keys [statement] :as task} {:keys [concepts] :as m} term]
   (let [{:keys [beliefs] :as concept} (get-concept concepts term)
         belief (get-el beliefs statement)
         result (local-inference belief task)
         task (if result (merge task result) (assoc task :key statement))
+        questions (possible-questions statement)
         upd-concept (-> concept
                         (update :beliefs put-el task)
-                        (update :tasks put-el task))
+                        (update :tasks put-el task)
+                        (update-answers questions task))
         upd-m (update m :concepts put-el upd-concept)]
     (if result
       (update upd-m :local-inf-results conj result)
@@ -176,13 +214,28 @@
       (update m :concepts put-el (update concept :priority - 0.4)))))
 
 (defn print-results! [{:keys [local-inf-results
-                              forward-inf-results] :as m}]
+                              forward-inf-results
+                              answers] :as m}]
   (when (not-empty local-inf-results)
     (println "Local inference:")
     (doall (map (fn [r] (println (inf-statement r))) local-inf-results)))
   (when (not-empty forward-inf-results)
     (println "Forward inference:")
-    (doall (map (fn [r] (println (inf-statement r))) forward-inf-results))))
+    (doall (map (fn [r] (println (inf-statement r))) forward-inf-results)))
+  (when (not-empty answers)
+    (println "Answers:")
+    (doall (map (fn [[q a]]
+                  (println (:statement q) "? " a))
+                answers))))
+
+(defn choose-answers
+  [{:keys [answers] :as m}]
+  (let [by-question (group-by first answers)]
+    (assoc m :answers
+             (map (fn [[q ans]]
+                    [q (reduce raw-choice (map inf-statement
+                                               (map second ans)))])
+                  by-question))))
 
 (defn do-cycle
   "The cycle of NARS."
@@ -191,7 +244,8 @@
       (update :cycles-cnt inc)
       buffer->tasks
       filling-tasks
-      inference))
+      inference
+      choose-answers))
 
 ;TODO what is default priority for the tasks that arrived from the inference?
 (defn task-priority [_] 0.8)
@@ -224,3 +278,15 @@
 
 (defn do-cycles-no-results [n m]
   (do (do-cycles n m) nil))
+
+(comment
+  (def m (fill-memory "<sport --> competition>."
+                      "<chess --> competition>. %0.90%"))
+  (def mq (fill-memory "<bird --> swimmer>."
+                       "<bird --> swimmer>?"))
+  (def mqq
+    (-> (default-memory)
+        (task->buffer (parse "<bird --> swimmer>."))
+        do-cycle
+        (task->buffer (parse "<bird --> swimmer>?"))
+        do-cycle)))
