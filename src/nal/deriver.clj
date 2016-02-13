@@ -1,6 +1,6 @@
 (ns nal.deriver
   (:require [narjure.narsese :refer [parser parse]]
-            [clojure.string :as s]))
+            [clojure.walk :as w]))
 
 (defn path [statement]
   (if (coll? statement)
@@ -65,13 +65,23 @@
   (when-not (empty? args)
     (into {} (map vec (partition 2 args)))))
 
+(defn replace-sets
+  [statement]
+  (letfn [(do-replace [el]
+            (cond
+              (vector? el) (concat '(int-set) el)
+              (set? el) (concat '(ext-set) el)
+              :default el))]
+    (w/walk do-replace identity (do-replace statement))))
+
 (defn rule
   [[p1 p2 _ c & other]]
-  (let [p1 (infix->prefix p1)
-        p2 (infix->prefix p2)]
+  (let [transform (comp infix->prefix replace-sets)
+        p1 (transform p1)
+        p2 (transform p2)]
     {:p1        p1
      :p2        p2
-     :c         (infix->prefix c)
+     :c         (transform c)
      :full-path (rule-path p1 p2)
      :rest      (options other)}))
 
