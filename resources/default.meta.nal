@@ -1,0 +1,526 @@
+// Pei Wang's "Non-Axiomatic Logic" specified with a math. notation inspired DSL with given intiutive explainations:
+
+//The rules of NAL, can be interpreted by considering the intiution behind the following two relations:
+// Statement:                 (A --> B):               A can stand for B
+// Statement about Statement: (A ==> B): If A is true, so is/will be B
+// --> is a relation in meaning of terms, while ==> is a relation of truth between statements.
+
+//// Revision ////////////////////////////////////////////////////////////////////////////////////
+// When a given belief is challenged by new experience, a new belief2 with same content (and disjoint evidental base),
+// a new revised task, which sums up the evidence of both belief and belief2 is derived:
+
+//   A, A |- A, (Truth:Revision) (Commented out because it is already handled by belief management in java)
+
+//Similarity to Inheritance
+
+    (S --> P), (S <-> P), task("?") |- (S --> P), (Truth:StructuralIntersection, Punctuation:Judgment)
+
+//Inheritance to Similarity
+
+    (S <-> P), (S --> P), task("?") |- (S <-> P), (Truth:StructuralAbduction, Punctuation:Judgment)
+
+//Set Definition Similarity to Inheritance
+
+    (S <-> {P}),  S |- (S --> {P}), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+    (S <-> {P}), {P} |- (S --> {P}), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+    ([S] <-> P), [S] |- ([S] --> P), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+    ([S] <-> P),  P |- ([S] --> P), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+
+    ({S} <-> {P}), {S} |- ({P} --> {S}), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+    ({S} <-> {P}), {P} |- ({P} --> {S}), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+    ([S] <-> [P]), [S] |- ([P] --> [S]), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+    ([S] <-> [P]), [P] |- ([P] --> [S]), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+
+//Set Definition Unwrap
+
+    ({S} <-> {P}), {S} |- (S <-> P), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+    ({S} <-> {P}), {P} |- (S <-> P), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+    ([S] <-> [P]), [S] |- (S <-> P), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+    ([S] <-> [P]), [P] |- (S <-> P), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+
+//Nothing is more specific than a instance, so its similar
+
+    (S --> {P}),  S |- (S <-> {P}), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+    (S --> {P}), {P} |- (S <-> {P}), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+
+//nothing is more general than a property, so its similar
+
+    ([S] --> P), [S] |- ([S] <-> P), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+    ([S] --> P),  P |- ([S] <-> P), (Truth:Identity, Desire:Identity, Derive:AllowBackward)
+
+////// Truth-value functions: see TruthFunctions.java
+
+//// Immediate Inference ////////////////////////////////////////////////////////////////////////////////////
+//If S can stand for P, P can to a certain low degree also represent the class S
+//If after S usually P happens, then it might be a good guess that usually before P happens, S happens.
+
+    (P --> S), (S --> P), task("?") |- (P --> S), (Truth:Conversion, Punctuation:Judgment)
+    (P --> S), (S --> P), task("?") |- (P --> S), (Truth:Conversion, Punctuation:Judgment)
+    (P ==> S), (S ==> P), task("?") |- (P ==> S), (Truth:Conversion, Punctuation:Judgment)
+    (P =|> S), (S =|> P), task("?") |- (P =|> S), (Truth:Conversion, Punctuation:Judgment)
+    (P =\> S), (S =/> P), task("?") |- (P =\> S), (Truth:Conversion, Punctuation:Judgment)
+    (P =/> S), (S =\> P), task("?") |- (P =/> S), (Truth:Conversion, Punctuation:Judgment)
+
+// "If not smoking lets you be healthy, being not healthy may be the result of smoking"
+
+    ( --S ==> P),   P |- ( --P ==> S), (Truth:Contraposition, Derive:AllowBackward)
+    ( --S ==> P), --S |- ( --P ==> S), (Truth:Contraposition, Derive:AllowBackward)
+    ( --S =|> P),   P |- ( --P =|> S), (Truth:Contraposition, Derive:AllowBackward)
+    ( --S =|> P), --S |- ( --P =|> S), (Truth:Contraposition, Derive:AllowBackward)
+    ( --S =/> P),   P |- ( --P =\> S), (Truth:Contraposition, Derive:AllowBackward)
+    ( --S =/> P), --S |- ( --P =\> S), (Truth:Contraposition, Derive:AllowBackward)
+    ( --S =\> P),   P |- ( --P =/> S), (Truth:Contraposition, Derive:AllowBackward)
+    ( --S =\> P), --S |- ( --P =/> S), (Truth:Contraposition, Derive:AllowBackward)
+
+//A belief b <f,c> is equal to --b <1-f,c>, which is the negation rule:
+
+    (A --> B), A |- --(A --> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward)
+    (A --> B), B |- --(A --> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward)
+  --(A --> B), A |-   (A --> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward)
+  --(A --> B), B |-   (A --> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward)
+
+    (A <-> B), A |- --(A <-> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward)
+    (A <-> B), B |- --(A <-> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward)
+  --(A <-> B), A |-   (A <-> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward)
+  --(A <-> B), B |-   (A <-> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward)
+
+    (A ==> B), A |- --(A ==> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward, Order:ForAllSame)
+    (A ==> B), B |- --(A ==> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward, Order:ForAllSame)
+  --(A ==> B), A |-   (A ==> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward, Order:ForAllSame)
+  --(A ==> B), B |-   (A ==> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward, Order:ForAllSame)
+
+    (A <=> B), A |- --(A <=> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward, Order:ForAllSame)
+    (A <=> B), B |- --(A <=> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward, Order:ForAllSame)
+  --(A <=> B), A |-   (A <=> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward, Order:ForAllSame)
+  --(A <=> B), B |-   (A <=> B), (Truth:Negation, Desire:Negation, Derive:AllowBackward, Order:ForAllSame)
+
+//TODO: probably make simpler by just allowing it for all tasks in general
+
+//// inheritance-based syllogism ////////////////////////////////////////////////////////////////////////////////////
+//       (A --> B) ------- (B --> C)
+//            \               /
+//             \             /
+//              \           /
+//               \         /
+//                (A --> C)
+//If A is a special case of B, and B is a special case of C, so is A a special case of C (strong), the other variations are hypotheses (weak)
+
+    (A --> B), (B --> C), not_equal(A,C) |- (A --> C), (Truth:Deduction, Desire:Strong, Derive:AllowBackward)
+    (A --> B), (A --> C), not_equal(B,C) |- (C --> B), (Truth:Abduction, Desire:Weak, Derive:AllowBackward)
+    (A --> C), (B --> C), not_equal(A,B) |- (B --> A), (Truth:Induction, Desire:Weak, Derive:AllowBackward)
+    (A --> B), (B --> C), not_equal(C,A) |- (C --> A), (Truth:Exemplification, Desire:Weak, Derive:AllowBackward)
+
+//// similarity from inheritance ////////////////////////////////////////////////////////////////////////////////////
+//If S is a special case of P, and P is a special case of S, then S and P are similar
+
+    (S --> P), (P --> S) |- (S <-> P), (Truth:Intersection, Desire:Strong, Derive:AllowBackward)
+
+//// inheritance from similarty <- TODO check why this one was missing ////////////////////////////////////////////////////////////////////////////////////
+
+    (S <-> P), (P --> S) |- (S --> P), (Truth:ReduceConjunction, Desire:Strong, Derive:AllowBackward)
+
+//// similarity-based syllogism ////////////////////////////////////////////////////////////////////////////////////
+//If P and S are a special case of M, then they might be similar (weak),
+//also if P and S are a general case of M
+
+    (P --> M), (S --> M), not_equal(S,P) |- (S <-> P), (Truth:Comparison, Desire:Weak, Derive:AllowBackward)
+    (M --> P), (M --> S), not_equal(S,P) |- (S <-> P), (Truth:Comparison, Desire:Weak, Derive:AllowBackward)
+
+//If M is a special case of P and S and M are similar, then S is also a special case of P (strong)
+
+    (M --> P), (S <-> M), not_equal(S,P) |- (S --> P), (Truth:Analogy, Desire:Strong, Derive:AllowBackward)
+    (P --> M), (S <-> M), not_equal(S,P) |- (P --> S), (Truth:Analogy, Desire:Strong, Derive:AllowBackward)
+    (M <-> P), (S <-> M), not_equal(S,P) |- (S <-> P), (Truth:Resemblance, Desire:Strong, Derive:AllowBackward)
+
+//// inheritance-based composition ////////////////////////////////////////////////////////////////////////////////////
+//If P and S are in the intension/extension of M, then union/difference and intersection can be built:
+
+    (P --> M), (S --> M), not_set(S), not_set(P), not_equal(S,P), no_common_subterm(S,P) |- ((S | P) --> M), (Truth:Intersection),
+                                                                                            ((S & P) --> M), (Truth:Union),
+                                                                                            ((P ~ S) --> M), (Truth:Difference)
+
+    (M --> P), (M --> S), not_set(S), not_set(P), not_equal(S,P), no_common_subterm(S,P) |- (M --> (P & S)), (Truth:Intersection),
+                                                                                            (M --> (P | S)), (Truth:Union),
+                                                                                            (M --> (P - S)), (Truth:Difference)
+
+//// inheritance-based decomposition ////////////////////////////////////////////////////////////////////////////////////
+//if (S --> M) is the case, and ((|,S,A_1..n) --> M) is not the case, then ((|,A_1..n) --> M) is not the case, hence Truth:DecomposePositiveNegativeNegative
+
+    (S --> M), ((|,S,A_1..n) --> M) |- ((|,A_1..n) --> M), (Truth:DecomposePositiveNegativeNegative)
+    (S --> M), ((&,S,A_1..n) --> M) |- ((&,A_1..n) --> M), (Truth:DecomposeNegativePositivePositive)
+    (S --> M), ((S ~ P) --> M) |- (P --> M), (Truth:DecomposePositiveNegativePositive)
+    (S --> M), ((P ~ S) --> M) |- (P --> M), (Truth:DecomposeNegativeNegativeNegative)
+
+    (M --> S), (M --> (&,S,A_1..n)) |- (M --> (&,A_1..n)), (Truth:DecomposePositiveNegativeNegative)
+    (M --> S), (M --> (|,S,A_1..n)) |- (M --> (|,A_1..n)), (Truth:DecomposeNegativePositivePositive)
+    (M --> S), (M --> (S - P)) |- (M --> P), (Truth:DecomposePositiveNegativePositive)
+    (M --> S), (M --> (P - S)) |- (M --> P), (Truth:DecomposeNegativeNegativeNegative)
+
+//Set comprehension:
+
+    (C --> A), (C --> B), set_ext(A), union(A,B,R) |- (C --> R), (Truth:Union)
+    (C --> A), (C --> B), set_int(A), union(A,B,R) |- (C --> R), (Truth:Intersection)
+    (A --> C), (B --> C), set_ext(A), union(A,B,R) |- (R --> C), (Truth:Intersection)
+    (A --> C), (B --> C), set_int(A), union(A,B,R) |- (R --> C), (Truth:Union)
+
+    (C --> A), (C --> B), set_ext(A), intersection(A,B,R) |- (C --> R), (Truth:Intersection)
+    (C --> A), (C --> B), set_int(A), intersection(A,B,R) |- (C --> R), (Truth:Union)
+    (A --> C), (B --> C), set_ext(A), intersection(A,B,R) |- (R --> C), (Truth:Union)
+    (A --> C), (B --> C), set_int(A), intersection(A,B,R) |- (R --> C), (Truth:Intersection)
+
+    (C --> A), (C --> B), difference(A,B,R) |- (C --> R), (Truth:Difference)
+    (A --> C), (B --> C), difference(A,B,R) |- (R --> C), (Truth:Difference)
+
+//Set element takeout:
+
+    (C --> {A_1..n}), C |- (C --> {A_i}), (Truth:StructuralDeduction)
+    (C --> [A_1..n]), C |- (C --> [A_i]), (Truth:StructuralDeduction)
+    ({A_1..n} --> C), C |- ({A_i} --> C), (Truth:StructuralDeduction)
+    ([A_1..n] --> C), C |- ([A_i] --> C), (Truth:StructuralDeduction)
+
+//NAL3 single premise inference:
+
+    ((|,A_1..n) --> M), M |- (A_i --> M), (Truth:StructuralDeduction)
+    (M --> (&,A_1..n)), M |- (M --> A_i), (Truth:StructuralDeduction)
+
+    ((B ~ G) --> S), S |- (B --> S), (Truth:StructuralDeduction)
+    (R --> (B - S)), R |- (R --> B), (Truth:StructuralDeduction)
+
+////// NAL4 - Transformations between products and images: ////////////////////////////////////////////////////////////////////////////////////
+//Relations and transforming them into different representations so that arguments and the relation itself can become the subject or predicate
+
+    ((A_1..n) --> M), A_i |- (A_i --> (/,M, A_1..A_i.substitute(_)..A_n )), (Truth:Identity, Desire:Identity)
+
+    (M --> (A_1..n)), A_i |- ((\,M, A_1..A_i.substitute(_)..A_n ) --> A_i), (Truth:Identity, Desire:Identity)
+
+    (A_i --> (/,M,A_1..A_i.substitute(_)..A_n )), M |- ((A_1..n) --> M), (Truth:Identity, Desire:Identity)
+
+    ((\,M, A_1..A_i.substitute(_)..A_n ) --> A_i), M |- (M --> (A_1..n)), (Truth:Identity, Desire:Identity)
+
+//// implication-based syllogism ////////////////////////////////////////////////////////////////////////////////////
+//       (A ==> B) ------- (B ==> C)
+//            \               /
+//             \             /
+//              \           /
+//               \         /
+//                (A ==> C)
+//If after S M happens, and after M P happens, so P happens after S
+
+    (M ==> P), (S ==> M), not_equal(S,P) |- (S ==> P), (Truth:Deduction, Order:ForAllSame, Derive:AllowBackward)
+
+    (P ==> M), (S ==> M), not_equal(S,P) |- (S ==> P), (Truth:Induction, Derive:AllowBackward)
+    (P =|> M), (S =|> M), not_equal(S,P) |- (S =|> P), (Truth:Induction, Derive:AllowBackward)
+    (P =/> M), (S =/> M), not_equal(S,P) |- (S =|> P), (Truth:Induction, Derive:AllowBackward)
+    (P =\> M), (S =\> M), not_equal(S,P) |- (S =|> P), (Truth:Induction, Derive:AllowBackward)
+
+    (M ==> P), (M ==> S), not_equal(S,P) |- (S ==> P), (Truth:Abduction, Derive:AllowBackward)
+    (M =/> P), (M =/> S), not_equal(S,P) |- (S =|> P), (Truth:Abduction, Derive:AllowBackward)
+    (M =|> P), (M =|> S), not_equal(S,P) |- (S =|> P), (Truth:Abduction, Derive:AllowBackward)
+    (M =\> P), (M =\> S), not_equal(S,P) |- (S =|> P), (Truth:Abduction, Derive:AllowBackward)
+
+    (P ==> M), (M ==> S), not_equal(S,P) |- (S ==> P), (Truth:Exemplification, Derive:AllowBackward)
+    (P =/> M), (M =/> S), not_equal(S,P) |- (S =\> P), (Truth:Exemplification, Derive:AllowBackward)
+    (P =\> M), (M =\> S), not_equal(S,P) |- (S =/> P), (Truth:Exemplification, Derive:AllowBackward)
+    (P =|> M), (M =|> S), not_equal(S,P) |- (S =|> P), (Truth:Exemplification, Derive:AllowBackward)
+
+//// implication to equivalence ////////////////////////////////////////////////////////////////////////////////////
+//If when S happens, P happens, and before P happens, S has happened, then they are truth-related equivalent
+
+    (S ==> P), (P ==> S), not_equal(S,P) |- (S <=> P), (Truth:Intersection, Derive:AllowBackward)
+    (S =|> P), (P =|> S), not_equal(S,P) |- (S <|> P), (Truth:Intersection, Derive:AllowBackward)
+    (S =/> P), (P =\> S), not_equal(S,P) |- (S </> P), (Truth:Intersection, Derive:AllowBackward)
+    (S =\> P), (P =/> S), not_equal(S,P) |- (P </> S), (Truth:Intersection, Derive:AllowBackward)
+
+//// equivalence-based syllogism ////////////////////////////////////////////////////////////////////////////////////
+//Same as for inheritance again
+
+    (P ==> M), (S ==> M), not_equal(S,P) |- (S <=> P), (Truth:Comparison, Derive:AllowBackward)
+    (P =/> M), (S =/> M), not_equal(S,P) |- (S <|> P), (Truth:Comparison, Derive:AllowBackward),
+                                            (S </> P), (Truth:Comparison, Derive:AllowBackward),
+                                            (P </> S), (Truth:Comparison, Derive:AllowBackward)
+    (P =|> M), (S =|> M), not_equal(S,P) |- (S <|> P), (Truth:Comparison, Derive:AllowBackward)
+    (P =\> M), (S =\> M), not_equal(S,P) |- (S <|> P), (Truth:Comparison, Derive:AllowBackward),
+                                            (S </> P), (Truth:Comparison, Derive:AllowBackward),
+                                            (P </> S), (Truth:Comparison, Derive:AllowBackward)
+
+    (M ==> P), (M ==> S), not_equal(S,P) |- (S <=> P), (Truth:Comparison, Derive:AllowBackward)
+    (M =/> P), (M =/> S), not_equal(S,P) |- (S <|> P), (Truth:Comparison, Derive:AllowBackward),
+                                            (S </> P), (Truth:Comparison, Derive:AllowBackward),
+                                            (P </> S), (Truth:Comparison, Derive:AllowBackward)
+    (M =|> P), (M =|> S), not_equal(S,P) |- (S <|> P), (Truth:Comparison, Derive:AllowBackward)
+
+//Same as for inheritance again
+
+    (M ==> P), (S <=> M), not_equal(S,P) |- (S ==> P), (Truth:Analogy, Derive:AllowBackward)
+    (M =/> P), (S </> M), not_equal(S,P) |- (S =/> P), (Truth:Analogy, Derive:AllowBackward)
+    (M =/> P), (S <|> M), not_equal(S,P) |- (S =/> P), (Truth:Analogy, Derive:AllowBackward)
+    (M =|> P), (S <|> M), not_equal(S,P) |- (S =|> P), (Truth:Analogy, Derive:AllowBackward)
+    (M =\> P), (M </> S), not_equal(S,P) |- (S =\> P), (Truth:Analogy, Derive:AllowBackward)
+    (M =\> P), (S <|> M), not_equal(S,P) |- (S =\> P), (Truth:Analogy, Derive:AllowBackward)
+
+    (P ==> M), (S <=> M), not_equal(S,P) |- (P ==> S), (Truth:Analogy, Derive:AllowBackward)
+    (P =/> M), (S <|> M), not_equal(S,P) |- (P =/> S), (Truth:Analogy, Derive:AllowBackward)
+    (P =|> M), (S <|> M), not_equal(S,P) |- (P =|> S), (Truth:Analogy, Derive:AllowBackward)
+    (P =\> M), (S </> M), not_equal(S,P) |- (P =\> S), (Truth:Analogy, Derive:AllowBackward)
+    (P =\> M), (S <|> M), not_equal(S,P) |- (P =\> S), (Truth:Analogy, Derive:AllowBackward)
+
+    (M <=> P), (S <=> M), not_equal(S,P) |- (S <=> P), (Truth:Resemblance, Order:ForAllSame, Derive:AllowBackward)
+    (M </> P), (S <|> M), not_equal(S,P) |- (S </> P), (Truth:Resemblance, Derive:AllowBackward)
+    (M <|> P), (S </> M), not_equal(S,P) |- (S </> P), (Truth:Resemblance, Derive:AllowBackward)
+
+//// implication-based composition ////////////////////////////////////////////////////////////////////////////////////
+//Same as for inheritance again
+
+    (P ==> M), (S ==> M), not_equal(S,P) |- ((P || S) ==> M), (Truth:Intersection),
+                                            ((P && S) ==> M), (Truth:Union)
+    (P =|> M), (S =|> M), not_equal(S,P) |- ((P || S) =|> M), (Truth:Intersection),
+                                            ((P &| S) =|> M), (Truth:Union)
+    (P =/> M), (S =/> M), not_equal(S,P) |- ((P || S) =/> M), (Truth:Intersection),
+                                            ((P &| S) =/> M), (Truth:Union)
+    (P =\> M), (S =\> M), not_equal(S,P) |- ((P || S) =\> M), (Truth:Intersection),
+                                            ((P &| S) =\> M), (Truth:Union)
+
+    (M ==> P), (M ==> S), not_equal(S,P) |- (M ==> (P && S)), (Truth:Intersection),
+                                            (M ==> (P || S)), (Truth:Union)
+    (M =/> P), (M =/> S), not_equal(S,P) |- (M =/> (P &| S)), (Truth:Intersection),
+                                            (M =/> (P || S)), (Truth:Union)
+    (M =|> P), (M =|> S), not_equal(S,P) |- (M =|> (P &| S)), (Truth:Intersection),
+                                            (M =|> (P || S)), (Truth:Union)
+    (M =\> P), (M =\> S), not_equal(S,P) |- (M =\> (P &| S)), (Truth:Intersection),
+                                            (M =\> (P || S)), (Truth:Union)
+
+    (D =/> R), (D =\> K), not_equal(R,K) |- (K =/> R), (Truth:Abduction),
+                                            (R =\> K), (Truth:Induction),
+                                            (K </> R), (Truth:Comparison)
+//// implication-based decomposition ////////////////////////////////////////////////////////////////////////////////////
+//Same as for inheritance again
+
+    (S ==> M), ((||,S,A_1..n) ==> M) |- ((||,A_1..n) ==> M), (Truth:DecomposePositiveNegativeNegative, Order:ForAllSame)
+    (S ==> M), ((&&,S,A_1..n) ==> M) |- ((&&,A_1..n) ==> M), (Truth:DecomposeNegativePositivePositive, Order:ForAllSame, SequenceIntervals:FromPremises)
+
+    (M ==> S), (M ==> (&&,S,A_1..n)) |- (M ==> (&&,A_1..n)), (Truth:DecomposePositiveNegativeNegative, Order:ForAllSame, SequenceIntervals:FromPremises)
+    (M ==> S), (M ==> (||,S,A_1..n)) |- (M ==> (||,A_1..n)), (Truth:DecomposeNegativePositivePositive, Order:ForAllSame)
+
+//// conditional syllogism ////////////////////////////////////////////////////////////////////////////////////
+//If after M, P usually happens, and M happens, it means P is expected to happen
+
+    M, (M ==> P), shift_occurrence_forward(unused,"==>") |- P, (Truth:Deduction, Desire:Induction, Order:ForAllSame)
+    M, (P ==> M), shift_occurrence_backward(unused,"==>") |- P, (Truth:Abduction, Desire:Deduction, Order:ForAllSame)
+    M, (S <=> M), shift_occurrence_backward(unused,"<=>") |- S, (Truth:Analogy, Desire:Strong, Order:ForAllSame)
+    M, (M <=> S), shift_occurrence_forward(unused,"==>") |- S, (Truth:Analogy, Desire:Strong, Order:ForAllSame)
+
+//// conditional composition: ////////////////////////////////////////////////////////////////////////////////////
+//They are let out for AGI purpose, don't let the system generate conjunctions or useless <=> and ==> statements
+//For this there needs to be a semantic dependence between both, either by the predicate or by the subject,
+//or a temporal dependence which acts as special case of semantic dependence
+//These cases are handled by "Variable Introduction" and "Temporal Induction"
+
+//   P, S, no_common_subterm(S,P) |- (S ==> P), (Truth:Induction)
+//   P, S, no_common_subterm(S,P) |- (S <=> P), (Truth:Comparison)
+//   P, S, no_common_subterm(S,P) |- (P && S), (Truth:Intersection)
+//   P, S, no_common_subterm(S,P) |- (P || S), (Truth:Union)
+
+//// conjunction decompose
+
+    (&&,A_1..n), A_1 |- A_1, (Truth:StructuralDeduction, Desire:StructuralStrong)
+    (&/,A_1..n), A_1 |- A_1, (Truth:StructuralDeduction, Desire:StructuralStrong)
+    (&|,A_1..n), A_1 |- A_1, (Truth:StructuralDeduction, Desire:StructuralStrong)
+    (&/,B,A_1..n), B, task("!") |- (&/,A_1..n), (Truth:Deduction, Desire:Strong, SequenceIntervals:FromPremises)
+
+//// propositional decomposition ////////////////////////////////////////////////////////////////////////////////////
+//If S is the case, and (&&,S,A_1..n) is not the case, it can't be that (&&,A_1..n) is the case
+
+    S, (&/,S,A_1..n) |- (&/,A_1..n), (Truth:DecomposePositiveNegativeNegative, SequenceIntervals:FromPremises)
+    S, (&|,S,A_1..n) |- (&|,A_1..n), (Truth:DecomposePositiveNegativeNegative)
+    S, (&&,S,A_1..n) |- (&&,A_1..n), (Truth:DecomposePositiveNegativeNegative)
+    S, (||,S,A_1..n) |- (||,A_1..n), (Truth:DecomposeNegativePositivePositive)
+
+//Additional for negation: https://groups.google.com/forum/#!topic/open-nars/g-7r0jjq2Vc
+
+    S, (&/,(--,S),A_1..n) |- (&/,A_1..n), (Truth:DecomposeNegativeNegativeNegative, SequenceIntervals:FromPremises)
+    S, (&|,(--,S),A_1..n) |- (&|,A_1..n), (Truth:DecomposeNegativeNegativeNegative)
+    S, (&&,(--,S),A_1..n) |- (&&,A_1..n), (Truth:DecomposeNegativeNegativeNegative)
+    S, (||,(--,S),A_1..n) |- (||,A_1..n), (Truth:DecomposePositivePositivePositive)
+
+//// multi-conditional syllogism ////////////////////////////////////////////////////////////////////////////////////
+//Inference about the pre/postconditions
+
+    Y, ((&&,X,A_1..n) ==> B), substitute_if_unifies("$",X,Y) |- ((&&,A_1..n) ==> B), (Truth:Deduction, Order:ForAllSame, SequenceIntervals:FromPremises)
+    ((&&,M,A_1..n) ==> C), ((&&,A_1..n) ==> C) |- M, (Truth:Abduction, Order:ForAllSame)
+
+//Can be derived by NAL7 rules so this won't be necessary there (Order:ForAllSame left out here)
+
+//the first rule does not have Order:ForAllSame because it would be invalid, see: https://groups.google.com/forum/#!topic/open-nars/r5UJo64Qhrk
+    ((&&,A_1..n) ==> C), M, not_implication_or_equivalence(M) |- ((&&,M,A_1..n) ==> C), (Truth:Induction)
+    ((&&,A_1..n) =|> C), M, not_implication_or_equivalence(M) |- ((&&,M,A_1..n) =|> C), (Truth:Induction)
+    ((&&,A_1..n) =/> C), M, not_implication_or_equivalence(M) |- ((&&,M,A_1..n) =/> C), (Truth:Induction)
+    ((&&,A_1..n) =\> C), M, not_implication_or_equivalence(M) |- ((&&,M,A_1..n) =\> C), (Truth:Induction)
+    (A ==> M), ((&&,M,A_1..n) ==> C) |- ((&&,A,A_1..n) ==> C), (Truth:Deduction, Order:ForAllSame, SequenceIntervals:FromPremises)
+    ((&&,M,A_1..n) ==> C), ((&&,A,A_1..n) ==> C) |- (A ==> M), (Truth:Induction, Order:ForAllSame)
+    (A ==> M), ((&&,A,A_1..n) ==> C) |- ((&&,M,A_1..n) ==> C), (Truth:Abduction, Order:ForAllSame, SequenceIntervals:FromPremises)
+
+//// variable introduction ////////////////////////////////////////////////////////////////////////////////////
+//Introduce variables by common subject or predicate
+
+    (S --> M), (P --> M), not_equal(S,P) |- ((P --> $X) ==> (S --> $X)), (Truth:Abduction),
+                                            ((S --> $X) ==> (P --> $X)), (Truth:Induction),
+                                            ((P --> $X) <=> (S --> $X)), (Truth:Comparison),
+                                            (&&,(S --> #Y),(P --> #Y)), (Truth:Intersection)
+
+    (S --> M), (P --> M), not_equal(S,P), measure_time(I) |- ((&/,(P --> $X),I) =/> (S --> $X)), (Truth:Induction, Linkage:Temporal),
+                                                             ((S --> $X) =\> (&/,(P --> $X),I)), (Truth:Abduction, Linkage:Temporal),
+                                                             ((&/,(P --> $X),I) </> (S --> $X)), (Truth:Comparison, Linkage:Temporal),
+                                                             (&/,(P --> #Y), I, (S --> #Y)), (Truth:Intersection, Linkage:Temporal)
+
+    (S --> M), (P --> M), not_equal(S,P), concurrent(Task,Belief) |- ((P --> $X) =|> (S --> $X)), (Truth:Abduction, Linkage:Temporal),
+                                                                     ((S --> $X) =|> (P --> $X)), (Truth:Induction, Linkage:Temporal),
+                                                                     ((P --> $X) <|> (S --> $X)), (Truth:Comparison, Linkage:Temporal),
+                                                                     (&|,(P --> #Y),(S --> #Y)), (Truth:Intersection, Linkage:Temporal)
+
+    (M --> S), (M --> P), not_equal(S,P) |- (($X --> S) ==> ($X --> P)), (Truth:Induction),
+                                            (($X --> P) ==> ($X --> S)), (Truth:Abduction),
+                                            (($X --> S) <=> ($X --> P)), (Truth:Comparison),
+                                            (&&,(#Y --> S),(#Y --> P)), (Truth:Intersection)
+
+    (M --> S), (M --> P), not_equal(S,P), measure_time(I) |- ((&/,($X --> P),I) =/> ($X --> S)), (Truth:Induction, Linkage:Temporal),
+                                                             (($X --> S) =\> (&/,($X --> P),I)), (Truth:Abduction, Linkage:Temporal),
+                                                             ((&/,($X --> P),I) </> ($X --> S)), (Truth:Comparison, Linkage:Temporal),
+                                                             (&/,(#Y --> P), I ,(#Y --> S)), (Truth:Intersection, Linkage:Temporal)
+
+    (M --> S), (M --> P), not_equal(S,P), concurrent((M --> P),(M --> S)) |- (($X --> S) =|> ($X --> P)), (Truth:Induction, Linkage:Temporal),
+                                                                             (($X --> P) =|> ($X --> S)), (Truth:Abduction, Linkage:Temporal),
+                                                                             (($X --> S) <|> ($X --> P)), (Truth:Comparison, Linkage:Temporal),
+                                                                             (&|,(#Y --> S),(#Y --> P)), (Truth:Intersection, Linkage:Temporal)
+
+//// 2nd variable introduction ////////////////////////////////////////////////////////////////////////////////////
+
+    (A ==> (M --> P)), (M --> S), not_equal(A, (M --> S)) |- ((&&,A,($X --> S)) ==> ($X --> P)), (Truth:Induction),
+                                                             (&&,(A ==> (#Y --> P)), (#Y --> S)), (Truth:Intersection)
+
+    (&&,(M --> P), A_1..n), (M --> S), not_equal(S,P) |- (($Y --> S) ==> (&&,($Y --> P), A_1..n)), (Truth:Induction),
+                                                         (&&,(#Y --> S), (#Y --> P), A_1..n), (Truth:Intersection)
+
+    (A ==> (P --> M)), (S --> M), not_equal(S,P), not_equal(A, (S --> M)) |- ((&&,A,(P --> $X)) ==> (S --> $X)), (Truth:Abduction),
+                                                                             (&&,(A ==> (P --> #Y)), (S --> #Y)), (Truth:Intersection)
+
+    (&&,(P --> M), A_1..n), (S --> M), not_equal(S,P) |- ((S --> $Y) ==> (&&,(P --> $Y), A_1..n)), (Truth:Abduction),
+                                                         (&&, (S --> #Y), (P --> #Y), A_1..n), (Truth:Intersection)
+
+    (A --> L), ((A --> S) ==> R) |- ((&&,(#X --> L),(#X --> S)) ==> R), (Truth:Induction)
+    (A --> L), ((&&,(A --> S),A_1..n) ==> R), substitute(A,#X) |- ((&&,(#X --> L),(#X --> S),A_1..n) ==> R), (Truth:Induction)
+
+//// dependent variable elimination ////////////////////////////////////////////////////////////////////////////////////
+//Decomposition with elimination of a variable
+
+    B, (&&,A, A_1..n), task("."), substitute_if_unifies("#",A,B) |- (&&,A_1..n), (Truth:AnonymousAnalogy, Desire:Strong, Order:ForAllSame, SequenceIntervals:FromPremises)
+
+//conditional abduction by dependent variable
+
+    ((A --> R) ==> Z), ((&&,(#Y --> B),(#Y --> R),A_1..n) ==> Z) |- (A --> B), (Truth:Abduction)
+    ((A --> R) ==> Z), ((&&,(#Y --> B),(#Y --> R)) ==> Z) |- (A --> B), (Truth:Abduction)
+
+// conditional deduction "An inverse inference has been implemented as a form of deduction" https://code.google.com/p/open-nars/issues/detail?id=40&can=1
+
+    (U --> L), ((&&,(#X --> L),(#X --> R)) ==> Z) |- ((U --> R) ==> Z), (Truth:Deduction)
+    (U --> L), ((&&,(#X --> L),(#X --> R),A_1..n) ==> Z), substitute(#X,U) |- ((&&,(U --> R),A_1..n) ==> Z), (Truth:Deduction)
+
+//// independent variable elimination ////////////////////////////////////////////////////////////////////////////////////
+
+    B, (A ==> C), substitute_if_unifies("$",A,B), shift_occurrence_forward(unused,"==>") |- C, (Truth:Deduction, Order:ForAllSame)
+    B, (C ==> A), substitute_if_unifies("$",A,B), shift_occurrence_backward(unused,"==>") |- C, (Truth:Abduction, Order:ForAllSame)
+
+    B, (A <=> C), substitute_if_unifies("$",A,B), shift_occurrence_backward(unused,"<=>") |- C, (Truth:Deduction, Order:ForAllSame)
+    B, (C <=> A), substitute_if_unifies("$",A,B), shift_occurrence_forward(unused,"<=>") |- C, (Truth:Deduction, Order:ForAllSame)
+
+//// second level variable handling rules ////////////////////////////////////////////////////////////////////////////////////
+//second level variable elimination (termlink level2 growth needed in order for these rules to work)
+
+    (A --> K), (&&,(#X --> L),(($Y --> K) ==> (&&,A_1..n))), substitute($Y,A) |- (&&,(#X --> L),A_1..n), (Truth:Deduction)
+    (A --> K), (($X --> L) ==> (&&,(#Y --> K),A_1..n)), substitute(#Y,A) |- (($X --> L) ==> (&&,A_1..n)), (Truth:AnonymousAnalogy)
+
+//precondition combiner inference rule (variable_unification6):
+
+    ((&&,C,A_1..n) ==> Z), ((&&,C,B_1..m) ==> Z) |- ((&&,A_1..n) ==> (&&,B_1..m)), (Truth:Induction)
+    ((&&,C,A_1..n) ==> Z), ((&&,C,B_1..m) ==> Z) |- ((&&,B_1..m) ==> (&&,A_1..n)), (Truth:Induction)
+    (Z ==> (&&,C,A_1..n)), (Z ==> (&&,C,B_1..m)) |- ((&&,A_1..n) ==> (&&,B_1..m)), (Truth:Abduction)
+    (Z ==> (&&,C,A_1..n)), (Z ==> (&&,C,B_1..m)) |- ((&&,B_1..m) ==> (&&,A_1..n)), (Truth:Abduction)
+
+////NAL7 specific inference ////////////////////////////////////////////////////////////////////////////////////
+//Reasoning about temporal statements. those are using the ==> relation because relation in time is a relation of the truth between statements.
+
+    X, (XI ==> B), substitute_if_unifies("$",XI,(&/,X,/0)), shift_occurrence_forward(XI,"==>") |- B, (Truth:Deduction, Desire:Induction, Order:ForAllSame)
+    X, (BI ==> Y), substitute_if_unifies("$",Y,X), shift_occurrence_backward(BI,"==>") |- BI, (Truth:Abduction, Desire:Deduction, Order:ForAllSame)
+
+////Temporal induction: ////////////////////////////////////////////////////////////////////////////////////
+//When P and then S happened according to an observation, by induction (weak) it may be that alyways after P, usually S happens.
+
+    P, S, measure_time(I), not_implication_or_equivalence(P), not_implication_or_equivalence(S) |- ((&/,S,I) =/> P), (Truth:Induction, Linkage:Temporal),
+                                                                                                   (P =\> (&/,S,I)), (Truth:Abduction, Linkage:Temporal),
+                                                                                                   ((&/,S,I) </> P), (Truth:Comparison, Linkage:Temporal),
+                                                                                                   (&/,S,I,P), (Truth:Intersection, Linkage:Temporal)
+
+
+    P, S, concurrent(Task,Belief), not_implication_or_equivalence(P), not_implication_or_equivalence(S) |- (S =|> P), (Truth:Induction, Linkage:Temporal),
+                                                                                                           (P =|> S), (Truth:Induction, Linkage:Temporal),
+                                                                                                           (S <|> P), (Truth:Comparison, Linkage:Temporal),
+                                                                                                           (&|,S,P), (Truth:Intersection, Linkage:Temporal)
+
+////backward inference is mostly handled by the rule transformation:
+
+//    T, B |- C, [post] =>
+//          C, B, task("?") |- T, [post]
+//          C, T, task("?") |- B, [post]
+
+//here now are the backward inference rules which should really only work on backward inference:
+
+    (A --> S), (B --> S), task("?") |- (A --> B), (Punctuation:Question),
+                                       (B --> A), (Punctuation:Question),
+                                       (A <-> B), (Punctuation:Question)
+
+//and the backward inference driven forward inference:
+
+//NAL2:
+
+    ([A] <-> [B]), (A <-> B), task("?") |- ([A] <-> [B]), (Truth:BeliefIdentity, Punctuation:Judgment)
+    ({A} <-> {B}), (A <-> B), task("?") |- ({A} <-> {B}), (Truth:BeliefIdentity, Punctuation:Judgment)
+
+    ([A] --> [B]), (A <-> B), task("?") |- ([A] --> [B]), (Truth:BeliefIdentity, Punctuation:Judgment)
+    ({A} --> {B}), (A <-> B), task("?") |- ({A} --> {B}), (Truth:BeliefIdentity, Punctuation:Judgment)
+
+//NAL3:
+
+////composition on both sides of a statement:
+
+    ((&,B,A_1..n) --> (&,A,A_1..n)), (B --> A), task("?") |- ((&,B,A_1..n) --> (&,A,A_1..n)), (Truth:BeliefStructuralDeduction, Punctuation:Judgment)
+    ((|,B,A_1..n) --> (|,A,A_1..n)), (B --> A), task("?") |- ((|,B,A_1..n) --> (|,A,A_1..n)), (Truth:BeliefStructuralDeduction, Punctuation:Judgment)
+
+    ((-,S,A) --> (-,S,B)), (B --> A), task("?") |- ((-,S,A) --> (-,S,B)), (Truth:BeliefStructuralDeduction, Punctuation:Judgment)
+    ((~,S,A) --> (~,S,B)), (B --> A), task("?") |- ((~,S,A) --> (~,S,B)), (Truth:BeliefStructuralDeduction, Punctuation:Judgment)
+
+////composition on one side of a statement:
+
+    (W --> (|,B,A_1..n)), (W --> B), task("?") |- (W --> (|,B,A_1..n)), (Truth:BeliefStructuralDeduction, Punctuation:Judgment)
+    ((&,B,A_1..n) --> W), (B --> W), task("?") |- ((&,B,A_1..n) --> W), (Truth:BeliefStructuralDeduction, Punctuation:Judgment)
+
+    (W --> (-,S,B)), (W --> B), task("?") |- (W --> (-,S,B)), (Truth:BeliefStructuralDifference, Punctuation:Judgment)
+    ((~,S,B) --> W), (B --> W), task("?") |- ((~,S,B) --> W), (Truth:BeliefStructuralDifference, Punctuation:Judgment)
+
+//NAL4:
+
+////composition on both sides of a statement:
+
+    ((B,P) --> Z) ,(B --> A), task("?") |- ((B,P) --> (A,P)), (Truth:BeliefStructuralDeduction, Punctuation:Judgment)
+    ((P,B) --> Z) ,(B --> A), task("?") |- ((P,B) --> (P,A)), (Truth:BeliefStructuralDeduction, Punctuation:Judgment)
+    (B,P) <-> Z) ,(B <-> A), task("?") |- ((B,P) <-> (A,P)), (Truth:BeliefStructuralDeduction, Punctuation:Judgment)
+    ((P,B) <-> Z) ,(B <-> A), task("?") |- ((P,B) <-> (P,A)), (Truth:BeliefStructuralDeduction, Punctuation:Judgment)
+    ((\,N,A,_) --> Z), (N --> R), task("?") |- ((\,N,A,_) --> (\,R,A,_)), (Truth:BeliefStructuralDeduction, Punctuation:Judgment)
+    ((/,N,_,B) --> Z), (S --> B), task("?") |- ((/,N,_,B) --> (/,N,_,S)), (Truth:BeliefStructuralDeduction, Punctuation:Judgment)
+
+//NAL5:
+
+  --A,   A, task("?") |- --A, (Truth:BeliefNegation, Punctuation:Judgment)
+    A, --A, task("?") |-   A, (Truth:BeliefNegation, Punctuation:Judgment)
+
+//compound composition one premise
+
+    (||,B,A_1..n), B, task("?") |- (||,B,A_1..n), (Truth:BeliefStructuralDeduction, Punctuation:Judgment)
