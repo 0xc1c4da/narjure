@@ -1,7 +1,8 @@
 (ns nal.deriver
   (:require [narjure.narsese :refer [parser parse]]
             [clojure.walk :as w]
-            [clojure.core.match :as m]))
+            [clojure.core.match :as m]
+            [clojure.string :as s]))
 
 (defn path [statement]
   (if (coll? statement)
@@ -19,15 +20,21 @@
     (symbol "o-o")
     (symbol "==>")
     (symbol "=/>")
+    (symbol "=->")
+    (symbol "=+>")
     (symbol "=|>")
+    (symbol "&")
+    (symbol "|")
     (symbol "=>")
     (symbol "<=>")
     (symbol "</>")
-    (symbol "<|>")})
+    (symbol "<|>")
+    (symbol "-e")
+    (symbol "-i")})
 
 (defn infix->prefix
   [premise]
-  (if (list? premise)
+  (if (seq? premise)
     (let [[f s & tail] premise]
       (map infix->prefix
            (if (operators s)
@@ -66,6 +73,35 @@
   (when-not (empty? args)
     (into {} (map vec (partition 2 args)))))
 
+(defn- neg-symbol? [el]
+  (and (not= el '-->) (symbol? el) (s/starts-with? (str el) "--")))
+
+(defn- trim-negation [el]
+  (symbol (apply str (drop 2 (str el)))))
+
+(defn neg [el] (list '-- el))
+
+(defn replace-negation
+  [statement]
+  (cond
+    (neg-symbol? statement) (neg (trim-negation statement))
+    (and (seq? statement) (= '-- (first statement))) statement
+    (seq? statement)
+    (:st
+      (reduce
+        (fn [{:keys [prev st] :as ac} el]
+          (if (= '-- el)
+            (assoc ac :prev true)
+            (->> [(cond prev (neg el)
+                        (coll? el) (replace-negation el)
+                        (neg-symbol? el) (neg (trim-negation el))
+                        :else el)]
+                 (concat st)
+                 (assoc ac :prev false :st))))
+        {:prev false :st '()}
+        statement))
+    :esle statement))
+
 (defn replace-sets
   [statement]
   (letfn [(do-replace [el]
@@ -75,16 +111,15 @@
               :default el))]
     (w/walk do-replace identity (do-replace statement))))
 
-(defn rule
-  [[p1 p2 _ c & other]]
-  (let [transform (comp infix->prefix replace-sets)
-        p1 (transform p1)
-        p2 (transform p2)]
-    {:p1        p1
-     :p2        p2
-     :c         (transform c)
-     :full-path (rule-path p1 p2)
-     :rest      (options other)}))
+(defn rule [data]
+  (let [[p1 p2 _ c & other] (map (comp replace-negation replace-sets) data)]
+    (let [p1 (infix->prefix p1)
+          p2 (infix->prefix p2)]
+      {:p1        p1
+       :p2        p2
+       :c         (infix->prefix c)
+       :full-path (rule-path p1 p2)
+       :rest      (options other)})))
 
 (defn rule->map
   "Adds rule to map of rules, conjoin rule to set of rules that
@@ -108,6 +143,7 @@
 (defmacro defrules
   ;TODO exception on duplication of the rule
   [name & rules]
+  (println "Total rules:" (count rules))
   `(def ~name (rules-map (map rule (quote ~rules)))))
 
 
