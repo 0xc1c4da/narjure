@@ -1,6 +1,7 @@
 (ns nal.deriver
   (:require [narjure.narsese :refer [parser parse]]
-            [clojure.walk :as w]))
+            [clojure.walk :as w]
+            [clojure.core.match :as m]))
 
 (defn path [statement]
   (if (coll? statement)
@@ -108,3 +109,12 @@
   ;TODO exception on duplication of the rule
   [name & rules]
   `(def ~name (rules-map (map rule (quote ~rules)))))
+
+
+(comment
+  (time (dotimes [n 50000]
+          (mm/match
+            ['[[rabbit --> animal]
+               [rabbit --> dog]]]
+            [([[A '--> B] [C '--> D]]
+               :guard (fn [[[A] [C]]] (= A C)))] :ok))))
