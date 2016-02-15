@@ -19,9 +19,14 @@
     (symbol "--o")
     (symbol "o-o")
     (symbol "==>")
+    (symbol "retro-impl")
+    (symbol "seq-conj")
+    (symbol "inst")
+    (symbol "prop")
+    (symbol "inst-prop")
+    (symbol "int-image")
+    (symbol "ext-image")
     (symbol "=/>")
-    (symbol "=->")
-    (symbol "=+>")
     (symbol "=|>")
     (symbol "&")
     (symbol "|")
@@ -29,8 +34,8 @@
     (symbol "<=>")
     (symbol "</>")
     (symbol "<|>")
-    (symbol "-e")
-    (symbol "-i")})
+    (symbol "-")
+    (symbol "int-dif")})
 
 (defn infix->prefix
   [premise]
@@ -112,7 +117,7 @@
     (w/walk do-replace identity (do-replace statement))))
 
 (defn rule [data]
-  (let [[p1 p2 _ c & other] (map (comp replace-negation replace-sets) data)]
+  (let [[p1 p2 _ c & other] (replace-negation (map replace-sets data))]
     (let [p1 (infix->prefix p1)
           p2 (infix->prefix p2)]
       {:p1        p1

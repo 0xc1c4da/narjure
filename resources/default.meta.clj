@@ -60,8 +60,8 @@
     (P --> S) (S --> P) |- (P --> S) :pre [:question?] :post [:t/conversion :p/judgment]
     (P ==> S) (S ==> P) |- (P ==> S) :pre [:question?] :post [:t/conversion :p/judgment]
     (P =|> S) (S =|> P) |- (P =|> S) :pre [:question?] :post [:t/conversion :p/judgment]
-    (P =-> S) (S =+> P) |- (P =-> S) :pre [:question?] :post [:t/conversion :p/judgment]
-    (P =+> S) (S =-> P) |- (P =+> S) :pre [:question?] :post [:t/conversion :p/judgment]
+    (P =\> S) (S =/> P) |- (P =\> S) :pre [:question?] :post [:t/conversion :p/judgment]
+    (P =/> S) (S =\> P) |- (P =/> S) :pre [:question?] :post [:t/conversion :p/judgment]
 
     ; "If not smoking lets you be healthy being not healthy may be the result of smoking"
 
@@ -69,10 +69,10 @@
     ( --S ==> P)  --S |- ( --P ==> S) :post [:t/contraposition :allow-backward]
     ( --S =|> P)    P |- ( --P =|> S) :post [:t/contraposition :allow-backward]
     ( --S =|> P)  --S |- ( --P =|> S) :post [:t/contraposition :allow-backward]
-    ( --S =+> P)    P |- ( --P =-> S) :post [:t/contraposition :allow-backward]
-    ( --S =+> P)  --S |- ( --P =-> S) :post [:t/contraposition :allow-backward]
-    ( --S =-> P)    P |- ( --P =+> S) :post [:t/contraposition :allow-backward]
-    ( --S =-> P)  --S |- ( --P =+> S) :post [:t/contraposition :allow-backward]
+    ( --S =/> P)    P |- ( --P =\> S) :post [:t/contraposition :allow-backward]
+    ( --S =/> P)  --S |- ( --P =\> S) :post [:t/contraposition :allow-backward]
+    ( --S =\> P)    P |- ( --P =/> S) :post [:t/contraposition :allow-backward]
+    ( --S =\> P)  --S |- ( --P =/> S) :post [:t/contraposition :allow-backward]
 
     ; A belief b <f c> is equal to --b <1-f c>  which is the negation rule:
 
@@ -212,17 +212,17 @@
 
     (P ==> M) (S ==> M) |- (S ==> P) :pre [#(not= S P)] :post [:t/induction :allow-backward]
     (P =|> M) (S =|> M) |- (S =|> P) :pre [#(not= S P)] :post [:t/induction :allow-backward]
-    (P =+> M) (S =+> M) |- (S =|> P) :pre [#(not= S P)] :post [:t/induction :allow-backward]
-    (P =-> M) (S =-> M) |- (S =|> P) :pre [#(not= S P)] :post [:t/induction :allow-backward]
+    (P =/> M) (S =/> M) |- (S =|> P) :pre [#(not= S P)] :post [:t/induction :allow-backward]
+    (P =\> M) (S =\> M) |- (S =|> P) :pre [#(not= S P)] :post [:t/induction :allow-backward]
 
     (M ==> P) (M ==> S) |- (S ==> P) :pre [#(not= S P)] :post [:t/abduction :allow-backward]
-    (M =+> P) (M =+> S) |- (S =|> P) :pre [#(not= S P)] :post [:t/abduction :allow-backward]
+    (M =/> P) (M =/> S) |- (S =|> P) :pre [#(not= S P)] :post [:t/abduction :allow-backward]
     (M =|> P) (M =|> S) |- (S =|> P) :pre [#(not= S P)] :post [:t/abduction :allow-backward]
-    (M =-> P) (M =-> S) |- (S =|> P) :pre [#(not= S P)] :post [:t/abduction :allow-backward]
+    (M =\> P) (M =\> S) |- (S =|> P) :pre [#(not= S P)] :post [:t/abduction :allow-backward]
 
     (P ==> M) (M ==> S) |- (S ==> P) :pre [#(not= S P)] :post [:t/exemplification :allow-backward]
-    (P =+> M) (M =+> S) |- (S =-> P) :pre [#(not= S P)] :post [:t/exemplification :allow-backward]
-    (P =-> M) (M =-> S) |- (S =+> P) :pre [#(not= S P)] :post [:t/exemplification :allow-backward]
+    (P =/> M) (M =/> S) |- (S =\> P) :pre [#(not= S P)] :post [:t/exemplification :allow-backward]
+    (P =\> M) (M =\> S) |- (S =/> P) :pre [#(not= S P)] :post [:t/exemplification :allow-backward]
     (P =|> M) (M =|> S) |- (S =|> P) :pre [#(not= S P)] :post [:t/exemplification :allow-backward]
 
     ; implication to equivalence
@@ -230,23 +230,23 @@
 
     (S ==> P) (P ==> S) |- (S <=> P) :pre [#(not= S P)] :post [:t/intersection :allow-backward]
     (S =|> P) (P =|> S) |- (S <|> P) :pre [#(not= S P)] :post [:t/intersection :allow-backward]
-    (S =+> P) (P =-> S) |- (S </> P) :pre [#(not= S P)] :post [:t/intersection :allow-backward]
-    (S =-> P) (P =+> S) |- (P </> S) :pre [#(not= S P)] :post [:t/intersection :allow-backward]
+    (S =/> P) (P =\> S) |- (S </> P) :pre [#(not= S P)] :post [:t/intersection :allow-backward]
+    (S =\> P) (P =/> S) |- (P </> S) :pre [#(not= S P)] :post [:t/intersection :allow-backward]
 
     ; equivalence-based syllogism
     ; Same as for inheritance again
 
     (P ==> M) (S ==> M) |- (S <=> P) :pre [#(not= S P)] :post [:t/comparison :allow-backward]
-    (P =+> M) (S =+> M) |- (S <|> P) :pre [#(not= S P)] :post [:t/comparison :allow-backward]
+    (P =/> M) (S =/> M) |- (S <|> P) :pre [#(not= S P)] :post [:t/comparison :allow-backward]
                                             (S </> P) :post [:t/comparison :allow-backward]
                                             (P </> S) :post [:t/comparison :allow-backward]
     (P =|> M) (S =|> M) |- (S <|> P) :pre [#(not= S P)] :post [:t/comparison :allow-backward]
-    (P =-> M) (S =-> M) |- (S <|> P) :pre [#(not= S P)] :post [:t/comparison :allow-backward]
+    (P =\> M) (S =\> M) |- (S <|> P) :pre [#(not= S P)] :post [:t/comparison :allow-backward]
                                             (S </> P) :post [:t/comparison :allow-backward]
                                             (P </> S) :post [:t/comparison :allow-backward]
 
     (M ==> P) (M ==> S) |- (S <=> P) :pre [#(not= S P)] :post [:t/comparison :allow-backward]
-    (M =+> P) (M =+> S) |- (S <|> P) :pre [#(not= S P)] :post [:t/comparison :allow-backward]
+    (M =/> P) (M =/> S) |- (S <|> P) :pre [#(not= S P)] :post [:t/comparison :allow-backward]
                                             (S </> P) :post [:t/comparison :allow-backward]
                                             (P </> S) :post [:t/comparison :allow-backward]
     (M =|> P) (M =|> S) |- (S <|> P) :pre [#(not= S P)] :post [:t/comparison :allow-backward]
@@ -254,17 +254,17 @@
     ; Same as for inheritance again
 
     (M ==> P) (S <=> M) |- (S ==> P) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
-    (M =+> P) (S </> M) |- (S =+> P) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
-    (M =+> P) (S <|> M) |- (S =+> P) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
+    (M =/> P) (S </> M) |- (S =/> P) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
+    (M =/> P) (S <|> M) |- (S =/> P) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
     (M =|> P) (S <|> M) |- (S =|> P) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
-    (M =-> P) (M </> S) |- (S =-> P) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
-    (M =-> P) (S <|> M) |- (S =-> P) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
+    (M =\> P) (M </> S) |- (S =\> P) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
+    (M =\> P) (S <|> M) |- (S =\> P) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
 
     (P ==> M) (S <=> M) |- (P ==> S) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
-    (P =+> M) (S <|> M) |- (P =+> S) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
+    (P =/> M) (S <|> M) |- (P =/> S) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
     (P =|> M) (S <|> M) |- (P =|> S) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
-    (P =-> M) (S </> M) |- (P =-> S) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
-    (P =-> M) (S <|> M) |- (P =-> S) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
+    (P =\> M) (S </> M) |- (P =\> S) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
+    (P =\> M) (S <|> M) |- (P =\> S) :pre [#(not= S P)] :post [:t/analogy :allow-backward]
 
     (M <=> P) (S <=> M) |- (S <=> P) :pre [#(not= S P)] :post [:t/resemblance :order-for-all-same :allow-backward]
     (M </> P) (S <|> M) |- (S </> P) :pre [#(not= S P)] :post [:t/resemblance :allow-backward]
@@ -277,22 +277,22 @@
                                             ((P && S) ==> M) :post [:t/union]
     (P =|> M) (S =|> M) |- ((P || S) =|> M) :pre [#(not= S P)] :post [:t/intersection]
                                             ((P &| S) =|> M) :post [:t/union]
-    (P =+> M) (S =+> M) |- ((P || S) =+> M) :pre [#(not= S P)] :post [:t/intersection]
-                                            ((P &| S) =+> M) :post [:t/union]
-    (P =-> M) (S =-> M) |- ((P || S) =-> M) :pre [#(not= S P)] :post [:t/intersection]
-                                            ((P &| S) =-> M) :post [:t/union]
+    (P =/> M) (S =/> M) |- ((P || S) =/> M) :pre [#(not= S P)] :post [:t/intersection]
+                                            ((P &| S) =/> M) :post [:t/union]
+    (P =\> M) (S =\> M) |- ((P || S) =\> M) :pre [#(not= S P)] :post [:t/intersection]
+                                            ((P &| S) =\> M) :post [:t/union]
 
     (M ==> P) (M ==> S) |- (M ==> (P && S)) :pre [#(not= S P)] :post [:t/intersection]
                                             (M ==> (P || S)) :post [:t/union]
-    (M =+> P) (M =+> S) |- (M =+> (P &| S)) :pre [#(not= S P)] :post [:t/intersection]
-                                            (M =+> (P || S)) :post [:t/union]
+    (M =/> P) (M =/> S) |- (M =/> (P &| S)) :pre [#(not= S P)] :post [:t/intersection]
+                                            (M =/> (P || S)) :post [:t/union]
     (M =|> P) (M =|> S) |- (M =|> (P &| S)) :pre [#(not= S P)] :post [:t/intersection]
                                             (M =|> (P || S)) :post [:t/union]
-    (M =-> P) (M =-> S) |- (M =-> (P &| S)) :pre [#(not= S P)] :post [:t/intersection]
-                                            (M =-> (P || S)) :post [:t/union]
+    (M =\> P) (M =\> S) |- (M =\> (P &| S)) :pre [#(not= S P)] :post [:t/intersection]
+                                            (M =\> (P || S)) :post [:t/union]
 
-    (D =+> R) (D =-> K) |- (K =+> R) :pre [#(not= R K)] :post [:t/abduction]
-                                            (R =-> K) :post [:t/induction]
+    (D =/> R) (D =\> K) |- (K =/> R) :pre [#(not= R K)] :post [:t/abduction]
+                                            (R =\> K) :post [:t/induction]
                                             (K </> R) :post [:t/comparison]
     ; implication-based decomposition
     ; Same as for inheritance again
@@ -355,8 +355,8 @@
     ; the first rule does not have :order-for-all-same because it would be invalid see: https://groups.google.com/forum/#!topic/open-nars/r5UJo64Qhrk
     ((&& :list/A) ==> C) M |- ((&& M :list/A) ==> C) :pre [(not_implication_or_equivalence M)] :post [:t/induction]
     ((&& :list/A) =|> C) M |- ((&& M :list/A) =|> C) :pre [(not_implication_or_equivalence M)] :post [:t/induction]
-    ((&& :list/A) =+> C) M |- ((&& M :list/A) =+> C) :pre [(not_implication_or_equivalence M)] :post [:t/induction]
-    ((&& :list/A) =-> C) M |- ((&& M :list/A) =-> C) :pre [(not_implication_or_equivalence M)] :post [:t/induction]
+    ((&& :list/A) =/> C) M |- ((&& M :list/A) =/> C) :pre [(not_implication_or_equivalence M)] :post [:t/induction]
+    ((&& :list/A) =\> C) M |- ((&& M :list/A) =\> C) :pre [(not_implication_or_equivalence M)] :post [:t/induction]
     (A ==> M) ((&& M :list/A) ==> C) |- ((&& A :list/A) ==> C) :post [:t/deduction :order-for-all-same SequenceIntervals:FromPremises]
     ((&& M :list/A) ==> C) ((&& A :list/A) ==> C) |- (A ==> M) :post [:t/induction :order-for-all-same]
     (A ==> M) ((&& A :list/A) ==> C) |- ((&& M :list/A) ==> C) :post [:t/abduction :order-for-all-same SequenceIntervals:FromPremises]
@@ -369,8 +369,8 @@
                                             ((P --> $X) <=> (S --> $X)) :post [:t/comparison]
                                             (&& (S --> #Y) (P --> #Y)) :post [:t/intersection]
 
-    (S --> M) (P --> M) |- ((&/ (P --> $X) I) =+> (S --> $X)) :pre [#(not= S P) (measure_time I)] :post [:t/induction Linkage:Temporal]
-                                                             ((S --> $X) =-> (&/ (P --> $X) I)) :post [:t/abduction Linkage:Temporal]
+    (S --> M) (P --> M) |- ((&/ (P --> $X) I) =/> (S --> $X)) :pre [#(not= S P) (measure_time I)] :post [:t/induction Linkage:Temporal]
+                                                             ((S --> $X) =\> (&/ (P --> $X) I)) :post [:t/abduction Linkage:Temporal]
                                                              ((&/ (P --> $X) I) </> (S --> $X)) :post [:t/comparison Linkage:Temporal]
                                                              (&/ (P --> #Y) I (S --> #Y)) :post [:t/intersection Linkage:Temporal]
 
@@ -384,8 +384,8 @@
                                             (($X --> S) <=> ($X --> P)) :post [:t/comparison]
                                             (&& (#Y --> S) (#Y --> P)) :post [:t/intersection]
 
-    (M --> S) (M --> P) |- ((&/ ($X --> P) I) =+> ($X --> S)) :pre [#(not= S P) (measure_time I)] :post [:t/induction Linkage:Temporal]
-                                                             (($X --> S) =-> (&/ ($X --> P) I)) :post [:t/abduction Linkage:Temporal]
+    (M --> S) (M --> P) |- ((&/ ($X --> P) I) =/> ($X --> S)) :pre [#(not= S P) (measure_time I)] :post [:t/induction Linkage:Temporal]
+                                                             (($X --> S) =\> (&/ ($X --> P) I)) :post [:t/abduction Linkage:Temporal]
                                                              ((&/ ($X --> P) I) </> ($X --> S)) :post [:t/comparison Linkage:Temporal]
                                                              (&/ (#Y --> P) I (#Y --> S)) :post [:t/intersection Linkage:Temporal]
 
@@ -456,8 +456,8 @@
     ; Temporal induction:
     ; When P and then S happened according to an observation by induction (weak) it may be that alyways after P usually S happens.
 
-    P S |- ((&/ S I) =+> P) :pre [(measure_time I) (not_implication_or_equivalence P) (not_implication_or_equivalence S)] :post [:t/induction Linkage:Temporal]
-                                                                                                   (P =-> (&/ S I)) :post [:t/abduction Linkage:Temporal] 
+    P S |- ((&/ S I) =/> P) :pre [(measure_time I) (not_implication_or_equivalence P) (not_implication_or_equivalence S)] :post [:t/induction Linkage:Temporal]
+                                                                                                   (P =\> (&/ S I)) :post [:t/abduction Linkage:Temporal] 
                                                                                                    ((&/ S I) </> P) :post [:t/comparison Linkage:Temporal] 
                                                                                                    (&/ S I P) :post [:t/intersection Linkage:Temporal]
 
