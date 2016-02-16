@@ -23,27 +23,27 @@
 
     ; Set Definition Similarity to Inheritance
 
-    (S <-> #{P})   S |- (S --> #{P}) :post [:t/identity :d/identity :allow-backward]
-    (S <-> #{P})  #{P} |- (S --> #{P}) :post [:t/identity :d/identity :allow-backward]
+    (S <-> {P})   S |- (S --> {P}) :post [:t/identity :d/identity :allow-backward]
+    (S <-> {P})  {P} |- (S --> {P}) :post [:t/identity :d/identity :allow-backward]
     ([S] <-> P) [S] |- ([S] --> P) :post [:t/identity :d/identity :allow-backward]
     ([S] <-> P)   P |- ([S] --> P) :post [:t/identity :d/identity :allow-backward]
 
-    (#{S} <-> #{P})  #{S} |- (#{P} --> #{S}) :post [:t/identity :d/identity :allow-backward]
-    (#{S} <-> #{P})  #{P} |- (#{P} --> #{S}) :post [:t/identity :d/identity :allow-backward]
+    ({S} <-> {P})  {S} |- ({P} --> {S}) :post [:t/identity :d/identity :allow-backward]
+    ({S} <-> {P})  {P} |- ({P} --> {S}) :post [:t/identity :d/identity :allow-backward]
     ([S] <-> [P]) [S] |- ([P] --> [S]) :post [:t/identity :d/identity :allow-backward]
     ([S] <-> [P]) [P] |- ([P] --> [S]) :post [:t/identity :d/identity :allow-backward]
 
     ; Set Definition Unwrap
 
-    (#{S} <-> #{P})  #{S} |- (S <-> P) :post [:t/identity :d/identity :allow-backward]
-    (#{S} <-> #{P})  #{P} |- (S <-> P) :post [:t/identity :d/identity :allow-backward]
+    ({S} <-> {P})  {S} |- (S <-> P) :post [:t/identity :d/identity :allow-backward]
+    ({S} <-> {P})  {P} |- (S <-> P) :post [:t/identity :d/identity :allow-backward]
     ([S] <-> [P]) [S] |- (S <-> P) :post [:t/identity :d/identity :allow-backward]
     ([S] <-> [P]) [P] |- (S <-> P) :post [:t/identity :d/identity :allow-backward]
 
     ; Nothing is more specific than a instance so it's similar
 
-    (S --> #{P})   S  |- (S <-> #{P}) :post [:t/identity :d/identity :allow-backward]
-    (S --> #{P}) #{P} |- (S <-> #{P}) :post [:t/identity :d/identity :allow-backward]
+    (S --> {P})   S  |- (S <-> {P}) :post [:t/identity :d/identity :allow-backward]
+    (S --> {P}) {P} |- (S <-> {P}) :post [:t/identity :d/identity :allow-backward]
 
     ; nothing is more general than a property so it's similar
 
@@ -175,9 +175,9 @@
 
     ; Set element takeout:
 
-    (C --> #{:list/A}) C |- (C --> #{:from/A}) :post [:t/structural-deduction]
+    (C --> {:list/A}) C |- (C --> {:from/A}) :post [:t/structural-deduction]
     (C --> [:list/A]) C |- (C --> [:from/A]) :post [:t/structural-deduction]
-    (#{:list/A} --> C) C |- (#{:from/A} --> C) :post [:t/structural-deduction]
+    ({:list/A} --> C) C |- ({:from/A} --> C) :post [:t/structural-deduction]
     ([:list/A] --> C) C |- ([:from/A] --> C) :post [:t/structural-deduction]
 
     ; NAL3 single premise inference:
@@ -298,18 +298,18 @@
     ; Same as for inheritance again
 
     (S ==> M) ((|| S :list/A) ==> M) |- ((|| :list/A) ==> M) :post [:t/decompose-positive-negative-negative :order-for-all-same]
-    (S ==> M) ((&& S :list/A) ==> M) |- ((&& :list/A) ==> M) :post [:t/decompose-negative-positive-positive :order-for-all-same SequenceIntervals:FromPremises]
+    (S ==> M) ((&& S :list/A) ==> M) |- ((&& :list/A) ==> M) :post [:t/decompose-negative-positive-positive :order-for-all-same :seq-interval-from-premises]
 
-    (M ==> S) (M ==> (&& S :list/A)) |- (M ==> (&& :list/A)) :post [:t/decompose-positive-negative-negative :order-for-all-same SequenceIntervals:FromPremises]
+    (M ==> S) (M ==> (&& S :list/A)) |- (M ==> (&& :list/A)) :post [:t/decompose-positive-negative-negative :order-for-all-same :seq-interval-from-premises]
     (M ==> S) (M ==> (|| S :list/A)) |- (M ==> (|| :list/A)) :post [:t/decompose-negative-positive-positive :order-for-all-same]
 
     ; conditional syllogism
     ; If after M P usually happens and M happens it means P is expected to happen
 
-    M (M ==> P) |- P :post [:t/deduction :d/induction :order-for-all-same] :pre [(shift_occurrence_forward unused "==>")]
-    M (P ==> M) |- P :post [:t/abduction :d/deduction :order-for-all-same] :pre [(shift_occurrence_backward unused "==>")]
-    M (S <=> M) |- S :post [:t/analogy :d/strong :order-for-all-same] :pre [(shift_occurrence_backward unused "<=>")]
-    M (M <=> S) |- S :post [:t/analogy :d/strong :order-for-all-same] :pre [(shift_occurrence_forward unused "==>")]
+    M (M ==> P) |- P :post [:t/deduction :d/induction :order-for-all-same] :pre [(shift-occurrence-forward unused "==>")]
+    M (P ==> M) |- P :post [:t/abduction :d/deduction :order-for-all-same] :pre [(shift-occurrence-backward unused "==>")]
+    M (S <=> M) |- S :post [:t/analogy :d/strong :order-for-all-same] :pre [(shift-occurrence-backward unused "<=>")]
+    M (M <=> S) |- S :post [:t/analogy :d/strong :order-for-all-same] :pre [(shift-occurrence-forward unused "==>")]
 
     ; conditional composition:
     ; They are let out for AGI purpose don't let the system generate conjunctions or useless <=> and ==> statements
@@ -327,19 +327,19 @@
     (&& :list/A) A_1 |- A_1 :post [:t/structural-deduction :d/structural-strong]
     (&/ :list/A) A_1 |- A_1 :post [:t/structural-deduction :d/structural-strong]
     (&| :list/A) A_1 |- A_1 :post [:t/structural-deduction :d/structural-strong]
-    (&/ B :list/A) B |- (&/ :list/A) :pre [(task "!")] :post [:t/deduction :d/strong SequenceIntervals:FromPremises]
+    (&/ B :list/A) B |- (&/ :list/A) :pre [(task "!")] :post [:t/deduction :d/strong :seq-interval-from-premises]
 
     ; propositional decomposition
     ; If S is the case and (&& S :list/A) is not the case it can't be that (&& :list/A) is the case
 
-    S (&/ S :list/A) |- (&/ :list/A) :post [:t/decompose-positive-negative-negative SequenceIntervals:FromPremises]
+    S (&/ S :list/A) |- (&/ :list/A) :post [:t/decompose-positive-negative-negative :seq-interval-from-premises]
     S (&| S :list/A) |- (&| :list/A) :post [:t/decompose-positive-negative-negative]
     S (&& S :list/A) |- (&& :list/A) :post [:t/decompose-positive-negative-negative]
     S (|| S :list/A) |- (|| :list/A) :post [:t/decompose-negative-positive-positive]
 
     ; Additional for negation: https://groups.google.com/forum/#!topic/open-nars/g-7r0jjq2Vc
 
-    S (&/ (-- S) :list/A) |- (&/ :list/A) :post [:t/decompose-negative-negative-negative SequenceIntervals:FromPremises]
+    S (&/ (-- S) :list/A) |- (&/ :list/A) :post [:t/decompose-negative-negative-negative :seq-interval-from-premises]
     S (&| (-- S) :list/A) |- (&| :list/A) :post [:t/decompose-negative-negative-negative]
     S (&& (-- S) :list/A) |- (&& :list/A) :post [:t/decompose-negative-negative-negative]
     S (|| (-- S) :list/A) |- (|| :list/A) :post [:t/decompose-positive-positive-positive]
@@ -347,19 +347,19 @@
     ; multi-conditional syllogism
     ; Inference about the pre/postconditions
 
-    Y ((&& X :list/A) ==> B) |- ((&& :list/A) ==> B) :pre [(substitute_if_unifies "$" X Y)] :post [:t/deduction :order-for-all-same SequenceIntervals:FromPremises]
+    Y ((&& X :list/A) ==> B) |- ((&& :list/A) ==> B) :pre [(substitute-if-unifies "$" X Y)] :post [:t/deduction :order-for-all-same :seq-interval-from-premises]
     ((&& M :list/A) ==> C) ((&& :list/A) ==> C) |- M :post [:t/abduction :order-for-all-same]
 
     ; Can be derived by NAL7 rules so this won't be necessary there (:order-for-all-same left out here)
 
     ; the first rule does not have :order-for-all-same because it would be invalid see: https://groups.google.com/forum/#!topic/open-nars/r5UJo64Qhrk
-    ((&& :list/A) ==> C) M |- ((&& M :list/A) ==> C) :pre [(not_implication_or_equivalence M)] :post [:t/induction]
-    ((&& :list/A) =|> C) M |- ((&& M :list/A) =|> C) :pre [(not_implication_or_equivalence M)] :post [:t/induction]
-    ((&& :list/A) =/> C) M |- ((&& M :list/A) =/> C) :pre [(not_implication_or_equivalence M)] :post [:t/induction]
-    ((&& :list/A) =\> C) M |- ((&& M :list/A) =\> C) :pre [(not_implication_or_equivalence M)] :post [:t/induction]
-    (A ==> M) ((&& M :list/A) ==> C) |- ((&& A :list/A) ==> C) :post [:t/deduction :order-for-all-same SequenceIntervals:FromPremises]
+    ((&& :list/A) ==> C) M |- ((&& M :list/A) ==> C) :pre [(not-implication-or-equivalence M)] :post [:t/induction]
+    ((&& :list/A) =|> C) M |- ((&& M :list/A) =|> C) :pre [(not-implication-or-equivalence M)] :post [:t/induction]
+    ((&& :list/A) =/> C) M |- ((&& M :list/A) =/> C) :pre [(not-implication-or-equivalence M)] :post [:t/induction]
+    ((&& :list/A) =\> C) M |- ((&& M :list/A) =\> C) :pre [(not-implication-or-equivalence M)] :post [:t/induction]
+    (A ==> M) ((&& M :list/A) ==> C) |- ((&& A :list/A) ==> C) :post [:t/deduction :order-for-all-same :seq-interval-from-premises]
     ((&& M :list/A) ==> C) ((&& A :list/A) ==> C) |- (A ==> M) :post [:t/induction :order-for-all-same]
-    (A ==> M) ((&& A :list/A) ==> C) |- ((&& M :list/A) ==> C) :post [:t/abduction :order-for-all-same SequenceIntervals:FromPremises]
+    (A ==> M) ((&& A :list/A) ==> C) |- ((&& M :list/A) ==> C) :post [:t/abduction :order-for-all-same :seq-interval-from-premises]
 
     ; variable introduction
     ; Introduce variables by common subject or predicate
@@ -369,30 +369,30 @@
                                             ((P --> $X) <=> (S --> $X)) :post [:t/comparison]
                                             (&& (S --> #Y) (P --> #Y)) :post [:t/intersection]
 
-    (S --> M) (P --> M) |- ((&/ (P --> $X) I) =/> (S --> $X)) :pre [#(not= S P) (measure_time I)] :post [:t/induction Linkage:Temporal]
-                                                             ((S --> $X) =\> (&/ (P --> $X) I)) :post [:t/abduction Linkage:Temporal]
-                                                             ((&/ (P --> $X) I) </> (S --> $X)) :post [:t/comparison Linkage:Temporal]
-                                                             (&/ (P --> #Y) I (S --> #Y)) :post [:t/intersection Linkage:Temporal]
+    (S --> M) (P --> M) |- ((&/ (P --> $X) I) =/> (S --> $X)) :pre [#(not= S P) (measure-time I)] :post [:t/induction :linkage-temporal]
+                                                             ((S --> $X) =\> (&/ (P --> $X) I)) :post [:t/abduction :linkage-temporal]
+                                                             ((&/ (P --> $X) I) </> (S --> $X)) :post [:t/comparison :linkage-temporal]
+                                                             (&/ (P --> #Y) I (S --> #Y)) :post [:t/intersection :linkage-temporal]
 
-    (S --> M) (P --> M) |- ((P --> $X) =|> (S --> $X)) :pre [#(not= S P) (concurrent Task Belief)] :post [:t/abduction Linkage:Temporal]
-                                                                     ((S --> $X) =|> (P --> $X)) :post [:t/induction Linkage:Temporal]
-                                                                     ((P --> $X) <|> (S --> $X)) :post [:t/comparison Linkage:Temporal]
-                                                                     (&| (P --> #Y) (S --> #Y)) :post [:t/intersection Linkage:Temporal]
+    (S --> M) (P --> M) |- ((P --> $X) =|> (S --> $X)) :pre [#(not= S P) (concurrent Task Belief)] :post [:t/abduction :linkage-temporal]
+                                                                     ((S --> $X) =|> (P --> $X)) :post [:t/induction :linkage-temporal]
+                                                                     ((P --> $X) <|> (S --> $X)) :post [:t/comparison :linkage-temporal]
+                                                                     (&| (P --> #Y) (S --> #Y)) :post [:t/intersection :linkage-temporal]
 
     (M --> S) (M --> P) |- (($X --> S) ==> ($X --> P)) :pre [#(not= S P)] :post [:t/induction]
                                             (($X --> P) ==> ($X --> S)) :post [:t/abduction]
                                             (($X --> S) <=> ($X --> P)) :post [:t/comparison]
                                             (&& (#Y --> S) (#Y --> P)) :post [:t/intersection]
 
-    (M --> S) (M --> P) |- ((&/ ($X --> P) I) =/> ($X --> S)) :pre [#(not= S P) (measure_time I)] :post [:t/induction Linkage:Temporal]
-                                                             (($X --> S) =\> (&/ ($X --> P) I)) :post [:t/abduction Linkage:Temporal]
-                                                             ((&/ ($X --> P) I) </> ($X --> S)) :post [:t/comparison Linkage:Temporal]
-                                                             (&/ (#Y --> P) I (#Y --> S)) :post [:t/intersection Linkage:Temporal]
+    (M --> S) (M --> P) |- ((&/ ($X --> P) I) =/> ($X --> S)) :pre [#(not= S P) (measure-time I)] :post [:t/induction :linkage-temporal]
+                                                             (($X --> S) =\> (&/ ($X --> P) I)) :post [:t/abduction :linkage-temporal]
+                                                             ((&/ ($X --> P) I) </> ($X --> S)) :post [:t/comparison :linkage-temporal]
+                                                             (&/ (#Y --> P) I (#Y --> S)) :post [:t/intersection :linkage-temporal]
 
-    (M --> S) (M --> P) |- (($X --> S) =|> ($X --> P)) :pre [#(not= S P) (concurrent (M --> P) (M --> S))] :post [:t/induction Linkage:Temporal]
-                                                                             (($X --> P) =|> ($X --> S)) :post [:t/abduction Linkage:Temporal]
-                                                                             (($X --> S) <|> ($X --> P)) :post [:t/comparison Linkage:Temporal]
-                                                                             (&| (#Y --> S) (#Y --> P)) :post [:t/intersection Linkage:Temporal]
+    (M --> S) (M --> P) |- (($X --> S) =|> ($X --> P)) :pre [#(not= S P) (concurrent (M --> P) (M --> S))] :post [:t/induction :linkage-temporal]
+                                                                             (($X --> P) =|> ($X --> S)) :post [:t/abduction :linkage-temporal]
+                                                                             (($X --> S) <|> ($X --> P)) :post [:t/comparison :linkage-temporal]
+                                                                             (&| (#Y --> S) (#Y --> P)) :post [:t/intersection :linkage-temporal]
 
     ; 2nd variable introduction
 
@@ -414,7 +414,7 @@
     ; dependent variable elimination
     ; Decomposition with elimination of a variable
 
-    B (&& A :list/A) |- (&& :list/A) :pre [(task ".") (substitute_if_unifies "#" A B)] :post [:t/anonymous-analogy :d/strong :order-for-all-same SequenceIntervals:FromPremises]
+    B (&& A :list/A) |- (&& :list/A) :pre [(task ".") (substitute-if-unifies "#" A B)] :post [:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises]
 
     ; conditional abduction by dependent variable
 
@@ -428,11 +428,11 @@
 
     ; independent variable elimination
 
-    B (A ==> C) |- C  [:t/deduction :order-for-all-same] :pre [(substitute_if_unifies "$" A B) (shift_occurrence_forward unused "==>")]
-    B (C ==> A) |- C  [:t/abduction :order-for-all-same] :pre [(substitute_if_unifies "$" A B) (shift_occurrence_backward unused "==>")]
+    B (A ==> C) |- C  [:t/deduction :order-for-all-same] :pre [(substitute-if-unifies "$" A B) (shift-occurrence-forward unused "==>")]
+    B (C ==> A) |- C  [:t/abduction :order-for-all-same] :pre [(substitute-if-unifies "$" A B) (shift-occurrence-backward unused "==>")]
 
-    B (A <=> C) |- C  [:t/deduction :order-for-all-same] :pre [(substitute_if_unifies "$" A B) (shift_occurrence_backward unused "<=>")]
-    B (C <=> A) |- C  [:t/deduction :order-for-all-same] :pre [(substitute_if_unifies "$" A B) (shift_occurrence_forward unused "<=>")]
+    B (A <=> C) |- C  [:t/deduction :order-for-all-same] :pre [(substitute-if-unifies "$" A B) (shift-occurrence-backward unused "<=>")]
+    B (C <=> A) |- C  [:t/deduction :order-for-all-same] :pre [(substitute-if-unifies "$" A B) (shift-occurrence-forward unused "<=>")]
 
     ; second level variable handling rules
     ; second level variable elimination (termlink level2 growth needed in order for these rules to work)
@@ -442,30 +442,30 @@
 
     ; precondition combiner inference rule (variable_unification6):
 
-    ((&& C :list/A) ==> Z) ((&& C B_1..m) ==> Z) |- ((&& :list/A) ==> (&& B_1..m)) :post [:t/induction]
-    ((&& C :list/A) ==> Z) ((&& C B_1..m) ==> Z) |- ((&& B_1..m) ==> (&& :list/A)) :post [:t/induction]
-    (Z ==> (&& C :list/A)) (Z ==> (&& C B_1..m)) |- ((&& :list/A) ==> (&& B_1..m)) :post [:t/abduction]
-    (Z ==> (&& C :list/A)) (Z ==> (&& C B_1..m)) |- ((&& B_1..m) ==> (&& :list/A)) :post [:t/abduction]
+    ((&& C :list/A) ==> Z) ((&& C :list/B) ==> Z) |- ((&& :list/A) ==> (&& :list/B)) :post [:t/induction]
+    ((&& C :list/A) ==> Z) ((&& C :list/B) ==> Z) |- ((&& :list/B) ==> (&& :list/A)) :post [:t/induction]
+    (Z ==> (&& C :list/A)) (Z ==> (&& C :list/B)) |- ((&& :list/A) ==> (&& :list/B)) :post [:t/abduction]
+    (Z ==> (&& C :list/A)) (Z ==> (&& C :list/B)) |- ((&& :list/B) ==> (&& :list/A)) :post [:t/abduction]
 
     ; NAL7 specific inference
     ; Reasoning about temporal statements. those are using the ==> relation because relation in time is a relation of the truth between statements.
 
-    X (XI ==> B) |- B  [:t/deduction :d/induction :order-for-all-same] :pre [(substitute_if_unifies "$" XI (&/ X /0)) (shift_occurrence_forward XI "==>")]
-    X (BI ==> Y) |- BI  [:t/abduction :d/deduction :order-for-all-same] :pre [(substitute_if_unifies "$" Y X) (shift_occurrence_backward BI "==>")]
+    X (XI ==> B) |- B  [:t/deduction :d/induction :order-for-all-same] :pre [(substitute-if-unifies "$" XI (&/ X /0)) (shift-occurrence-forward XI "==>")]
+    X (BI ==> Y) |- BI  [:t/abduction :d/deduction :order-for-all-same] :pre [(substitute-if-unifies "$" Y X) (shift-occurrence-backward BI "==>")]
 
     ; Temporal induction:
     ; When P and then S happened according to an observation by induction (weak) it may be that alyways after P usually S happens.
 
-    P S |- ((&/ S I) =/> P) :pre [(measure_time I) (not_implication_or_equivalence P) (not_implication_or_equivalence S)] :post [:t/induction Linkage:Temporal]
-                                                                                                   (P =\> (&/ S I)) :post [:t/abduction Linkage:Temporal] 
-                                                                                                   ((&/ S I) </> P) :post [:t/comparison Linkage:Temporal] 
-                                                                                                   (&/ S I P) :post [:t/intersection Linkage:Temporal]
+    P S |- ((&/ S I) =/> P) :pre [(measure-time I) (not-implication-or-equivalence P) (not-implication-or-equivalence S)] :post [:t/induction :linkage-temporal]
+                                                                                                   (P =\> (&/ S I)) :post [:t/abduction :linkage-temporal] 
+                                                                                                   ((&/ S I) </> P) :post [:t/comparison :linkage-temporal] 
+                                                                                                   (&/ S I P) :post [:t/intersection :linkage-temporal]
 
 
-    P S |- (S =|> P) :pre [(concurrent Task Belief) (not_implication_or_equivalence P) (not_implication_or_equivalence S)] :post [:t/induction Linkage:Temporal]
-                                                                                                           (P =|> S) :post [:t/induction Linkage:Temporal] 
-                                                                                                           (S <|> P) :post [:t/comparison Linkage:Temporal] 
-                                                                                                           (&| S P) :post [:t/intersection Linkage:Temporal]
+    P S |- (S =|> P) :pre [(concurrent Task Belief) (not-implication-or-equivalence P) (not-implication-or-equivalence S)] :post [:t/induction :linkage-temporal]
+                                                                                                           (P =|> S) :post [:t/induction :linkage-temporal] 
+                                                                                                           (S <|> P) :post [:t/comparison :linkage-temporal] 
+                                                                                                           (&| S P) :post [:t/intersection :linkage-temporal]
 
     ; backward inference is mostly handled by the rule transformation:
 
@@ -484,10 +484,10 @@
     ; NAL2:
 
     ([A] <-> [B]) (A <-> B) |- ([A] <-> [B]) :pre [:question?] :post [:t/belief-identity :p/judgment]
-    (#{A} <-> #{B}) (A <-> B) |- (#{A} <-> #{B}) :pre [:question?] :post [:t/belief-identity :p/judgment]
+    ({A} <-> {B}) (A <-> B) |- ({A} <-> {B}) :pre [:question?] :post [:t/belief-identity :p/judgment]
 
     ([A] --> [B]) (A <-> B) |- ([A] --> [B]) :pre [:question?] :post [:t/belief-identity :p/judgment]
-    (#{A} --> #{B}) (A <-> B) |- (#{A} --> #{B}) :pre [:question?] :post [:t/belief-identity :p/judgment]
+    ({A} --> {B}) (A <-> B) |- ({A} --> {B}) :pre [:question?] :post [:t/belief-identity :p/judgment]
 
     ; NAL3:
 
@@ -513,7 +513,7 @@
 
     ((B P) --> Z) (B --> A) |- ((B P) --> (A P)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
     ((P B) --> Z) (B --> A) |- ((P B) --> (P A)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
-    (B P) <-> Z) (B <-> A) |- ((B P) <-> (A P)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
+    ((B P) <-> Z) (B <-> A) |- ((B P) <-> (A P)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
     ((P B) <-> Z) (B <-> A) |- ((P B) <-> (P A)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
     ((\ N A _) --> Z) (N --> R) |- ((\ N A _) --> (\ R A _)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
     ((/ N _ B) --> Z) (S --> B) |- ((/ N _ B) --> (/ N _ S)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]

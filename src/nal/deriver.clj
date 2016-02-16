@@ -90,8 +90,7 @@
   [statement]
   (cond
     (neg-symbol? statement) (neg (trim-negation statement))
-    (and (seq? statement) (= '-- (first statement))) statement
-    (seq? statement)
+    (and (seq? statement) (not= '-- (first statement)))
     (:st
       (reduce
         (fn [{:keys [prev st] :as ac} el]
