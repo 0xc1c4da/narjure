@@ -9,7 +9,8 @@
                  [com.rpl/specter "0.9.1"]
                  [org.clojure/tools.nrepl "0.2.12"]
                  [org.clojure/data.priority-map "0.0.7"]
-                 [org.clojure/core.match "0.3.0-alpha4"]]
+                 [org.clojure/core.match "0.3.0-alpha4"]
+                 [org.clojure/core.unify "0.5.5"]]
   :main ^:skip-aot narjure.core
   :plugins [[lein-cloverage "1.0.6"]
             [cider/cider-nrepl "0.11.0-SNAPSHOT"]]

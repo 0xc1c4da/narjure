@@ -32,7 +32,7 @@
           (s/replace #"\[([^\]]*)]" "(int-set $1)")
           (s/replace #"=\\>" "retro-impl")
           (s/replace #"~" "int-dif ")
-          (s/replace #"&/" "seq-conj")
+          (s/replace #"&/" "seq-conj ")
           (s/replace #"\{--" "inst")
           (s/replace #"--]" "prop")
           (s/replace #"\{-\]" "inst-prop")
