@@ -31,6 +31,7 @@
           (s/replace #"\{([^\}]*)\}" "(ext-set $1)")
           (s/replace #"\[([^\]]*)]" "(int-set $1)")
           (s/replace #"=\\>" "retro-impl")
+          (s/replace #"=/>" "pred-impl")
           (s/replace #"~" "int-dif ")
           (s/replace #"&/" "seq-conj ")
           (s/replace #"\{--" "inst")

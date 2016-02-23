@@ -3,7 +3,7 @@
             nal.reader))
 
 (declare --S S --P P <-> |- --> ==> M || && =|> -- A Ai B <=>)
-;TODO whar does shift-occurrence-forward means?
+
 (defrules rules
   ;Similarity to Inheritance
   #R[(S --> P) (S <-> P) |- (S --> P) :post (:t/struct-int :p/judgment) :pre (:question?)]
@@ -101,12 +101,14 @@
   ; If P and S are in the intension/extension of M then union/difference and intersection can be built:
   #R[(P --> M) (S --> M) |- (((S | P) --> M) :post (:t/intersection)
                               ((S & P) --> M) :post (:t/union)
-                              ((P - S) --> M) :post (:t/difference))
+                              ((P ~ S) --> M) :post (:t/difference)
+                              ((S ~ P) --> M) :post (:t/difference))
      :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))]
 
   #R[(M --> P) (M --> S) |- ((M --> (P & S)) :post (:t/intersection)
                               (M --> (P | S)) :post (:t/union)
-                              (M --> (P ~ S)) :post (:t/difference))
+                              (M --> (P - S)) :post (:t/difference)
+                              (M --> (S - P)) :post (:t/difference))
      :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))]
 
   ; inheritance-based decomposition
@@ -308,31 +310,31 @@
                               (&& (S --> #Y) (P --> #Y)) :post (:t/intersection))
                                   :pre ((:!= S P))]
 
-  #R[(S --> M) (P --> M) |- (((&/ (P --> $X) I) =/> (S --> $X)) :post (:t/induction :linkage-temporal)
+ #_#R[(S --> M) (P --> M) |- (((&/ (P --> $X) I) =/> (S --> $X)) :post (:t/induction :linkage-temporal)
                               ((S --> $X) =\> (&/ (P --> $X) I)) :post (:t/abduction :linkage-temporal)
                               ((&/ (P --> $X) I) </> (S --> $X)) :post (:t/comparison :linkage-temporal)
                               (&/ (P --> #Y) I (S --> #Y)) :post (:t/intersection :linkage-temporal))
             :pre ((:!= S P) (:measure-time I))]
 
-  #R[(S --> M) (P --> M) |- (((P --> $X) =|> (S --> $X)) :post (:t/abduction :linkage-temporal)
+  #_#R[(S --> M) (P --> M) |- (((P --> $X) =|> (S --> $X)) :post (:t/abduction :linkage-temporal)
                               ((S --> $X) =|> (P --> $X)) :post (:t/induction :linkage-temporal)
                               ((P --> $X) <|> (S --> $X)) :post (:t/comparison :linkage-temporal)
                               (&| (P --> #Y) (S --> #Y)) :post (:t/intersection :linkage-temporal))
             :pre ((:!= S P) (concurrent Task Belief))]
 
-  #R[(M --> S) (M --> P) |- ((($X --> S) ==> ($X --> P)) :post (:t/induction)
+  #_#R[(M --> S) (M --> P) |- ((($X --> S) ==> ($X --> P)) :post (:t/induction)
                               (($X --> P) ==> ($X --> S)) :post (:t/abduction)
                               (($X --> S) <=> ($X --> P)) :post (:t/comparison)
                               (&& (#Y --> S) (#Y --> P)) :post (:t/intersection))
      :pre ((:!= S P)) ]
 
-  #R[(M --> S) (M --> P) |- (((&/ ($X --> P) I) =/> ($X --> S))  :post (:t/induction :linkage-temporal)
+  #_#R[(M --> S) (M --> P) |- (((&/ ($X --> P) I) =/> ($X --> S))  :post (:t/induction :linkage-temporal)
                               (($X --> S) =\> (&/ ($X --> P) I)) :post (:t/abduction :linkage-temporal)
                               ((&/ ($X --> P) I) </> ($X --> S)) :post (:t/comparison :linkage-temporal)
                               (&/ (#Y --> P) I (#Y --> S)) :post (:t/intersection :linkage-temporal))
      :pre ((:!= S P) (:measure-time I))]
 
-  #R[(M --> S) (M --> P) |- ((($X --> S) =|> ($X --> P)) :post (:t/induction :linkage-temporal)
+  #_#R[(M --> S) (M --> P) |- ((($X --> S) =|> ($X --> P)) :post (:t/induction :linkage-temporal)
                               (($X --> P) =|> ($X --> S)) :post (:t/abduction :linkage-temporal)
                               (($X --> S) <|> ($X --> P)) :post (:t/comparison :linkage-temporal)
                               (&| (#Y --> S) (#Y --> P)) :post (:t/intersection :linkage-temporal))
@@ -369,6 +371,7 @@
   #R[(U --> L) ((&& (#X --> L) (#X --> R)) ==> Z) |- ((U --> R) ==> Z) :post (:t/deduction)]
   #R[(U --> L) ((&& (#X --> L) (#X --> R) :list/A) ==> Z) |- ((&& (U --> R) :list/A) ==> Z) :pre ((:substitute #X U)) :post (:t/deduction)]
 
+
   ; independent variable elimination
   #R[B (A ==> C) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward unused ==>))]
   #R[B (C ==> A) |- C (:t/abduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward unused ==>))]
@@ -394,12 +397,12 @@
 
   ; Temporal induction:
   ; When P and then S happened according to an observation by induction (weak) it may be that alyways after P usually S happens.
-  #R[P S |- (((&/ S I) =/> P) :post (:t/induction :linkage-temporal)
+  #_#R[P S |- (((&/ S I) =/> P) :post (:t/induction :linkage-temporal)
               (P =\> (&/ S I)) :post (:t/abduction :linkage-temporal)
               ((&/ S I) </> P) :post (:t/comparison :linkage-temporal)
               (&/ S I P) :post (:t/intersection :linkage-temporal))
      :pre ((:measure-time I))]
-  #R[P S |- ((S =|> P) :post (:t/induction :linkage-temporal)
+  #_#R[P S |- ((S =|> P) :post (:t/induction :linkage-temporal)
               (P =|> S) :post (:t/induction :linkage-temporal)
               (S <|> P) :post (:t/comparison :linkage-temporal)
               (&| S P) :post (:t/intersection :linkage-temporal))
