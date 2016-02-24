@@ -5,7 +5,7 @@
             [clojure.set :refer [map-invert]]
             [clojure.core.unify :as u]))
 
-(declare generate-matching)
+(declare generate-matching reserved-operators)
 
 (defmacro walk
   "Macro that helps to replace elements during walk. The first argument
