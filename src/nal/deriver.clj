@@ -1,133 +1,17 @@
 (ns nal.deriver
-  (:require [clojure.walk :as w]
-            [clojure.core.match :refer [match]]
-            [clojure.string :as s]
-            [clojure.set :refer [map-invert]]
-            [clojure.core.unify :as u]))
+  (:require
+    [clojure.core.match :refer [match]]
+    [clojure.string :as s]
+    [clojure.set :refer [map-invert]]
+    [clojure.core.unify :as u]
+    [nal.deriver.truth :as t]
+    [nal.deriver.utils :refer [walk]]
+    [nal.deriver.key-path :refer [mall-paths all-paths]]
+    [nal.deriver.rules :refer [rule]]))
 
+;todo commutative:	<-> <=> <|> & | && ||
+;todo not commutative: --> ==> =/> =\> </> &/ -
 (declare generate-matching reserved-operators)
-
-(defmacro walk
-  "Macro that helps to replace elements during walk. The first argument
-  is collection, rest of the arguments are cond-like
-  expressions. Default result of cond is element itself.
-  el is reserved name for current element of collection."
-  [coll & conditions]
-  (let [el (gensym)
-        replace-el (fn [coll] (w/postwalk #(if (= 'el %) el %) coll))]
-    `(w/postwalk
-       (fn [~el] (cond ~@(replace-el conditions)
-                       :else ~el))
-       ~coll)))
-
-(defn path
-  "Generates premises \"path\" by replacing terms with :any"
-  [statement]
-  (if (coll? statement)
-    (let [[fst & tail] statement]
-      (conj (map path tail) fst))
-    :any))
-
-(def operators
-  #{'&| '--> '<-> '==> 'retro-impl 'pred-impl 'seq-conj 'inst 'prop 'inst-prop
-    'int-image 'ext-image '=/> '=|> '& '| '<=> '</> '<|> '- 'int-dif '|| '&&})
-
-(defn infix->prefix
-  [premise]
-  (if (coll? premise)
-    (let [[f s & tail] premise]
-      (map infix->prefix
-           (if (operators s)
-             (concat [s f] tail)
-             premise)))
-    premise))
-
-(defn rule-path [p1 p2]
-  "Generates detailed pattern for the rule."
-  [(path p1) :and (path p2)])
-
-(defn cart [colls]
-  "Cartesian product."
-  (if (empty? colls)
-    '(())
-    (for [x (first colls)
-          more (cart (rest colls))]
-      (cons x more))))
-
-(defn path-invariants
-  "Generates all pathes that will match with path from args."
-  [path]
-  (if (coll? path)
-    (let [[op & args] path
-          args-inv (map path-invariants args)]
-      (concat (cart (concat [[op]] args-inv)) [:any]))
-    [path]))
-
-(defn all-paths
-  "Generates all pathes for pair of premises."
-  [p1 p2]
-  ;(println p1 p2)
-  (let [paths1 (path-invariants (path p1))
-        paths2 (path-invariants (path p2))]
-    (map vec (cart [paths1 [:and] paths2]))))
-
-(defn options
-  "Generates map from rest of the rule's args."
-  [args]
-  (when-not (empty? args)
-    (into {} (map vec (partition 2 args)))))
-
-(defn- neg-symbol?
-  [el]
-  (and (not= el '-->) (symbol? el) (s/starts-with? (str el) "--")))
-
-(defn- trim-negation
-  [el]
-  (symbol (apply str (drop 2 (str el)))))
-
-(defn neg [el] (list '-- el))
-
-(defn replace-negation
-  "Replaces negations's \"new notation\"."
-  [statement]
-  (cond
-    (neg-symbol? statement) (neg (trim-negation statement))
-    (or (vector? statement) (and (seq? statement) (not= '-- (first statement))))
-    (:st
-      (reduce
-        (fn [{:keys [prev st] :as ac} el]
-          (if (= '-- el)
-            (assoc ac :prev true)
-            (->> [(cond prev (neg el)
-                        (coll? el) (replace-negation el)
-                        (neg-symbol? el) (neg (trim-negation el))
-                        :else el)]
-                 (concat st)
-                 (assoc ac :prev false :st))))
-        {:prev false :st '()}
-        statement))
-    :else statement))
-
-(defn get-conclusions
-  "Parses conclusions from the rule."
-  [c opts]
-  (if (and (seq? c) (some #{:post} c))
-    (map (fn [[c _ post]] {:conclusion c :post post}) (partition 3 c))
-    [{:conclusion c :post (:post opts)}]))
-
-(defn rule [data]
-  "Generates rule from #R statement."
-  (let [[p1 p2 _ c & other] (replace-negation data)]
-    (let [p1 (infix->prefix p1)
-          p2 (infix->prefix p2)
-          c (infix->prefix c)
-          opts (options other)
-          conclusions (get-conclusions c opts)]
-      {:p1          p1
-       :p2          p2
-       :conclusions conclusions
-       :full-path   (rule-path p1 p2)
-       :pre         (:pre opts)})))
 
 (defn rule->map
   "Adds rule to map of rules, conjoin rule to set of rules that
@@ -244,18 +128,35 @@
 
 ;todo expand :list/A
 (defn get-list
-  [statement]
+  [prefix statement]
   (cond
-    (and (keyword? statement) (s/starts-with? (str statement) ":list"))
+    (and (keyword? statement) (s/starts-with? (str statement) prefix))
     statement
-    (coll? statement) (some identity (map get-list statement))
+    (coll? statement) (some identity (map #(get-list prefix %) statement))
     :default nil))
 
-(defn generate-all-lists [r])
+(defn gen-symbols [prefix n]
+  (map #(symbol (str prefix (inc %))) (range n)))
+
+(defn replace-list-elemets [statement list-name n]
+  (walk statement
+        (and (coll? el) (some #{list-name} el))
+        (mapcat (fn [e] (if (= list-name e)
+                          (concat '() (gen-symbols "A" n))
+                          (list e))) el)))
+
+(defn generate-all-lists [list-name r]
+  (mapcat #(let [st (replace-list-elemets r list-name %)]
+            (if-let [from-name (get-list ":from" st)]
+              (map (fn [idx]
+                     (walk st (= from-name el) (symbol (str "A" idx))))
+                   (range 1 (inc %)))
+              [st]))
+          (range 1 6)))
 
 (defn check-list [r]
-  (if-let [list-name (get-list r)]
-    (generate-all-lists r)
+  (if-let [list-name (get-list ":list" r)]
+    (generate-all-lists list-name r)
     [r]))
 
 (defmacro defrules
@@ -263,6 +164,7 @@
   ;TODO exception on duplication of the rule
   [name & rules]
   `(let [rules# (->> (quote ~rules)
+                     (mapcat check-list)
                      (map rule)
                      (mapcat check-orders)
                      check-duplication)
@@ -301,7 +203,7 @@
   [conclusion sym-map]
   (let [sym-map (map-invert sym-map)]
     (walk conclusion
-      (sym-map el) (sym-map el))))
+          (sym-map el) (sym-map el))))
 
 (defn find-and-replace-symbols
   "Replaces all terms in statemnt to placeholders that will be used in pattern
@@ -317,14 +219,14 @@
         sym-map (volatile! {})
         get-sym #(symbol (str prefix %))
         result (walk statement
-                 (or (and (symbol? el) (not-operator? el))
-                     ;TODO remove when :list/A will be expanded
-                     (= :list/A el))
-                 (let [s (get-sym @cnt)]
-                   (vswap! cnt inc)
-                   (vswap! sym-map assoc s el)
-                   s)
-                 (symbol? el) el)]
+                     (or (and (symbol? el) (not-operator? el))
+                         ;TODO remove when :list/A will be expanded
+                         (= :list/A el))
+                     (let [s (get-sym @cnt)]
+                       (vswap! cnt inc)
+                       (vswap! sym-map assoc s el)
+                       s)
+                     (symbol? el) el)]
     [@sym-map result]))
 
 (defn main-pattern [premise]
@@ -368,6 +270,9 @@
 (defn sort-placeholders [tail]
   (sort-by symbol-ordering-keyfn tail))
 
+(defn get-truth-fn [post]
+  (first (filter #(and (keyword? %) (s/starts-with? (str %) ":t/")) post)))
+
 (defn premises-pattern
   "Creates map with preconditions and conclusions regarding to the main pattern
    of rules branch.
@@ -391,44 +296,23 @@
 
    and conclusion will be
    [--> x1 x4]."
-  [pattern premise {:keys [conclusion]} preconditions]
+  [pattern premise {:keys [post conclusion]} preconditions]
   (let [[sym-map pat] (find-and-replace-symbols premise "?a")
         unification-map (u/unify pattern pat)
         sym-map (into {} (map (fn [[k v]] [(k unification-map) v]) sym-map))
         inverted-sym-map (map-invert sym-map)
         pre (walk (filter-preconditions preconditions)
-              (inverted-sym-map el) (inverted-sym-map el)
-              (seq? el)
-              (let [[f & tail] el]
-                (concat (list f) (sort-placeholders tail))))]
-    {:conclusion (replace-symbols conclusion sym-map)
+                  (inverted-sym-map el) (inverted-sym-map el)
+                  (seq? el)
+                  (let [[f & tail] el]
+                    (concat (list f) (sort-placeholders tail))))]
+    {:conclusion [(replace-symbols conclusion sym-map) (t/tvtypes (get-truth-fn post))]
      :conditions (walk (concat (check-conditions sym-map) pre)
-                   (and (coll? el) (= \a (first (str (first el)))))
-                   (concat '() el)
-                   (and (coll? el) (not ((conj reserved-operators 'quote)
-                                          (first el))))
-                   (vec el))}))
-
-
-#_(defmacro premises-matcher
-    "Generates function that will match premises and generate conclusion.
-     Experimental.
-
-     ((premises-matcher [[(quote -->) x0 [(quote -) x1 x2]] [(quote -->) x3 x4]]
-                         [[--> A C] [--> C B]]
-                         [A --> B])
-        '[[--> robin [- cat bird]] [--> [- cat bird] animal]])
-     ;=> [robin --> animal]
-    "
-    [pattern premises conclusion]
-    (let [{:keys [conditions conclusion]}
-          (premises-pattern pattern premises conclusion)]
-      `(fn [x#]
-         (match x# ~pattern
-                (when (and ~@conditions)
-                  ~(walk conclusion
-                     (and (symbol? el) (operator? el)) `'~el))
-                :else nil))))
+                       (and (coll? el) (= \a (first (str (first el)))))
+                       (concat '() el)
+                       (and (coll? el) (not ((conj reserved-operators 'quote)
+                                              (first el))))
+                       (vec el))}))
 
 (defn conds-priorities-map
   "Generates the map of priorities for coditions according to their frequency."
@@ -484,36 +368,44 @@
 (defn quote-operators
   [statement]
   (walk statement
-    (reserved-operators el) el
-    (and (symbol? el) (operator? el)) `'~el
-    (and (coll? el) (= 'quote (first el))
-         (= 'quote (first (second el))))
-    `(quote ~(second (second el)))
-    ;TODO remove this condition!
-    (#{'I 'X 'Y 'R} el) :a
-    (and (coll? el) (= \a (first (str (first el)))))
-    (concat '() el)
-    (and (coll? el) (not (reserved-operators (first el)))) (vec el)))
+        (reserved-operators el) el
+        (and (symbol? el) (operator? el)) `'~el
+        (and (coll? el) (= 'quote (first el))
+             (= 'quote (first (second el))))
+        `(quote ~(second (second el)))
+        ;TODO remove this condition!
+        (#{'X 'Y 'R} el) :a
+        (and (coll? el) (= \a (first (str (first el)))))
+        (concat '() el)
+        (and (coll? el) (not (reserved-operators (first el)))) (vec el)))
 
 (defn traverse-node
-  [result {:keys [conclusions children condition]}]
+  [b1 b2 result {:keys [conclusions children condition]}]
   `(when ~(quote-operators condition)
      ~(when-not (zero? (count conclusions))
-        `(vswap! ~result concat ~@(quote-operators conclusions)))
-     ~@(map (fn [n] (traverse-node result n)) children)))
+        `(vswap! ~result concat ~@(map (fn [concls]
+                                         (mapv (fn [[c tf :as concls]]
+                                                 (if (nil? tf)
+                                                   concls
+                                                   [c (list tf b1 b2)]))
+                                               concls))
+                                       (quote-operators conclusions))))
+     ~@(map (fn [n] (traverse-node b1 b2 result n)) children)))
 
-(defn traverse [trie]
+(defn traverse [b1 b2 trie]
   (let [results (gensym)]
     `(let [~results (volatile! [])]
-       ~(traverse-node results trie)
+       ~(traverse-node b1 b2 results trie)
        @~results)))
 
 (defn match-rules
   [pattern rules]
-  `(fn [x#]
-     (match x# ~(quote-operators pattern)
-            ~(traverse rules)
-            :else nil)))
+  (let [b1 (gensym)
+        b2 (gensym)]
+    `(fn [[p1# ~b1] [p2# ~b2]]
+       (match [p1# p2#] ~(quote-operators pattern)
+              ~(traverse b1 b2 rules)
+              :else nil))))
 
 (defn gen-rules [pattern rules]
   (let [main (main-pattern pattern)
@@ -534,8 +426,6 @@
                       (assoc v :matcher))]))
        (into {})))
 
-(def mall-paths (memoize all-paths))
-
 (defn get-matcher-rec
   [rules [f & tail]]
   (if-let [r (rules f)]
@@ -543,11 +433,10 @@
     (get-matcher-rec rules tail)))
 
 (defn get-matcher [rules p1 p2]
-  (println :m p1 p2)
   (let [paths (mall-paths p1 p2)]
     (get-matcher-rec rules paths)))
 
 (def mget-matcher (memoize get-matcher))
-(defn generate-conclusions [rules [p1 p2 :as premises]]
-  ((mget-matcher rules p1 p2) premises))
+(defn generate-conclusions [rules [p1 _ :as t1] [p2 _ :as t2]]
+  ((mget-matcher rules p1 p2) t1 t2))
 ;!s.contains("task(") && !s.contains("after(") && !s.contains("measure_time(") && !s.contains("Structural") && !s.contains("Identity") && !s.contains("Negation")

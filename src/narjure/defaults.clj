@@ -29,3 +29,5 @@
 (def budgets
   {:judgement judgement-budget
    :question question-budget})
+
+(def ^{:type double} horizon 1)

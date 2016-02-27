@@ -1,5 +1,5 @@
 (ns nal.rules
-  (:require [nal.deriver :refer [defrules rule rule-path]]
+  (:require [nal.deriver :refer [defrules]]
             nal.reader))
 
 (declare --S S --P P <-> |- --> ==> M || && =|> -- A Ai B <=>)
@@ -112,16 +112,16 @@
      :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))]
 
   ; inheritance-based decomposition
-  ; if (S --> M) is the case and ((| S :list/A) --> M) is not the case then ((| :list/A) --> M) is not the case hence :t/decompose-positive-negative-negative
-  #R[(S --> M) ((| S :list/A) --> M) |- ((| :list/A) --> M) :post (:t/decompose-positive-negative-negative)]
-  #R[(S --> M) ((& S :list/A) --> M) |- ((& :list/A) --> M) :post (:t/decompose-negative-positive-positive)]
+  ; if (S --> M) is the case and ((| S :list/A) --> M) is not the case then ((| :list/A) --> M) is not the case hence :t/decompose-pnn
+  #R[(S --> M) ((| S :list/A) --> M) |- ((| :list/A) --> M) :post (:t/decompose-pnn)]
+  #R[(S --> M) ((& S :list/A) --> M) |- ((& :list/A) --> M) :post (:t/decompose-npp)]
   #R[(S --> M) ((S - P) --> M) |- (P --> M) :post (:t/decompose-positive-negative-positive)]
-  #R[(S --> M) ((P - S) --> M) |- (P --> M) :post (:t/decompose-negative-negative-negative)]
+  #R[(S --> M) ((P - S) --> M) |- (P --> M) :post (:t/decompose-nnn)]
 
-  #R[(M --> S) (M --> (& S :list/A)) |- (M --> (& :list/A)) :post (:t/decompose-positive-negative-negative)]
-  #R[(M --> S) (M --> (| S :list/A)) |- (M --> (| :list/A)) :post (:t/decompose-negative-positive-positive)]
+  #R[(M --> S) (M --> (& S :list/A)) |- (M --> (& :list/A)) :post (:t/decompose-pnn)]
+  #R[(M --> S) (M --> (| S :list/A)) |- (M --> (| :list/A)) :post (:t/decompose-npp)]
   #R[(M --> S) (M --> (S ~ P)) |- (M --> P) :post (:t/decompose-positive-negative-positive)]
-  #R[(M --> S) (M --> (P ~ S)) |- (M --> P) :post (:t/decompose-negative-negative-negative)]
+  #R[(M --> S) (M --> (P ~ S)) |- (M --> P) :post (:t/decompose-nnn)]
 
   ; Set comprehension:
   #R[(C --> A) (C --> B) |- (C --> R) :post (:t/union) :pre ((:set-ext? A) (:union A B R))]
@@ -256,10 +256,10 @@
 
   ; implication-based decomposition
   ; Same as for inheritance again
-  #R[(S ==> M) ((|| S :list/A) ==> M) |- ((|| :list/A) ==> M) :post (:t/decompose-positive-negative-negative :order-for-all-same)]
-  #R[(S ==> M) ((&& S :list/A) ==> M) |- ((&& :list/A) ==> M) :post (:t/decompose-negative-positive-positive :order-for-all-same :seq-interval-from-premises)]
-  #R[(M ==> S) (M ==> (&& S :list/A)) |- (M ==> (&& :list/A)) :post (:t/decompose-positive-negative-negative :order-for-all-same :seq-interval-from-premises)]
-  #R[(M ==> S) (M ==> (|| S :list/A)) |- (M ==> (|| :list/A)) :post (:t/decompose-negative-positive-positive :order-for-all-same)]
+  #R[(S ==> M) ((|| S :list/A) ==> M) |- ((|| :list/A) ==> M) :post (:t/decompose-pnn :order-for-all-same)]
+  #R[(S ==> M) ((&& S :list/A) ==> M) |- ((&& :list/A) ==> M) :post (:t/decompose-npp :order-for-all-same :seq-interval-from-premises)]
+  #R[(M ==> S) (M ==> (&& S :list/A)) |- (M ==> (&& :list/A)) :post (:t/decompose-pnn :order-for-all-same :seq-interval-from-premises)]
+  #R[(M ==> S) (M ==> (|| S :list/A)) |- (M ==> (|| :list/A)) :post (:t/decompose-npp :order-for-all-same)]
 
   ; conditional syllogism
   ; If after M P usually happens and M happens it means P is expected to happen
@@ -276,16 +276,16 @@
 
   ; propositional decomposition
   ; If S is the case and (&& S :list/A) is not the case it can't be that (&& :list/A) is the case
-  #R[S (&/ S :list/A) |- (&/ :list/A) :post (:t/decompose-positive-negative-negative :seq-interval-from-premises)]
-  #R[S (&| S :list/A) |- (&| :list/A) :post (:t/decompose-positive-negative-negative)]
-  #R[S (&& S :list/A) |- (&& :list/A) :post (:t/decompose-positive-negative-negative)]
-  #R[S (|| S :list/A) |- (|| :list/A) :post (:t/decompose-negative-positive-positive)]
+  #R[S (&/ S :list/A) |- (&/ :list/A) :post (:t/decompose-pnn :seq-interval-from-premises)]
+  #R[S (&| S :list/A) |- (&| :list/A) :post (:t/decompose-pnn)]
+  #R[S (&& S :list/A) |- (&& :list/A) :post (:t/decompose-pnn)]
+  #R[S (|| S :list/A) |- (|| :list/A) :post (:t/decompose-npp)]
 
   ; Additional for negation: https://groups.google.com/forum/#!topic/open-nars/g-7r0jjq2Vc
-  #R[S (&/ (-- S) :list/A) |- (&/ :list/A) :post (:t/decompose-negative-negative-negative :seq-interval-from-premises)]
-  #R[S (&| (-- S) :list/A) |- (&| :list/A) :post (:t/decompose-negative-negative-negative)]
-  #R[S (&& (-- S) :list/A) |- (&& :list/A) :post (:t/decompose-negative-negative-negative)]
-  #R[S (|| (-- S) :list/A) |- (|| :list/A) :post (:t/decompose-positive-positive-positive)]
+  #R[S (&/ (-- S) :list/A) |- (&/ :list/A) :post (:t/decompose-nnn :seq-interval-from-premises)]
+  #R[S (&| (-- S) :list/A) |- (&| :list/A) :post (:t/decompose-nnn)]
+  #R[S (&& (-- S) :list/A) |- (&& :list/A) :post (:t/decompose-nnn)]
+  #R[S (|| (-- S) :list/A) |- (|| :list/A) :post (:t/decompose-ppp)]
 
   ; multi-conditional syllogism
   ; Inference about the pre/postconditions
