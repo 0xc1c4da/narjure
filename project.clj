@@ -8,7 +8,11 @@
                  [instaparse "1.4.1"]
                  [com.rpl/specter "0.9.1"]
                  [org.clojure/tools.nrepl "0.2.12"]
-                 [org.clojure/data.priority-map "0.0.7"]]
+                 [org.clojure/data.priority-map "0.0.7"]
+                 [co.paralleluniverse/pulsar "0.7.4"]
+                 [org.immutant/immutant "2.1.2"]
+                 [clj-time "0.11.0"]]
+  :java-agents [[co.paralleluniverse/quasar-core "0.7.4"]]
   :main ^:skip-aot narjure.core
   :plugins [[lein-cloverage "1.0.6"]
             [cider/cider-nrepl "0.11.0-SNAPSHOT"]]
