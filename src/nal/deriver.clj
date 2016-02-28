@@ -6,11 +6,13 @@
     [clojure.core.unify :as u]
     [nal.deriver.truth :as t]
     [nal.deriver.utils :refer [walk]]
-    [nal.deriver.key-path :refer [mall-paths all-paths]]
+    [nal.deriver.key-path :refer [mall-paths all-paths rule-path]]
     [nal.deriver.rules :refer [rule]]))
 
 ;todo commutative:	<-> <=> <|> & | && ||
-;todo not commutative: --> ==> =/> =\> </> &/ -
+;todo not commutative: --> ==> =/> =\> </> &/ - ~
+
+(def commutative-ops #{'<-> '<=> '<|> '| '|| 'conj 'ext-inter})
 (declare generate-matching reserved-operators)
 
 (defn rule->map
@@ -57,10 +59,22 @@
                       (assoc ac k r))))
                 {} rules)))
 
+;http://pastebin.com/3zLX7rPx
 (defn allow-backward?
   "Return true if rule allows backward inference."
   [{:keys [conclusions]}]
   (some #{:allow-backward} (:post (first conclusions))))
+
+(defn allow-swapping? [{:keys [pre conclusions]}]
+  (and (not (some #{:question? :judgement? :goal? :measure-time :t/belief-structural-deduction
+                    :t/structural-deduction :t/belief-structural-difference :t/identity
+                    :t/negation}
+                  (flatten (concat pre (:post (first conclusions))))))
+       (not (some commutative-ops
+                  (flatten (:conclusion (first conclusions)))))))
+
+;todo what is "after("?
+;!s.contains("task(") && !s.contains("after(") && !s.contains("measure_time(") && !s.contains("Structural") && !s.contains("Identity") && !s.contains("Negation")
 
 (defn question?
   "Return true if rule allows only question as task."
@@ -115,18 +129,12 @@
                        :pre pre))
          statements)))
 
-(defn for-questions
-  "Filters rules that are allowed for question task."
-  [rules]
-  (set (concat (filter allow-backward? rules)
-               (filter question? rules))))
-
 (defn check-orders [r]
   (if (order-for-all-same? r)
     (generate-all-orders r)
     [r]))
 
-;todo expand :list/A
+;todo expand :list/B
 (defn get-list
   [prefix statement]
   (cond
@@ -138,38 +146,72 @@
 (defn gen-symbols [prefix n]
   (map #(symbol (str prefix (inc %))) (range n)))
 
-(defn replace-list-elemets [statement list-name n]
+(defn replace-list-elemets [statement list-name sym n]
   (walk statement
         (and (coll? el) (some #{list-name} el))
         (mapcat (fn [e] (if (= list-name e)
-                          (concat '() (gen-symbols "A" n))
+                          (concat '() (gen-symbols sym n))
                           (list e))) el)))
 
-(defn generate-all-lists [list-name r]
-  (mapcat #(let [st (replace-list-elemets r list-name %)]
+(defn generate-all-lists [list-name sym r]
+  (mapcat #(let [st (replace-list-elemets r list-name sym %)]
             (if-let [from-name (get-list ":from" st)]
               (map (fn [idx]
-                     (walk st (= from-name el) (symbol (str "A" idx))))
+                     (walk st (= from-name el) (symbol (str sym idx))))
                    (range 1 (inc %)))
               [st]))
           (range 1 6)))
 
 (defn check-list [r]
   (if-let [list-name (get-list ":list" r)]
-    (generate-all-lists list-name r)
+    (let [sym (apply str (drop 6 (str list-name)))]
+      (generate-all-lists list-name sym r))
     [r]))
 
+(defn generate-backward-rule
+  [{:keys [p1 p2 conclusions] :as rule}]
+  (mapcat (fn [{:keys [conclusion post]}]
+            (conj (map
+                    (fn [r] (update r :pre conj :question?))
+                    [(assoc rule :p1 conclusion
+                                 :conclusions [{:conclusion p1
+                                                :post       post}]
+                                 :full-path (rule-path conclusion p2))
+                     (assoc rule :p2 conclusion
+                                 :conclusions [{:conclusion p2
+                                                :post       post}]
+                                 :full-path (rule-path p1 conclusion))])
+                  rule))
+          conclusions))
+
+(defn generate-backward-rules
+  [rules]
+  (mapcat (fn [rule]
+            (if (allow-backward? rule)
+              (generate-backward-rule rule)
+              [rule]))
+          rules))
+
+(defn check-swapping
+  [{:keys [p1 p2] :as rule}]
+  (if (allow-swapping? rule)
+    [rule (assoc rule :p1 p2
+                      :p2 p1
+                      :full-path (rule-path p2 p1))]
+    [rule]))
 (defmacro defrules
   "Define rules. Rules must be #R statements."
   ;TODO exception on duplication of the rule
   [name & rules]
   `(let [rules# (->> (quote ~rules)
                      (mapcat check-list)
-                     (map rule)
+                     (mapcat rule)
                      (mapcat check-orders)
+                     (mapcat check-swapping)
+                     generate-backward-rules
                      check-duplication)
          judgement-rules# (remove question? rules#)
-         question-rules# (for-questions rules#)]
+         question-rules# (filter question? rules#)]
      (println "Q rules:" (count question-rules#))
      (println "J rules:" (count judgement-rules#))
      (def ~name {:judgement (rules-map judgement-rules#)

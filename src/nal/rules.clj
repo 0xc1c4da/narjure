@@ -101,14 +101,12 @@
   ; If P and S are in the intension/extension of M then union/difference and intersection can be built:
   #R[(P --> M) (S --> M) |- (((S | P) --> M) :post (:t/intersection)
                               ((S & P) --> M) :post (:t/union)
-                              ((P ~ S) --> M) :post (:t/difference)
-                              ((S ~ P) --> M) :post (:t/difference))
+                              ((P ~ S) --> M) :post (:t/difference))
      :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))]
 
   #R[(M --> P) (M --> S) |- ((M --> (P & S)) :post (:t/intersection)
                               (M --> (P | S)) :post (:t/union)
-                              (M --> (P - S)) :post (:t/difference)
-                              (M --> (S - P)) :post (:t/difference))
+                              (M --> (P - S)) :post (:t/difference))
      :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))]
 
   ; inheritance-based decomposition
@@ -305,6 +303,7 @@
   ; variable introduction
   ; Introduce variables by common subject or predicate
   #R[(S --> M) (P --> M) |- (((P --> $X) ==> (S --> $X)) :post (:t/abduction)
+                              ;TODO is this conclusion necessary?
                               ((S --> $X) ==> (P --> $X)) :post (:t/induction)
                               ((P --> $X) <=> (S --> $X)) :post (:t/comparison)
                               (&& (S --> #Y) (P --> #Y)) :post (:t/intersection))
@@ -385,9 +384,9 @@
   #R[(A --> K) (($X --> L) ==> (&& (#Y --> K) :list/A)) |- (($X --> L) ==> (&& :list/A)) :pre ((:substitute #Y A)) :post (:t/anonymous-analogy)]
 
   ; precondition combiner inference rule (variable_unification6):
-  #R[((&& C :list/A) ==> Z) ((&& C :list/B) ==> Z) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/induction)
+  #_#R[((&& C :list/A) ==> Z) ((&& C :list/B) ==> Z) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/induction)
                                                         ((&& :list/B) ==> (&& :list/A)) :post (:t/induction))]
-  #R[(Z ==> (&& C :list/A)) (Z ==> (&& C :list/B)) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/abduction)
+  #_#R[(Z ==> (&& C :list/A)) (Z ==> (&& C :list/B)) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/abduction)
                                                       ((&& :list/B) ==> (&& :list/A)) :post (:t/abduction))]
 
   ; NAL7 specific inference
@@ -432,8 +431,8 @@
   ; composition on one side of a statement:
   #R[(W --> (| B :list/A)) (W --> B) |- (W --> (| B :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
   #R[((& B :list/A) --> W) (B --> W) |- ((& B :list/A) --> W) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[(W --> (- S B)) (W --> B) |- (W --> (- S B)) :pre (:question?) :post (:t/beliefStructuralDifference :p/judgment)]
-  #R[((~ S B) --> W) (B --> W) |- ((~ S B) --> W) :pre (:question?) :post (:t/beliefStructuralDifference :p/judgment)]
+  #R[(W --> (- S B)) (W --> B) |- (W --> (- S B)) :pre (:question?) :post (:t/belief-structural-difference :p/judgment)]
+  #R[((~ S B) --> W) (B --> W) |- ((~ S B) --> W) :pre (:question?) :post (:t/belief-structural-difference :p/judgment)]
 
   ; NAL4:
   ; composition on both sides of a statement:

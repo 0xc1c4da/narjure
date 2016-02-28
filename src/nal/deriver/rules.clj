@@ -69,8 +69,10 @@
           c (infix->prefix c)
           opts (options other)
           conclusions (get-conclusions c opts)]
-      {:p1          p1
-       :p2          p2
-       :conclusions conclusions
-       :full-path   (rule-path p1 p2)
-       :pre         (:pre opts)})))
+      (map (fn [c]
+             {:p1          p1
+              :p2          p2
+              :conclusions [c]
+              :full-path   (rule-path p1 p2)
+              :pre         (:pre opts)})
+           conclusions))))
