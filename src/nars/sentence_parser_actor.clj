@@ -19,7 +19,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In sentence-parser :else" msg)]))
 
-(defsfn sentence-parser-actor
+(defn sentence-parser-actor
         "Example format for using actor with  set-state! on recursion.
         Usage: (def actor (spawn actor [state]))
         This example uses a map for state {:id 0} and increments value on recursion

@@ -22,7 +22,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In cross-modal-integrator :else" msg)]))
 
-(defsfn cross-modal-integrator-actor
+(defn cross-modal-integrator-actor
         "state is system-time and collection of precepts from current duration window"
         [in-state]
         (register! :cross-modal-integrator @self)

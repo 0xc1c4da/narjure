@@ -3,9 +3,9 @@
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]
-     ])
-  (:require [nars.task-dispatcher-actor :refer [concept-map]])
-  (:require [nars.concept :refer [concept-actor]])
+     ]
+    [nars.task-dispatcher-actor :refer [concept-map]]
+    [nars.concept :refer [concept-actor]])
   (:refer-clojure :exclude [promise await])
   (:gen-class))
 
@@ -36,7 +36,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In concept-creator :else" msg)]))
 
-(defsfn concept-creator-actor
+(defn concept-creator-actor
         ""
         []
         (register! :concept-creator @self)

@@ -22,7 +22,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In new-input-task-creator :else" msg)]))
 
-(defsfn new-input-task-creator-actor
+(dsfn new-input-task-creator-actor
         "state is system-time"
         [in-state]
         (register! :input-task-creator @self)

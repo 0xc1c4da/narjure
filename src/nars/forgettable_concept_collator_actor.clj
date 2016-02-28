@@ -21,7 +21,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In forgettable-concept-collator :else" msg)]))
 
-(defsfn forgettable-concept-collator-actor
+(defn forgettable-concept-collator-actor
         "state is collection of forgettable concepts"
         [in-state]
         (register! :forgettable-concept-collator @self)

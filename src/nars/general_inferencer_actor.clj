@@ -17,7 +17,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In general-inferencer :else" msg)]))
 
-(defsfn general-inferencer-actor
+(defn general-inferencer-actor
         "state is inference rule trie or equivalent"
         [in-state]
         (register! :general-inferencer @self)

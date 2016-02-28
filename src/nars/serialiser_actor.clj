@@ -21,7 +21,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In serialiser :else" msg)]))
 
-(defsfn serialiser-actor
+(defn serialiser-actor
         "state is serial number (long)"
         [in-state]
         (register! :serialiser @self)

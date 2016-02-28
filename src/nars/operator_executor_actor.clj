@@ -19,7 +19,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In operator-executor :else" msg)]))
 
-(defsfn operator-executor-actor
+(defn operator-executor-actor
         "state is system-time"
         [in-state]
         (register! :operator-executor @self)

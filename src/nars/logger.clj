@@ -1,11 +1,10 @@
-(ns nars.logger)
 (ns nars.logger
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]
-     ])
-  (:require [clj-time.local :as l])
+     ]
+    [clj-time.local :as l])
   (:refer-clojure :exclude [promise await])
   (:gen-class))
 
@@ -14,7 +13,7 @@
 (defn process-unhandled-msg [msg]
   (! @self [:log-msg :log-debug (str "In sentence-parser :else" msg)]))
 
-(defsfn logger
+(defn logger
         "Actor to provide log to console service.
          Ensures multiple thread println do not clash
         "

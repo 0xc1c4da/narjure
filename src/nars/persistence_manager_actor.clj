@@ -16,7 +16,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In persistence-manager :else" msg)]))
 
-(defsfn persistence-manager-actor
+(defn persistence-manager-actor
         "state is file system handles"
         [in-state]
         (register! :persistence-manager @self)

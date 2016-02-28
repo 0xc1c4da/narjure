@@ -1,28 +1,27 @@
 (ns nars.core
-    (:require
-      [co.paralleluniverse.pulsar
-       [core :refer :all]
-       [actors :refer :all]
-       ])
-  (:require [immutant.scheduling :refer :all])
-  (:require [nars.active-concept-collator-actor :refer [active-concept-collator-actor]])
-  (:require [nars.anticipated-event-actor :refer [anticipated-event-actor]])
-  (:require [nars.concept-creator-actor :refer [concept-creator-actor]])
-  (:require [nars.cross-modal-integrator-actor :refer [cross-modal-integrator-actor]])
-  (:require [nars.derived-task-creator-actor :refer [derived-task-creator-actor]])
-  (:require [nars.forgettable-concept-collator-actor :refer [forgettable-concept-collator-actor]])
-  (:require [nars.general-inferencer-actor :refer [general-inferencer-actor]])
-  (:require [nars.new-input-task-creator-actor :refer [new-input-task-creator-actor]])
-  (:require [nars.operator-executor-actor :refer [operator-executor-actor]])
-  (:require [nars.persistence-manager-actor :refer [persistence-manager-actor]])
-  (:require [nars.sentence-parser-actor :refer [sentence-parser-actor]])
-  (:require [nars.serialiser-actor :refer [serialiser-actor]])
-  (:require [nars.system-time-actor :refer [system-time-actor]])
-  (:require [nars.task-dispatcher-actor :refer [task-dispatcher-actor]])
-  (:require [nars.logger :refer [logger]])
-
-    (:refer-clojure :exclude [promise await])
-    (:gen-class))
+  (:require
+    [co.paralleluniverse.pulsar
+     [core :refer :all]
+     [actors :refer :all]
+     ])
+  (:require [immutant.scheduling :refer :all]
+            [nars.active-concept-collator-actor :refer [active-concept-collator-actor]]
+            [nars.anticipated-event-actor :refer [anticipated-event-actor]]
+            [nars.concept-creator-actor :refer [concept-creator-actor]]
+            [nars.cross-modal-integrator-actor :refer [cross-modal-integrator-actor]]
+            [nars.derived-task-creator-actor :refer [derived-task-creator-actor]]
+            [nars.forgettable-concept-collator-actor :refer [forgettable-concept-collator-actor]]
+            [nars.general-inferencer-actor :refer [general-inferencer-actor]]
+            [nars.new-input-task-creator-actor :refer [new-input-task-creator-actor]]
+            [nars.operator-executor-actor :refer [operator-executor-actor]]
+            [nars.persistence-manager-actor :refer [persistence-manager-actor]]
+            [nars.sentence-parser-actor :refer [sentence-parser-actor]]
+            [nars.serialiser-actor :refer [serialiser-actor]]
+            [nars.system-time-actor :refer [system-time-actor]]
+            [nars.task-dispatcher-actor :refer [task-dispatcher-actor]]
+            [nars.logger :refer [logger]])
+  (:refer-clojure :exclude [promise await])
+  (:gen-class))
 
 (def system-tick-interval 2000)
 (def inference-tick-interval 2500)

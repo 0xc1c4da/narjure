@@ -30,7 +30,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In concept :else" msg)]))
 
-(defsfn concept-actor
+(defn concept-actor
         "state is a map {:name :budget :activation-level :belief-tab :goal-tab :task-bag :term-bag}
         (this list may not be complete)"
         [in-state]

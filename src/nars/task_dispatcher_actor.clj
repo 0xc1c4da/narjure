@@ -4,7 +4,6 @@
      [core :refer :all]
      [actors :refer :all]
      ])
-  (:require [nars.logger :refer [logger]])
   (:refer-clojure :exclude [promise await])
   (:gen-class))
 
@@ -34,7 +33,7 @@
 ; {term actor-ref}
 (def concept-map {atom {}})
 
-(defsfn task-dispatcher-actor
+(defn task-dispatcher-actor
         "concept-map is atom {:term :actor-ref} shared between task-dispatcher and concept-creator"
         []
         (register! :task-dispatcher @self)

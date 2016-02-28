@@ -19,7 +19,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In derived-task-creator :else" msg)]))
 
-(defsfn derived-task-creator-actor
+(defn derived-task-creator-actor
         "state is system-time"
         [in-state]
         (register! :derived-task-creator @self)

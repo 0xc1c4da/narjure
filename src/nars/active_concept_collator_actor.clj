@@ -3,8 +3,8 @@
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]
-     ])
-  (:require [nars.logger :refer [logger]])
+     ]
+    [nars.logger :refer [logger]])
   (:refer-clojure :exclude [promise await])
   (:gen-class))
 
@@ -20,7 +20,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In active-concept-collator :else")]))
 
-(defsfn active-concept-collator-actor
+(defn active-concept-collator-actor
         "state is collection of active concepts"
         [in-state]
         (register! :active-concept-collator @self)

@@ -22,7 +22,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In anticipated-event :else" msg)]))
 
-(defsfn anticipated-event-actor
+(defn anticipated-event-actor
         "state is system-time and collection of anticipated events"
         [in-state]
         (register! :anticipated-event @self)
