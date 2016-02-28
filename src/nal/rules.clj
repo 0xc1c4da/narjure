@@ -1,5 +1,5 @@
 (ns nal.rules
-  (:require [nal.deriver :refer [defrules]]
+  (:require [nal.deriver.rules :refer [defrules]]
             nal.reader))
 
 (declare --S S --P P <-> |- --> ==> M || && =|> -- A Ai B <=>)
