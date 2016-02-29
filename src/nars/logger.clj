@@ -3,8 +3,8 @@
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]
-     ])
-  (:require [clj-time.local :as l])
+     ]
+    [clj-time.local :as l])
   (:refer-clojure :exclude [promise await])
   (:gen-class))
 
