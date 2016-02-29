@@ -87,7 +87,7 @@
 
 (defn symbol-ordering-keyfn [sym]
   (if (symbol? sym)
-    (try (Integer/parseInt (apply str (drop 1 (str sym))))
+    (try (Integer/parseInt (s/join (drop 1 (str sym))))
          (catch Exception _ -100))
     -1))
 
@@ -140,15 +140,15 @@
   (first (filter #(and (keyword? %) (s/starts-with? (str %) ":t/")) post)))
 
 (defn check-conditions [syms]
-  (->> (keep
-         (fn [[alias sym]]
-           (let [aliases (filter (fn [[a v]]
-                                   (and (< (symbol-ordering-keyfn alias)
-                                           (symbol-ordering-keyfn a)) (= v sym)))
-                                 (dissoc syms alias))]
-             (mapcat (fn [[a]] `(= ~alias ~a)) aliases)))
-         syms)
-       (filter not-empty)))
+  (filter not-empty
+          (keep
+            (fn [[alias sym]]
+              (let [aliases (filter (fn [[a v]]
+                                      (and (< (symbol-ordering-keyfn alias)
+                                              (symbol-ordering-keyfn a)) (= v sym)))
+                                    (dissoc syms alias))]
+                (mapcat (fn [[a]] `(= ~alias ~a)) aliases)))
+            syms)))
 
 (defn premises-pattern
   "Creates map with preconditions and conclusions regarding to the main pattern

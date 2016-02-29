@@ -22,7 +22,7 @@
 
 (defn- trim-negation
   [el]
-  (symbol (apply str (drop 2 (str el)))))
+  (symbol (s/join (drop 2 (str el)))))
 
 (defn neg [el] (list '-- el))
 

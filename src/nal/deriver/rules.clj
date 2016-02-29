@@ -13,7 +13,7 @@
 (defn options
   "Generates map from rest of the rule's args."
   [args]
-  (when-not (empty? args)
+  (when (seq args)
     (into {} (map vec (partition 2 args)))))
 
 (defn get-conclusions
@@ -86,8 +86,7 @@
   values from the premises, rules will be used to generate deriver."
   [ruleset]
   (let [rules (reduce rule->map {} ruleset)]
-    (-> (reduce add-possible-paths rules rules)
-        generate-matching)))
+    (generate-matching (reduce add-possible-paths rules rules))))
 
 ;---------------------------------------------------------------------------
 

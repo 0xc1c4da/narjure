@@ -35,6 +35,6 @@
 
 (defn check-list [r]
   (if-let [list-name (get-list ":list" r)]
-    (let [sym (apply str (drop 6 (str list-name)))]
+    (let [sym (s/join (drop 6 (str list-name)))]
       (generate-all-lists list-name sym r))
     [r]))

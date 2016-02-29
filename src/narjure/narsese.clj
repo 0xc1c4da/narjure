@@ -120,7 +120,7 @@
 (double-element :quality *budget*)
 
 (defmethod element :task [[_ & data]]
-  (when (= :budget (first (first data)))
+  (when (= :budget (ffirst data))
     (element (first data)))
   (element (last data)))
 

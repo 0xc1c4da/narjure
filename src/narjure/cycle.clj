@@ -124,8 +124,7 @@
   [{:keys [statement] :as task} {:keys [concepts] :as m} term]
   (let [concept (get-concept concepts term)
         answer (get-in concept [:answers statement])
-        upd-concept (-> concept
-                        (update :tasks put-el task))
+        upd-concept (update concept :tasks put-el task)
         upd-m (update m :concepts put-el upd-concept)]
     (if answer
       (update upd-m :answers conj [task answer])
@@ -267,8 +266,7 @@
   "Put task into the buffer."
   [{:keys [cycles-cnt tasks-cnt] :as m} t]
   (let [n-task (inc tasks-cnt)]
-    (assoc (->> (pack-task t cycles-cnt n-task)
-                (update m :buffer put-el))
+    (assoc (update m :buffer put-el (pack-task t cycles-cnt n-task))
       :tasks-cnt n-task)))
 
 (defn fill-memory [& expression]
