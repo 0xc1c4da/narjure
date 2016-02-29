@@ -1,8 +1,7 @@
 (ns nal.test.deriver
   (:require [clojure.test :refer :all]
             [nal.deriver :refer :all]
-            [nal.rules :as r]
-            nal.reader))
+            [nal.rules :as r]))
 
 (deftest test-generate-conclusions
   (is (= '([[<-> chess sport] [1.0 0.44751381215469616]]

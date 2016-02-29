@@ -84,7 +84,7 @@
           f (t-and f1 (- 1 f2))]
       [f (t-and f c1 c2)])))
 
-(defn decompose-ppp [p1 p2] (decompose-npp (negation p1) p2))
+(defn decompose-ppp [p1 p2] (decompose-npp (negation p1 p2) p2))
 
 (defn decompose-nnn [[^double f1 ^double c1] p2]
   (when p2
@@ -102,10 +102,10 @@
 (defn structual-abduction [p1 _] (abduction p1 [1 d/judgement-confidence]))
 
 (defn reduce-conjunction [p1 p2]
-  (-> (negation p1)
+  (-> (negation p1 p2)
       (intersection p2)
       (a-deduction 1)
-      negation))
+      (negation p2)))
 
 (defn t-identity [p1 _] p1)
 
@@ -119,7 +119,7 @@
     (let [[^double f ^double c] (deduction p2 [1 d/judgement-confidence])]
       [(- 1 f) c])))
 
-(defn belief-negation [_ p2] (when p2 (negation p2)))
+(defn belief-negation [_ p2] (when p2 (negation p2 nil)))
 
 (def tvtypes
   {:t/structural-deduction        structual-abduction
