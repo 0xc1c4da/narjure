@@ -16,15 +16,15 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In system-time :else" msg)]))
 
-(defn system-time-actor
-  "state is system-time"
-  [in-state]
-  (register! :system-time @self)
-  (set-state! in-state)
-  (loop []
-    (receive [msg]
-             :system-time-tick-msg (set-state! (process-system-time-tick @state))
-             :else (process-unhandled-msg msg))
-    (recur)))
+(defsfn system-time-actor
+        "state is system-time"
+        [in-state]
+        (register! :system-time @self)
+        (set-state! in-state)
+        (loop []
+          (receive [msg]
+                   :system-time-tick-msg (set-state! (process-system-time-tick @state))
+                   :else (process-unhandled-msg msg))
+          (recur)))
 
 

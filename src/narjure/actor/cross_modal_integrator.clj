@@ -22,16 +22,16 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In cross-modal-integrator :else" msg)]))
 
-(defn cross-modal-integrator-actor
-  "state is system-time and collection of precepts from current duration window"
-  [in-state]
-  (register! :cross-modal-integrator @self)
-  (set-state! in-state)
-  (loop []
-    (receive [msg]
-             [:system-time-msg time] (set-state! (process-system-time time @state))
-             [:percept-sentence-msg percept-sentence] (set-state! (process-percept-sentence percept-sentence @state))
-             :else (process-unhandled-msg msg))
-    (recur)))
+(defsfn cross-modal-integrator-actor
+        "state is system-time and collection of precepts from current duration window"
+        [in-state]
+        (register! :cross-modal-integrator @self)
+        (set-state! in-state)
+        (loop []
+          (receive [msg]
+                   [:system-time-msg time] (set-state! (process-system-time time @state))
+                   [:percept-sentence-msg percept-sentence] (set-state! (process-percept-sentence percept-sentence @state))
+                   :else (process-unhandled-msg msg))
+          (recur)))
 
 

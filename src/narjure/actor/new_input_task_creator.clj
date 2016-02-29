@@ -22,14 +22,14 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In new-input-task-creator :else" msg)]))
 
-(defn new-input-task-creator-actor
-  "state is system-time"
-  [in-state]
-  (register! :input-task-creator @self)
-  (set-state! in-state)
-  (loop []
-    (receive [msg]
-             [:system-time-msg time] (set-state! (process-system-time time @state))
-             [:sentence-msg sentence] (process-sentence sentence @state)
-             :else (process-unhandled-msg msg))
-    (recur)))
+(defsfn new-input-task-creator-actor
+        "state is system-time"
+        [in-state]
+        (register! :input-task-creator @self)
+        (set-state! in-state)
+        (loop []
+          (receive [msg]
+                   [:system-time-msg time] (set-state! (process-system-time time @state))
+                   [:sentence-msg sentence] (process-sentence sentence @state)
+                   :else (process-unhandled-msg msg))
+          (recur)))

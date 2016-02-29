@@ -17,13 +17,13 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In general-inferencer :else" msg)]))
 
-(defn general-inferencer-actor
-  "state is inference rule trie or equivalent"
-  [in-state]
-  (register! :general-inferencer @self)
-  (set-state! in-state)
-  (loop []
-    (receive [msg]
-             [:do-inference-msg inference-package] (set-state! (process-do-inference inference-package @state))
-             :else (process-unhandled-msg msg))
-    (recur)))
+(defsfn general-inferencer-actor
+        "state is inference rule trie or equivalent"
+        [in-state]
+        (register! :general-inferencer @self)
+        (set-state! in-state)
+        (loop []
+          (receive [msg]
+                   [:do-inference-msg inference-package] (set-state! (process-do-inference inference-package @state))
+                   :else (process-unhandled-msg msg))
+          (recur)))

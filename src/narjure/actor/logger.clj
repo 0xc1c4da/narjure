@@ -29,24 +29,24 @@
   "
   [log-level msg-string]
   (case @my-state
-    :log-debug (when (#{:log-debug :log-warning :log-error :log-info} log-level) (print-log-msg log-level msg-string))
-    :log-error (when (#{:log-warning :log-error :log-info} log-level) (print-log-msg log-level msg-string))
-    :log-warning (when (#{:log-warning :log-info} log-level) (print-log-msg log-level msg-string))
-    :log-info (when (#{:log-info} log-level) (print-log-msg log-level msg-string))))
+    :log-debug (if (#{:log-debug :log-warning :log-error :log-info} log-level) (print-log-msg log-level msg-string))
+    :log-error (if (#{:log-warning :log-error :log-info} log-level) (print-log-msg log-level msg-string))
+    :log-warning (if (#{:log-warning :log-info} log-level) (print-log-msg log-level msg-string))
+    :log-info (if (#{:log-info} log-level) (print-log-msg log-level msg-string))))
 
 (defn process-unhandled-msg [msg]
-  (! @self [:log-msg :log-debug (str "In logger :else " msg)]))
+  (process-log-msg :log-debug (str "logger unhandled msg" msg)))
 
-(defn logger
-  "Actor to provide log to console service.
+(defsfn logger
+        "Actor to provide log to console service.
          Ensures multiple thread println do not clash
         "
-  [log-level]
-  (register! :logger @self)
-  (set-state! log-level)
-  (loop []
-    (receive [msg]
-             [:log-level level] (set-state! level)
-             [:log-msg log-level msg-string] (process-log-msg log-level msg-string)
-             :else (process-unhandled-msg msg))
-    (recur)))
+        [log-level]
+        (register! :logger @self)
+        (set-state! log-level)
+        (loop []
+          (receive [msg]
+                   [:log-level level] (set-state! level)
+                   [:log-msg log-level msg-string] (process-log-msg log-level msg-string)
+                   :else (process-unhandled-msg msg))
+          (recur)))

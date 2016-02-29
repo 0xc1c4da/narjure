@@ -22,15 +22,15 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In anticipated-event :else" msg)]))
 
-(defn anticipated-event-actor
-  "state is system-time and collection of anticipated events"
-  [in-state]
-  (register! :anticipated-event @self)
-  (set-state! in-state)
-  (loop []
-    (receive [msg]
-             [:system-time-msg time] (set-state! (process-system-time time @state))
-             [:input-task-msg input-task] (set-state! (process-input-task input-task @state))
-             [:anticipated-event-msg anticipated-event] (set-state! (process-anticipated-event anticipated-event @state))
-             :else (process-unhandled-msg msg))
-    (recur)))
+(defsfn anticipated-event-actor
+        "state is system-time and collection of anticipated events"
+        [in-state]
+        (register! :anticipated-event @self)
+        (set-state! in-state)
+        (loop []
+          (receive [msg]
+                   [:system-time-msg time] (set-state! (process-system-time time @state))
+                   [:input-task-msg input-task] (set-state! (process-input-task input-task @state))
+                   [:anticipated-event-msg anticipated-event] (set-state! (process-anticipated-event anticipated-event @state))
+                   :else (process-unhandled-msg msg))
+          (recur)))

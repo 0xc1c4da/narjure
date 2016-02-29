@@ -33,13 +33,13 @@
 ; {term actor-ref}
 (def concept-map {atom {}})
 
-(defn task-dispatcher-actor
-  "concept-map is atom {:term :actor-ref} shared between task-dispatcher and concept-creator"
-  []
-  (register! :task-dispatcher @self)
-  (loop []
-    (receive [msg]
-             [:task-msg input-task] (process-task input-task concept-map)
-             [:forget-concept-msg forget-concept] (process-forget-concept forget-concept concept-map)
-             :else (process-unhandled-msg msg))
-    (recur)))
+(defsfn task-dispatcher-actor
+        "concept-map is atom {:term :actor-ref} shared between task-dispatcher and concept-creator"
+        []
+        (register! :task-dispatcher @self)
+        (loop []
+          (receive [msg]
+                   [:task-msg input-task] (process-task input-task concept-map)
+                   [:forget-concept-msg forget-concept] (process-forget-concept forget-concept concept-map)
+                   :else (process-unhandled-msg msg))
+          (recur)))

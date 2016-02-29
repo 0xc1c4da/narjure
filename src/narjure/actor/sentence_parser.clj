@@ -19,17 +19,17 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In sentence-parser :else" msg)]))
 
-(defn sentence-parser-actor
-  "Example format for using actor with  set-state! on recursion.
+(defsfn sentence-parser-actor
+        "Example format for using actor with  set-state! on recursion.
         Usage: (def actor (spawn actor [state]))
         This example uses a map for state {:id 0} and increments value on recursion
         state is system-time"
-  [in-state]
-  (register! :sentence-parser @self)
-  (set-state! in-state)
-  (loop []
-    (receive [msg]
-             [:system-time-msg time] (set-state! (process-system-time time @state))
-             [:narsese-string-msg string] (set-state! (process-narsese-string string @state))
-             :else (process-unhandled-msg msg))
-    (recur)))
+        [in-state]
+        (register! :sentence-parser @self)
+        (set-state! in-state)
+        (loop []
+          (receive [msg]
+                   [:system-time-msg time] (set-state! (process-system-time time @state))
+                   [:narsese-string-msg string] (set-state! (process-narsese-string string @state))
+                   :else (process-unhandled-msg msg))
+          (recur)))
