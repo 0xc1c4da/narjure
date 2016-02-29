@@ -77,7 +77,7 @@
   ([L [_ . S]] (subseto L S)))
 
 (defn nonlvarso [lvars]
-  (and* (map nonlvaro lvars)))
+  (and* (map (fn [l] (nonlvaro l)) lvars)))
 
 (defn groundo [T]
   (all (nonlvaro T)
