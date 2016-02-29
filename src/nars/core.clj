@@ -50,7 +50,7 @@
 (defn inference-tick [] (! :active-concept-collator :inference-tick-msg))
 (defn forgetting-tick [] (! :forgettable-concept-collator :forgetting-tick-msg))
 
-(defn -main
+(defn start-nars
   "Doc's go here"
   [& args]
   (create-system-actors)
@@ -59,11 +59,9 @@
   (schedule inference-tick (-> {:in inference-tick-interval :every inference-tick-interval}))
   (schedule forgetting-tick (-> {:in forgetting-tick-interval :every forgetting-tick-interval}))
   ;(! :task-dispatcher :task-msg {:term "a --> b" :other "other"})
-  (! :logger [:log-msg :log-info (str "Press any key to exit")])
-  ;(let [x (read-line)])
-  ; block until key pressed
-  (read-line)
-  ;(stop job1)
+  (! :logger [:log-msg :log-info (str "NARS initialised.")])
+  (join (whereis :taskdispatcher))
+  (stop)
   )
 
-(-main)
+(start-nars)

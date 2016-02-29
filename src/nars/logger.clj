@@ -3,17 +3,41 @@
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]
-     ]
-    [clj-time.local :as l])
+     ])
+  (:require [clj-time.local :as l])
   (:refer-clojure :exclude [promise await])
   (:gen-class))
 
 (declare logger)
 
-(defn process-unhandled-msg [msg]
-  (! @self [:log-msg :log-debug (str "In sentence-parser :else" msg)]))
+(def log-level-string {:log-debug "DEBUG" :log-error "ERROR" :log-warning "WARNING" :log-info "INFO" })
 
-(defn logger
+(defn print-log-msg
+  "Print local time, log-level and log-msg to standard out
+  "
+  [log-level msg-string]
+  (println (str (l/local-now)) (log-level-string log-level) msg-string)
+  )
+
+(def my-state (atom :log-debug))
+
+
+(defn process-log-msg
+  "If msg log-level is in log level set (state) then output log-msg.
+   state is the curently set global log-level and can be:
+   :log-debug :log-warning :log-error :log-info
+  "
+  [log-level msg-string]
+  (case @my-state
+    :log-debug (if (#{:log-debug :log-warning :log-error :log-info} log-level) (print-log-msg log-level msg-string))
+    :log-error (if (#{:log-warning :log-error :log-info} log-level) (print-log-msg log-level msg-string))
+    :log-warning (if (#{:log-warning :log-info} log-level) (print-log-msg log-level msg-string))
+    :log-info (if (#{:log-info} log-level) (print-log-msg log-level msg-string))))
+
+(defn process-unhandled-msg [msg]
+  (! @self [:log-msg :log-debug (str "In logger :else " msg)]))
+
+(defsfn logger
         "Actor to provide log to console service.
          Ensures multiple thread println do not clash
         "
@@ -23,11 +47,6 @@
         (loop []
           (receive [msg]
                    [:log-level level] (set-state! level)
-                   [:log-msg log-level msg-string] (case @state
-                                                     :log-debug (if (#{:log-debug :log-warning :log-error :log-info} log-level) (println (str (l/local-now)) "DEBUG " msg-string))
-                                                     :log-error (if (#{:log-warning :log-error :log-info} log-level) (println (str (l/local-now)) "ERROR " msg-string))
-                                                     :log-warning (if (#{:log-warning :log-info} log-level) (println (str (l/local-now)) "WARNING " msg-string))
-                                                     :log-info (if (#{:log-info} log-level) (println (str (l/local-now)) "INFO " msg-string)))
-
-                     :else (process-unhandled-msg msg))
-                   (recur)))
+                   [:log-msg log-level msg-string] (process-log-msg log-level msg-string)
+                   :else (process-unhandled-msg msg))
+          (recur)))
