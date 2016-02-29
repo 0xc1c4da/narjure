@@ -1,4 +1,3 @@
-(ns actortest.persistence-manager-actor)
 (ns nars.persistence-manager-actor
   (:require
     [co.paralleluniverse.pulsar

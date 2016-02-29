@@ -4,8 +4,8 @@
      [core :refer :all]
      [actors :refer :all]
      ])
-  (:require [nars.task-dispatcher-actor :refer [concept-map]])
-  (:require [nars.concept :refer [concept-actor]])
+  (:require [nars.task-dispatcher-actor :refer [concept-map]]
+            [nars.concept :refer [concept-actor]])
   (:refer-clojure :exclude [promise await])
   (:gen-class))
 
