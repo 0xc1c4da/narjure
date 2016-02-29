@@ -22,7 +22,7 @@
 
 (deftest test-replace-negation
   (is (= '(-- A) (replace-negation '--A)))
-  (is '(A (-- (--> A B))) (= (replace-negation '(A -- (--> A B)))))
+  (is (= '(A (-- (--> A B))) (replace-negation '(A -- (--> A B)))))
   (is (= '(--> A B) (replace-negation '(--> A B))))
   (is (= '((-- A)) (replace-negation '[-- A])))
   (is (= '(-- A) (replace-negation '(-- A)))))

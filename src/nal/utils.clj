@@ -85,6 +85,7 @@
          (conda [(trueo (coll? T)) (nonlvarso T)]
                 [s#]))))
 
-(defn noto= [x y]
+(defn noto=
   "Like \\= in prolog."
+  [x y]
   (noto (== x y)))

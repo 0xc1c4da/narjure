@@ -34,8 +34,9 @@
    ;here will be the map with patterns for possible questions
    :answers  {}})
 
-(defn get-concept [concepts term]
+(defn get-concept
   "Check for concept in database, creates new in case in didn't find it."
+  [concepts term]
   (if-let [concept (get-el concepts term)]
     concept
     (default-concept term)))

@@ -23,8 +23,9 @@
     (map (fn [[c _ post]] {:conclusion c :post post}) (partition 3 c))
     [{:conclusion c :post (:post opts)}]))
 
-(defn rule [data]
+(defn rule
   "Generates rule from #R statement."
+  [data]
   (let [[p1 p2 _ c & other] (replace-negation data)]
     (let [p1 (infix->prefix p1)
           p2 (infix->prefix p2)

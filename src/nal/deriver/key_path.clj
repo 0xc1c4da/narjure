@@ -8,12 +8,14 @@
       (conj (map path tail) fst))
     :any))
 
-(defn rule-path [p1 p2]
+(defn rule-path
   "Generates detailed pattern for the rule."
+  [p1 p2]
   [(path p1) :and (path p2)])
 
-(defn cart [colls]
+(defn cart
   "Cartesian product."
+  [colls]
   (if (empty? colls)
     '(())
     (for [x (first colls)

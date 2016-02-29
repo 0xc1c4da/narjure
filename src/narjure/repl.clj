@@ -42,7 +42,7 @@
 
 (defn- get-result [code]
   (let [result (parse code)]
-    (if (and (not (i/failure? result)))
+    (if (not (i/failure? result))
       (collect! result)
       result)))
 
