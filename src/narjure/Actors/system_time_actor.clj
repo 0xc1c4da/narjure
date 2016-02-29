@@ -1,4 +1,4 @@
-(ns nars.system-time-actor
+(ns narjure.actors.system-time
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]

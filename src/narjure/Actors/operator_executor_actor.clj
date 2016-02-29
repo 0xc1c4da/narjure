@@ -1,4 +1,4 @@
-(ns nars.operator-executor-actor
+(ns narjure.actors.actors.operator-executor
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]

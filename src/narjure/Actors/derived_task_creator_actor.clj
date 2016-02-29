@@ -1,4 +1,4 @@
-(ns nars.derived-task-creator-actor
+(ns narsjure.actors.derived-task-creator
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]

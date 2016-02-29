@@ -1,4 +1,4 @@
-(ns nars.persistence-manager-actor
+(ns narjure.actors.persistence-manager
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]

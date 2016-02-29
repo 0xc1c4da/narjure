@@ -1,4 +1,4 @@
-(ns nars.anticipated-event-actor
+(ns narjure.actors.anticipated-event
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]

@@ -1,4 +1,4 @@
-(ns nars.cross-modal-integrator-actor
+(ns narjure.actors.new-input-task-creator
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]
@@ -8,30 +8,28 @@
   (:gen-class))
 
 (declare process-system-time)
-(declare process-percept-sentence)
+(declare process-sentence)
 (declare process-unhandled-msg)
-(declare cross-modal-integrator-actor)
+(declare new-input-task-creator-actor)
 
 (defn process-system-time [time state]
   (! :logger [:log-msg :log-debug "process-system-time"])
   {:time time})
 
-(defn process-percept-sentence [_ _]
-  (! :logger [:log-msg :log-debug "process-percept-sentence"]))
+(defn process-sentence [_ _]
+  (! :logger [:log-msg :log-debug "process-sentence"]))
 
 (defn process-unhandled-msg [msg]
-  (! :logger [:log-msg :log-debug (str "In cross-modal-integrator :else" msg)]))
+  (! :logger [:log-msg :log-debug (str "In new-input-task-creator :else" msg)]))
 
-(defsfn cross-modal-integrator-actor
-        "state is system-time and collection of precepts from current duration window"
+(defsfn new-input-task-creator-actor
+        "state is system-time"
         [in-state]
-        (register! :cross-modal-integrator @self)
+        (register! :input-task-creator @self)
         (set-state! in-state)
         (loop []
           (receive [msg]
                    [:system-time-msg time] (set-state! (process-system-time time @state))
-                   [:percept-sentence-msg percept-sentence] (set-state! (process-percept-sentence percept-sentence @state))
+                   [:sentence-msg sentence] (process-sentence sentence @state)
                    :else (process-unhandled-msg msg))
           (recur)))
-
-

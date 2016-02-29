@@ -1,10 +1,10 @@
-(ns nars.task-dispatcher-actor
+(ns narjure.actor.task-dispatcher
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]
      ]
-    [nars.logger :refer [logger]])
+    [narjure.actors.logger :refer [logger]])
   (:refer-clojure :exclude [promise await])
   (:gen-class))
 

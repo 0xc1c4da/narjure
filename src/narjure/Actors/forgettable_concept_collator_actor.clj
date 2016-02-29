@@ -1,4 +1,4 @@
-(ns nars.forgettable-concept-collator-actor
+(ns narj.actors.forgettable-concept-collator
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]

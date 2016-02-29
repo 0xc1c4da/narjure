@@ -1,4 +1,4 @@
-(ns nars.serialiser-actor
+(ns narjure.actors.serialiser
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]

@@ -1,4 +1,4 @@
-(ns nars.concept
+(ns narsjure.actors.concept
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]

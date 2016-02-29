@@ -1,4 +1,4 @@
-(ns nars.sentence-parser-actor
+(ns narjure.actors.sentence-parser
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]

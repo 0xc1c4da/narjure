@@ -1,11 +1,11 @@
-(ns nars.concept-creator-actor
+(ns narjure.actors.concept-creator
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]
      ]
-    [nars.task-dispatcher-actor :refer [concept-map]]
-    [nars.concept :refer [concept-actor]])
+    [narjure.actors.task-dispatcher :refer [concept-map]]
+    [narjure.actors.concept :refer [concept-actor]])
   (:refer-clojure :exclude [promise await])
   (:gen-class))
 

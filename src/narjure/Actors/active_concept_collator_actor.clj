@@ -1,10 +1,9 @@
-(ns nars.active-concept-collator-actor
+(ns narjure.actors.active-concept-collator
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]
-     ]
-    [nars.logger :refer [logger]])
+     ])
   (:refer-clojure :exclude [promise await])
   (:gen-class))
 
