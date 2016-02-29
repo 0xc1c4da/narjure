@@ -3,9 +3,9 @@
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]
-     ])
-  (:require [nars.task-dispatcher-actor :refer [concept-map]]
-            [nars.concept :refer [concept-actor]])
+     ]
+    [nars.task-dispatcher-actor :refer [concept-map]]
+    [nars.concept :refer [concept-actor]])
   (:refer-clojure :exclude [promise await])
   (:gen-class))
 

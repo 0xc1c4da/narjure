@@ -3,8 +3,8 @@
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]
-     ])
-  (:require [nars.logger :refer [logger]])
+     ]
+    [nars.logger :refer [logger]])
   (:refer-clojure :exclude [promise await])
   (:gen-class))
 
