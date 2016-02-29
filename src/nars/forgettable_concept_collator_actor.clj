@@ -13,15 +13,15 @@
 (declare forgettable-concept-collator-actor)
 
 (defn process-forgetting-tick [_]
-  (! :logger [:log-msg :log-debug (str "process-forgetting-tick")]))
+  (! :logger [:log-msg :log-debug "process-forgetting-tick"]))
 
 (defn process-forgettable-concept [_ _]
-  (! :logger [:log-msg :log-debug (str "process-forgettable-concept")]))
+  (! :logger [:log-msg :log-debug "process-forgettable-concept"]))
 
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In forgettable-concept-collator :else" msg)]))
 
-(defn forgettable-concept-collator-actor
+(defsfn forgettable-concept-collator-actor
         "state is collection of forgettable concepts"
         [in-state]
         (register! :forgettable-concept-collator @self)

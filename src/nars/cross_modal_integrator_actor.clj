@@ -13,16 +13,16 @@
 (declare cross-modal-integrator-actor)
 
 (defn process-system-time [time state]
-  (! :logger [:log-msg :log-debug (str "process-system-time")])
+  (! :logger [:log-msg :log-debug "process-system-time"])
   {:time time})
 
 (defn process-percept-sentence [_ _]
-  (! :logger [:log-msg :log-debug (str "process-percept-sentence")]))
+  (! :logger [:log-msg :log-debug "process-percept-sentence"]))
 
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In cross-modal-integrator :else" msg)]))
 
-(defn cross-modal-integrator-actor
+(defsfn cross-modal-integrator-actor
         "state is system-time and collection of precepts from current duration window"
         [in-state]
         (register! :cross-modal-integrator @self)

@@ -10,19 +10,19 @@
 (declare anticipated-event-actor)
 
 (defn process-system-time [time state]
-  (! :logger [:log-msg :log-debug (str "process-system-time")])
+  (! :logger [:log-msg :log-debug "process-system-time"])
   {:time time})
 
 (defn process-input-task [_ _]
-  (! :logger [:log-msg :log-debug (str "process-input-task")]))
+  (! :logger [:log-msg :log-debug "process-input-task"]))
 
 (defn process-anticipated-event [_ _]
-  (! :logger [:log-msg :log-debug (str "process-anticipated-event")]))
+  (! :logger [:log-msg :log-debug "process-anticipated-event"]))
 
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In anticipated-event :else" msg)]))
 
-(defn anticipated-event-actor
+(defsfn anticipated-event-actor
         "state is system-time and collection of anticipated events"
         [in-state]
         (register! :anticipated-event @self)

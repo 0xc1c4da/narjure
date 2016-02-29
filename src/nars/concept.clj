@@ -16,21 +16,21 @@
 (declare concept-actor)
 
 (defn process-task [_ _]
-  (! :logger [:log-msg :log-debug (str "process-task")]))
+  (! :logger [:log-msg :log-debug "process-task"]))
 
 (defn process-belief-req [_ _]
-  (! :logger [:log-msg :log-debug (str "process-belief-req")]))
+  (! :logger [:log-msg :log-debug "process-belief-req"]))
 
 (defn process-inference-req [_ _]
-  (! :logger [:log-msg :log-debug (str "process-inference-req")]))
+  (! :logger [:log-msg :log-debug "process-inference-req"]))
 
 (defn process-persistence-req [_ _]
-  (! :logger [:log-msg :log-debug (str "process-persistence-req")]))
+  (! :logger [:log-msg :log-debug "process-persistence-req"]))
 
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In concept :else" msg)]))
 
-(defn concept-actor
+(defsfn concept-actor
         "state is a map {:name :budget :activation-level :belief-tab :goal-tab :task-bag :term-bag}
         (this list may not be complete)"
         [in-state]

@@ -3,24 +3,24 @@
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]
-     ]
-    [nars.logger :refer [logger]])
+     ])
+  (:require [nars.logger :refer [logger]])
   (:refer-clojure :exclude [promise await])
   (:gen-class))
 
 (declare active-concept-collator-actor)
 
 (defn process-inference-tick [state]
-  (! :logger [:log-msg :log-debug (str "process-inference-tick")])
+  (! :logger [:log-msg :log-debug "process-inference-tick"])
   {})
 
 (defn process-active-concept [_ _]
-  (! :logger [:log-msg :log-debug (str "process-active-concept")]))
+  (! :logger [:log-msg :log-debug "process-active-concept"]))
 
 (defn process-unhandled-msg [msg]
-  (! :logger [:log-msg :log-debug (str "In active-concept-collator :else")]))
+  (! :logger [:log-msg :log-debug "In active-concept-collator :else"]))
 
-(defn active-concept-collator-actor
+(defsfn active-concept-collator-actor
         "state is collection of active concepts"
         [in-state]
         (register! :active-concept-collator @self)

@@ -11,12 +11,12 @@
 (declare persistence-manager-actor)
 
 (defn process-concept-state [_ _]
-  (! :logger [:log-msg :log-debug (str "process-concept-state")]))
+  (! :logger [:log-msg :log-debug "process-concept-state"]))
 
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In persistence-manager :else" msg)]))
 
-(defn persistence-manager-actor
+(defsfn persistence-manager-actor
         "state is file system handles"
         [in-state]
         (register! :persistence-manager @self)

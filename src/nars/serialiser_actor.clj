@@ -13,15 +13,15 @@
 (declare serialiser-actor)
 
 (defn process-input-task [_ _]
-  (! :logger [:log-msg :log-debug (str "process-input-task")]))
+  (! :logger [:log-msg :log-debug "process-input-task"]))
 
 (defn process-derived-task [_ _]
-  (! :logger [:log-msg :log-debug (str "process-derived-task")]))
+  (! :logger [:log-msg :log-debug "process-derived-task"]))
 
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In serialiser :else" msg)]))
 
-(defn serialiser-actor
+(defsfn serialiser-actor
         "state is serial number (long)"
         [in-state]
         (register! :serialiser @self)

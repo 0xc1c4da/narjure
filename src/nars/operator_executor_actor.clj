@@ -10,16 +10,16 @@
 (declare operator-executor-actor)
 
 (defn process-system-time [time state]
-  (! :logger [:log-msg :log-debug (str "process-system-time")])
+  (! :logger [:log-msg :log-debug "process-system-time"])
   {:time time})
 
 (defn process-operator-execution-req [_ _]
-  (! :logger [:log-msg :log-debug (str "process-operator-execution-req")]))
+  (! :logger [:log-msg :log-debug ("process-operator-execution-req")]))
 
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In operator-executor :else" msg)]))
 
-(defn operator-executor-actor
+(defsfn operator-executor-actor
         "state is system-time"
         [in-state]
         (register! :operator-executor @self)

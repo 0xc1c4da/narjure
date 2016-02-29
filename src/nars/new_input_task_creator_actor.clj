@@ -13,16 +13,16 @@
 (declare new-input-task-creator-actor)
 
 (defn process-system-time [time state]
-  (! :logger [:log-msg :log-debug (str "process-system-time")])
+  (! :logger [:log-msg :log-debug "process-system-time"])
   {:time time})
 
 (defn process-sentence [_ _]
-  (! :logger [:log-msg :log-debug (str "process-sentence")]))
+  (! :logger [:log-msg :log-debug "process-sentence"]))
 
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In new-input-task-creator :else" msg)]))
 
-(dsfn new-input-task-creator-actor
+(defsfn new-input-task-creator-actor
         "state is system-time"
         [in-state]
         (register! :input-task-creator @self)

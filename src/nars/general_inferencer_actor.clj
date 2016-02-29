@@ -12,12 +12,12 @@
 (declare general-inferencer-actor)
 
 (defn process-do-inference [_ _]
-  (! :logger [:log-msg :log-debug (str "process-do-inference")]))
+  (! :logger [:log-msg :log-debug "process-do-inference"]))
 
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In general-inferencer :else" msg)]))
 
-(defn general-inferencer-actor
+(defsfn general-inferencer-actor
         "state is inference rule trie or equivalent"
         [in-state]
         (register! :general-inferencer @self)

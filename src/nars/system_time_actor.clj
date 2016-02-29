@@ -16,7 +16,7 @@
 (defn process-unhandled-msg [msg]
   (! :logger [:log-msg :log-debug (str "In system-time :else" msg)]))
 
-(defn system-time-actor
+(defsfn system-time-actor
         "state is system-time"
         [in-state]
         (register! :system-time @self)
