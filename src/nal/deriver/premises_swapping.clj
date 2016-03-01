@@ -16,10 +16,13 @@
                  (flatten (concat pre (:post (first conclusions)))))
        (not-any? commutative-ops (flatten (:conclusion (first conclusions))))))
 
-(defn check-swapping
-    [{:keys [p1 p2] :as rule}]
-    (if (allow-swapping? rule)
-      [rule (assoc rule :p1 p2
-                        :p2 p1
-                        :full-path (rule-path p2 p1))]
-      [rule]))
+(defn swap-premises
+  [{:keys [p1 p2] :as rule}]
+  (assoc rule :p1 p2
+              :p2 p1
+              :full-path (rule-path p2 p1)))
+
+(defn check-swapping [rule]
+  (if (allow-swapping? rule)
+    [rule (swap-premises rule)]
+    [rule]))

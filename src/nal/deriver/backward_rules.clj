@@ -7,7 +7,7 @@
   [{:keys [conclusions]}]
   (some #{:allow-backward} (:post (first conclusions))))
 
-(defn generate-backward-rule
+(defn expand-backward-rules
   [{:keys [p1 p2 conclusions] :as rule}]
   (mapcat (fn [{:keys [conclusion post]}]
             (conj (map
@@ -27,6 +27,6 @@
   [rules]
   (mapcat (fn [rule]
             (if (allow-backward? rule)
-              (generate-backward-rule rule)
+              (expand-backward-rules rule)
               [rule]))
           rules))

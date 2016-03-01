@@ -1,35 +1,34 @@
 (ns nal.deriver.terms-permutation
   (:require [nal.deriver.utils :refer [walk]]))
 
-;----------------------------------------------------------------------
-;:order-for-all-same
-
 (defn contains-op?
   "Checks if statement contains operators from set."
   [statement s]
   (cond
     (symbol? statement) (s statement)
-    (keyword? statement) false
-    :default (some (complement nil?)
-                   (map #(contains-op? % s) statement))))
+    (or (keyword? statement)
+        (char? statement)
+        (string? statement)
+        (number? statement)) false
+    :default (some identity (map #(contains-op? % s) statement))))
 
 (defn replace-op
-  "Replaces operator from the set s to op in statement"
-  [statement s op]
-  (walk statement (s el) op))
+  "Replaces operator \"from\" by operator \"to\""
+  [statement from to]
+  (walk statement (= from el) to))
 
 (defn permute-op
   "Makes permuatation of operators from s in statement."
   [statement s]
-  (if (contains-op? statement s)
-    (map #(replace-op statement s %) s)
+  (if-let [op (contains-op? statement s)]
+    (map #(replace-op statement op %) s)
     [statement]))
 
 ;equivalences, implications, conjunctions - sets of operators that are use in
 ; permutation for :order-for-all-same postcondititon
 (def equivalences #{'<=> '</> '<|>})
 (def implications #{'==> 'pred-impl '=|> 'retro-impl})
-(def conjunctions #{'&& '&| 'seq-conj})
+(def conjunctions #{'conj '&| 'seq-conj})
 
 (defn generate-all-orders
   "Permutes all operators in statement with :order-for-all-same precondition."

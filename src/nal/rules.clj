@@ -36,7 +36,7 @@
   ; Immediate Inference
   ; If S can stand for P P can to a certain low degree also represent the class S
   ; If after S usually P happens then it might be a good guess that usually before P happens S happens.
-  #R[(P --> S) (S --> P) |- (P --> S) :post (:t/conversion :p/judgment) :pre (:question?) ]
+  #R[(P --> S) (S --> P) |- (P --> S) :post (:t/conversion :p/judgment) :pre (:question?)]
   #R[(P ==> S) (S ==> P) |- (P ==> S) :post (:t/conversion :p/judgment) :pre (:question?)]
   #R[(P =|> S) (S =|> P) |- (P =|> S) :post (:t/conversion :p/judgment) :pre (:question?)]
   #R[(P =\> S) (S =/> P) |- (P =\> S) :post (:t/conversion :p/judgment) :pre (:question?)]
