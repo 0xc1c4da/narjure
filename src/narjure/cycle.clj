@@ -1,7 +1,6 @@
 (ns narjure.cycle
   (:require [narjure.bag :refer :all]
             [narjure.narsese :refer [parse]]
-            [clojure.core.logic :as l]
             [nal.core :as c]
             [clojure.set :refer [intersection union]]))
 
@@ -62,13 +61,9 @@
   [{:keys [statement truth]}]
   [statement truth])
 
-(defn raw-choice [b t]
-  (first (l/run* [q] (c/choice b t q))))
-
 (defn choice [belief task]
-  (let [b (inf-statement belief)
-        t (inf-statement task)
-        [statement truth] (raw-choice b t)]
+  (let [statement (:statement belief)
+        truth (c/choice (:truth belief) (:truth task))]
     {:statement      statement
      :key            statement
      :truth          truth
@@ -85,9 +80,8 @@
   ; because the other ranking params, truth expectation and originality are in
   ; both cases the same, so complexity is the determining factor
   ; in this case
-  (let [b (inf-statement belief)
-        t (inf-statement task)
-        [statement truth] (first (l/run* [q] (c/revision b t q)))]
+  (let [statement (:statement belief)
+        truth (c/revision (:truth belief) (:truth task))]
     {:statement      statement
      :key            statement
      :truth          truth
@@ -173,7 +167,7 @@
 (defn forward-inference [task belief]
   (let [t (inf-statement task)
         b (inf-statement belief)
-        conclusions (l/run* [q] (c/inference t b q))
+        conclusions (c/inference t b)
         total-ev-base (total-ev-base belief task)]
     (map (fn [[statement truth]]
            {:statement      statement
@@ -233,8 +227,7 @@
   (let [by-question (group-by first answers)]
     (assoc m :answers
              (map (fn [[q ans]]
-                    [q (reduce raw-choice (map inf-statement
-                                               (map second ans)))])
+                    [q (map inf-statement (map second ans))])
                   by-question))))
 
 (defn do-cycle
