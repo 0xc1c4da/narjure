@@ -50,8 +50,3 @@
   "Return true if rule contains order-for-all-same postcondition"
   [{:keys [conclusions]}]
   (some #{:order-for-all-same} (:post (first conclusions))))
-
-(defn check-orders [r]
-  (if (order-for-all-same? r)
-    (generate-all-orders r)
-    [r]))

@@ -22,7 +22,4 @@
               :p2 p1
               :full-path (rule-path p2 p1)))
 
-(defn check-swapping [rule]
-  (if (allow-swapping? rule)
-    [rule (swap-premises rule)]
-    [rule]))
+(defn swap [rule] [rule (swap-premises rule)])

@@ -1,14 +1,15 @@
 (ns nal.deriver.rules
   (:require [clojure.string :as s]
-            [nal.deriver.key-path :refer [rule-path all-paths]]
             [clojure.set :refer [map-invert]]
-            [nal.deriver.utils :refer [walk]]
-            [nal.deriver.list-expansion :refer [check-list]]
-            [nal.deriver.premises-swapping :refer [check-swapping]]
-            [nal.deriver.matching :refer [generate-matching]]
-            [nal.deriver.backward-rules :refer [generate-backward-rules]]
-            [nal.deriver.normalization :refer [infix->prefix replace-negation]]
-            [nal.deriver.terms-permutation :refer [check-orders]]))
+            [nal.deriver
+             [key-path :refer [rule-path all-paths]]
+             [utils :refer [walk]]
+             [list-expansion :refer [contains-list? generate-all-lists]]
+             [premises-swapping :refer [allow-swapping? swap]]
+             [matching :refer [generate-matching]]
+             [backward-rules :refer [allow-backward? expand-backward-rules]]
+             [normalization :refer [infix->prefix replace-negation]]
+             [terms-permutation :refer [order-for-all-same? generate-all-orders]]]))
 
 (defn options
   "Generates map from rest of the rule's args."
@@ -90,17 +91,28 @@
 
 ;---------------------------------------------------------------------------
 
+(defmacro rules->> [raw-rules & transformations]
+  (let [pairs (partition 2 transformations)]
+    `(check-duplication
+       ~(reduce (fn [code [pred fun]]
+                  `(mapcat (fn [rule#]
+                             (if (~pred rule#)
+                               (~fun rule#)
+                               [rule#]))
+                           ~code))
+                `~raw-rules
+                pairs))))
+
 (defmacro defrules
   "Define rules. Rules must be #R statements."
   ;TODO exception on duplication of the rule
   [name & rules]
-  `(let [rules# (->> (quote ~rules)
-                     (mapcat check-list)
-                     (mapcat rule)
-                     (mapcat check-orders)
-                     (mapcat check-swapping)
-                     generate-backward-rules
-                     check-duplication)
+  `(let [rules# (rules->> (quote ~rules)
+                          contains-list? generate-all-lists
+                          (constantly true) rule
+                          order-for-all-same? generate-all-orders
+                          allow-swapping? swap
+                          allow-backward? expand-backward-rules)
          judgement-rules# (remove question? rules#)
          question-rules# (filter question? rules#)]
      (println "Q rules:" (count question-rules#))

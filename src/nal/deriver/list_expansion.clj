@@ -24,17 +24,15 @@
                           (concat '() (gen-symbols sym n))
                           (list e))) el)))
 
-(defn generate-all-lists [list-name sym r]
-  (mapcat #(let [st (replace-list-elemets r list-name sym %)]
-            (if-let [from-name (get-list ":from" st)]
-              (map (fn [idx]
-                     (walk st (= from-name el) (symbol (str sym idx))))
-                   (range 1 (inc %)))
-              [st]))
-          (range 1 6)))
+(defn generate-all-lists [r]
+  (let [list-name (get-list ":list" r)
+        sym (s/join (drop 6 (str list-name)))]
+    (mapcat #(let [st (replace-list-elemets r list-name sym %)]
+              (if-let [from-name (get-list ":from" st)]
+                (map (fn [idx]
+                       (walk st (= from-name el) (symbol (str sym idx))))
+                     (range 1 (inc %)))
+                [st]))
+            (range 1 6))))
 
-(defn check-list [r]
-  (if-let [list-name (get-list ":list" r)]
-    (let [sym (s/join (drop 6 (str list-name)))]
-      (generate-all-lists list-name sym r))
-    [r]))
+(defn contains-list? [r] (get-list ":list" r))

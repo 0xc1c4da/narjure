@@ -22,11 +22,3 @@
                                  :full-path (rule-path p1 conclusion))])
                   rule))
           conclusions))
-
-(defn generate-backward-rules
-  [rules]
-  (mapcat (fn [rule]
-            (if (allow-backward? rule)
-              (expand-backward-rules rule)
-              [rule]))
-          rules))
