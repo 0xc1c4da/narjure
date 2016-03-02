@@ -31,6 +31,7 @@
       (concat (cart (concat [[op]] args-inv)) [:any]))
     [path]))
 
+;todo I have to think about this
 (defn path-kfn
   [[f _ l]]
   (- (+ (* 3 (if (seq? l) (count l) 0))
