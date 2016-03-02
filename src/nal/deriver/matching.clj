@@ -5,11 +5,12 @@
             [clojure.set :refer [map-invert]]
             [nal.deriver.truth :as t]
             [clojure.string :as s]
-            [nal.deriver.set-functions :refer [f-map not-empty-diff?]]))
+            [nal.deriver.set-functions :refer [f-map not-empty-diff?
+                                               not-empty-inter?]]))
 
 (def reserved-operators
   #{`= `not= `seq? `first `and `let `pos? `> `>= `< `<= `coll? `set
-    `quote `count 'aops `- `not-empty-diff?})
+    `quote `count 'aops `- `not-empty-diff? `not-empty-inter?})
 
 (defn not-operator?
   "Checks if element is not operator"
@@ -103,7 +104,6 @@
   (reduce (fn [ac condition]
             ;TODO should be refactored
             ;TODO preconditions
-            ;:difference :union :intersection
             ;:shift-occurrence-forward :shift-occurrence-backward
             ;:substitute-if-unifies :not-implication-or-equivalence :substitute-if-unifies
             ;:measure-time :concurrent :substitute
@@ -136,6 +136,16 @@
                                    asop# (first ~(nth condition 2))
                                    aops# (set ['~'ext-set '~'int-set])]
                                (and (aops# afop#) (= afop# asop#)))])
+                (= :intersection (first condition))
+                (concat ac [`(coll? ~(nth condition 1))
+                            `(coll? ~(nth condition 2))
+                            `(let [k# 1
+                                   afop# (first ~(nth condition 1))
+                                   asop# (first ~(nth condition 2))
+                                   aops# (set ['~'ext-set '~'int-set])]
+                               (and (aops# afop#) (= afop# asop#)
+                                    (not-empty-inter? ~(nth condition 1)
+                                                      ~(nth condition 2))))])
                 :else ac)
               :else ac))
           [] preconditions))
@@ -166,7 +176,7 @@
             (if (seq? precondition)
               (let [cond-name (first precondition)]
                 (cond
-                  (#{:difference :union} cond-name)
+                  (#{:difference :union :intersection} cond-name)
                   (let [[_ el1 el2 el3] precondition]
                     (walk conclusion (= el el3)
                           `(~(f-map cond-name) ~el1 ~el2)))

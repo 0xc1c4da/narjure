@@ -12,7 +12,7 @@
 (defn allow-swapping? [{:keys [pre conclusions]}]
   (and (not-any? #{:question? :judgement? :goal? :measure-time :t/belief-structural-deduction
                    :t/structural-deduction :t/belief-structural-difference :t/identity
-                   :t/negation :union}
+                   :t/negation :union :intersection}
                  (flatten (concat pre (:post (first conclusions)))))
        (not-any? commutative-ops (flatten (:conclusion (first conclusions))))))
 
