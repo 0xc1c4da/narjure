@@ -24,10 +24,11 @@
          (<|> S P) :post (:t/comparison :linkage-temporal)
          (&| S P) :post (:t/intersection :linkage-temporal)) {})))
 
-(def trule (rule '#R[(D =/> R) (D --> K) |- ((K =/> R) :post (:t/abduction)
-                                              (R --> K) :post (:t/induction)
-                                              (K </> R) :post (:t/comparison))
-                     :pre ((:!= R K))]))
+(def trule (rule '[(D pred-impl R) (D --> K) |- ((K pred-impl R) :post (:t/abduction)
+                                                  (R --> K) :post (:t/induction)
+                                                  (K </> R) :post (:t/comparison))
+                   :pre ((:!= R K))]))
+
 (deftest test-rule
   (both-equal
     '[{:p1          (--> S P),
@@ -35,7 +36,8 @@
        :conclusions [{:conclusion (--> S P), :post (:t/struct-int :p/judgment)}],
        :full-path   [(--> :any :any) :and (<-> :any :any)],
        :pre         (:question?)}]
-    (rule '#R[(S --> P) (S <-> P) |- (S --> P) :post (:t/struct-int :p/judgment) :pre (:question?)])
+    (rule '[(S --> P) (S <-> P) |- (S --> P) :post (:t/struct-int :p/judgment)
+            :pre (:question?)])
 
     '({:conclusions [{:conclusion (pred-impl K R)
                       :post       (:t/abduction)}]

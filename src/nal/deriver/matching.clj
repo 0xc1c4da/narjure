@@ -10,7 +10,7 @@
 
 (def reserved-operators
   #{`= `not= `seq? `first `and `let `pos? `> `>= `< `<= `coll? `set
-    `quote `count 'aops `- `not-empty-diff? `not-empty-inter?})
+    `quote `count 'aops `- `not-empty-diff? `not-empty-inter? `walk})
 
 (defn not-operator?
   "Checks if element is not operator"
@@ -104,9 +104,10 @@
   (reduce (fn [ac condition]
             ;TODO should be refactored
             ;TODO preconditions
+            ;:substitute-if-unifies :substitute
             ;:shift-occurrence-forward :shift-occurrence-backward
-            ;:substitute-if-unifies :not-implication-or-equivalence :substitute-if-unifies
-            ;:measure-time :concurrent :substitute
+            ;:not-implication-or-equivalence
+            ;:measure-time :concurrent
             (cond
               (seq? condition)
               (cond
@@ -180,6 +181,10 @@
                   (let [[_ el1 el2 el3] precondition]
                     (walk conclusion (= el el3)
                           `(~(f-map cond-name) ~el1 ~el2)))
+                  (= :substitute cond-name)
+                  (let [[_ el1 el2] precondition]
+                    `(walk ~conclusion
+                           (= :el ~el1) ~el2))
                   :default conclusion))
               conclusion))
           conclusion preconditions))

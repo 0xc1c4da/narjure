@@ -321,7 +321,7 @@
                               (&| (P --> #Y) (S --> #Y)) :post (:t/intersection :linkage-temporal))
             :pre ((:!= S P) (concurrent Task Belief))]
 
-  #_#R[(M --> S) (M --> P) |- ((($X --> S) ==> ($X --> P)) :post (:t/induction)
+  #R[(M --> S) (M --> P) |- ((($X --> S) ==> ($X --> P)) :post (:t/induction)
                               (($X --> P) ==> ($X --> S)) :post (:t/abduction)
                               (($X --> S) <=> ($X --> P)) :post (:t/comparison)
                               (&& (#Y --> S) (#Y --> P)) :post (:t/intersection))
@@ -333,7 +333,7 @@
                               (&/ (#Y --> P) I (#Y --> S)) :post (:t/intersection :linkage-temporal))
      :pre ((:!= S P) (:measure-time I))]
 
-  #_#R[(M --> S) (M --> P) |- ((($X --> S) =|> ($X --> P)) :post (:t/induction :linkage-temporal)
+  #R[(M --> S) (M --> P) |- ((($X --> S) =|> ($X --> P)) :post (:t/induction :linkage-temporal)
                               (($X --> P) =|> ($X --> S)) :post (:t/abduction :linkage-temporal)
                               (($X --> S) <|> ($X --> P)) :post (:t/comparison :linkage-temporal)
                               (&| (#Y --> S) (#Y --> P)) :post (:t/intersection :linkage-temporal))
@@ -360,7 +360,7 @@
 
   ; dependent variable elimination
   ; Decomposition with elimination of a variable
-  #R[B (&& A :list/A) |- (&& :list/A) :pre (:judgement? (:substitute-if-unifies "#" A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
+  #_#R[B (&& A :list/A) |- (&& :list/A) :pre (:judgement? (:substitute-if-unifies "#" A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
 
   ; conditional abduction by dependent variable
   #R[((A --> R) ==> Z) ((&& (#Y --> B) (#Y --> R) :list/A) ==> Z) |- (A --> B) :post (:t/abduction)]
@@ -372,11 +372,11 @@
 
 
   ; independent variable elimination
-  #R[B (A ==> C) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward unused ==>))]
-  #R[B (C ==> A) |- C (:t/abduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward unused ==>))]
+  #_#R[B (A ==> C) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward unused ==>))]
+  #_#R[B (C ==> A) |- C (:t/abduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward unused ==>))]
 
-  #R[B (A <=> C) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward unused <=>))]
-  #R[B (C <=> A) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward unused <=>))]
+  #_#R[B (A <=> C) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward unused <=>))]
+  #_#R[B (C <=> A) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward unused <=>))]
 
   ; second level variable handling rules
   ; second level variable elimination (termlink level2 growth needed in order for these rules to work)
@@ -391,8 +391,8 @@
 
   ; NAL7 specific inference
   ; Reasoning about temporal statements. those are using the ==> relation because relation in time is a relation of the truth between statements.
-  #R[X (XI ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" XI (&/ X /0)) (:shift-occurrence-forward XI ==>))]
-  #R[X (BI ==> Y) |- BI :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" Y X) (:shift-occurrence-backward BI ==>))]
+  #_#R[X (XI ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" XI (&/ X /0)) (:shift-occurrence-forward XI ==>))]
+  #_#R[X (BI ==> Y) |- BI :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" Y X) (:shift-occurrence-backward BI ==>))]
 
   ; Temporal induction:
   ; When P and then S happened according to an observation by induction (weak) it may be that alyways after P usually S happens.

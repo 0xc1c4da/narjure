@@ -8,7 +8,8 @@
   el is reserved name for current element of collection."
   [coll & conditions]
   (let [el (gensym)
-        replace-el (fn [coll] (w/postwalk #(if (= 'el %) el %) coll))]
+        replace-el (fn [coll]
+                     (w/postwalk #(if (or (= 'el %) (= :el %)) el %) coll))]
     `(w/postwalk
        (fn [~el] (cond ~@(replace-el conditions)
                        :else ~el))
