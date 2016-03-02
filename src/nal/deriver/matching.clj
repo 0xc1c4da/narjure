@@ -4,11 +4,12 @@
             [clojure.core.unify :as u]
             [clojure.set :refer [map-invert]]
             [nal.deriver.truth :as t]
-            [clojure.string :as s]))
+            [clojure.string :as s]
+            [nal.deriver.set-functions :refer [f-map not-empty-diff?]]))
 
 (def reserved-operators
   #{`= `not= `seq? `first `and `let `pos? `> `>= `< `<= `coll? `set
-    `quote `count 'aops `-})
+    `quote `count 'aops `- `not-empty-diff?})
 
 (defn not-operator?
   "Checks if element is not operator"
@@ -28,7 +29,11 @@
         (#{'X 'Y 'R} el) :a
         (and (coll? el) (= \a (first (str (first el)))))
         (concat '() el)
-        (and (coll? el) (not (reserved-operators (first el)))) (vec el)))
+        (and (coll? el)
+             (let [f (first el)]
+               (and (not (reserved-operators f))
+                    (not (fn? f)))))
+        (vec el)))
 
 (defn traverse-node
   [b1 b2 result {:keys [conclusions children condition]}]
@@ -109,22 +114,28 @@
                 (conj ac (concat (list `not=) (rest condition)))
                 (= :set-ext? (first condition))
                 (let [sec (second condition)]
-                  (conj ac `(and (seq? ~sec) (= ~'ext-set (first ~sec)))))
+                  (conj ac `(and (coll? ~sec) (= ~'ext-set (first ~sec)))))
                 (= :set-int? (first condition))
                 (let [sec (second condition)]
-                  (conj ac `(and (seq? ~sec) (= ~'int-set (first ~sec)))))
+                  (conj ac `(and (coll? ~sec) (= ~'int-set (first ~sec)))))
                 (= :difference (first condition))
-                (conj ac `(and
-                            (coll? ~(nth condition 1))
-                            (coll? ~(nth condition 2))
-                            (let [k# 1
-                                  afop# (first ~(nth condition 1))
-                                  asop# (first ~(nth condition 2))
-                                  aops# (set ['~'ext-set '~'int-set])
-                                  afcount# (count ~(nth condition 1))
-                                  ascount# (count ~(nth condition 2))]
-                              (and (aops# afop#) (aops# asop#) (= afop# asop#)
-                                   (>= afcount# 2) (pos? (- afcount# ascount#))))))
+                (concat ac [`(coll? ~(nth condition 1))
+                            `(coll? ~(nth condition 2))
+                            `(let [k# 1
+                                   afop# (first ~(nth condition 1))
+                                   asop# (first ~(nth condition 2))
+                                   aops# (set ['~'ext-set '~'int-set])]
+                               (and (aops# afop#) (= afop# asop#)
+                                    (not-empty-diff? ~(nth condition 1)
+                                                     ~(nth condition 2))))])
+                (= :union (first condition))
+                (concat ac [`(coll? ~(nth condition 1))
+                            `(coll? ~(nth condition 2))
+                            `(let [k# 1
+                                   afop# (first ~(nth condition 1))
+                                   asop# (first ~(nth condition 2))
+                                   aops# (set ['~'ext-set '~'int-set])]
+                               (and (aops# afop#) (= afop# asop#)))])
                 :else ac)
               :else ac))
           [] preconditions))
@@ -149,6 +160,19 @@
                                     (dissoc syms alias))]
                 (mapcat (fn [[a]] `(= ~alias ~a)) aliases)))
             syms)))
+
+(defn apply-preconditions [conclusion preconditions]
+  (reduce (fn [conclusion precondition]
+            (if (seq? precondition)
+              (let [cond-name (first precondition)]
+                (cond
+                  (#{:difference :union} cond-name)
+                  (let [[_ el1 el2 el3] precondition]
+                    (walk conclusion (= el el3)
+                          `(~(f-map cond-name) ~el1 ~el2)))
+                  :default conclusion))
+              conclusion))
+          conclusion preconditions))
 
 (defn premises-pattern
   "Creates map with preconditions and conclusions regarding to the main pattern
@@ -183,7 +207,10 @@
                   (seq? el)
                   (let [[f & tail] el]
                     (concat (list f) (sort-placeholders tail))))]
-    {:conclusion [(replace-symbols conclusion sym-map) (t/tvtypes (get-truth-fn post))]
+    {:conclusion [(-> conclusion
+                      (apply-preconditions preconditions)
+                      (replace-symbols sym-map))
+                  (t/tvtypes (get-truth-fn post))]
      :conditions (walk (concat (check-conditions sym-map) pre)
                        (and (coll? el) (= \a (first (str (first el)))))
                        (concat '() el)
@@ -228,7 +255,7 @@
                    (map (fn [c] [c k]) cnds)
                    [(list '() k)])) conds)
        (group-by first)
-       (map (fn [[k v]] [k (- (count v))]))
+       (map (fn [[k v]] [k (+ (- (count v)) (rand 0.4))]))
        (into {})))
 
 (defn sort-conds
@@ -251,8 +278,9 @@
 (defn generate-matching [rules]
   (->> rules
        (map (fn [[k {:keys [pattern rules] :as v}]]
-              [k (->> (match-rules (main-pattern pattern)
-                                   (gen-rules pattern rules))
-                      eval
-                      (assoc v :matcher))]))
+              (let [match-fn-code (match-rules (main-pattern pattern)
+                                               (gen-rules pattern rules))
+                    ]
+                [k (assoc v :matcher (eval match-fn-code)
+                            :matcher-code match-fn-code)])))
        (into {})))

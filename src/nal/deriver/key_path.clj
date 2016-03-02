@@ -31,12 +31,18 @@
       (concat (cart (concat [[op]] args-inv)) [:any]))
     [path]))
 
+(defn path-kfn
+  [[f _ l]]
+  (- (+ (* 3 (if (seq? l) (count l) 0))
+        (* 3 (if (seq? f) (count f) 0)))))
+
 (defn all-paths
   "Generates all pathes for pair of premises."
   [p1 p2]
-  ;(println p1 p2)
   (let [paths1 (path-invariants (path p1))
         paths2 (path-invariants (path p2))]
-    (map vec (cart [paths1 [:and] paths2]))))
+    (sort-by
+      path-kfn
+      (map vec (cart [paths1 [:and] paths2])))))
 
 (def mall-paths (memoize all-paths))
