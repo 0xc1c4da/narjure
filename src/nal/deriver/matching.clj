@@ -5,12 +5,31 @@
             [clojure.set :refer [map-invert]]
             [nal.deriver.truth :as t]
             [clojure.string :as s]
-            [nal.deriver.set-functions :refer [f-map not-empty-diff?
-                                               not-empty-inter?]]))
+            [nal.deriver.set-functions
+             :refer [f-map not-empty-diff? not-empty-inter?]]))
+
+(def vars-map {"$" 'ind-var "#" 'dep-var})
+
+(defn unification-map [p1 p2 p3]
+  (let [var-type (vars-map p1)
+        p2 (walk p2 (and (coll? el) (= var-type (first el)))
+                 (symbol (str "?" (second el))))]
+    (u/unify p2 p3)))
+
+(def munification-map (memoize unification-map))
+
+(defn substitute [p1 p2 p3 conclusion]
+  (let [u-map (munification-map p1 p2 p3)
+        var-type (vars-map p1)
+        u-map (into {} (map (fn [[k v]]
+                              [[var-type (->> k str (drop 1) s/join symbol)] v])
+                            u-map))]
+    (walk conclusion (u-map el) (u-map el))))
 
 (def reserved-operators
-  #{`= `not= `seq? `first `and `let `pos? `> `>= `< `<= `coll? `set
-    `quote `count 'aops `- `not-empty-diff? `not-empty-inter? `walk})
+  #{`= `not= `seq? `first `and `let `pos? `> `>= `< `<= `coll? `set `quote
+    `count 'aops `- `not-empty-diff? `not-empty-inter? `walk `munification-map
+    `substitute})
 
 (defn not-operator?
   "Checks if element is not operator"
@@ -85,7 +104,8 @@
                        (vswap! cnt inc)
                        (vswap! sym-map assoc s el)
                        s)
-                     (symbol? el) el)]
+                     ;(symbol? el) el
+                     )]
     [@sym-map result]))
 
 (defn main-pattern [premise]
@@ -147,6 +167,9 @@
                                (and (aops# afop#) (= afop# asop#)
                                     (not-empty-inter? ~(nth condition 1)
                                                       ~(nth condition 2))))])
+                (= :substitute-if-unifies (first condition))
+                (concat ac (let [[_ p1 p2 p3] condition]
+                             [`(munification-map ~p1 ~p2 ~p3)]))
                 :else ac)
               :else ac))
           [] preconditions))
@@ -185,6 +208,9 @@
                   (let [[_ el1 el2] precondition]
                     `(walk ~conclusion
                            (= :el ~el1) ~el2))
+                  (= :substitute-if-unifies cond-name)
+                  (let [[_ p1 p2 p3] precondition]
+                    `(substitute ~p1 ~p2 ~p3 ~conclusion))
                   :default conclusion))
               conclusion))
           conclusion preconditions))
@@ -221,7 +247,9 @@
                   (inverted-sym-map el) (inverted-sym-map el)
                   (seq? el)
                   (let [[f & tail] el]
-                    (concat (list f) (sort-placeholders tail))))]
+                    (if-not (#{`munification-map `not-empty-diff?} f)
+                      (concat (list f) (sort-placeholders tail))
+                      el)))]
     {:conclusion [(-> conclusion
                       (apply-preconditions preconditions)
                       (replace-symbols sym-map))

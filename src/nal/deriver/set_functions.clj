@@ -3,13 +3,13 @@
 
 ;todo performance
 (defn difference [[op & set1] [_ & set2]]
-  [(into [op] (sort (set/difference (set set1) (set set2)))) :diff])
+  (into [op] (sort (set/difference (set set1) (set set2)))))
 
 (defn union [[op & set1] [_ & set2]]
-  [(into [op] (sort (set/union (set set1) (set set2)))) :union])
+  (into [op] (sort (set/union (set set1) (set set2)))))
 
 (defn intersection [[op & set1] [_ & set2]]
-  [(into [op] (sort (set/intersection (set set1) (set set2)))) :inter])
+  (into [op] (sort (set/intersection (set set1) (set set2)))))
 
 (def f-map {:difference   difference
             :union        union

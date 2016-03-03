@@ -360,7 +360,7 @@
 
   ; dependent variable elimination
   ; Decomposition with elimination of a variable
-  #_#R[B (&& A :list/A) |- (&& :list/A) :pre (:judgement? (:substitute-if-unifies "#" A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
+  #R[B (&& A :list/A) |- (&& :list/A) :pre (:judgement? (:substitute-if-unifies "#" A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
 
   ; conditional abduction by dependent variable
   #R[((A --> R) ==> Z) ((&& (#Y --> B) (#Y --> R) :list/A) ==> Z) |- (A --> B) :post (:t/abduction)]
