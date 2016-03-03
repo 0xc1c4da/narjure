@@ -1,36 +1,23 @@
 (ns nal.deriver.matching
-  (:require [nal.deriver.utils :refer [walk]]
-            [clojure.core.match :refer [match]]
-            [clojure.core.unify :as u]
-            [clojure.set :refer [map-invert]]
-            [nal.deriver.truth :as t]
-            [clojure.string :as s]
-            [nal.deriver.set-functions
-             :refer [f-map not-empty-diff? not-empty-inter?]]))
+  (:require
+    [nal.deriver.utils :refer [walk]]
+    [clojure.core.match :refer [match]]
+    [clojure.core.unify :as u]
+    [clojure.set :refer [map-invert]]
+    [clojure.string :as s]
+    [nal.deriver
+     [truth :as t]
+     [set-functions :refer [f-map not-empty-diff? not-empty-inter?]]
+     [substitution :refer [munification-map substitute]]
+     [preconditions :refer [sets compound-precondition preconditions-transformations]]]))
 
-(def vars-map {"$" 'ind-var "#" 'dep-var})
-
-(defn unification-map [p1 p2 p3]
-  (let [var-type (vars-map p1)
-        p2 (walk p2 (and (coll? el) (= var-type (first el)))
-                 (symbol (str "?" (second el))))]
-    (u/unify p2 p3)))
-
-(def munification-map (memoize unification-map))
-
-(defn substitute [p1 p2 p3 conclusion]
-  (let [u-map (munification-map p1 p2 p3)
-        var-type (vars-map p1)
-        u-map (into {} (map (fn [[k v]]
-                              [[var-type (->> k str (drop 1) s/join symbol)] v])
-                            u-map))]
-    (walk conclusion (u-map el) (u-map el))))
-
+;operators/functions that shouldn't be quoted
 (def reserved-operators
   #{`= `not= `seq? `first `and `let `pos? `> `>= `< `<= `coll? `set `quote
     `count 'aops `- `not-empty-diff? `not-empty-inter? `walk `munification-map
-    `substitute})
+    `substitute `sets})
 
+;check if symbol is not operator
 (defn not-operator?
   "Checks if element is not operator"
   [el] (re-matches #"[akxA-Z$]" (-> el str first str)))
@@ -68,10 +55,10 @@
                                        (quote-operators conclusions))))
      ~@(map (fn [n] (traverse-node b1 b2 result n)) children)))
 
-(defn traverse [b1 b2 trie]
+(defn traverse [b1 b2 tree]
   (let [results (gensym)]
     `(let [~results (volatile! [])]
-       ~(traverse-node b1 b2 results trie)
+       ~(traverse-node b1 b2 results tree)
        @~results)))
 
 (defn match-rules
@@ -111,67 +98,28 @@
 (defn main-pattern [premise]
   (second (find-and-replace-symbols premise "x")))
 
-(defn symbol-ordering-keyfn [sym]
+(defn symbol-ordering-keyfn
+  [sym]
   (if (symbol? sym)
     (try (Integer/parseInt (s/join (drop 1 (str sym))))
          (catch Exception _ -100))
     -1))
 
-(defn sort-placeholders [tail]
+(defn sort-placeholders
+  "Sorts placeholder for preconditions. If we have two precondition like
+  (!= x0 x2) and (!= x2 x0) they are equal but we can not check this easely.
+  So this function sort [x2 x0] to [x0 x2], so we can reason that
+  (!= x0 x2) and (!= x2 x0) are equal."
+  [tail]
   (sort-by symbol-ordering-keyfn tail))
 
-(defn filter-preconditions [preconditions]
+(defn apply-preconditions
+  "Generates code for preconditions."
+  [preconditions]
   (reduce (fn [ac condition]
-            ;TODO should be refactored
-            ;TODO preconditions
-            ;:substitute-if-unifies :substitute
-            ;:shift-occurrence-forward :shift-occurrence-backward
-            ;:not-implication-or-equivalence
-            ;:measure-time :concurrent
-            (cond
-              (seq? condition)
-              (cond
-                (= :!= (first condition))
-                (conj ac (concat (list `not=) (rest condition)))
-                (= :set-ext? (first condition))
-                (let [sec (second condition)]
-                  (conj ac `(and (coll? ~sec) (= ~'ext-set (first ~sec)))))
-                (= :set-int? (first condition))
-                (let [sec (second condition)]
-                  (conj ac `(and (coll? ~sec) (= ~'int-set (first ~sec)))))
-                (= :difference (first condition))
-                (concat ac [`(coll? ~(nth condition 1))
-                            `(coll? ~(nth condition 2))
-                            `(let [k# 1
-                                   afop# (first ~(nth condition 1))
-                                   asop# (first ~(nth condition 2))
-                                   aops# (set ['~'ext-set '~'int-set])]
-                               (and (aops# afop#) (= afop# asop#)
-                                    (not-empty-diff? ~(nth condition 1)
-                                                     ~(nth condition 2))))])
-                (= :union (first condition))
-                (concat ac [`(coll? ~(nth condition 1))
-                            `(coll? ~(nth condition 2))
-                            `(let [k# 1
-                                   afop# (first ~(nth condition 1))
-                                   asop# (first ~(nth condition 2))
-                                   aops# (set ['~'ext-set '~'int-set])]
-                               (and (aops# afop#) (= afop# asop#)))])
-                (= :intersection (first condition))
-                (concat ac [`(coll? ~(nth condition 1))
-                            `(coll? ~(nth condition 2))
-                            `(let [k# 1
-                                   afop# (first ~(nth condition 1))
-                                   asop# (first ~(nth condition 2))
-                                   aops# (set ['~'ext-set '~'int-set])]
-                               (and (aops# afop#) (= afop# asop#)
-                                    (not-empty-inter? ~(nth condition 1)
-                                                      ~(nth condition 2))))])
-                (= :substitute-if-unifies (first condition))
-                (concat ac (let [[_ p1 p2 p3] condition]
-                             [`(munification-map ~p1 ~p2 ~p3)]))
-                :else ac)
-              :else ac))
+            (if (seq? condition)
+              (concat ac (compound-precondition condition))
+              ac))
           [] preconditions))
 
 (defn replace-symbols
@@ -194,26 +142,6 @@
                                     (dissoc syms alias))]
                 (mapcat (fn [[a]] `(= ~alias ~a)) aliases)))
             syms)))
-
-(defn apply-preconditions [conclusion preconditions]
-  (reduce (fn [conclusion precondition]
-            (if (seq? precondition)
-              (let [cond-name (first precondition)]
-                (cond
-                  (#{:difference :union :intersection} cond-name)
-                  (let [[_ el1 el2 el3] precondition]
-                    (walk conclusion (= el el3)
-                          `(~(f-map cond-name) ~el1 ~el2)))
-                  (= :substitute cond-name)
-                  (let [[_ el1 el2] precondition]
-                    `(walk ~conclusion
-                           (= :el ~el1) ~el2))
-                  (= :substitute-if-unifies cond-name)
-                  (let [[_ p1 p2 p3] precondition]
-                    `(substitute ~p1 ~p2 ~p3 ~conclusion))
-                  :default conclusion))
-              conclusion))
-          conclusion preconditions))
 
 (defn premises-pattern
   "Creates map with preconditions and conclusions regarding to the main pattern
@@ -243,7 +171,7 @@
         unification-map (u/unify pattern pat)
         sym-map (into {} (map (fn [[k v]] [(k unification-map) v]) sym-map))
         inverted-sym-map (map-invert sym-map)
-        pre (walk (filter-preconditions preconditions)
+        pre (walk (apply-preconditions preconditions)
                   (inverted-sym-map el) (inverted-sym-map el)
                   (seq? el)
                   (let [[f & tail] el]
@@ -251,7 +179,7 @@
                       (concat (list f) (sort-placeholders tail))
                       el)))]
     {:conclusion [(-> conclusion
-                      (apply-preconditions preconditions)
+                      (preconditions-transformations preconditions)
                       (replace-symbols sym-map))
                   (t/tvtypes (get-truth-fn post))]
      :conditions (walk (concat (check-conditions sym-map) pre)
@@ -270,7 +198,7 @@
        (group-by :conditions)
        (map (fn [[k v]] [k (map :conclusion v)]))))
 
-(defrecord TrieNode [condition conclusions children])
+(defrecord TreeNode [condition conclusions children])
 
 (defn group-conditions
   "Groups conditions->conclusions map by first condition and remove it."
@@ -278,16 +206,16 @@
   (into {} (map (fn [[k v]] [k (map (fn [[k v]] [(drop 1 k) v]) v)])
                 (group-by #(-> % first first) conds))))
 
-(defn generate-trie
-  "Generates trie of conditions from conditions->conclusions map."
-  ([conds] (generate-trie true conds))
+(defn generate-tree
+  "Generates tree of conditions from conditions->conclusions map."
+  ([conds] (generate-tree true conds))
   ([cond conds]
    (let [grouped-conditions (group-conditions conds)
          reached-keys (map second (grouped-conditions nil))
          other (dissoc grouped-conditions nil)]
-     (->TrieNode cond reached-keys
+     (->TreeNode cond reached-keys
                  (map (fn [[cond conds]]
-                        (generate-trie cond conds))
+                        (generate-tree cond conds))
                       other)))))
 
 (defn conds-priorities-map
@@ -316,14 +244,13 @@
         cond-conclusions-m (conditions->conclusions-map main rules)
         cpm (conds-priorities-map cond-conclusions-m)
         sorted-conds (sort-conds cond-conclusions-m cpm)]
-    (generate-trie sorted-conds)))
+    (generate-tree sorted-conds)))
 
 (defn generate-matching [rules]
   (->> rules
        (map (fn [[k {:keys [pattern rules] :as v}]]
               (let [match-fn-code (match-rules (main-pattern pattern)
-                                               (gen-rules pattern rules))
-                    ]
+                                               (gen-rules pattern rules))]
                 [k (assoc v :matcher (eval match-fn-code)
                             :matcher-code match-fn-code)])))
        (into {})))
