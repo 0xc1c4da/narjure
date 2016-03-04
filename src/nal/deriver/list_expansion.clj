@@ -18,12 +18,12 @@
 
 (defn replace-list-elemets
   "Replaces :list/ with symbols."
-  [statement list-name sym n]
+  [statement l list-name n]
   (walk statement
-    (and (coll? el) (some #{list-name} el))
-    (mapcat (fn [e] (if (= list-name e)
-                      (concat '() (gen-symbols sym n))
-                      (list e))) el)))
+    (and (coll? el) (some #{l} el))
+    (mapcat (fn [e] (if (= l e)
+                   (concat '() (gen-symbols list-name n))
+                   (list e))) el)))
 
 (defn list-name
   "Fetches name of the list."
