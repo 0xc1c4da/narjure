@@ -7,7 +7,7 @@
 (defn t-and
   (^double [^double a ^double b] (* a b))
   (^double [^double a ^double b ^double c] (* a b c))
-  (^double [^double a ^double b ^double c  ^double d] (* a b c d)))
+  (^double [^double a ^double b ^double c ^double d] (* a b c d)))
 
 (defn t-or
   (^double [^double a ^double b] (- 1 (* (- 1 a) (- 1 b)))))

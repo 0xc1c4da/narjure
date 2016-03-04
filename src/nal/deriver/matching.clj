@@ -27,20 +27,20 @@
 (defn quote-operators
   [statement]
   (walk statement
-        (reserved-operators el) el
-        (and (symbol? el) (operator? el)) `'~el
-        (and (coll? el) (= 'quote (first el))
-             (= 'quote (first (second el))))
-        `(quote ~(second (second el)))
-        ;TODO remove this condition!
-        (#{'X 'Y 'R} el) :a
-        (and (coll? el) (= \a (first (str (first el)))))
-        (concat '() el)
-        (and (coll? el)
-             (let [f (first el)]
-               (and (not (reserved-operators f))
-                    (not (fn? f)))))
-        (vec el)))
+    (reserved-operators el) el
+    (and (symbol? el) (operator? el)) `'~el
+    (and (coll? el) (= 'quote (first el))
+         (= 'quote (first (second el))))
+    `(quote ~(second (second el)))
+    ;TODO remove this condition!
+    (#{'X 'Y 'R} el) :a
+    (and (coll? el) (= \a (first (str (first el)))))
+    (concat '() el)
+    (and (coll? el)
+         (let [f (first el)]
+           (and (not (reserved-operators f))
+                (not (fn? f)))))
+    (vec el)))
 
 (defn traverse-node
   [b1 b2 result {:keys [conclusions children condition]}]
@@ -84,15 +84,13 @@
         sym-map (volatile! {})
         get-sym #(symbol (str prefix %))
         result (walk statement
-                     (or (and (symbol? el) (not-operator? el))
-                         ;TODO remove when :list/A will be expanded
-                         (= :list/A el))
-                     (let [s (get-sym @cnt)]
-                       (vswap! cnt inc)
-                       (vswap! sym-map assoc s el)
-                       s)
-                     ;(symbol? el) el
-                     )]
+                 (and (symbol? el) (not-operator? el))
+                 (let [s (get-sym @cnt)]
+                   (vswap! cnt inc)
+                   (vswap! sym-map assoc s el)
+                   s)
+                 ;(symbol? el) el
+                 )]
     [@sym-map result]))
 
 (defn main-pattern [premise]
@@ -127,7 +125,7 @@
   [conclusion sym-map]
   (let [sym-map (map-invert sym-map)]
     (walk conclusion
-          (sym-map el) (sym-map el))))
+      (sym-map el) (sym-map el))))
 
 (defn get-truth-fn [post]
   (first (filter #(and (keyword? %) (s/starts-with? (str %) ":t/")) post)))
@@ -172,22 +170,22 @@
         sym-map (into {} (map (fn [[k v]] [(k unification-map) v]) sym-map))
         inverted-sym-map (map-invert sym-map)
         pre (walk (apply-preconditions preconditions)
-                  (inverted-sym-map el) (inverted-sym-map el)
-                  (seq? el)
-                  (let [[f & tail] el]
-                    (if-not (#{`munification-map `not-empty-diff?} f)
-                      (concat (list f) (sort-placeholders tail))
-                      el)))]
+              (inverted-sym-map el) (inverted-sym-map el)
+              (seq? el)
+              (let [[f & tail] el]
+                (if-not (#{`munification-map `not-empty-diff?} f)
+                  (concat (list f) (sort-placeholders tail))
+                  el)))]
     {:conclusion [(-> conclusion
                       (preconditions-transformations preconditions)
                       (replace-symbols sym-map))
                   (t/tvtypes (get-truth-fn post))]
      :conditions (walk (concat (check-conditions sym-map) pre)
-                       (and (coll? el) (= \a (first (str (first el)))))
-                       (concat '() el)
-                       (and (coll? el) (not ((conj reserved-operators 'quote)
-                                              (first el))))
-                       (vec el))}))
+                   (and (coll? el) (= \a (first (str (first el)))))
+                   (concat '() el)
+                   (and (coll? el) (not ((conj reserved-operators 'quote)
+                                          (first el))))
+                   (vec el))}))
 
 (defn conditions->conclusions-map
   "Creates map from conditions to conclusions."

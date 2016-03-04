@@ -109,6 +109,7 @@
   [name & rules]
   `(let [rules# (rules->> (quote ~rules)
                           contains-list? generate-all-lists
+                          contains-list? generate-all-lists
                           identity rule
                           order-for-all-same? generate-all-orders
                           allow-swapping? swap

@@ -59,17 +59,17 @@
 (defn sets-transformation
   [[cond-name el1 el2 el3] conclusion]
   (walk conclusion (= el el3)
-        `(~(f-map cond-name) ~el1 ~el2)))
+    `(~(f-map cond-name) ~el1 ~el2)))
 
 (doall (map
          #(defmethod precondition-transformation %
            [cond concl] (sets-transformation cond concl))
-            [:difference :union :intersection]))
+         [:difference :union :intersection]))
 
 (defmethod precondition-transformation :substitute
   [[_ el1 el2] conclusion]
   `(walk ~conclusion
-         (= :el ~el1) ~el2))
+     (= :el ~el1) ~el2))
 
 (defmethod precondition-transformation :substitute-if-unifies
   [[_ p1 p2 p3] conclusion]

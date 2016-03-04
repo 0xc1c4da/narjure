@@ -9,8 +9,8 @@
   "Defn replaces var-elements from statemts by placeholders for unification."
   [var-type statement]
   (walk statement
-        (and (coll? el) (= var-type (first el)))
-        (->> el second (str "?") symbol)))
+    (and (coll? el) (= var-type (first el)))
+    (->> el second (str "?") symbol)))
 
 (defn unification-map
   "Returns map of inified elements from both collections."

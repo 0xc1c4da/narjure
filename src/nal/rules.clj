@@ -151,16 +151,16 @@
   ; NAL4 - Transformations between products and images:
   ; Relations and transforming them into different representations so that arguments and the relation it'self can become the subject or predicate
   #R[((* :list/A) --> M) Ai |- (Ai --> (/ M :list/A))
-     :pre ((:substitute :listA Ai _))
+     :pre ((:substitute (:list/A) Ai _))
      :post (:t/identity :d/identity)]
   #R[(M --> (* :list/A)) Ai |- ((\ M :list/A) --> Ai)
-     :pre ((:substitute :listA Ai _))
+     :pre ((:substitute (:list/A) Ai _))
      :post (:t/identity :d/identity)]
   #R[(Ai --> (/ M :list/A )) M |- ((* :list/A) --> M)
-     :pre ((:substitute :listA _ Ai))
+     :pre ((:substitute (:list/A) _ Ai))
      :post (:t/identity :d/identity)]
   #R[((\ M :list/A) --> Ai) M |- (M --> (:list/A))
-      :pre ((:substitute :listA _ Ai))
+      :pre ((:substitute (:list/A) _ Ai))
      :post (:t/identity :d/identity)]
 
   ; implication-based syllogism
@@ -303,7 +303,6 @@
   ; variable introduction
   ; Introduce variables by common subject or predicate
   #R[(S --> M) (P --> M) |- (((P --> $X) ==> (S --> $X)) :post (:t/abduction)
-                              ;TODO is this conclusion necessary?
                               ((S --> $X) ==> (P --> $X)) :post (:t/induction)
                               ((P --> $X) <=> (S --> $X)) :post (:t/comparison)
                               (&& (S --> #Y) (P --> #Y)) :post (:t/intersection))
@@ -384,9 +383,9 @@
   #R[(A --> K) (($X --> L) ==> (&& (#Y --> K) :list/A)) |- (($X --> L) ==> (&& :list/A)) :pre ((:substitute #Y A)) :post (:t/anonymous-analogy)]
 
   ; precondition combiner inference rule (variable_unification6):
-  #_#R[((&& C :list/A) ==> Z) ((&& C :list/B) ==> Z) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/induction)
+  #R[((&& C :list/A) ==> Z) ((&& C :list/B) ==> Z) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/induction)
                                                         ((&& :list/B) ==> (&& :list/A)) :post (:t/induction))]
-  #_#R[(Z ==> (&& C :list/A)) (Z ==> (&& C :list/B)) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/abduction)
+  #R[(Z ==> (&& C :list/A)) (Z ==> (&& C :list/B)) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/abduction)
                                                       ((&& :list/B) ==> (&& :list/A)) :post (:t/abduction))]
 
   ; NAL7 specific inference
