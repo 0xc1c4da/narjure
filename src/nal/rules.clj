@@ -151,16 +151,16 @@
   ; NAL4 - Transformations between products and images:
   ; Relations and transforming them into different representations so that arguments and the relation it'self can become the subject or predicate
   #R[((* :list/A) --> M) Ai |- (Ai --> (/ M :list/A))
-     :pre ((:substitute (:list/A) Ai _))
+     :pre ((:substitute-from-list Ai _) (:contains? (:list/A) Ai))
      :post (:t/identity :d/identity)]
   #R[(M --> (* :list/A)) Ai |- ((\ M :list/A) --> Ai)
-     :pre ((:substitute (:list/A) Ai _))
+     :pre ((:substitute-from-list Ai _) (:contains? (:list/A) Ai))
      :post (:t/identity :d/identity)]
   #R[(Ai --> (/ M :list/A )) M |- ((* :list/A) --> M)
-     :pre ((:substitute (:list/A) _ Ai))
+     :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
      :post (:t/identity :d/identity)]
   #R[((\ M :list/A) --> Ai) M |- (M --> (:list/A))
-      :pre ((:substitute (:list/A) _ Ai))
+      :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
      :post (:t/identity :d/identity)]
 
   ; implication-based syllogism

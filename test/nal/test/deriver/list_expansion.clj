@@ -1,3 +1,5 @@
-(ns nal.test.deriver.list-expansion)
+(ns nal.test.deriver.list-expansion
+  (:require
+    [clojure.test :refer :all]
+    [nal.deriver.list-expansion :refer :all]))
 
-(= 1 1)

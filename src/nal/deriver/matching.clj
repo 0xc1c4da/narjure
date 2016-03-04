@@ -15,7 +15,7 @@
 (def reserved-operators
   #{`= `not= `seq? `first `and `let `pos? `> `>= `< `<= `coll? `set `quote
     `count 'aops `- `not-empty-diff? `not-empty-inter? `walk `munification-map
-    `substitute `sets})
+    `substitute `sets `some `deref `do `vreset! `volatile! `fn `mapv `if})
 
 ;check if symbol is not operator
 (defn not-operator?
@@ -28,12 +28,10 @@
   [statement]
   (walk statement
     (reserved-operators el) el
-    (and (symbol? el) (operator? el)) `'~el
+    (and (symbol? el) (or (operator? el) (#{'Y 'X} el))) `'~el
     (and (coll? el) (= 'quote (first el))
          (= 'quote (first (second el))))
     `(quote ~(second (second el)))
-    ;TODO remove this condition!
-    (#{'X 'Y 'R} el) :a
     (and (coll? el) (= \a (first (str (first el)))))
     (concat '() el)
     (and (coll? el)

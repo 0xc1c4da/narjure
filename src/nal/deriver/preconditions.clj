@@ -52,6 +52,10 @@
   [[_ arg1 arg2 arg3]]
   [`(munification-map ~arg1 ~arg2 ~arg3)])
 
+(defmethod compound-precondition :contains?
+  [[_ arg1 arg2]]
+  [`(some (set [~arg2]) ~arg1)])
+;-------------------------------------------------------------------------------
 (defmulti precondition-transformation (fn [arg1 _] (first arg1)))
 
 (defmethod precondition-transformation :default [_ conclusion] conclusion)
@@ -70,6 +74,14 @@
   [[_ el1 el2] conclusion]
   `(walk ~conclusion
      (= :el ~el1) ~el2))
+
+(defmethod precondition-transformation :substitute-from-list
+  [[_ el1 el2] conclusion]
+  `(mapv (fn [k#]
+           (if (= k# ~el1)
+             k#
+             (walk k# (= :el ~el1) ~el2)))
+         ~conclusion))
 
 (defmethod precondition-transformation :substitute-if-unifies
   [[_ p1 p2 p3] conclusion]
