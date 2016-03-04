@@ -1,20 +1,23 @@
 (ns nal.deriver.premises-swapping
   (:require [nal.deriver.key-path :refer [rule-path]]))
 
-;-------------------------------------------------------------------------
-;premises swapping
-
 ;commutative:	<-> <=> <|> & | && ||
 ;not commutative: --> ==> =/> =\> </> &/ - ~
 
 (def commutative-ops #{'<-> '<=> '<|> '| '|| 'conj 'ext-inter})
 
-(defn allow-swapping? [{:keys [pre conclusions]}]
-  (and (not-any? #{:question? :judgement? :goal? :measure-time :t/belief-structural-deduction
-                   :t/structural-deduction :t/belief-structural-difference :t/identity
-                   :t/negation :union :intersection :t/intersection :t/union}
-                 (flatten (concat pre (:post (first conclusions)))))
-       (not-any? commutative-ops (flatten (:conclusion (first conclusions))))))
+;the set of keys which prevent premises swapping for rule
+(def anti-swapping-keys
+  #{:question? :judgement? :goal? :measure-time :t/belief-structural-deduction
+    :t/structural-deduction :t/belief-structural-difference :t/identity
+    :t/negation :union :intersection :t/intersection :t/union})
+
+(defn allow-swapping?
+  "Checks if rule allow swapping of premises."
+  [{:keys [pre conclusions]}]
+  (let [{:keys [post conclusion]} (first conclusions)]
+    (and (not-any? anti-swapping-keys (flatten (concat pre post)))
+         (not-any? commutative-ops (flatten conclusion)))))
 
 (defn swap-premises
   [{:keys [p1 p2] :as rule}]

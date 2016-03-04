@@ -10,7 +10,6 @@
   (^double [^double a ^double b ^double c  ^double d] (* a b c d)))
 
 (defn t-or
-  ;(^double [args] (- 1 (reduce #(* %1 (- 1 %2)) 1 args)))
   (^double [^double a ^double b] (- 1 (* (- 1 a) (- 1 b)))))
 
 (defn w2c ^double [^double w]
