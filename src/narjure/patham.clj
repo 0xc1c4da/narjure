@@ -1,7 +1,8 @@
 (ns patham
-  (:require [instaparse.core :as insta
-             ])
+  (:require [instaparse.core :as insta])
   (:gen-class))
+
+(def ETERNAL -1)
 
 ;truth expectation, w2c, eternalization
 (defn expectation [t]
@@ -9,9 +10,10 @@
 
 (defn w2c [w] (/ w (+ w 1)))
 
+;eternalie a task (note: this is only for event tasks!!)
 (defn eternalize [t]
   (assoc t :confidence (w2c (:confidence t))
-           :occurence -1))
+           :occurence ETERNAL))
 
 ;whether the task has a question variable
 (defn has-question-var [ref] false)
@@ -22,11 +24,11 @@
     (:confidence t)
     (expectation t)))
 
-;confidence factor when projecting source to target time
+;project task to ref (note: this is only for event tasks!!)
 (defn project [t ref curtime]
   (let [sourcetime (:occurence t)
         targettime (:occurence ref)
-        dist (defn dist [a b] (Math/abs (- a b)))]
+        dist (fn [a b] (Math/abs (- a b)))]
     (assoc t
      :confidence (* (:confidence t)
                     (/ (dist sourcetime targettime)
@@ -34,17 +36,22 @@
                           (dist targettime curtime))))
      :occurence targettime)))
 
-;the confidence a task has after projection to ref time
+;projecting/eternalizing a task to ref time
 (defn project-eternalize [t ref curtime]
   (let [sourcetime (:occurence t)
         targettime (:occurence ref)]
-    (cond (and (=    targettime -1) (=    sourcetime -1)) t
-          (and (not= targettime -1) (=    sourcetime -1)) t
-          (and (=    targettime -1) (not= sourcetime -1)) (eternalize t)
-          :else (let [tEternal (eternalize t)
-                      tProjected (project t targettime curtime)]
-                  (if (> (:confidence tEternal) (:confidence tProjected))
-                    tEternal tProjected))))
+    (cond
+      (=    sourcetime ETERNAL)
+      t
+      (and (=    targettime ETERNAL)
+           (not= sourcetime ETERNAL))
+      (eternalize t)
+    :else
+      (let [tEternal (eternalize t)
+            tProjected (project t targettime curtime)]
+        (if (> (:confidence tEternal) (:confidence tProjected))
+          tEternal
+          tProjected))))
   )
 
 ;rank a task according to a reference
