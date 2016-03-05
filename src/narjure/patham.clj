@@ -41,9 +41,9 @@
   (let [source-time (:occurence t)
         target-time (:occurence ref)
         get-eternal (fn [a] (if (= a ETERNAL) :eternal :temporal))]
-    (case [(get-eternal source-time) (get-eternal target-time)]
-      [:eternal  _        ] t
-      [:temporal :eternal ] (eternalize t)
+    (case [(get-eternal target-time) (get-eternal source-time)]
+      [_         :eternal ] t
+      [:eternal  :temporal] (eternalize t)
       [:temporal :temporal] (let [tEternal (eternalize t)
                                   tProject (project t target-time curtime)]
                               (if (> (:confidence tEternal)
