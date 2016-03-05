@@ -36,23 +36,20 @@
                           (dist targettime curtime))))
      :occurence targettime)))
 
-;projecting/eternalizing a task to ref time
 (defn project-eternalize [t ref curtime]
-  (let [sourcetime (:occurence t)
-        targettime (:occurence ref)]
-    (cond
-      (=    sourcetime ETERNAL)
-      t
-      (and (=    targettime ETERNAL)
-           (not= sourcetime ETERNAL))
-      (eternalize t)
-    :else
-      (let [tEternal (eternalize t)
-            tProjected (project t targettime curtime)]
-        (if (> (:confidence tEternal) (:confidence tProjected))
-          tEternal
-          tProjected))))
-  )
+  ;projecting/eternalizing a task to ref time
+  (let [source-time (:occurence t)
+        target-time (:occurence ref)
+        get-eternal (fn [a] (if (= a ETERNAL) :eternal :temporal))]
+    (case [(get-eternal source-time) (get-eternal target-time)]
+      [:eternal  _        ] t
+      [:temporal :eternal ] (eternalize t)
+      [:temporal :temporal] (let [tEternal (eternalize t)
+                                  tProject (project t target-time curtime)]
+                              (if (> (:confidence tEternal)
+                                     (:confidence tProject))
+                                tEternal
+                                tProject)))))
 
 ;rank a task according to a reference
 (defn rank-task [ref curtime t]
