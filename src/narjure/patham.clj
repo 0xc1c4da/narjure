@@ -13,7 +13,7 @@
 ;eternalie a task (note: this is only for event tasks!!)
 (defn eternalize [t]
   (assoc t :confidence (w2c (:confidence t))
-           :occurence ETERNAL))
+           :occurrence ETERNAL))
 
 ;whether the task has a question variable
 (defn has-question-var [ref] false)
@@ -26,30 +26,31 @@
 
 ;project task to ref (note: this is only for event tasks!!)
 (defn project [t ref curtime]
-  (let [sourcetime (:occurence t)
-        targettime (:occurence ref)
+  (let [sourcetime (:occurrence t)
+        targettime (:occurrence ref)
         dist (fn [a b] (Math/abs (- a b)))]
     (assoc t
      :confidence (* (:confidence t)
-                    (/ (dist sourcetime targettime)
-                       (+ (dist sourcetime curtime)
-                          (dist targettime curtime))))
-     :occurence targettime)))
+                    (- 1 (/ (dist sourcetime targettime)
+                            (+ (dist sourcetime curtime)
+                               (dist targettime curtime)))))
+     :occurrence targettime)))
 
 (defn project-eternalize [t ref curtime]
   ;projecting/eternalizing a task to ref time
-  (let [source-time (:occurence t)
-        target-time (:occurence ref)
-        get-eternal (fn [a] (if (= a ETERNAL) :eternal :temporal))]
+  (let [source-time (:occurrence t)
+        target-time (:occurrence ref)
+        get-eternal (fn [x] (if (= x ETERNAL) :eternal :temporal))]
     (case [(get-eternal target-time) (get-eternal source-time)]
-      [_         :eternal ] t
+      [:eternal  :eternal ] t
+      [:temporal :eternal ] t
       [:eternal  :temporal] (eternalize t)
-      [:temporal :temporal] (let [tEternal (eternalize t)
-                                  tProject (project t target-time curtime)]
-                              (if (> (:confidence tEternal)
-                                     (:confidence tProject))
-                                tEternal
-                                tProject)))))
+      [:temporal :temporal] (let [t-eternal (eternalize t)
+                                  t-project (project t ref curtime)]
+                              (if (> (:confidence t-eternal)
+                                     (:confidence t-project))
+                                t-eternal
+                                t-project)))))
 
 ;rank a task according to a reference
 (defn rank-task [ref curtime t]
@@ -85,4 +86,8 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  ((insta/parser (clojure.java.io/resource "narsese.bnf") :auto-whitespace :standard) "<bird --> swimmer>. %0.10;0.60%"))
+  ;((insta/parser (clojure.java.io/resource "narsese.bnf") :auto-whitespace :standard) "<bird --> swimmer>. %0.10;0.60%")
+  (do
+    (project-eternalize {:term "tim --> cat" :frequency 1 :confidence 0.75 :occurrence 10} {:term "tim --> cat" :frequency 1 :confidence 0.75 :occurrence 10} 100))
+    (print "lol")
+  )
