@@ -56,6 +56,7 @@
 (def ^:dynamic *truth* (atom []))
 (def ^:dynamic *budget* (atom []))
 (def ^:dynamic *tense* (atom :present))
+(def ^:dynamic *syntactic-complexity* nil)
 
 (defn keep-cat [fun col]
   (into [] (comp (mapcat fun) (filter (complement nil?))) col))
@@ -81,7 +82,9 @@
 
 (defmethod element :statement [[_ & data]]
   (if-let [copula (get-copula data)]
-    `[~copula ~@(keep-cat element data)]
+    (do
+      (swap! *syntactic-complexity* inc)
+      `[~copula ~@(keep-cat element data)])
     (keep-cat element data)))
 
 (defmethod element :task [[_ & data]]
@@ -133,6 +136,7 @@
   (element (last data)))
 
 (defmethod element :term [[_ & data]]
+  (swap! *syntactic-complexity* inc)
   (when (seq? data)
     (keep element data)))
 
@@ -163,14 +167,16 @@
                 *lvars* (atom [])
                 *truth* (atom [])
                 *budget* (atom [])
-                *tense* (atom :present)]
+                *tense* (atom :present)
+                *syntactic-complexity* (atom 0)]
         (let [statement (element data)
               act @*task-type*]
-          {:task-type act
-           :lvars     @*lvars*
-           :truth     (check-truth-value @*truth*)
-           :budget    (check-budget @*budget* act)
-           :statement statement
-           :tense     @*tense*
-           :terms     (terms statement)}))
+          {:task-type            act
+           :lvars                @*lvars*
+           :truth                (check-truth-value @*truth*)
+           :budget               (check-budget @*budget* act)
+           :statement            statement
+           :tense                @*tense*
+           :syntactic-complexity @*syntactic-complexity*
+           :terms                (terms statement)}))
       data)))
