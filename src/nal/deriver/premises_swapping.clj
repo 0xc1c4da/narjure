@@ -1,10 +1,6 @@
 (ns nal.deriver.premises-swapping
-  (:require [nal.deriver.key-path :refer [rule-path]]))
-
-;commutative:	<-> <=> <|> & | && ||
-;not commutative: --> ==> =/> =\> </> &/ - ~
-
-(def commutative-ops #{'<-> '<=> '<|> '| '|| 'conj 'ext-inter})
+  (:require [nal.deriver.key-path :refer [rule-path]]
+            [nal.deriver.normalization :refer [commutative-ops]]))
 
 ;the set of keys which prevent premises swapping for rule
 (def anti-swapping-keys

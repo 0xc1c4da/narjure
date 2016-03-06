@@ -9,4 +9,7 @@
 (defn inference [task belief]
   (generate-conclusions (r/rules :judgement) task belief))
 
+(defn backward-indference [question belief]
+  (generate-conclusions (r/rules :question) question belief))
+
 (def revision t/revision)

@@ -7,6 +7,11 @@
     'int-image 'ext-image '=/> '=|> '| '<=> '</> '<|> '- 'int-dif '|| '&&
     'ext-inter 'conj})
 
+;commutative:	<-> <=> <|> & | && ||
+;not commutative: --> ==> =/> =\> </> &/ - ~
+
+(def commutative-ops #{'<-> '<=> '<|> '| '|| 'conj 'ext-inter})
+
 (defn infix->prefix
   "Makes transformaitions like [A --> B] to [--> A B]."
   [premise]
@@ -51,3 +56,11 @@
         {:prev false :st '()}
         statement))
     :else statement))
+
+(defn sort-commutative [conclusions]
+  (if (coll? conclusions)
+    (let [f (first conclusions)]
+      (if (commutative-ops f)
+        (into [] (conj (sort-by hash (drop 1 conclusions)) f))
+        conclusions))
+    conclusions))

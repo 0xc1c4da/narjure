@@ -9,15 +9,17 @@
      [truth :as t]
      [set-functions :refer [f-map not-empty-diff? not-empty-inter?]]
      [substitution :refer [munification-map substitute]]
-     [preconditions :refer [sets compound-precondition preconditions-transformations]]]))
+     [preconditions :refer [sets compound-precondition
+                            preconditions-transformations]]
+     [normalization :refer [commutative-ops sort-commutative]]]))
 
 ;operators/functions that shouldn't be quoted
 (def reserved-operators
   #{`= `not= `seq? `first `and `let `pos? `> `>= `< `<= `coll? `set `quote
     `count 'aops `- `not-empty-diff? `not-empty-inter? `walk `munification-map
-    `substitute `sets `some `deref `do `vreset! `volatile! `fn `mapv `if})
+    `substitute `sets `some `deref `do `vreset! `volatile! `fn `mapv `if
+    `sort-commutative})
 
-;check if symbol is not operator
 (defn not-operator?
   "Checks if element is not operator"
   [el] (re-matches #"[akxA-Z$]" (-> el str first str)))
@@ -86,9 +88,7 @@
                  (let [s (get-sym @cnt)]
                    (vswap! cnt inc)
                    (vswap! sym-map assoc s el)
-                   s)
-                 ;(symbol? el) el
-                 )]
+                   s))]
     [@sym-map result]))
 
 (defn main-pattern [premise]
@@ -139,6 +139,13 @@
                 (mapcat (fn [[a]] `(= ~alias ~a)) aliases)))
             syms)))
 
+(defn check-commutative [conclusion]
+  (if (and
+        (coll? conclusion)
+        (some commutative-ops conclusion))
+    `(sort-commutative ~conclusion)
+    conclusion))
+
 (defn premises-pattern
   "Creates map with preconditions and conclusions regarding to the main pattern
    of rules branch.
@@ -176,7 +183,8 @@
                   el)))]
     {:conclusion [(-> conclusion
                       (preconditions-transformations preconditions)
-                      (replace-symbols sym-map))
+                      (replace-symbols sym-map)
+                      check-commutative)
                   (t/tvtypes (get-truth-fn post))]
      :conditions (walk (concat (check-conditions sym-map) pre)
                    (and (coll? el) (= \a (first (str (first el)))))
@@ -199,7 +207,8 @@
 (defn group-conditions
   "Groups conditions->conclusions map by first condition and remove it."
   [conds]
-  (into {} (map (fn [[k v]] [k (map (fn [[k v]] [(drop 1 k) v]) v)])
+  (into {} (map (fn [[k v]]
+                  [k (map (fn [[k v]] [(drop 1 k) (set v)]) v)])
                 (group-by #(-> % first first) conds))))
 
 (defn generate-tree
