@@ -40,6 +40,11 @@
    "&/" 'sequential-events
    "&|" 'parallel-events})
 
+(def tenses
+  {":|:"  :present
+   ":/:"  :future
+   ":\\:" :past})
+
 (defn get-compound-term [[_ operator-srt]]
   (compound-terms operator-srt))
 
@@ -50,6 +55,7 @@
 (def ^:dynamic *lvars* (atom []))
 (def ^:dynamic *truth* (atom []))
 (def ^:dynamic *budget* (atom []))
+(def ^:dynamic *tense* (atom :present))
 
 (defn keep-cat [fun col]
   (into [] (comp (mapcat fun) (filter (complement nil?))) col))
@@ -69,6 +75,8 @@
           last-el (last cols)]
       (when (= :truth (first last-el))
         (element last-el))
+      (when-let [tense (some #(when (= :tense (first %)) %) data)]
+        (element tense))
       (element (first cols)))))
 
 (defmethod element :statement [[_ & data]]
@@ -128,6 +136,9 @@
   (when (seq? data)
     (keep element data)))
 
+(defmethod element :tense [[_ key]]
+  (reset! *tense* (tenses key)))
+
 (defmethod element :default [_])
 
 ;TODO check for variables in statemnts, ignore subterm if it contains variable
@@ -151,7 +162,8 @@
       (binding [*task-type* (atom nil)
                 *lvars* (atom [])
                 *truth* (atom [])
-                *budget* (atom [])]
+                *budget* (atom [])
+                *tense* (atom :present)]
         (let [statement (element data)
               act @*task-type*]
           {:task-type act
@@ -159,5 +171,6 @@
            :truth     (check-truth-value @*truth*)
            :budget    (check-budget @*budget* act)
            :statement statement
+           :tense     @*tense*
            :terms     (terms statement)}))
       data)))
