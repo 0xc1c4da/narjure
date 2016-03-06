@@ -16,6 +16,7 @@
 
 (defn get-matcher [rules p1 p2]
   (let [paths (all-paths p1 p2)]
+    ;(println (filter rules paths))
     (get-matcher-rec rules paths)))
 
 (def mget-matcher (memoize get-matcher))
