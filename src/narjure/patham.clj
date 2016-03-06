@@ -2,7 +2,7 @@
   (:require [instaparse.core :as insta])
   (:gen-class))
 
-(def ETERNAL -1)
+(def ETERNAL -100000)
 
 ;truth expectation, w2c, eternalization
 (defn expectation [t]
@@ -10,22 +10,24 @@
 
 (defn w2c [w] (/ w (+ w 1)))
 
-;eternalie a task (note: this is only for event tasks!!)
 (defn eternalize [t]
+  {:pre [(not= (:occurrence t) ETERNAL)]}
+  {:post [#(= (:occurrence %) ETERNAL)]};eternalize a task
   (assoc t :confidence (w2c (:confidence t))
            :occurrence ETERNAL))
 
-;whether the task has a question variable
+;TODO whether the task has a question variable
 (defn has-question-var [ref] false)
 
-;ranking function, confidence for y/n, expectation for wh-tasks
 (defn rank-value [ref t]
+  ;ranking function, confidence for y/n, expectation for wh-tasks
   (if (has-question-var ref)
     (:confidence t)
     (expectation t)))
 
-;project task to ref (note: this is only for event tasks!!)
+
 (defn project [t ref curtime]
+  ;project task to ref (note: this is only for event tasks!!)
   (let [sourcetime (:occurrence t)
         targettime (:occurrence ref)
         dist (fn [a b] (Math/abs (- a b)))]
@@ -62,25 +64,40 @@
   (apply max-key :value
          (map (partial rank-task ref curtime) table)))
 
-;add belief to a table
-(defn add-to-table [concept table x]
-  (assoc concept table
-                 (conj (concept table) x)))
+
+;TODO base overlap
+(defn non-overlapping-base [t1 t2]
+  true)
+
+;TODO revision
+(defn revision [t1 t2]
+  t1)
+
+;on insert we rank according to current time
+(defn add-to-table [concept table x curtime]
+  ;1 get best ranked one and revise with
+  (if (= (count (concept table)) 0)
+    (assoc concept table [x])
+    (let [best (best-ranked table {:occurrence curtime} curtime)
+          revised (revision x best)]
+      nil                                                   ;<- TODO
+      ))
+  )
 
 ;add to belief table
-(defn add-to-beliefs [concept x]
-  (add-to-table concept :beliefs x))
+(defn add-to-beliefs [concept x curtime]
+  (add-to-table concept :beliefs x curtime))
 
 ;add to desires table
-(defn add-to-desires [concept x]
-  (add-to-table concept :desires x))
+(defn add-to-desires [concept x curtime]
+  (add-to-table concept :desires x curtime))
 
 ;Concept data structure
 (defn buildConcept [name]
   {:term name :beliefs [] :desires [] :tasklinks [] :termlinks []})
 
 ; (let [concept (buildConcept "test")]
-;  (add-to-beliefs concept {:term "tim --> cat" :frequency 1 :confidence 0.75 :occurrence 10}))
+;  (add-to-beliefs concept {:term "tim --> cat" :frequency 1 :confidence 0.75 :occurrence 10} 0))
 
 
 (defn -main
