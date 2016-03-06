@@ -43,10 +43,10 @@
 (defn get-compound-term [[_ operator-srt]]
   (compound-terms operator-srt))
 
-(def actions {"." :judgement
-              "?" :question})
+(def task-types {"." :judgement
+                 "?" :question})
 
-(def ^:dynamic *action* (atom nil))
+(def ^:dynamic *task-type* (atom nil))
 (def ^:dynamic *lvars* (atom []))
 (def ^:dynamic *truth* (atom []))
 (def ^:dynamic *budget* (atom []))
@@ -64,7 +64,7 @@
 
 (defmethod element :sentence [[_ & data]]
   (let [filtered (group-by string? data)]
-    (reset! *action* (actions (first (filtered true))))
+    (reset! *task-type* (task-types (first (filtered true))))
     (let [cols (filtered false)
           last-el (last cols)]
       (when (= :truth (first last-el))
@@ -148,13 +148,13 @@
   [narsese-str]
   (let [data (parser narsese-str)]
     (if-not (i/failure? data)
-      (binding [*action* (atom nil)
+      (binding [*task-type* (atom nil)
                 *lvars* (atom [])
                 *truth* (atom [])
                 *budget* (atom [])]
         (let [statement (element data)
-              act @*action*]
-          {:action    act
+              act @*task-type*]
+          {:task-type act
            :lvars     @*lvars*
            :truth     (check-truth-value @*truth*)
            :budget    (check-budget @*budget* act)

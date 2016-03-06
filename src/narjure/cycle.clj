@@ -117,7 +117,7 @@
       (update-in c [:answers q] choice-with-nil belief))
     concept questions))
 
-(defmulti task->concept (fn [& args] (:action (first args))))
+(defmulti task->concept (fn [& args] (:task-type (first args))))
 
 (defmethod task->concept :question
   [{:keys [statement] :as task} {:keys [concepts] :as m} term]
