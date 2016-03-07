@@ -1,7 +1,6 @@
 (ns narjure.cycle
   (:require [narjure.bag :refer :all]
             [narjure.narsese :refer [parse]]
-            [clojure.core.logic :as l]
             [nal.core :as c]
             [clojure.set :refer [intersection union]]))
 
@@ -34,8 +33,9 @@
    ;here will be the map with patterns for possible questions
    :answers  {}})
 
-(defn get-concept [concepts term]
+(defn get-concept
   "Check for concept in database, creates new in case in didn't find it."
+  [concepts term]
   (if-let [concept (get-el concepts term)]
     concept
     (default-concept term)))
@@ -61,13 +61,9 @@
   [{:keys [statement truth]}]
   [statement truth])
 
-(defn raw-choice [b t]
-  (first (l/run* [q] (c/choice b t q))))
-
 (defn choice [belief task]
-  (let [b (inf-statement belief)
-        t (inf-statement task)
-        [statement truth] (raw-choice b t)]
+  (let [statement (:statement belief)
+        truth (c/choice (:truth belief) (:truth task))]
     {:statement      statement
      :key            statement
      :truth          truth
@@ -84,9 +80,8 @@
   ; because the other ranking params, truth expectation and originality are in
   ; both cases the same, so complexity is the determining factor
   ; in this case
-  (let [b (inf-statement belief)
-        t (inf-statement task)
-        [statement truth] (first (l/run* [q] (c/revision b t q)))]
+  (let [statement (:statement belief)
+        truth (c/revision (:truth belief) (:truth task))]
     {:statement      statement
      :key            statement
      :truth          truth
@@ -123,8 +118,7 @@
   [{:keys [statement] :as task} {:keys [concepts] :as m} term]
   (let [concept (get-concept concepts term)
         answer (get-in concept [:answers statement])
-        upd-concept (-> concept
-                        (update :tasks put-el task))
+        upd-concept (update concept :tasks put-el task)
         upd-m (update m :concepts put-el upd-concept)]
     (if answer
       (update upd-m :answers conj [task answer])
@@ -173,7 +167,7 @@
 (defn forward-inference [task belief]
   (let [t (inf-statement task)
         b (inf-statement belief)
-        conclusions (l/run* [q] (c/inference t b q))
+        conclusions (c/inference t b)
         total-ev-base (total-ev-base belief task)]
     (map (fn [[statement truth]]
            {:statement      statement
@@ -233,8 +227,7 @@
   (let [by-question (group-by first answers)]
     (assoc m :answers
              (map (fn [[q ans]]
-                    [q (reduce raw-choice (map inf-statement
-                                               (map second ans)))])
+                    [q (map inf-statement (map second ans))])
                   by-question))))
 
 (defn do-cycle
@@ -266,8 +259,7 @@
   "Put task into the buffer."
   [{:keys [cycles-cnt tasks-cnt] :as m} t]
   (let [n-task (inc tasks-cnt)]
-    (assoc (->> (pack-task t cycles-cnt n-task)
-                (update m :buffer put-el))
+    (assoc (update m :buffer put-el (pack-task t cycles-cnt n-task))
       :tasks-cnt n-task)))
 
 (defn fill-memory [& expression]

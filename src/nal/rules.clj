@@ -1,5 +1,5 @@
 (ns nal.rules
-  (:require [nal.deriver :refer [defrules rule rule-path]]
+  (:require [nal.deriver.rules :refer [defrules]]
             nal.reader))
 
 (declare --S S --P P <-> |- --> ==> M || && =|> -- A Ai B <=>)
@@ -36,7 +36,7 @@
   ; Immediate Inference
   ; If S can stand for P P can to a certain low degree also represent the class S
   ; If after S usually P happens then it might be a good guess that usually before P happens S happens.
-  #R[(P --> S) (S --> P) |- (P --> S) :post (:t/conversion :p/judgment) :pre (:question?) ]
+  #R[(P --> S) (S --> P) |- (P --> S) :post (:t/conversion :p/judgment) :pre (:question?)]
   #R[(P ==> S) (S ==> P) |- (P ==> S) :post (:t/conversion :p/judgment) :pre (:question?)]
   #R[(P =|> S) (S =|> P) |- (P =|> S) :post (:t/conversion :p/judgment) :pre (:question?)]
   #R[(P =\> S) (S =/> P) |- (P =\> S) :post (:t/conversion :p/judgment) :pre (:question?)]
@@ -101,27 +101,25 @@
   ; If P and S are in the intension/extension of M then union/difference and intersection can be built:
   #R[(P --> M) (S --> M) |- (((S | P) --> M) :post (:t/intersection)
                               ((S & P) --> M) :post (:t/union)
-                              ((P ~ S) --> M) :post (:t/difference)
-                              ((S ~ P) --> M) :post (:t/difference))
+                              ((P ~ S) --> M) :post (:t/difference))
      :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))]
 
   #R[(M --> P) (M --> S) |- ((M --> (P & S)) :post (:t/intersection)
                               (M --> (P | S)) :post (:t/union)
-                              (M --> (P - S)) :post (:t/difference)
-                              (M --> (S - P)) :post (:t/difference))
+                              (M --> (P - S)) :post (:t/difference))
      :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))]
 
   ; inheritance-based decomposition
-  ; if (S --> M) is the case and ((| S :list/A) --> M) is not the case then ((| :list/A) --> M) is not the case hence :t/decompose-positive-negative-negative
-  #R[(S --> M) ((| S :list/A) --> M) |- ((| :list/A) --> M) :post (:t/decompose-positive-negative-negative)]
-  #R[(S --> M) ((& S :list/A) --> M) |- ((& :list/A) --> M) :post (:t/decompose-negative-positive-positive)]
+  ; if (S --> M) is the case and ((| S :list/A) --> M) is not the case then ((| :list/A) --> M) is not the case hence :t/decompose-pnn
+  #R[(S --> M) ((| S :list/A) --> M) |- ((| :list/A) --> M) :post (:t/decompose-pnn)]
+  #R[(S --> M) ((& S :list/A) --> M) |- ((& :list/A) --> M) :post (:t/decompose-npp)]
   #R[(S --> M) ((S - P) --> M) |- (P --> M) :post (:t/decompose-positive-negative-positive)]
-  #R[(S --> M) ((P - S) --> M) |- (P --> M) :post (:t/decompose-negative-negative-negative)]
+  #R[(S --> M) ((P - S) --> M) |- (P --> M) :post (:t/decompose-nnn)]
 
-  #R[(M --> S) (M --> (& S :list/A)) |- (M --> (& :list/A)) :post (:t/decompose-positive-negative-negative)]
-  #R[(M --> S) (M --> (| S :list/A)) |- (M --> (| :list/A)) :post (:t/decompose-negative-positive-positive)]
+  #R[(M --> S) (M --> (& S :list/A)) |- (M --> (& :list/A)) :post (:t/decompose-pnn)]
+  #R[(M --> S) (M --> (| S :list/A)) |- (M --> (| :list/A)) :post (:t/decompose-npp)]
   #R[(M --> S) (M --> (S ~ P)) |- (M --> P) :post (:t/decompose-positive-negative-positive)]
-  #R[(M --> S) (M --> (P ~ S)) |- (M --> P) :post (:t/decompose-negative-negative-negative)]
+  #R[(M --> S) (M --> (P ~ S)) |- (M --> P) :post (:t/decompose-nnn)]
 
   ; Set comprehension:
   #R[(C --> A) (C --> B) |- (C --> R) :post (:t/union) :pre ((:set-ext? A) (:union A B R))]
@@ -153,16 +151,16 @@
   ; NAL4 - Transformations between products and images:
   ; Relations and transforming them into different representations so that arguments and the relation it'self can become the subject or predicate
   #R[((* :list/A) --> M) Ai |- (Ai --> (/ M :list/A))
-     :pre ((:substitute :listA Ai _))
+     :pre ((:substitute-from-list Ai _) (:contains? (:list/A) Ai))
      :post (:t/identity :d/identity)]
   #R[(M --> (* :list/A)) Ai |- ((\ M :list/A) --> Ai)
-     :pre ((:substitute :listA Ai _))
+     :pre ((:substitute-from-list Ai _) (:contains? (:list/A) Ai))
      :post (:t/identity :d/identity)]
   #R[(Ai --> (/ M :list/A )) M |- ((* :list/A) --> M)
-     :pre ((:substitute :listA _ Ai))
+     :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
      :post (:t/identity :d/identity)]
   #R[((\ M :list/A) --> Ai) M |- (M --> (:list/A))
-      :pre ((:substitute :listA _ Ai))
+      :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
      :post (:t/identity :d/identity)]
 
   ; implication-based syllogism
@@ -256,10 +254,10 @@
 
   ; implication-based decomposition
   ; Same as for inheritance again
-  #R[(S ==> M) ((|| S :list/A) ==> M) |- ((|| :list/A) ==> M) :post (:t/decompose-positive-negative-negative :order-for-all-same)]
-  #R[(S ==> M) ((&& S :list/A) ==> M) |- ((&& :list/A) ==> M) :post (:t/decompose-negative-positive-positive :order-for-all-same :seq-interval-from-premises)]
-  #R[(M ==> S) (M ==> (&& S :list/A)) |- (M ==> (&& :list/A)) :post (:t/decompose-positive-negative-negative :order-for-all-same :seq-interval-from-premises)]
-  #R[(M ==> S) (M ==> (|| S :list/A)) |- (M ==> (|| :list/A)) :post (:t/decompose-negative-positive-positive :order-for-all-same)]
+  #R[(S ==> M) ((|| S :list/A) ==> M) |- ((|| :list/A) ==> M) :post (:t/decompose-pnn :order-for-all-same)]
+  #R[(S ==> M) ((&& S :list/A) ==> M) |- ((&& :list/A) ==> M) :post (:t/decompose-npp :order-for-all-same :seq-interval-from-premises)]
+  #R[(M ==> S) (M ==> (&& S :list/A)) |- (M ==> (&& :list/A)) :post (:t/decompose-pnn :order-for-all-same :seq-interval-from-premises)]
+  #R[(M ==> S) (M ==> (|| S :list/A)) |- (M ==> (|| :list/A)) :post (:t/decompose-npp :order-for-all-same)]
 
   ; conditional syllogism
   ; If after M P usually happens and M happens it means P is expected to happen
@@ -269,23 +267,23 @@
   #R[M (M <=> S) |- S :post (:t/analogy :d/strong :order-for-all-same) :pre ((:shift-occurrence-forward unused ==>))]
 
   ; conjunction decompose
-  #R[(&& :list/A) A_1 |- A_1 :post (:t/structural-deduction :d/structural-strong)]
-  #R[(&/ :list/A) A_1 |- A_1 :post (:t/structural-deduction :d/structural-strong)]
-  #R[(&| :list/A) A_1 |- A_1 :post (:t/structural-deduction :d/structural-strong)]
+  #R[(&& :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
+  #R[(&/ :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
+  #R[(&| :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
   #R[(&/ B :list/A) B |- (&/ :list/A) :pre (:goal?) :post (:t/deduction :d/strong :seq-interval-from-premises)]
 
   ; propositional decomposition
   ; If S is the case and (&& S :list/A) is not the case it can't be that (&& :list/A) is the case
-  #R[S (&/ S :list/A) |- (&/ :list/A) :post (:t/decompose-positive-negative-negative :seq-interval-from-premises)]
-  #R[S (&| S :list/A) |- (&| :list/A) :post (:t/decompose-positive-negative-negative)]
-  #R[S (&& S :list/A) |- (&& :list/A) :post (:t/decompose-positive-negative-negative)]
-  #R[S (|| S :list/A) |- (|| :list/A) :post (:t/decompose-negative-positive-positive)]
+  #R[S (&/ S :list/A) |- (&/ :list/A) :post (:t/decompose-pnn :seq-interval-from-premises)]
+  #R[S (&| S :list/A) |- (&| :list/A) :post (:t/decompose-pnn)]
+  #R[S (&& S :list/A) |- (&& :list/A) :post (:t/decompose-pnn)]
+  #R[S (|| S :list/A) |- (|| :list/A) :post (:t/decompose-npp)]
 
   ; Additional for negation: https://groups.google.com/forum/#!topic/open-nars/g-7r0jjq2Vc
-  #R[S (&/ (-- S) :list/A) |- (&/ :list/A) :post (:t/decompose-negative-negative-negative :seq-interval-from-premises)]
-  #R[S (&| (-- S) :list/A) |- (&| :list/A) :post (:t/decompose-negative-negative-negative)]
-  #R[S (&& (-- S) :list/A) |- (&& :list/A) :post (:t/decompose-negative-negative-negative)]
-  #R[S (|| (-- S) :list/A) |- (|| :list/A) :post (:t/decompose-positive-positive-positive)]
+  #R[S (&/ (-- S) :list/A) |- (&/ :list/A) :post (:t/decompose-nnn :seq-interval-from-premises)]
+  #R[S (&| (-- S) :list/A) |- (&| :list/A) :post (:t/decompose-nnn)]
+  #R[S (&& (-- S) :list/A) |- (&& :list/A) :post (:t/decompose-nnn)]
+  #R[S (|| (-- S) :list/A) |- (|| :list/A) :post (:t/decompose-ppp)]
 
   ; multi-conditional syllogism
   ; Inference about the pre/postconditions
@@ -322,7 +320,7 @@
                               (&| (P --> #Y) (S --> #Y)) :post (:t/intersection :linkage-temporal))
             :pre ((:!= S P) (concurrent Task Belief))]
 
-  #_#R[(M --> S) (M --> P) |- ((($X --> S) ==> ($X --> P)) :post (:t/induction)
+  #R[(M --> S) (M --> P) |- ((($X --> S) ==> ($X --> P)) :post (:t/induction)
                               (($X --> P) ==> ($X --> S)) :post (:t/abduction)
                               (($X --> S) <=> ($X --> P)) :post (:t/comparison)
                               (&& (#Y --> S) (#Y --> P)) :post (:t/intersection))
@@ -334,7 +332,7 @@
                               (&/ (#Y --> P) I (#Y --> S)) :post (:t/intersection :linkage-temporal))
      :pre ((:!= S P) (:measure-time I))]
 
-  #_#R[(M --> S) (M --> P) |- ((($X --> S) =|> ($X --> P)) :post (:t/induction :linkage-temporal)
+  #R[(M --> S) (M --> P) |- ((($X --> S) =|> ($X --> P)) :post (:t/induction :linkage-temporal)
                               (($X --> P) =|> ($X --> S)) :post (:t/abduction :linkage-temporal)
                               (($X --> S) <|> ($X --> P)) :post (:t/comparison :linkage-temporal)
                               (&| (#Y --> S) (#Y --> P)) :post (:t/intersection :linkage-temporal))
@@ -373,11 +371,11 @@
 
 
   ; independent variable elimination
-  #R[B (A ==> C) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward unused ==>))]
-  #R[B (C ==> A) |- C (:t/abduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward unused ==>))]
+  #_#R[B (A ==> C) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward unused ==>))]
+  #_#R[B (C ==> A) |- C (:t/abduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward unused ==>))]
 
-  #R[B (A <=> C) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward unused <=>))]
-  #R[B (C <=> A) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward unused <=>))]
+  #_#R[B (A <=> C) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward unused <=>))]
+  #_#R[B (C <=> A) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward unused <=>))]
 
   ; second level variable handling rules
   ; second level variable elimination (termlink level2 growth needed in order for these rules to work)
@@ -392,8 +390,8 @@
 
   ; NAL7 specific inference
   ; Reasoning about temporal statements. those are using the ==> relation because relation in time is a relation of the truth between statements.
-  #R[X (XI ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" XI (&/ X /0)) (:shift-occurrence-forward XI ==>))]
-  #R[X (BI ==> Y) |- BI :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" Y X) (:shift-occurrence-backward BI ==>))]
+  #_#R[X (XI ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" XI (&/ X /0)) (:shift-occurrence-forward XI ==>))]
+  #_#R[X (BI ==> Y) |- BI :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" Y X) (:shift-occurrence-backward BI ==>))]
 
   ; Temporal induction:
   ; When P and then S happened according to an observation by induction (weak) it may be that alyways after P usually S happens.
@@ -432,8 +430,8 @@
   ; composition on one side of a statement:
   #R[(W --> (| B :list/A)) (W --> B) |- (W --> (| B :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
   #R[((& B :list/A) --> W) (B --> W) |- ((& B :list/A) --> W) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[(W --> (- S B)) (W --> B) |- (W --> (- S B)) :pre (:question?) :post (:t/beliefStructuralDifference :p/judgment)]
-  #R[((~ S B) --> W) (B --> W) |- ((~ S B) --> W) :pre (:question?) :post (:t/beliefStructuralDifference :p/judgment)]
+  #R[(W --> (- S B)) (W --> B) |- (W --> (- S B)) :pre (:question?) :post (:t/belief-structural-difference :p/judgment)]
+  #R[((~ S B) --> W) (B --> W) |- ((~ S B) --> W) :pre (:question?) :post (:t/belief-structural-difference :p/judgment)]
 
   ; NAL4:
   ; composition on both sides of a statement:

@@ -1,11 +1,7 @@
 (ns narjure.repl
-  (:require [clojure.string :as s]
-            [narjure.narsese :refer [parse]]
+  (:require [narjure.narsese :refer [parse]]
             [instaparse.core :as i]
-            [nal.core :as c]
-            [clojure.core.logic :as l]
             [clojure.string :refer [trim]]
-            [clojure.pprint :as p]
             [clojure.tools.nrepl.middleware :refer [set-descriptor!]]
             [narjure.cycle :as cycle]))
 
@@ -42,7 +38,7 @@
 
 (defn- get-result [code]
   (let [result (parse code)]
-    (if (and (not (i/failure? result)))
+    (if-not (i/failure? result)
       (collect! result)
       result)))
 
