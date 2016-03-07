@@ -35,19 +35,11 @@
 
 (def mpath-invariants (memoize path-invariants))
 
-;todo I have to think about this
-(defn path-kfn
-  "This function is used to sort possible pathes for premises, to be sure that
-  they will be checked in correct order."
-  [[f _ l]]
-  (- (+ (* 3 (if (seq? l) (count (flatten l)) 0))
-        (* 3 (if (seq? f) (count (flatten f)) 0)))))
-
 (defn all-paths
   "Generates all pathes for pair of premises."
   [p1 p2]
   (let [paths1 (mpath-invariants p1)
         paths2 (mpath-invariants p2)]
-    (sort-by path-kfn (map vec (cart [paths1 [:and] paths2])))))
+    (cart [paths1 [:and] paths2])))
 
 (def mall-paths (memoize all-paths))

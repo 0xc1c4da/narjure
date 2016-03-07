@@ -267,9 +267,9 @@
   #R[M (M <=> S) |- S :post (:t/analogy :d/strong :order-for-all-same) :pre ((:shift-occurrence-forward unused ==>))]
 
   ; conjunction decompose
-  #R[(&& :list/A) A_1 |- A_1 :post (:t/structural-deduction :d/structural-strong)]
-  #R[(&/ :list/A) A_1 |- A_1 :post (:t/structural-deduction :d/structural-strong)]
-  #R[(&| :list/A) A_1 |- A_1 :post (:t/structural-deduction :d/structural-strong)]
+  #R[(&& :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
+  #R[(&/ :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
+  #R[(&| :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
   #R[(&/ B :list/A) B |- (&/ :list/A) :pre (:goal?) :post (:t/deduction :d/strong :seq-interval-from-premises)]
 
   ; propositional decomposition

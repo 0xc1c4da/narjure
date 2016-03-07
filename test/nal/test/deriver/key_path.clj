@@ -11,8 +11,8 @@
 
 (deftest test-rule-path
   (both-equal
-     [:any :and :any] (rule-path 'A 'B)
-     '((--> :any :any) :and (--> :any :any)) (rule-path '(--> A B) '(--> B C))))
+    [:any :and :any] (rule-path 'A 'B)
+    '((--> :any :any) :and (--> :any :any)) (rule-path '(--> A B) '(--> B C))))
 
 (deftest test-cart
   (is (= '((1 2 3) (1 2 4) (2 2 3) (2 2 4)) (cart [[1 2] [2] [3 4]]))))
@@ -27,21 +27,22 @@
 
 (deftest test-all-paths
   (is
-    (= '([(==> (--> :any :any) (--> :any :any)) :and (--> (- :any :any) :any)]
-          [(==> (--> :any :any) (--> :any :any)) :and (--> :any :any)]
-          [(==> (--> :any :any) :any) :and (--> (- :any :any) :any)]
-          [(==> :any (--> :any :any)) :and (--> (- :any :any) :any)]
-          [(==> (--> :any :any) :any) :and (--> :any :any)]
-          [(==> :any (--> :any :any)) :and (--> :any :any)]
-          [(==> :any :any) :and (--> (- :any :any) :any)]
-          [(==> (--> :any :any) (--> :any :any)) :and :any]
-          [(==> :any :any) :and (--> :any :any)]
-          [(==> (--> :any :any) :any) :and :any]
-          [(==> :any (--> :any :any)) :and :any]
-          [:any :and (--> (- :any :any) :any)]
-          [(==> :any :any) :and :any]
-          [:any :and (--> :any :any)]
-          [:any :and :any])
-       (all-paths
-         '(==> (--> :any :any) (--> :any :any))
-         '(--> (- :any :any) :any)))))
+    (= (set
+         '([(==> (--> :any :any) (--> :any :any)) :and (--> (- :any :any) :any)]
+            [(==> (--> :any :any) (--> :any :any)) :and (--> :any :any)]
+            [(==> (--> :any :any) :any) :and (--> (- :any :any) :any)]
+            [(==> :any (--> :any :any)) :and (--> (- :any :any) :any)]
+            [(==> (--> :any :any) :any) :and (--> :any :any)]
+            [(==> :any (--> :any :any)) :and (--> :any :any)]
+            [(==> :any :any) :and (--> (- :any :any) :any)]
+            [(==> (--> :any :any) (--> :any :any)) :and :any]
+            [(==> :any :any) :and (--> :any :any)]
+            [(==> (--> :any :any) :any) :and :any]
+            [(==> :any (--> :any :any)) :and :any]
+            [:any :and (--> (- :any :any) :any)]
+            [(==> :any :any) :and :any]
+            [:any :and (--> :any :any)]
+            [:any :and :any]))
+       (set (all-paths
+              '(==> (--> :any :any) (--> :any :any))
+              '(--> (- :any :any) :any))))))

@@ -2,7 +2,7 @@
   (:require [clojure.string :as s]
             [clojure.set :refer [map-invert]]
             [nal.deriver
-             [key-path :refer [rule-path all-paths]]
+             [key-path :refer [rule-path all-paths path-invariants]]
              [utils :refer [walk]]
              [list-expansion :refer [contains-list? generate-all-lists]]
              [premises-swapping :refer [allow-swapping? swap]]
@@ -38,7 +38,7 @@
               :p2          p2
               :conclusions [c]
               :full-path   (rule-path p1 p2)
-              :pre         (:pre opts)})
+              :pre         (infix->prefix (:pre opts))})
            conclusions))))
 
 (defn check-duplication
@@ -66,8 +66,14 @@
   so, if we find rule with path [[--> :any :any] :and [--> [:any :any]]],
   it matches to current's rule path too, hence it should be added to the set
   of rules that matches [[--> [- :any :any] :any] :and [--> [:any :any]]] path."
-  [ac [k {:keys [all]}]]
-  (let [rules (mapcat :rules (vals (select-keys ac all)))]
+  [ac [k {:keys [all starts-with]}]]
+  (let [rules (mapcat :rules (vals (select-keys ac all)))
+        same-start (mapcat :rules (map second (filter
+                                                (fn [[[f]]] (starts-with f))
+                                                ac)))
+        ;rules (if (= :any (last k)) (concat same-start rules) rules)
+        ]
+    ;(when (seq? same-start) (println same-start))
     (-> ac
         (update-in [k :rules] concat rules)
         (update-in [k :rules] set))))
@@ -79,7 +85,9 @@
   (-> ac
       (update-in [full-path :rules] conj rule)
       (assoc-in [full-path :pattern] [p1 p2])
-      (assoc-in [full-path :all] (all-paths p1 p2))))
+      (assoc-in [full-path :all] (all-paths p1 p2))
+      (assoc-in [full-path :starts-with] (set (path-invariants p1)))
+      (assoc-in [full-path :end-with] (set (path-invariants p2)))))
 
 (defn rules-map
   "Generates map from list of #R satetments, whetre key is path, and value is

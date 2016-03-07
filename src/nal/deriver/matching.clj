@@ -46,13 +46,13 @@
   [b1 b2 result {:keys [conclusions children condition]}]
   `(when ~(quote-operators condition)
      ~(when-not (zero? (count conclusions))
-        `(vswap! ~result concat ~@(map (fn [concls]
-                                         (mapv (fn [[c tf :as concls]]
-                                                 (if (nil? tf)
-                                                   concls
-                                                   [c (list tf b1 b2)]))
-                                               concls))
-                                       (quote-operators conclusions))))
+        `(vswap! ~result concat ~@(set (map (fn [concls]
+                                          (mapv (fn [[c tf :as concls]]
+                                                  (if (nil? tf)
+                                                    concls
+                                                    [c (list tf b1 b2)]))
+                                                concls))
+                                        (quote-operators conclusions)))))
      ~@(map (fn [n] (traverse-node b1 b2 result n)) children)))
 
 (defn traverse [b1 b2 tree]
@@ -139,11 +139,13 @@
                 (mapcat (fn [[a]] `(= ~alias ~a)) aliases)))
             syms)))
 
+(defn commutative? [st]
+  (and (coll? st)
+       (some commutative-ops st)))
+
 (defn check-commutative [conclusion]
-  (if (and
-        (coll? conclusion)
-        (some commutative-ops conclusion))
-    `(sort-commutative ~conclusion)
+  (if (commutative? conclusion)
+    `(sort-commutative ~(sort-commutative conclusion))
     conclusion))
 
 (defn premises-pattern
@@ -208,7 +210,8 @@
   "Groups conditions->conclusions map by first condition and remove it."
   [conds]
   (into {} (map (fn [[k v]]
-                  [k (map (fn [[k v]] [(drop 1 k) (set v)]) v)])
+                  [k (map (fn [[k v]]
+                            [(drop 1 k) (set v)]) v)])
                 (group-by #(-> % first first) conds))))
 
 (defn generate-tree
