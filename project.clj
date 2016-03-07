@@ -19,4 +19,5 @@
   :target-path "target/%s"
   :repl-options {:init-ns          narjure.repl
                  :nrepl-middleware [narjure.repl/narsese-handler]}
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}}
+  :jvm-opts ["-Dco.paralleluniverse.fibers.detectRunawayFibers=false"])
