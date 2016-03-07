@@ -25,9 +25,8 @@
     (:confidence t)
     (expectation t)))
 
-
 (defn project [t ref curtime]
-  ;project task to ref (note: this is only for event tasks!!)
+  "project task to ref (note: this is only for event tasks!!)"
   (let [sourcetime (:occurrence t)
         targettime (:occurrence ref)
         dist (fn [a b] (Math/abs (- a b)))]

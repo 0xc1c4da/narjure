@@ -14,7 +14,8 @@
   :main ^:skip-aot narjure.core
   :plugins [[lein-cloverage "1.0.6"]
             [cider/cider-nrepl "0.11.0-SNAPSHOT"]
-            [lein-marginalia "0.8.0"]]
+            [michaelblume/lein-marginalia "0.9.0"]
+            ]
   :target-path "target/%s"
   :repl-options {:init-ns          narjure.repl
                  :nrepl-middleware [narjure.repl/narsese-handler]}
