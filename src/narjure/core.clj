@@ -1,4 +1,4 @@
-(ns narsjure.core
+(ns narjure.core
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]
@@ -105,6 +105,7 @@
   ; update user with status
   (! :logger [:log-msg :log-info :anon "NARS initialised."])
 
+
   ; *** Test code
   (def task-dispatcher (whereis :task-dispatcher))
   (! :logger [:log-msg :log-info :anon "Beginning test..."])
@@ -118,10 +119,7 @@
             ))
         (recur (inc n)))))
   (Thread/sleep 100) ; allow delay for all actors to process their queues
-  (! :sentence-parser [:narsese-string-msg "<a --> b>. :|: %0.85; 0.35%"])
-  (! :task-dispatcher :concept-count)
   (! :logger [:log-msg :log-info :anon "Test complete."])
-
   ; *** End test code
 
   ; join all actors so the terminate cleanly
