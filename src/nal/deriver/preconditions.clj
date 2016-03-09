@@ -9,7 +9,6 @@
 
 ;TODO preconditions
 ;:shift-occurrence-forward :shift-occurrence-backward
-;:not-implication-or-equivalence
 ;:measure-time :concurrent
 (defmulti compound-precondition
   "Expands compound precondition to clojure sequence

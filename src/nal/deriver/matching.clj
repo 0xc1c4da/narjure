@@ -42,37 +42,42 @@
     (and (coll? el) (= \a (first (str (first el)))))
     (concat '() el)
     (and (coll? el)
+         ((complement map?) el)
          (let [f (first el)]
            (and (not (reserved-operators f))
                 (not (fn? f)))))
     (vec el)))
 
+(defn form-conclusion
+  [{:keys [t1 t2 task]}
+   {c :statement tf :t-function pj :p/judgement}]
+  {:statement c
+   :truth     (when-not (nil? tf) (list tf t1 t2))
+   :task-type (if pj :judgement `(:task-type ~task))})
+
 (defn traverse-node
-  [b1 b2 result {:keys [conclusions children condition]}]
+  [vars result {:keys [conclusions children condition]}]
   `(when ~(quote-operators condition)
      ~(when-not (zero? (count conclusions))
-        `(vswap! ~result concat ~@(set (map (fn [concls]
-                                              (mapv (fn [[c tf :as concls]]
-                                                      (if (nil? tf)
-                                                        concls
-                                                        [c (list tf b1 b2)]))
-                                                    concls))
-                                            (quote-operators conclusions)))))
-     ~@(map (fn [n] (traverse-node b1 b2 result n)) children)))
+        `(vswap! ~result concat
+                 ~@(set (map #(mapv (partial form-conclusion vars) %)
+                             (quote-operators conclusions)))))
+     ~@(map (fn [n] (traverse-node vars result n)) children)))
 
-(defn traverse [b1 b2 tree]
+(defn traverse [vars tree]
   (let [results (gensym)]
     `(let [~results (volatile! [])]
-       ~(traverse-node b1 b2 results tree)
+       ~(traverse-node vars results tree)
        @~results)))
 
 (defn match-rules
   [pattern rules]
-  (let [b1 (gensym)
-        b2 (gensym)]
-    `(fn [[p1# ~b1] [p2# ~b2]]
+  (let [t1 (gensym) t2 (gensym)
+        task (gensym) belief (gensym)]
+    `(fn [{p1# :statement ~t1 :truth :as ~task}
+          {p2# :statement ~t2 :truth :as ~belief}]
        (match [p1# p2#] ~(quote-operators pattern)
-         ~(traverse b1 b2 rules)
+         ~(traverse {:t1 t1 :t2 t2 :task task :belief belief} rules)
          :else nil))))
 
 (defn find-and-replace-symbols
@@ -193,13 +198,13 @@
                 (if-not (#{`munification-map `not-empty-diff?} f)
                   (concat (list f) (sort-placeholders tail))
                   el)))]
-    {:conclusion [(-> conclusion
-                      (preconditions-transformations preconditions)
-                      (replace-symbols sym-map)
-                      check-commutative
-                      check-reduction
-                      )
-                  (t/tvtypes (get-truth-fn post))]
+    {:conclusion {:statement   (-> conclusion
+                                   (preconditions-transformations preconditions)
+                                   (replace-symbols sym-map)
+                                   check-commutative
+                                   check-reduction)
+                  :t-function  (t/tvtypes (get-truth-fn post))
+                  :p/judgement (some #{:p/judgment} post)}
      :conditions (walk (concat (check-conditions sym-map) pre)
                    (and (coll? el) (= \a (first (str (first el)))))
                    (concat '() el)
