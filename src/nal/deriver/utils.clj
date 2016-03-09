@@ -1,6 +1,12 @@
 (ns nal.deriver.utils
   (:require [clojure.walk :as w]))
 
+(defn not-operator?
+  "Checks if element is not operator"
+  [el] (re-matches #"[akxA-Z$]" (-> el str first str)))
+
+(def operator? (complement not-operator?))
+
 (defmacro walk
   "Macro that helps to replace elements during walk. The first argument
   is collection, rest of the arguments are cond-like

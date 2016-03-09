@@ -1,14 +1,14 @@
 (ns nal.deriver.matching
   (:require
-    [nal.deriver.utils :refer [walk]]
+    [nal.deriver.utils :refer [walk operator? not-operator?]]
     [clojure.core.match :refer [match]]
     [clojure.core.unify :as u]
-    [clojure.set :refer [map-invert]]
+    [clojure.set :refer [map-invert intersection]]
     [clojure.string :as s]
     [nal.deriver
      [set-functions :refer [f-map not-empty-diff? not-empty-inter?]]
      [substitution :refer [munification-map substitute]]
-     [preconditions :refer [sets compound-precondition
+     [preconditions :refer [sets compound-precondition get-terms
                             implications-and-equivalences
                             preconditions-transformations]]
      [normalization :refer [commutative-ops sort-commutative reducible-ops]
@@ -20,16 +20,11 @@
   #{`= `not= `seq? `first `and `let `pos? `> `>= `< `<= `coll? `set `quote
     `count 'aops `- `not-empty-diff? `not-empty-inter? `walk `munification-map
     `substitute `sets `some `deref `do `vreset! `volatile! `fn `mapv `if
-    `sort-commutative `n/reduce-ext-inter `n/reduce-symilarity
+    `sort-commutative `n/reduce-ext-inter `n/reduce-symilarity `complement
     `n/reduce-int-dif `n/reduce-and `n/reduce-ext-dif `n/reduce-image
-    `n/reduce-int-inter `n/reduce-neg `n/reduce-or `nil?
-    `implications-and-equivalences})
-
-(defn not-operator?
-  "Checks if element is not operator"
-  [el] (re-matches #"[akxA-Z$]" (-> el str first str)))
-
-(def operator? (complement not-operator?))
+    `n/reduce-int-inter `n/reduce-neg `n/reduce-or `nil? `not `or
+    `implications-and-equivalences `get-terms `empty? `intersection
+    })
 
 (defn quote-operators
   [statement]

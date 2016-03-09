@@ -5,10 +5,11 @@
             [nal.deriver.utils :refer [walk]]
             [nal.deriver.substitution :refer [substitute munification-map]]
             [nal.deriver.terms-permutation :refer [implications equivalences]]
-            [clojure.set :refer [union]]))
+            [clojure.set :refer [union intersection]]))
 
 ;TODO preconditions
 ;:shift-occurrence-forward :shift-occurrence-backward
+;:no-common-subterm
 ;:measure-time :concurrent
 (defmulti compound-precondition
   "Expands compound precondition to clojure sequence
@@ -65,6 +66,21 @@
   [`(if (coll? ~arg)
       (nil? (~`implications-and-equivalences (first ~arg)))
       true)])
+
+(defn get-terms
+  [st]
+  (if (coll? st)
+    (mapcat get-terms (rest st))
+    [st]))
+
+(defmethod compound-precondition :no-common-subterm
+  [[_ arg1 arg2]]
+  [`(empty? (intersection (set (get-terms ~arg1))
+                          (set (get-terms ~arg2))))])
+
+(defmethod compound-precondition :not-set?
+  [[_ arg]]
+  [`(or (not (coll? ~arg)) (not (sets (first ~arg))))])
 ;-------------------------------------------------------------------------------
 (defmulti precondition-transformation (fn [arg1 _] (first arg1)))
 
