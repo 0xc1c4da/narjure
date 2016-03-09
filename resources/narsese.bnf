@@ -5,7 +5,7 @@
          sentence ::= statement"." [tense] [truth]            (* judgement to be remembered *)
                     | statement"?" [tense] [truth]            (* question to be answered, tense added in OpenNARS 1.7 *)
                     | statement"@" [tense] [truth]            (* question on desire value to be answered, tense added in OpenNARS 1.7 *)
-                    | statement"!" [tense] [truth]            (* goal to be realized, tense added in OpenNARS 1.7 *)
+                    | statement"!" [tense] [desire]           (* goal to be realized, tense added in OpenNARS 1.7 *)
 
         statement ::= <"<">term copula term<">">              (* two terms related to each other *)
                     | <"(">term copula term<")">              (* two terms related to each other, new notation *)
@@ -72,6 +72,7 @@
          interval ::= <"/">#"\d+"                             (* integer *)
 
             truth ::= <"%">frequency[<";">confidence]<"%">    (* two numbers in [0,1]x(0,1) *)
+           desire ::= <"%">plausibility[<";">desirability]<"%"> (* two numbers in [0,1]x(0,1) *)
            budget ::= <"$">priority[<";">durability][<";">quality]<"$"> (* three numbers in [0,1]x(0,1)x[0,1] *)
 
                word : #"\w+"                                  (* unicode string *)    
@@ -80,3 +81,6 @@
             quality : #"([0]?\.[0-9]+|1\.[0]*|1|0)"           (* 0 <= x <= 1 *)
           frequency : #"([0]?\.[0-9]+|1\.[0]*|1|0)"           (* 0 <= x <= 1 *)
          confidence : #"[0]?\.[0]*[1-9]{1}[0-9]*"             (* 0 <  x <  1 *)
+       plausibility : #"([0]?\.[0-9]+|1\.[0]*|1|0)"           (* 0 <= x <= 1 *)
+       desirability : #"[0]?\.[0]*[1-9]{1}[0-9]*"             (* 0 <  x <  1 *)
+
