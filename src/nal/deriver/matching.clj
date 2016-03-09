@@ -9,6 +9,7 @@
      [set-functions :refer [f-map not-empty-diff? not-empty-inter?]]
      [substitution :refer [munification-map substitute]]
      [preconditions :refer [sets compound-precondition
+                            implications-and-equivalences
                             preconditions-transformations]]
      [normalization :refer [commutative-ops sort-commutative reducible-ops]
       :as n]
@@ -21,7 +22,8 @@
     `substitute `sets `some `deref `do `vreset! `volatile! `fn `mapv `if
     `sort-commutative `n/reduce-ext-inter `n/reduce-symilarity
     `n/reduce-int-dif `n/reduce-and `n/reduce-ext-dif `n/reduce-image
-    `n/reduce-int-inter `n/reduce-neg `n/reduce-or})
+    `n/reduce-int-inter `n/reduce-neg `n/reduce-or `nil?
+    `implications-and-equivalences})
 
 (defn not-operator?
   "Checks if element is not operator"

@@ -18,7 +18,14 @@
     '(:!= A B)
 
     '[(nal.deriver.substitution/munification-map "$" A B)]
-    '(:substitute-if-unifies "$" A B)))
+    '(:substitute-if-unifies "$" A B)
+
+    `[(if (coll? ~'A)
+        (nil?
+          (nal.deriver.preconditions/implications-and-equivalences
+            (first ~'A)))
+        true)]
+    '(:not-implication-or-equivalence A)))
 
 (deftest test-sets-preconditions
   (are [c1 c2] (= c1 (count (compound-precondition c2)))
