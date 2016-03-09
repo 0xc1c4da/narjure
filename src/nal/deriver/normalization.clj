@@ -68,10 +68,6 @@
     conclusions))
 
 ;https://gist.github.com/TonyLo1/a3f8e05458c5e90c2e72
-
-(def reducible-ops
-  '#{ext-inter | - int-dif <=> * ext-image int-image -- conj ||})
-
 (defn union
   ([c1 c2] (sort-by hash (set (concat c1 c2))))
   ([op c1 c2] (into [] (conj (union c1 c2) op))))
@@ -102,13 +98,13 @@
     ['| ['ext-set & l1] ['ext-set & l2]] (union 'ext-set l1 l2)
     :else st))
 
-(defn reduce-int-diff
+(defn reduce-int-dif
   [st]
   (m/match st
     [_ ['int-set & l1] ['int-set & l2]] (diff 'int-set l1 l2)
     :else st))
 
-(defn reduce-ext-diff
+(defn reduce-ext-dif
   [st]
   (m/match st
     [_ ['ext-set & l1] ['ext-set & l2]] (diff 'ext-set l1 l2)
@@ -159,14 +155,27 @@
     ['conj t1 t2] (if (= t1 t2) t1 st)
     :else st))
 
+(def reducible-ops
+  {'ext-inter `reduce-ext-inter
+   '|         `reduce-int-inter
+   '-         `reduce-ext-dif
+   'int-dif   `reduce-int-dif
+   '<->       `reduce-symilarity
+   '*         `reduce-production
+   'int-image `reduce-image
+   'ext-image `reduce-image
+   '--        `reduce-neg
+   'conj      `reduce-and
+   '||        `reduce-or})
+
 (defn reduce-ops
   [st]
   (let [f (first st)]
     (case f
       ext-inter (reduce-ext-inter st)
       | (reduce-int-inter st)
-      - (reduce-ext-diff st)
-      int-diff (reduce-int-diff st)
+      - (reduce-ext-dif st)
+      int-dif (reduce-int-dif st)
       <-> (reduce-symilarity st)
       * (reduce-production st)
       int-image (reduce-image st)

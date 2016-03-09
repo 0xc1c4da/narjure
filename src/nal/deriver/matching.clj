@@ -6,19 +6,22 @@
     [clojure.set :refer [map-invert]]
     [clojure.string :as s]
     [nal.deriver
-     [truth :as t]
      [set-functions :refer [f-map not-empty-diff? not-empty-inter?]]
      [substitution :refer [munification-map substitute]]
      [preconditions :refer [sets compound-precondition
                             preconditions-transformations]]
-     [normalization :refer [commutative-ops sort-commutative]]]))
+     [normalization :refer [commutative-ops sort-commutative reducible-ops]
+      :as n]
+     [truth :as t]]))
 
 ;operators/functions that shouldn't be quoted
 (def reserved-operators
   #{`= `not= `seq? `first `and `let `pos? `> `>= `< `<= `coll? `set `quote
     `count 'aops `- `not-empty-diff? `not-empty-inter? `walk `munification-map
     `substitute `sets `some `deref `do `vreset! `volatile! `fn `mapv `if
-    `sort-commutative})
+    `sort-commutative `n/reduce-ext-inter `n/reduce-symilarity
+    `n/reduce-int-dif `n/reduce-and `n/reduce-ext-dif `n/reduce-image
+    `n/reduce-int-inter `n/reduce-neg `n/reduce-or})
 
 (defn not-operator?
   "Checks if element is not operator"
@@ -47,12 +50,12 @@
   `(when ~(quote-operators condition)
      ~(when-not (zero? (count conclusions))
         `(vswap! ~result concat ~@(set (map (fn [concls]
-                                          (mapv (fn [[c tf :as concls]]
-                                                  (if (nil? tf)
-                                                    concls
-                                                    [c (list tf b1 b2)]))
-                                                concls))
-                                        (quote-operators conclusions)))))
+                                              (mapv (fn [[c tf :as concls]]
+                                                      (if (nil? tf)
+                                                        concls
+                                                        [c (list tf b1 b2)]))
+                                                    concls))
+                                            (quote-operators conclusions)))))
      ~@(map (fn [n] (traverse-node b1 b2 result n)) children)))
 
 (defn traverse [b1 b2 tree]
@@ -67,8 +70,8 @@
         b2 (gensym)]
     `(fn [[p1# ~b1] [p2# ~b2]]
        (match [p1# p2#] ~(quote-operators pattern)
-              ~(traverse b1 b2 rules)
-              :else nil))))
+         ~(traverse b1 b2 rules)
+         :else nil))))
 
 (defn find-and-replace-symbols
   "Replaces all terms in statemnt to placeholders that will be used in pattern
@@ -148,6 +151,11 @@
     `(sort-commutative ~(sort-commutative conclusion))
     conclusion))
 
+(defn check-reduction [conclusion]
+  (walk conclusion
+    (and (coll? :el) (reducible-ops (first :el)) (<= 3 (count :el)))
+    `(~(reducible-ops (first :el)) ~:el)))
+
 (defn premises-pattern
   "Creates map with preconditions and conclusions regarding to the main pattern
    of rules branch.
@@ -186,7 +194,9 @@
     {:conclusion [(-> conclusion
                       (preconditions-transformations preconditions)
                       (replace-symbols sym-map)
-                      check-commutative)
+                      check-commutative
+                      check-reduction
+                      )
                   (t/tvtypes (get-truth-fn post))]
      :conditions (walk (concat (check-conditions sym-map) pre)
                    (and (coll? el) (= \a (first (str (first el)))))
