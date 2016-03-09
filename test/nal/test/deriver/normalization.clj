@@ -30,3 +30,97 @@
      '(--> A B) (replace-negation '(--> A B))
      '((-- A)) (replace-negation '[-- A])
      '(-- A) (replace-negation '(-- A))))
+
+(deftest test-reduce-ops
+  (are [a1 a2] (= a1 (reduce-ops a2))
+    1 '[ext-inter 1]
+    '[ext-inter 1] '[ext-inter [ext-inter 1] [ext-inter 1]]
+    '[ext-inter 2 1] '[ext-inter [ext-inter 1] [ext-inter 2]]
+    '[ext-inter 2 1] '[ext-inter [ext-inter 1] 2]
+    '[ext-inter 2 1] '[ext-inter 1 [ext-inter 2]]
+    '[int-set 2 1] '[ext-inter [int-set 1] [int-set 2]]
+
+    2 '[| 2]
+    '[| 1] '[| [| 1] [| 1]]
+    '[| 2 1] '[| [| 1] [| 2]]
+    '[| 2 1] '[| [| 1] 2]
+    '[| 2 1] '[| 1 [| 2]]
+    '[int-set 3 2 1] '[| [int-set 1] [int-set 2 3]]
+    '[int-set 2 4 1] '[| [int-set 1 4] [int-set 2]]
+
+    '[ext-set 2 4 1] '[- [ext-set 5 6 2 4 1] [ext-set 5 6]]
+    '[int-set 2 4 1] '[int-diff [int-set 5 6 2 4 1] [int-set 5 6]]
+
+    '[<-> 1 2] '[<-> [ext-set 1] [ext-set 2]]
+    '[<-> 1 2] '[<-> [int-set 1] [int-set 2]]
+
+    '[* 1 2] '[* [* 1] 2]
+    '[* 1 3 2] '[* [* 1 3] 2]
+    '[* 1 3 2 4] '[* [* 1 3] 2 4]
+
+    1 '[ext-image [* 1 2] 2]
+    '[ext-image [* 1 2] 3] '[ext-image [* 1 2] 3]
+    1 '[int-image [* 1 2] 2]
+    '[int-image [* 1 2] 2 4] '[int-image [* 1 2] 2 4]
+
+    1 '[-- [-- 1]]
+    '[-- 1] '[-- 1]
+
+    1 '[conj 1]
+    1 '[conj 1 1]
+    '[conj 3 2 4 1] '[conj [conj 2 4] [conj 1 3]]
+    '[conj 3 2 4] '[conj [conj 2 4] 3]
+    '[conj 3 2 4] '[conj 2 [conj 3 4]]
+
+    1 '[|| 1]
+    1 '[|| 1 1]
+    '[|| 3 2 4 1] '[|| [|| 2 4] [|| 1 3]]
+    '[|| 3 2 4] '[|| [|| 2 4] 3]
+    '[|| 3 2 4] '[|| 2 [|| 3 4]]))
+
+(deftest test-reduce-ops3
+  (are [a1 a2] (= a1 (reduce-ops a2))
+    1 '[ext-inter 1]
+    '[ext-inter 1] '[ext-inter [ext-inter 1] [ext-inter 1]]
+    '[ext-inter 2 1] '[ext-inter [ext-inter 1] [ext-inter 2]]
+    '[ext-inter 2 1] '[ext-inter [ext-inter 1] 2]
+    '[ext-inter 2 1] '[ext-inter 1 [ext-inter 2]]
+    '[int-set 2 1] '[ext-inter [int-set 1] [int-set 2]]
+
+    2 '[| 2]
+    '[| 1] '[| [| 1] [| 1]]
+    '[| 2 1] '[| [| 1] [| 2]]
+    '[| 2 1] '[| [| 1] 2]
+    '[| 2 1] '[| 1 [| 2]]
+    '[int-set 3 2 1] '[| [int-set 1] [int-set 2 3]]
+    '[int-set 2 4 1] '[| [int-set 1 4] [int-set 2]]
+
+    '[ext-set 2 4 1] '[- [ext-set 5 6 2 4 1] [ext-set 5 6]]
+    '[int-set 2 4 1] '[int-diff [int-set 5 6 2 4 1] [int-set 5 6]]
+
+    '[<-> 1 2] '[<-> [ext-set 1] [ext-set 2]]
+    '[<-> 1 2] '[<-> [int-set 1] [int-set 2]]
+
+    '[* 1 2] '[* [* 1] 2]
+    '[* 1 3 2] '[* [* 1 3] 2]
+    '[* 1 3 2 4] '[* [* 1 3] 2 4]
+
+    1 '[ext-image [* 1 2] 2]
+    '[ext-image [* 1 2] 3] '[ext-image [* 1 2] 3]
+    1 '[int-image [* 1 2] 2]
+    '[int-image [* 1 2] 2 4] '[int-image [* 1 2] 2 4]
+
+    1 '[-- [-- 1]]
+    '[-- 1] '[-- 1]
+
+    1 '[conj 1]
+    1 '[conj 1 1]
+    '[conj 3 2 4 1] '[conj [conj 2 4] [conj 1 3]]
+    '[conj 3 2 4] '[conj [conj 2 4] 3]
+    '[conj 3 2 4] '[conj 2 [conj 3 4]]
+
+    1 '[|| 1]
+    1 '[|| 1 1]
+    '[|| 3 2 4 1] '[|| [|| 2 4] [|| 1 3]]
+    '[|| 3 2 4] '[|| [|| 2 4] 3]
+    '[|| 3 2 4] '[|| 2 [|| 3 4]]))
