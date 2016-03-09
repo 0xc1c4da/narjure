@@ -85,6 +85,7 @@
     [_ ['ext-inter & l1] l2] (union 'ext-inter l1 [l2])
     [_ l1 ['ext-inter & l2]] (union 'ext-inter [l1] l2)
     [_ ['int-set & l1] ['int-set & l2]] (union 'int-set l1 l2)
+    [_ ['ext-set & l1] ['ext-set & l2]] (union 'ext-set l1 l2)
     :else st))
 
 (defn reduce-int-inter

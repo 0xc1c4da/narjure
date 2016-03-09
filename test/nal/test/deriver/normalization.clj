@@ -39,6 +39,9 @@
     '[ext-inter 2 1] '[ext-inter [ext-inter 1] 2]
     '[ext-inter 2 1] '[ext-inter 1 [ext-inter 2]]
     '[int-set 2 1] '[ext-inter [int-set 1] [int-set 2]]
+    '[ext-set 2 1] '[ext-inter [ext-set 1] [ext-set 2]]
+    '[int-set 2 1] '[ext-inter [int-set 1] [int-set 2]]
+    '[ext-set 2 1] '[ext-inter [ext-set 1] [ext-set 2]]
 
     2 '[| 2]
     '[| 1] '[| [| 1] [| 1]]
@@ -46,7 +49,9 @@
     '[| 2 1] '[| [| 1] 2]
     '[| 2 1] '[| 1 [| 2]]
     '[int-set 3 2 1] '[| [int-set 1] [int-set 2 3]]
+    '[ext-set 3 2 1] '[| [ext-set 1] [ext-set 2 3]]
     '[int-set 2 4 1] '[| [int-set 1 4] [int-set 2]]
+    '[ext-set 2 4 1] '[| [ext-set 1 4] [ext-set 2]]
 
     '[ext-set 2 4 1] '[- [ext-set 5 6 2 4 1] [ext-set 5 6]]
     '[int-set 2 4 1] '[int-dif [int-set 5 6 2 4 1] [int-set 5 6]]
