@@ -29,12 +29,13 @@
     :pre         nil})
 
 (deftest test-generate-backward-rule
-  (let [[_ r2 r3 :as rules] (expand-backward-rules bw-rule)]
-    (is (= 3 (count rules)))
+  (let [[_ r1 r2 r3 :as rules] (expand-backward-rules bw-rule)]
+    (is (= 4 (count rules)))
     (are [np1 np2 rule]
       (let [{:keys [p1 p2]} rule]
         (and (= p1 np1) (= p2 np2)))
 
+      '(<-> S (ext-set P)) 'S r1
       '(--> S (ext-set P)) 'S r2
 
       '(<-> S (ext-set P)) '(--> S (ext-set P)) r3)))
