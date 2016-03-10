@@ -113,12 +113,12 @@
   ; if (S --> M) is the case and ((| S :list/A) --> M) is not the case then ((| :list/A) --> M) is not the case hence :t/decompose-pnn
   #R[(S --> M) ((| S :list/A) --> M) |- ((| :list/A) --> M) :post (:t/decompose-pnn)]
   #R[(S --> M) ((& S :list/A) --> M) |- ((& :list/A) --> M) :post (:t/decompose-npp)]
-  #R[(S --> M) ((S - P) --> M) |- (P --> M) :post (:t/decompose-positive-negative-positive)]
+  #R[(S --> M) ((S - P) --> M) |- (P --> M) :post (:t/decompose-pnp)]
   #R[(S --> M) ((P - S) --> M) |- (P --> M) :post (:t/decompose-nnn)]
 
   #R[(M --> S) (M --> (& S :list/A)) |- (M --> (& :list/A)) :post (:t/decompose-pnn)]
   #R[(M --> S) (M --> (| S :list/A)) |- (M --> (| :list/A)) :post (:t/decompose-npp)]
-  #R[(M --> S) (M --> (S ~ P)) |- (M --> P) :post (:t/decompose-positive-negative-positive)]
+  #R[(M --> S) (M --> (S ~ P)) |- (M --> P) :post (:t/decompose-pnp)]
   #R[(M --> S) (M --> (P ~ S)) |- (M --> P) :post (:t/decompose-nnn)]
 
   ; Set comprehension:
@@ -332,7 +332,7 @@
                               (&/ (#Y --> P) I (#Y --> S)) :post (:t/intersection :linkage-temporal))
      :pre ((:!= S P) (:measure-time I))]
 
-  #R[(M --> S) (M --> P) |- ((($X --> S) =|> ($X --> P)) :post (:t/induction :linkage-temporal)
+  #_#R[(M --> S) (M --> P) |- ((($X --> S) =|> ($X --> P)) :post (:t/induction :linkage-temporal)
                               (($X --> P) =|> ($X --> S)) :post (:t/abduction :linkage-temporal)
                               (($X --> S) <|> ($X --> P)) :post (:t/comparison :linkage-temporal)
                               (&| (#Y --> S) (#Y --> P)) :post (:t/intersection :linkage-temporal))

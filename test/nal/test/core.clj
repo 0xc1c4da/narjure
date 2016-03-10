@@ -5,31 +5,68 @@
 (deftest test-inference
   (are [a1 a2] (= (set a1) (set (apply inference a2)))
 
-    '([[==> [&| [--> [ext-set tim] [int-set driving]]] [--> [ext-set tim] [int-set dead]]] [1.0 0.81]])
+    '({:statement [==>
+                   [&| [--> [ext-set tim] [int-set driving]]]
+                   [--> [ext-set tim] [int-set dead]]]
+       :truth     [1.0 0.81]
+       :task-type :judgement})
 
-    ['[[--> [ext-set tim] [int-set drunk]] [1 0.9]]
-     '[[==> [&| [--> [ind-var X] [int-set drunk]] [--> [ind-var X] [int-set driving]]] [--> [ind-var X] [int-set dead]]] [1 0.9]]]
+    '[{:statement [--> [ext-set tim] [int-set drunk]]
+       :truth     [1 0.9]
+       :task-type :judgement}
+
+      {:statement [==> [&| [--> [ind-var X] [int-set drunk]] [--> [ind-var X] [int-set driving]]]
+                   [--> [ind-var X] [int-set dead]]]
+       :truth     [1 0.9]}]
 
 
-    '([[--> a1 [ext-image m _ a2 a3]] [1 0.9]])
-    '[[[--> [* a1 a2 a3] m] [1 0.9]] [a1 [1 0.9]]]
+    '({:statement [--> a1 [ext-image m _ a2 a3]]
+       :truth     [1 0.9]
+       :task-type :judgement})
+    '[{:statement [--> [* a1 a2 a3] m]
+       :truth     [1 0.9]
+       :task-type :judgement}
+
+      {:statement a1
+       :truth     [1 0.9]}]
 
     []
-    '[[a1 [1 0.9]] [[--> [* a1 a2 a3] m] [1 0.9]]]
+    '[{:statement a1
+       :truth     [1 0.9]
+       :task-type :judgement}
 
-    '[[a1 [1 0.44751381215469616]]]
-    '[[[conj a1 a2 a3] [1 0.9]] [a1 [1 0.9]]]
+      {:statement [--> [* a1 a2 a3] m]
+       :truth     [1 0.9]}]
+
+    '({:statement a1 :truth [1 0.44751381215469616] :task-type :judgement})
+    '[{:statement [conj a1 a2 a3]
+       :truth     [1 0.9]
+       :task-type :judgement}
+
+      {:statement a1
+       :truth     [1 0.9]}]
 
     []
-    '[[[==> [--> M S] [--> M P]] [1 0.9]] [[--> M S] [1 0.9]]]
+    '[{:statement [[--> M S] [--> M P]]
+       :truth     [1 0.9]
+       :task-type :judgement}
 
-    '([[==>
-        [conj [--> [ext-set A] [int-set Y]] [--> [ind-var X] [int-set B]]]
-        [--> [ind-var X] P]]
-       [1 0.44751381215469616]]
-       [[conj
-         [--> [dep-var Y] [int-set B]]
-         [==> [--> [ext-set A] [int-set Y]] [--> [dep-var Y] P]]]
-        [1.0 0.81]])
-    ['[[==> [--> [ext-set A] [int-set Y]] [--> [ext-set A] P]] [1 0.9]]
-     '[[--> [ext-set A] [int-set B]] [1 0.9]]]))
+      {:statement [--> M S]
+       :truth     [1 0.9]}]
+
+    '({:statement [conj
+                   [--> [dep-var Y] [int-set B]]
+                   [==> [--> [ext-set A] [int-set Y]] [--> [dep-var Y] P]]]
+       :truth     [1.0 0.81]
+       :task-type :judgement}
+       {:statement [==>
+                    [conj [--> [ext-set A] [int-set Y]] [--> [ind-var X] [int-set B]]]
+                    [--> [ind-var X] P]]
+        :truth     [1 0.44751381215469616]
+        :task-type :judgement})
+    '[{:statement [==> [--> [ext-set A] [int-set Y]] [--> [ext-set A] P]]
+       :truth     [1 0.9]
+       :task-type :judgement}
+
+      {:statement [--> [ext-set A] [int-set B]]
+       :truth     [1 0.9]}]))

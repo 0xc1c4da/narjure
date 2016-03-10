@@ -31,6 +31,7 @@
 
 (def mget-matcher (memoize get-matcher))
 (def mpath (memoize path))
-(defn generate-conclusions [rules [p1 _ :as t1] [p2 _ :as t2]]
+(defn generate-conclusions
+  [rules {p1 :statement :as t1} {p2 :statement :as t2}]
   (let [matcher (mget-matcher rules (mpath p1) (mpath p2))]
     (matcher t1 t2)))

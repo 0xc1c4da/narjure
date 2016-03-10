@@ -67,13 +67,7 @@
   it matches to current's rule path too, hence it should be added to the set
   of rules that matches [[--> [- :any :any] :any] :and [--> [:any :any]]] path."
   [ac [k {:keys [all starts-with]}]]
-  (let [rules (mapcat :rules (vals (select-keys ac all)))
-        same-start (mapcat :rules (map second (filter
-                                                (fn [[[f]]] (starts-with f))
-                                                ac)))
-        ;rules (if (= :any (last k)) (concat same-start rules) rules)
-        ]
-    ;(when (seq? same-start) (println same-start))
+  (let [rules (mapcat :rules (vals (select-keys ac all)))]
     (-> ac
         (update-in [k :rules] concat rules)
         (update-in [k :rules] set))))

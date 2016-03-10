@@ -136,6 +136,7 @@
    :t/decompose-pnn               decompose-pnn
    :t/decompose-nnn               decompose-nnn
    :t/decompose-npp               decompose-npp
+   :t/decompose-pnp               decompose-pnp
    :t/induction                   induction
    :t/abduction                   abduction
    :t/deduction                   deduction

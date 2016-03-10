@@ -3,11 +3,13 @@
              :refer [f-map not-empty-diff? not-empty-inter?]]
             [nal.deriver.substitution :refer [munification-map]]
             [nal.deriver.utils :refer [walk]]
-            [nal.deriver.substitution :refer [substitute munification-map]]))
+            [nal.deriver.substitution :refer [substitute munification-map]]
+            [nal.deriver.terms-permutation :refer [implications equivalences]]
+            [clojure.set :refer [union intersection]]))
 
 ;TODO preconditions
 ;:shift-occurrence-forward :shift-occurrence-backward
-;:not-implication-or-equivalence
+;:no-common-subterm
 ;:measure-time :concurrent
 (defmulti compound-precondition
   "Expands compound precondition to clojure sequence
@@ -55,6 +57,30 @@
 (defmethod compound-precondition :contains?
   [[_ arg1 arg2]]
   [`(some (set [~arg2]) ~arg1)])
+
+(def implications-and-equivalences
+  (union implications equivalences))
+
+(defmethod compound-precondition :not-implication-or-equivalence
+  [[_ arg]]
+  [`(if (coll? ~arg)
+      (nil? (~`implications-and-equivalences (first ~arg)))
+      true)])
+
+(defn get-terms
+  [st]
+  (if (coll? st)
+    (mapcat get-terms (rest st))
+    [st]))
+
+(defmethod compound-precondition :no-common-subterm
+  [[_ arg1 arg2]]
+  [`(empty? (intersection (set (get-terms ~arg1))
+                          (set (get-terms ~arg2))))])
+
+(defmethod compound-precondition :not-set?
+  [[_ arg]]
+  [`(or (not (coll? ~arg)) (not (sets (first ~arg))))])
 ;-------------------------------------------------------------------------------
 (defmulti precondition-transformation (fn [arg1 _] (first arg1)))
 
