@@ -76,17 +76,20 @@
   [pattern rules task-type]
   (let [t1 (gensym) t2 (gensym)
         task (gensym) belief (gensym)
+        t-occurence (gensym) b-occurence (gensym)
         truth-kw (if (= :goal task-type) :desire :truth)]
-    `(fn [{p1# :statement ~t1 ~truth-kw :as ~task}
-          {p2# :statement ~t2 :truth :as ~belief}]
-       (match [p1# p2#] ~(quote-operators pattern)
-         ~(traverse {:t1        t1
-                     :t2        t2
-                     :task      task
-                     :belief    belief
-                     :task-type task-type}
-                    rules)
-         :else nil))))
+    (walk `(fn [{p1# :statement ~t1 ~truth-kw :t-occurence :occurence :as ~task}
+                {p2# :statement ~t2 :truth :b-occurence :occurence :as ~belief}]
+             (match [p1# p2#] ~(quote-operators pattern)
+               ~(traverse {:t1        t1
+                           :t2        t2
+                           :task      task
+                           :belief    belief
+                           :task-type task-type}
+                          rules)
+               :else nil))
+      (= :el :t-occurence) t-occurence
+      (= :el :b-occurence) b-occurence)))
 
 (defn find-and-replace-symbols
   "Replaces all terms in statemnt to placeholders that will be used in pattern

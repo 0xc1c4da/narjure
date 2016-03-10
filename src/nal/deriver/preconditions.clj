@@ -81,6 +81,12 @@
 (defmethod compound-precondition :not-set?
   [[_ arg]]
   [`(or (not (coll? ~arg)) (not (sets (first ~arg))))])
+
+(defmethod compound-precondition :measure-time
+  [_]
+  [`(not= :eternal :t-occurence)
+   `(not= :eternal :b-occurence)])
+
 ;-------------------------------------------------------------------------------
 (defmulti precondition-transformation (fn [arg1 _] (first arg1)))
 
@@ -112,6 +118,14 @@
 (defmethod precondition-transformation :substitute-if-unifies
   [[_ p1 p2 p3] conclusion]
   `(substitute ~p1 ~p2 ~p3 ~conclusion))
+
+(defmethod precondition-transformation :measure-time
+  [[_ arg] conclusion]
+  (let [mt (gensym)]
+    (walk `(let [k# 1 ~arg (- :t-occurence :b-occurence)]
+             ~(walk conclusion
+                (= :el arg) [:interval arg]))
+      (= :el arg) mt)))
 
 (defn check-precondition
   [conclusion precondition]
