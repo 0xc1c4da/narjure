@@ -44,11 +44,18 @@
     (vec el)))
 
 (defn form-conclusion
-  [{:keys [t1 t2 task]}
-   {c :statement tf :t-function pj :p/judgement}]
-  {:statement c
-   :truth     (when-not (nil? tf) (list tf t1 t2))
-   :task-type (if pj :judgement `(:task-type ~task))})
+  [{:keys [t1 t2 task-type]}
+   {c :statement tf :t-function pj :p/judgement df :d-function}]
+  (let [conclusion-type (if pj :judgement task-type)
+        conclusion {:statement c
+                    :task-type conclusion-type}
+        conclusion (if (= :judgement conclusion-type)
+                     (assoc conclusion :truth (list tf t1 t2))
+                     conclusion)
+        conclusion (if (= :goal conclusion-type)
+                     (assoc conclusion :desire (list df t1 t2))
+                     conclusion)]
+    conclusion))
 
 (defn traverse-node
   [vars result {:keys [conclusions children condition]}]
@@ -66,14 +73,23 @@
        @~results)))
 
 (defn match-rules
-  [pattern rules]
+  [pattern rules task-type]
   (let [t1 (gensym) t2 (gensym)
-        task (gensym) belief (gensym)]
-    `(fn [{p1# :statement ~t1 :truth :as ~task}
-          {p2# :statement ~t2 :truth :as ~belief}]
-       (match [p1# p2#] ~(quote-operators pattern)
-         ~(traverse {:t1 t1 :t2 t2 :task task :belief belief} rules)
-         :else nil))))
+        task (gensym) belief (gensym)
+        t-occurence (gensym) b-occurence (gensym)
+        truth-kw (if (= :goal task-type) :desire :truth)]
+    (walk `(fn [{p1# :statement ~t1 ~truth-kw :t-occurence :occurence :as ~task}
+                {p2# :statement ~t2 :truth :b-occurence :occurence :as ~belief}]
+             (match [p1# p2#] ~(quote-operators pattern)
+               ~(traverse {:t1        t1
+                           :t2        t2
+                           :task      task
+                           :belief    belief
+                           :task-type task-type}
+                          rules)
+               :else nil))
+      (= :el :t-occurence) t-occurence
+      (= :el :b-occurence) b-occurence)))
 
 (defn find-and-replace-symbols
   "Replaces all terms in statemnt to placeholders that will be used in pattern
@@ -130,8 +146,12 @@
     (walk conclusion
       (sym-map el) (sym-map el))))
 
-(defn get-truth-fn [post]
-  (first (filter #(and (keyword? %) (s/starts-with? (str %) ":t/")) post)))
+(defn find-kv-by-prefix [prefix coll]
+  (first (filter #(and (keyword? %) (s/starts-with? (str %) prefix)) coll)))
+
+(defn get-truth-fn [post] (find-kv-by-prefix ":t/" post))
+
+(defn get-desire-fn [post] (find-kv-by-prefix ":d/" post))
 
 (defn check-conditions [syms]
   (filter not-empty
@@ -193,13 +213,16 @@
                 (if-not (#{`munification-map `not-empty-diff?} f)
                   (concat (list f) (sort-placeholders tail))
                   el)))]
-    {:conclusion {:statement   (-> conclusion
-                                   (preconditions-transformations preconditions)
-                                   (replace-symbols sym-map)
-                                   check-commutative
-                                   check-reduction)
-                  :t-function  (t/tvtypes (get-truth-fn post))
-                  :p/judgement (some #{:p/judgment} post)}
+    {:conclusion {:statement    (-> conclusion
+                                    (preconditions-transformations preconditions)
+                                    (replace-symbols sym-map)
+                                    check-commutative
+                                    check-reduction)
+                  :t-function   (t/tvtypes (get-truth-fn post))
+                  :t-function-n (get-truth-fn post)
+                  :d-function   (t/dvtypes (get-desire-fn post))
+                  :d-function-n (get-desire-fn post)
+                  :p/judgement  (some #{:p/judgment} post)}
      :conditions (walk (concat (check-conditions sym-map) pre)
                    (and (coll? el) (= \a (first (str (first el)))))
                    (concat '() el)
@@ -266,11 +289,12 @@
         sorted-conds (sort-conds cond-conclusions-m cpm)]
     (generate-tree sorted-conds)))
 
-(defn generate-matching [rules]
+(defn generate-matching [rules task-type]
   (->> rules
        (map (fn [[k {:keys [pattern rules] :as v}]]
               (let [match-fn-code (match-rules (main-pattern pattern)
-                                               (gen-rules pattern rules))]
+                                               (gen-rules pattern rules)
+                                               task-type)]
                 [k (assoc v :matcher (eval match-fn-code)
                             :matcher-code match-fn-code)])))
        (into {})))

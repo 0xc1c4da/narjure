@@ -13,18 +13,9 @@
 (def revision t/revision)
 
 (comment
-  ;missed things
-  :p/judgment
-  :d/identity
-  :d/negation
-  :d/strong
-  :d/weak
-  :no-common-subterm                                        ;pre
   :seq-interval-from-premises                               ;post
   :shift-occurrence-forward                                 ;pre
+  :shift-occurrence-backward                                 ;pre
   :measure-time                                             ;pre
-  :concurrent                                               ;pre
-  :d/deduction
-  :d/induction
-  :goal?
+  :concurrent
   :linkage-temporal)

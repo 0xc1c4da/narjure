@@ -120,30 +120,52 @@
 
 (defn belief-negation [_ p2] (when p2 (negation p2 nil)))
 
+(defn desire-weak [[f1 c1] [f2 c2]]
+  [(t-and f1 f2) (t-and c1 c2 f2 (w2c 1.0))])
+
+(defn desire-induction
+  [[f1 c1] [f2 c2]]
+  [f1 (w2c (t-and f2 c1 c2))])
+
+(defn desire-structural-strong
+  [t _]
+  (analogy t [1.0 d/judgement-confidence]))
+
 (def tvtypes
-  {:t/structural-deduction        structual-abduction
-   :t/struct-int                  structual-intersection
-   :t/struct-abd                  structual-abduction
-   :t/identity                    t-identity
-   :t/conversion                  conversion
-   :t/contraposition              contraposition
-   :t/negation                    negation
-   :t/comparison                  comparison
-   :t/intersection                intersection
-   :t/union                       union
-   :t/difference                  difference
-   :t/decompose-ppp               decompose-ppp
-   :t/decompose-pnn               decompose-pnn
-   :t/decompose-nnn               decompose-nnn
-   :t/decompose-npp               decompose-npp
-   :t/decompose-pnp               decompose-pnp
-   :t/induction                   induction
-   :t/abduction                   abduction
-   :t/deduction                   deduction
-   :t/exemplification             exemplification
-   :t/analogy                     analogy
-   :t/resemblance                 resemblance
-   :t/anonymous-analogy           anonymous-analogy
-   :t/belief-identity             belief-identity
-   :t/belief-structural-deduction belief-structural-deduction
-   :t/belief-negation             belief-negation})
+  {:t/structural-deduction         structual-abduction
+   :t/struct-int                   structual-intersection
+   :t/struct-abd                   structual-abduction
+   :t/identity                     t-identity
+   :t/conversion                   conversion
+   :t/contraposition               contraposition
+   :t/negation                     negation
+   :t/comparison                   comparison
+   :t/intersection                 intersection
+   :t/union                        union
+   :t/difference                   difference
+   :t/decompose-ppp                decompose-ppp
+   :t/decompose-pnn                decompose-pnn
+   :t/decompose-nnn                decompose-nnn
+   :t/decompose-npp                decompose-npp
+   :t/decompose-pnp                decompose-pnp
+   :t/induction                    induction
+   :t/abduction                    abduction
+   :t/deduction                    deduction
+   :t/exemplification              exemplification
+   :t/analogy                      analogy
+   :t/resemblance                  resemblance
+   :t/anonymous-analogy            anonymous-analogy
+   :t/belief-identity              belief-identity
+   :t/belief-structural-deduction  belief-structural-deduction
+   :t/belief-structural-difference belief-structural-difference
+   :t/belief-negation              belief-negation
+   :t/reduce-conjunction           reduce-conjunction})
+
+(def dvtypes
+  {:d/strong            analogy
+   :d/deduction         intersection
+   :d/weak              desire-weak
+   :d/induction         desire-induction
+   :d/identity          identity
+   :d/negation          negation
+   :d/structural-strong desire-structural-strong})

@@ -326,7 +326,7 @@
                               (&& (#Y --> S) (#Y --> P)) :post (:t/intersection))
      :pre ((:!= S P)) ]
 
-  #_#R[(M --> S) (M --> P) |- (((&/ ($X --> P) I) =/> ($X --> S))  :post (:t/induction :linkage-temporal)
+  #R[(M --> S) (M --> P) |- (((&/ ($X --> P) I) =/> ($X --> S))  :post (:t/induction :linkage-temporal)
                               (($X --> S) =\> (&/ ($X --> P) I)) :post (:t/abduction :linkage-temporal)
                               ((&/ ($X --> P) I) </> ($X --> S)) :post (:t/comparison :linkage-temporal)
                               (&/ (#Y --> P) I (#Y --> S)) :post (:t/intersection :linkage-temporal))

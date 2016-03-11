@@ -57,6 +57,19 @@
   [{:keys [pre]}]
   (some #{:question?} pre))
 
+(defn goal?
+  "Return true if rule allows only goal as task."
+  [{pre :pre [{post :post} :as concls] :conclusions}]
+  (or (some #{:goal?} pre)
+      (some (fn [el] (and (keyword? el)
+                          (s/starts-with? (str el) ":d/")))
+            post)))
+
+(defn judgement?
+  "Return true if rule allows only judgement as task."
+  [{:keys [pre] :as rule}]
+  (not (or (question? rule) (some #{:goal} pre))))
+
 (defn add-possible-paths
   "Selects all rules that will match the same path as current rule and adds
   these rules to the set of rules that matches path.
@@ -87,38 +100,41 @@
   "Generates map from list of #R satetments, whetre key is path, and value is
   another map with keys pattern ans rules. Pattern is will be used to match
   values from the premises, rules will be used to generate deriver."
-  [ruleset]
+  [ruleset task-type]
   (let [rules (reduce rule->map {} ruleset)]
-    (generate-matching (reduce add-possible-paths rules rules))))
+    (generate-matching (reduce add-possible-paths rules rules) task-type)))
 
 ;---------------------------------------------------------------------------
 
 (defmacro rules->> [raw-rules & transformations]
   (let [pairs (partition 2 transformations)]
-    `(check-duplication
-       ~(reduce (fn [code [pred fun]]
-                  `(mapcat (fn [rule#]
-                             (if (~pred rule#)
-                               (~fun rule#)
-                               [rule#]))
-                           ~code))
-                `~raw-rules
-                pairs))))
+    (reduce (fn [code [pred fun]]
+              `(mapcat (fn [rule#]
+                         (if (~pred rule#)
+                           (~fun rule#)
+                           [rule#]))
+                       ~code))
+            `~raw-rules
+            pairs)))
 
 (defmacro defrules
   "Define rules. Rules must be #R statements."
   ;TODO exception on duplication of the rule
   [name & rules]
-  `(let [rules# (rules->> (quote ~rules)
-                          contains-list? generate-all-lists
-                          contains-list? generate-all-lists
-                          identity rule
-                          order-for-all-same? generate-all-orders
-                          allow-swapping? swap
-                          allow-backward? expand-backward-rules)
-         judgement-rules# (remove question? rules#)
-         question-rules# (filter question? rules#)]
-     (println "Q rules:" (count question-rules#))
-     (println "J rules:" (count judgement-rules#))
-     (def ~name {:judgement (rules-map judgement-rules#)
-                 :question  (rules-map question-rules#)})))
+  `(time
+     (let [rules# (rules->> (quote ~rules)
+                            contains-list? generate-all-lists
+                            contains-list? generate-all-lists
+                            identity rule
+                            order-for-all-same? generate-all-orders
+                            allow-swapping? swap
+                            allow-backward? expand-backward-rules)
+           judgement-rules# (check-duplication (filter judgement? rules#))
+           question-rules# (check-duplication (filter question? rules#))
+           goal-rules# (check-duplication (filter goal? rules#))]
+       (println "Q rules:" (count question-rules#))
+       (println "J rules:" (count judgement-rules#))
+       (println "G rules:" (count goal-rules#))
+       (def ~name {:judgement (rules-map judgement-rules# :judgement)
+                   :question  (rules-map question-rules# :question)
+                   :goal      (rules-map goal-rules# :goal)}))))
