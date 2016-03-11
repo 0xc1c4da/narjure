@@ -4,6 +4,13 @@
 
 (declare --S S --P P <-> |- --> ==> M || && =|> -- A Ai B <=>)
 
+
+;;<style type="text/css">
+;; .syntaxhighlighter.printing .color3, .syntaxhighlighter.printing .color3 a {
+;;   color: black !important;
+;; }
+;; </style>
+
 (defrules rules
           "<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
           <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
@@ -17,23 +24,23 @@
           <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
           <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
           <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 <h1>Temporal Induction</h1><br/>
-Temporal induction, a NAL7 principle, allows the system to temporally related events.<br/>
-To express this, the ==&gt; &lt;=&gt; copulas are extended
+Temporal induction, a NAL7 principle, allows the system to temporally relate events.<br/>
+To express this, the <b> ==&gt; &lt;=&gt; </b> truth-related copulas are extended
 to capture whether two events happen after each other,
-a =/> b, or concurrently a &lt;/&gt;
+<b> a =/> b  </b>, or concurrently <b> a =|&gt; </b>
+These operators are all transitive, also \\\\( \\forall a,b,c \\\\) events
+with truth values \\\\( T1, T2 \\in \\[0, 1\\] \\times \\[0, 1\\]: \\\\) <b> a =/> b </b> \\\\( \\wedge \\\\) <b> b =|> c </b> \\\\( \\implies \\\\)
+<b> a =|> c </b> with truth-value <b> induction( T1 , T2) </b> holds, consistent with the semantics of the copulas.
 Additionally intervals are used to measure the temporal occurrence time
 difference between the events.
-In order to support this, predicate measure_time(I) is introduced.
-which is only true if the the time difference between both events is I.
+In order to support this, predicate <b> measure_time(I)</b> is introduced.
+which is true if and only if the the time difference between both event premises is <b> I </b>.
 In the language, the time difference is encoded in the sequence,
-for example (&/,a,/10,b) encodes that b was observed 10 steps after a.
-NAL7 chapter in the NAL book: <a href=\"blub\">NAL7</a>
-
-
-
-
+for example <b> ((&/,a,/10) =/> b) </b> encodes that <b> b </b> happens <b> 10  </b>  steps after <b> a </b>.
+NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
 
           "
   ;Similarity to Inheritance
@@ -421,17 +428,17 @@ NAL7 chapter in the NAL book: <a href=\"blub\">NAL7</a>
 
   ; NAL7 specific inference
   ; Reasoning about temporal statements. those are using the ==> relation because relation in time is a relation of the truth between statements.
-  #_#R[X (XI ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" XI (&/ X /0)) (:shift-occurrence-forward XI ==>))]
-  #_#R[X (BI ==> Y) |- BI :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" Y X) (:shift-occurrence-backward BI ==>))]
+  #R[X (XI ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" XI (&/ X /0)) (:shift-occurrence-forward XI ==>))]
+  #R[X (BI ==> Y) |- BI :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" Y X) (:shift-occurrence-backward BI ==>))]
 
   ; Temporal induction:
   ; When P and then S happened according to an observation by induction (weak) it may be that alyways after P usually S happens.
-  #_#R[P S |- (((&/ S I) =/> P) :post (:t/induction :linkage-temporal)
+  #R[P S |- (((&/ S I) =/> P) :post (:t/induction :linkage-temporal)
               (P =\> (&/ S I)) :post (:t/abduction :linkage-temporal)
               ((&/ S I) </> P) :post (:t/comparison :linkage-temporal)
               (&/ S I P) :post (:t/intersection :linkage-temporal))
      :pre ((:measure-time I))]
-  #_#R[P S |- ((S =|> P) :post (:t/induction :linkage-temporal)
+  #R[P S |- ((S =|> P) :post (:t/induction :linkage-temporal)
               (P =|> S) :post (:t/induction :linkage-temporal)
               (S <|> P) :post (:t/comparison :linkage-temporal)
               (&| S P) :post (:t/intersection :linkage-temporal))
@@ -498,5 +505,5 @@ NAL7 chapter in the NAL book: <a href=\"blub\">NAL7</a>
 ;; <script>
 ;; function replace_html(a,b){ while(document.body.innerHTML.contains(a)) {
 ;;  document.body.innerHTML = document.body.innerHTML.replace(a, b); } }
-;;  replace_html('#R[',''); replace_html(')]',')');
+;;  replace_html('#R[','    '); replace_html(')]',') ');
 ;; </script>
