@@ -5,12 +5,13 @@
             [nal.deriver.utils :refer [walk]]
             [nal.deriver.substitution :refer [substitute munification-map]]
             [nal.deriver.terms-permutation :refer [implications equivalences]]
-            [clojure.set :refer [union intersection]]))
+            [clojure.set :refer [union intersection]]
+            [narjure.defaults :refer [duration]]))
+
+(defn abs [^long n] (Math/abs n))
 
 ;TODO preconditions
 ;:shift-occurrence-forward :shift-occurrence-backward
-;:no-common-subterm
-;:measure-time :concurrent
 (defmulti compound-precondition
   "Expands compound precondition to clojure sequence
   that will be evaluted later"
@@ -20,7 +21,7 @@
 
 (defmethod compound-precondition :!=
   [[_ & args]]
-  [(concat (list `not=) args)])
+  [`(not= ~@args)])
 
 (defn check-set [set-type arg]
   `(and (coll? ~arg) (= ~set-type (first ~arg))))
@@ -85,7 +86,12 @@
 (defmethod compound-precondition :measure-time
   [_]
   [`(not= :eternal :t-occurence)
-   `(not= :eternal :b-occurence)])
+   `(not= :eternal :b-occurence)
+   `(<= ~duration (abs (- :t-occurence :b-occurence)))])
+
+(defmethod compound-precondition :concurrent
+  [_]
+  [`(> ~duration (abs (- :t-occurence :b-occurence)))])
 
 ;-------------------------------------------------------------------------------
 (defmulti precondition-transformation (fn [arg1 _] (first arg1)))
@@ -94,7 +100,7 @@
 
 (defn sets-transformation
   [[cond-name el1 el2 el3] conclusion]
-  (walk conclusion (= el el3)
+  (walk conclusion (= :el el3)
     `(~(f-map cond-name) ~el1 ~el2)))
 
 (doall (map
@@ -122,7 +128,7 @@
 (defmethod precondition-transformation :measure-time
   [[_ arg] conclusion]
   (let [mt (gensym)]
-    (walk `(let [k# 1 ~arg (- :t-occurence :b-occurence)]
+    (walk `(let [~arg (abs (- :t-occurence :b-occurence))]
              ~(walk conclusion
                 (= :el arg) [:interval arg]))
       (= :el arg) mt)))

@@ -6,9 +6,9 @@
 
 (defrules rules
   ;Similarity to Inheritance
-  #R[(S --> P) (S <-> P) |- (S --> P) :post (:t/struct-int :p/judgment) :pre (:question?)]
+  #R[(S --> P) (S <-> P) |- (S --> P) :post (:t/struct-int :p/judgement) :pre (:question?)]
   ;Inheritance to Similarity
-  #R[(S <-> P) (S --> P) |- (S <-> P) :post (:t/struct-abd :p/judgment) :pre (:question?)]
+  #R[(S <-> P) (S --> P) |- (S <-> P) :post (:t/struct-abd :p/judgement) :pre (:question?)]
   ;Set Definition Similarity to Inheritance
   #R[(S <-> {P}) S |- (S --> {P}) :post (:t/identity :d/identity :allow-backward)]
   #R[(S <-> {P}) {P} |- (S --> {P}) :post (:t/identity :d/identity :allow-backward)]
@@ -36,11 +36,11 @@
   ; Immediate Inference
   ; If S can stand for P P can to a certain low degree also represent the class S
   ; If after S usually P happens then it might be a good guess that usually before P happens S happens.
-  #R[(P --> S) (S --> P) |- (P --> S) :post (:t/conversion :p/judgment) :pre (:question?)]
-  #R[(P ==> S) (S ==> P) |- (P ==> S) :post (:t/conversion :p/judgment) :pre (:question?)]
-  #R[(P =|> S) (S =|> P) |- (P =|> S) :post (:t/conversion :p/judgment) :pre (:question?)]
-  #R[(P =\> S) (S =/> P) |- (P =\> S) :post (:t/conversion :p/judgment) :pre (:question?)]
-  #R[(P =/> S) (S =\> P) |- (P =/> S) :post (:t/conversion :p/judgment) :pre (:question?)]
+  #R[(P --> S) (S --> P) |- (P --> S) :post (:t/conversion :p/judgement) :pre (:question?)]
+  #R[(P ==> S) (S ==> P) |- (P ==> S) :post (:t/conversion :p/judgement) :pre (:question?)]
+  #R[(P =|> S) (S =|> P) |- (P =|> S) :post (:t/conversion :p/judgement) :pre (:question?)]
+  #R[(P =\> S) (S =/> P) |- (P =\> S) :post (:t/conversion :p/judgement) :pre (:question?)]
+  #R[(P =/> S) (S =\> P) |- (P =/> S) :post (:t/conversion :p/judgement) :pre (:question?)]
 
   ; "If not smoking lets you be healthy being not healthy may be the result of smoking"
   #R[(--S ==> P) P |- (--P ==> S) :post (:t/contraposition :allow-backward)]
@@ -308,17 +308,17 @@
                               (&& (S --> #Y) (P --> #Y)) :post (:t/intersection))
                                   :pre ((:!= S P))]
 
- #_#R[(S --> M) (P --> M) |- (((&/ (P --> $X) I) =/> (S --> $X)) :post (:t/induction :linkage-temporal)
+ #R[(S --> M) (P --> M) |- (((&/ (P --> $X) I) =/> (S --> $X)) :post (:t/induction :linkage-temporal)
                               ((S --> $X) =\> (&/ (P --> $X) I)) :post (:t/abduction :linkage-temporal)
                               ((&/ (P --> $X) I) </> (S --> $X)) :post (:t/comparison :linkage-temporal)
                               (&/ (P --> #Y) I (S --> #Y)) :post (:t/intersection :linkage-temporal))
             :pre ((:!= S P) (:measure-time I))]
 
-  #_#R[(S --> M) (P --> M) |- (((P --> $X) =|> (S --> $X)) :post (:t/abduction :linkage-temporal)
+  #R[(S --> M) (P --> M) |- (((P --> $X) =|> (S --> $X)) :post (:t/abduction :linkage-temporal)
                               ((S --> $X) =|> (P --> $X)) :post (:t/induction :linkage-temporal)
                               ((P --> $X) <|> (S --> $X)) :post (:t/comparison :linkage-temporal)
                               (&| (P --> #Y) (S --> #Y)) :post (:t/intersection :linkage-temporal))
-            :pre ((:!= S P) (concurrent Task Belief))]
+            :pre ((:!= S P) (:concurrent Task Belief))]
 
   #R[(M --> S) (M --> P) |- ((($X --> S) ==> ($X --> P)) :post (:t/induction)
                               (($X --> P) ==> ($X --> S)) :post (:t/abduction)
@@ -332,7 +332,7 @@
                               (&/ (#Y --> P) I (#Y --> S)) :post (:t/intersection :linkage-temporal))
      :pre ((:!= S P) (:measure-time I))]
 
-  #_#R[(M --> S) (M --> P) |- ((($X --> S) =|> ($X --> P)) :post (:t/induction :linkage-temporal)
+  #R[(M --> S) (M --> P) |- ((($X --> S) =|> ($X --> P)) :post (:t/induction :linkage-temporal)
                               (($X --> P) =|> ($X --> S)) :post (:t/abduction :linkage-temporal)
                               (($X --> S) <|> ($X --> P)) :post (:t/comparison :linkage-temporal)
                               (&| (#Y --> S) (#Y --> P)) :post (:t/intersection :linkage-temporal))
@@ -395,13 +395,13 @@
 
   ; Temporal induction:
   ; When P and then S happened according to an observation by induction (weak) it may be that alyways after P usually S happens.
-  #_#R[P S |- (((&/ S I) =/> P) :post (:t/induction :linkage-temporal)
+  #R[P S |- (((&/ S I) =/> P) :post (:t/induction :linkage-temporal)
               (P =\> (&/ S I)) :post (:t/abduction :linkage-temporal)
               ((&/ S I) </> P) :post (:t/comparison :linkage-temporal)
               (&/ S I P) :post (:t/intersection :linkage-temporal))
      :pre ((:measure-time I))]
-  #_#R[P S |- ((S =|> P) :post (:t/induction :linkage-temporal)
-              (P =|> S) :post (:t/induction :linkage-temporal)
+  #R[P S |- ((S =|> P) :post (:t/induction :linkage-temporal)
+              ;(P =|> S) :post (:t/induction :linkage-temporal)
               (S <|> P) :post (:t/comparison :linkage-temporal)
               (&| S P) :post (:t/intersection :linkage-temporal))
      :pre [(:concurrent Task Belief) (:not-implication-or-equivalence P) (:not-implication-or-equivalence S)]]
@@ -414,40 +414,40 @@
 
   ; and the backward inference driven forward inference:
   ; NAL2:
-  #R[([A] <-> [B]) (A <-> B) |- ([A] <-> [B]) :pre (:question?) :post (:t/belief-identity :p/judgment)]
-  #R[({A} <-> {B}) (A <-> B) |- ({A} <-> {B}) :pre (:question?) :post (:t/belief-identity :p/judgment)]
+  #R[([A] <-> [B]) (A <-> B) |- ([A] <-> [B]) :pre (:question?) :post (:t/belief-identity :p/judgement)]
+  #R[({A} <-> {B}) (A <-> B) |- ({A} <-> {B}) :pre (:question?) :post (:t/belief-identity :p/judgement)]
 
-  #R[([A] --> [B]) (A <-> B) |- ([A] --> [B]) :pre (:question?) :post (:t/belief-identity :p/judgment)]
-  #R[({A} --> {B}) (A <-> B) |- ({A} --> {B}) :pre (:question?) :post (:t/belief-identity :p/judgment)]
+  #R[([A] --> [B]) (A <-> B) |- ([A] --> [B]) :pre (:question?) :post (:t/belief-identity :p/judgement)]
+  #R[({A} --> {B}) (A <-> B) |- ({A} --> {B}) :pre (:question?) :post (:t/belief-identity :p/judgement)]
 
   ; NAL3:
   ; composition on both sides of a statement:
-  #R[((& B :list/A) --> (& A :list/A)) (B --> A) |- ((& B :list/A) --> (& A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((| B :list/A) --> (| A :list/A)) (B --> A) |- ((| B :list/A) --> (| A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((- S A) --> (- S B)) (B --> A) |- ((- S A) --> (- S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((~ S A) --> (~ S B)) (B --> A) |- ((~ S A) --> (~ S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
+  #R[((& B :list/A) --> (& A :list/A)) (B --> A) |- ((& B :list/A) --> (& A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+  #R[((| B :list/A) --> (| A :list/A)) (B --> A) |- ((| B :list/A) --> (| A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+  #R[((- S A) --> (- S B)) (B --> A) |- ((- S A) --> (- S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+  #R[((~ S A) --> (~ S B)) (B --> A) |- ((~ S A) --> (~ S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
 
   ; composition on one side of a statement:
-  #R[(W --> (| B :list/A)) (W --> B) |- (W --> (| B :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((& B :list/A) --> W) (B --> W) |- ((& B :list/A) --> W) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[(W --> (- S B)) (W --> B) |- (W --> (- S B)) :pre (:question?) :post (:t/belief-structural-difference :p/judgment)]
-  #R[((~ S B) --> W) (B --> W) |- ((~ S B) --> W) :pre (:question?) :post (:t/belief-structural-difference :p/judgment)]
+  #R[(W --> (| B :list/A)) (W --> B) |- (W --> (| B :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+  #R[((& B :list/A) --> W) (B --> W) |- ((& B :list/A) --> W) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+  #R[(W --> (- S B)) (W --> B) |- (W --> (- S B)) :pre (:question?) :post (:t/belief-structural-difference :p/judgement)]
+  #R[((~ S B) --> W) (B --> W) |- ((~ S B) --> W) :pre (:question?) :post (:t/belief-structural-difference :p/judgement)]
 
   ; NAL4:
   ; composition on both sides of a statement:
-  #R[((* B P) --> Z) (B --> A) |- ((* B P) --> (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((* P B) --> Z) (B --> A) |- ((* P B) --> (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((* B P) <-> Z) (B <-> A) |- ((* B P) <-> (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((* P B) <-> Z) (B <-> A) |- ((* P B) <-> (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((\ N A _) --> Z) (N --> R) |- ((\ N A _) --> (\ R A _)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((/ N _ B) --> Z) (S --> B) |- ((/ N _ B) --> (/ N _ S)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
+  #R[((* B P) --> Z) (B --> A) |- ((* B P) --> (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+  #R[((* P B) --> Z) (B --> A) |- ((* P B) --> (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+  #R[((* B P) <-> Z) (B <-> A) |- ((* B P) <-> (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+  #R[((* P B) <-> Z) (B <-> A) |- ((* P B) <-> (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+  #R[((\ N A _) --> Z) (N --> R) |- ((\ N A _) --> (\ R A _)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+  #R[((/ N _ B) --> Z) (S --> B) |- ((/ N _ B) --> (/ N _ S)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
 
   ; NAL5:
-  #R[--A    A |- --A  :pre (:question?) :post (:t/belief-negation :p/judgment)]
-  #R[A  --A |-   A  :pre (:question?) :post (:t/belief-negation :p/judgment)]
+  #R[--A    A |- --A  :pre (:question?) :post (:t/belief-negation :p/judgement)]
+  #R[A  --A |-   A  :pre (:question?) :post (:t/belief-negation :p/judgement)]
 
   ; compound composition one premise
-  #R[(|| B :list/A) B |- (|| B :list/A) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
+  #R[(|| B :list/A) B |- (|| B :list/A) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
 )
 
 (defn freq [task-type]

@@ -31,3 +31,5 @@
    :question question-budget})
 
 (def ^{:type double} horizon 1)
+
+(def duration 80)
