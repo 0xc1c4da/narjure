@@ -19,4 +19,5 @@
   :target-path "target/%s"
   :repl-options {:init-ns          narjure.repl
                  :nrepl-middleware [narjure.repl/narsese-handler]}
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}}
+  :marginalia { :javascript ["http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"]})

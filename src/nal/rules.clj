@@ -5,6 +5,37 @@
 (declare --S S --P P <-> |- --> ==> M || && =|> -- A Ai B <=>)
 
 (defrules rules
+          "<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+<h1>Temporal Induction</h1><br/>
+Temporal induction, a NAL7 principle, allows the system to temporally related events.<br/>
+To express this, the ==&gt; &lt;=&gt; copulas are extended
+to capture whether two events happen after each other,
+a =/> b, or concurrently a &lt;/&gt;
+Additionally intervals are used to measure the temporal occurrence time
+difference between the events.
+In order to support this, predicate measure_time(I) is introduced.
+which is only true if the the time difference between both events is I.
+In the language, the time difference is encoded in the sequence,
+for example (&/,a,/10,b) encodes that b was observed 10 steps after a.
+NAL7 chapter in the NAL book: <a href=\"blub\">NAL7</a>
+
+
+
+
+
+          "
   ;Similarity to Inheritance
   #R[(S --> P) (S <-> P) |- (S --> P) :post (:t/struct-int :p/judgment) :pre (:question?)]
   ;Inheritance to Similarity
@@ -462,3 +493,10 @@
     (println "Min" (reduce min (vals fr)))
     (println "Max" (reduce (fn [[_ v1 :as p] [_ v :as n]]
                              (if (> v1 v) p n)) fr))))
+
+
+;; <script>
+;; function replace_html(a,b){ while(document.body.innerHTML.contains(a)) {
+;;  document.body.innerHTML = document.body.innerHTML.replace(a, b); } }
+;;  replace_html('#R[',''); replace_html(')]',')');
+;; </script>
