@@ -8,8 +8,8 @@
     [nal.deriver
      [set-functions :refer [f-map not-empty-diff? not-empty-inter?]]
      [substitution :refer [munification-map substitute]]
-     [preconditions :refer [sets compound-precondition get-terms
-                            implications-and-equivalences abs
+     [preconditions :refer [sets compound-precondition shift-transformation
+                            implications-and-equivalences get-terms abs
                             preconditions-transformations]]
      [normalization :refer [commutative-ops sort-commutative reducible-ops]
       :as n]
@@ -42,13 +42,18 @@
 (defn form-conclusion
   "Formation of cocnlusion in terms of task and truth/desire functions"
   [{:keys [t1 t2 task-type]}
-   {c :statement tf :t-function pj :p/judgement df :d-function}]
+   {c  :statement tf :t-function pj :p/judgement df :d-function
+    sc :shift-conditions}]
   (let [conclusion-type (if pj :judgement task-type)
-        conclusion {:statement c
-                    :task-type conclusion-type}]
-    (case conclusion-type
-      :judgement (assoc conclusion :truth (list tf t1 t2))
-      :goal (assoc conclusion :desire (list df t1 t2))
+        conclusion {:statement  c
+                    :task-type  conclusion-type
+                    :occurrence :t-occurrence}
+        conclusion (case conclusion-type
+                     :judgement (assoc conclusion :truth (list tf t1 t2))
+                     :goal (assoc conclusion :desire (list df t1 t2))
+                     conclusion)]
+    (if sc
+      (shift-transformation sc conclusion)
       conclusion)))
 
 (defn traverse-node
@@ -69,13 +74,13 @@
        ~(traverse-node vars results tree)
        @~results)))
 
-(defn replace-occurences
+(defn replace-occurrences
   "Reblaces occurrences keywords from matcher's code by generated symbols."
   [code]
-  (let [t-occurence (gensym) b-occurence (gensym)]
+  (let [t-occurrence (gensym) b-occurrence (gensym)]
     (walk code
-      (= :el :t-occurence) t-occurence
-      (= :el :b-occurence) b-occurence)))
+      (= :el :t-occurrence) t-occurrence
+      (= :el :b-occurrence) b-occurrence)))
 
 (defn match-rules
   "Generates code of function that will match premises. Generated function
@@ -84,9 +89,9 @@
   (let [t1 (gensym) t2 (gensym)
         task (gensym) belief (gensym)
         truth-kw (if (= :goal task-type) :desire :truth)]
-    (replace-occurences
-      `(fn [{p1# :statement ~t1 ~truth-kw :t-occurence :occurence :as ~task}
-            {p2# :statement ~t2 :truth :b-occurence :occurence :as ~belief}]
+    (replace-occurrences
+      `(fn [{p1# :statement ~t1 ~truth-kw :t-occurrence :occurrence :as ~task}
+            {p2# :statement ~t2 :truth :b-occurrence :occurrence :as ~belief}]
          (match [p1# p2#] ~(quote-operators pattern)
            ~(traversal {:t1        t1
                         :t2        t2
@@ -195,6 +200,15 @@
     (and (coll? :el) (reducible-ops (first :el)) (<= 3 (count :el)))
     `(~(reducible-ops (first :el)) ~:el)))
 
+(defn find-shift-precondition
+  [preconditions]
+  (first
+    (filter
+      #(and (coll? %)
+            (#{:shift-occurrence-backward
+               :shift-occurrence-forward}
+              (first %))) preconditions)))
+
 (defn premises-pattern
   "Creates map with preconditions and conclusions regarding to the main pattern
    of rules branch.
@@ -230,20 +244,24 @@
                 (if-not (#{`munification-map `not-empty-diff?} f)
                   (concat (list f) (sort-placeholders tail))
                   el)))]
-    {:conclusion {:statement   (-> conclusion
-                                   (preconditions-transformations preconditions)
-                                   (replace-symbols sym-map)
-                                   check-commutative
-                                   check-reduction)
-                  :t-function  (t/tvtypes (get-truth-fn post))
-                  :d-function  (t/dvtypes (get-desire-fn post))
-                  :p/judgement (some #{:p/judgement} post)}
-     :conditions (walk (concat (check-conditions sym-map) pre)
-                   (and (coll? el) (= \a (first (str (first el)))))
-                   (concat '() el)
-                   (and (coll? el) (not ((conj reserved-operators 'quote)
-                                          (first el))))
-                   (vec el))}))
+    {:conclusion {:statement        (-> conclusion
+                                        (preconditions-transformations preconditions)
+                                        (replace-symbols sym-map)
+                                        check-commutative
+                                        check-reduction)
+                  :shift-conditions (replace-symbols
+                                      (find-shift-precondition preconditions)
+                                      sym-map)
+                  :t-function       (t/tvtypes (get-truth-fn post))
+                  :d-function       (t/dvtypes (get-desire-fn post))
+                  :p/judgement      (some #{:p/judgement} post)}
+     :conditions (remove nil?
+                         (walk (concat (check-conditions sym-map) pre)
+                           (and (coll? el) (= \a (first (str (first el)))))
+                           (concat '() el)
+                           (and (coll? el) (not ((conj reserved-operators 'quote)
+                                                  (first el))))
+                           (vec el)))}))
 
 (defn conditions->conclusions-map
   "Creates map from conditions to conclusions."

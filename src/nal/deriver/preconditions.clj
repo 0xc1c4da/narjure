@@ -85,13 +85,13 @@
 
 (defmethod compound-precondition :measure-time
   [_]
-  [`(not= :eternal :t-occurence)
-   `(not= :eternal :b-occurence)
-   `(<= ~duration (abs (- :t-occurence :b-occurence)))])
+  [`(not= :eternal :t-occurrence)
+   `(not= :eternal :b-occurrence)
+   `(<= ~duration (abs (- :t-occurrence :b-occurrence)))])
 
 (defmethod compound-precondition :concurrent
   [_]
-  [`(> ~duration (abs (- :t-occurence :b-occurence)))])
+  [`(> ~duration (abs (- :t-occurrence :b-occurrence)))])
 
 ;-------------------------------------------------------------------------------
 (defmulti precondition-transformation (fn [arg1 _] (first arg1)))
@@ -128,7 +128,7 @@
 (defmethod precondition-transformation :measure-time
   [[_ arg] conclusion]
   (let [mt (gensym)]
-    (walk `(let [~arg (abs (- :t-occurence :b-occurence))]
+    (walk `(let [~arg (abs (- :t-occurrence :b-occurrence))]
              ~(walk conclusion
                 (= :el arg) [:interval arg]))
       (= :el arg) mt)))
@@ -143,3 +143,23 @@
   "Some transformations of conclusion may be required by precondition."
   [conclusion preconditions]
   (reduce check-precondition conclusion preconditions))
+
+(defn shift-transformation
+  [[type arg1 [_ arg2]] conclusion]
+  (let [dur (if (= :shift-occurrence-forward type)
+              duration
+              (- duration))]
+    (cond
+      (and (= :unused arg1) ('#{=|> ==>} arg2)) conclusion
+      (and (= :unused arg1) (not ('#{=|> ==>} arg2)))
+      `(let [:t-occurrence (~(if (= arg2 'pred-impl) `+ `-)
+                            :t-occurrence ~dur)]
+         ~conclusion)
+      ('#{=|> ==>} arg2)
+      `(let [:t-occurrence (+ :t-occurrence ~arg1)]
+         ~conclusion)
+      :default
+      `(let [:t-occurrence (+ (~(if (= arg2 'pred-impl) `+ `-)
+                               :t-occurrence ~dur)
+                              ~arg1)]
+         ~conclusion))))

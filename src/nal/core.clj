@@ -13,9 +13,6 @@
 (def revision t/revision)
 
 (comment
-  :seq-interval-from-premises                               ;post
   :shift-occurrence-forward                                 ;pre
   :shift-occurrence-backward                                 ;pre
-  :measure-time                                             ;pre
-  :concurrent
   :linkage-temporal)
