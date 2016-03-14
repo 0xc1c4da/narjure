@@ -261,10 +261,10 @@
 
   ; conditional syllogism
   ; If after M P usually happens and M happens it means P is expected to happen
-  #R[M (M ==> P) |- P :post (:t/deduction :d/induction :order-for-all-same) :pre ((:shift-occurrence-forward :unused ==>))]
-  #R[M (P ==> M) |- P :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:shift-occurrence-backward :unused ==>))]
-  #R[M (S <=> M) |- S :post (:t/analogy :d/strong :order-for-all-same) :pre ((:shift-occurrence-backward :unused <=>))]
-  #R[M (M <=> S) |- S :post (:t/analogy :d/strong :order-for-all-same) :pre ((:shift-occurrence-forward :unused ==>))]
+  #R[M (M ==> P) |- P :post (:t/deduction :d/induction :order-for-all-same) :pre ((:shift-occurrence-forward ==>))]
+  #R[M (P ==> M) |- P :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:shift-occurrence-backward ==>))]
+  #R[M (S <=> M) |- S :post (:t/analogy :d/strong :order-for-all-same) :pre ((:shift-occurrence-backward <=>))]
+  #R[M (M <=> S) |- S :post (:t/analogy :d/strong :order-for-all-same) :pre ((:shift-occurrence-forward ==>))]
 
   ; conjunction decompose
   #R[(&& :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
@@ -371,11 +371,11 @@
 
 
   ; independent variable elimination
-  #R[B (A ==> C) |- C :post (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward :unused ==>))]
-  #R[B (C ==> A) |- C :post (:t/abduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward :unused ==>))]
+  #R[B (A ==> C) |- C :post (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward ==>))]
+  #R[B (C ==> A) |- C :post (:t/abduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward C ==>))]
 
-  #R[B (A <=> C) |- C :post (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward :unused <=>))]
-  #R[B (C <=> A) |- C :post (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward :unused <=>))]
+  #R[B (A <=> C) |- C :post (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward <=>))]
+  #R[B (C <=> A) |- C :post (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward <=>))]
 
   ; second level variable handling rules
   ; second level variable elimination (termlink level2 growth needed in order for these rules to work)

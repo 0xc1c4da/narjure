@@ -22,10 +22,31 @@
        :truth     [1 0.9]
        :occurrence 0}]
 
-    '({:statement [--> a1 [ext-image m _ a2 a3]]
-       :truth     [1 0.9]
-       :task-type :judgement
-       :occurrence 1})
+    '({:occurrence 1
+       :statement  [&| a1 [--> [* a1 a2 a3] m]]
+       :task-type  :judgement
+       :truth      [1.0
+                    0.81]}
+       {:occurrence 1
+        :statement  [--> a1 [ext-image m _ a2 a3]]
+        :task-type  :judgement
+        :truth      [1
+                     0.9]}
+       {:occurrence 1
+        :statement  [<|> a1 [--> [* a1 a2 a3] m]]
+        :task-type  :judgement
+        :truth      [1.0
+                     0.44751381215469616]}
+       {:occurrence 1
+        :statement  [=|> [--> [* a1 a2 a3] m] a1]
+        :task-type  :judgement
+        :truth      [1
+                     0.44751381215469616]}
+       {:occurrence 1
+        :statement  [=|> a1 [--> [* a1 a2 a3] m]]
+        :task-type  :judgement
+        :truth      [1
+                     0.44751381215469616]})
     '[{:statement [--> [* a1 a2 a3] m]
        :truth     [1 0.9]
        :task-type :judgement
@@ -60,9 +81,28 @@
        :truth     [1 0.9]
        :occurrence 0}]
 
-    '({:statement a1 :truth [1 0.44751381215469616]
-       :task-type :judgement
-       :occurrence 1})
+    '({:occurrence 1
+       :statement  [&| a1 [conj a1 a2 a3]]
+       :task-type  :judgement
+       :truth      [1.0 0.81]}
+       {:occurrence 1
+        :statement  [<|> a1 [conj a1 a2 a3]]
+        :task-type  :judgement
+        :truth      [1.0 0.44751381215469616]}
+       {:occurrence 1
+        :statement  [=|> [conj a1 a2 a3] a1]
+        :task-type  :judgement
+        :truth      [1
+                     0.44751381215469616]}
+       {:occurrence 1
+        :statement  [=|> a1 [conj a1 a2 a3]]
+        :task-type  :judgement
+        :truth      [1
+                     0.44751381215469616]}
+       {:occurrence 1
+        :statement  a1
+        :task-type  :judgement
+        :truth      [1 0.44751381215469616]})
     '[{:statement [conj a1 a2 a3]
        :truth     [1 0.9]
        :task-type :judgement

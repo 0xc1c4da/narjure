@@ -156,6 +156,14 @@
     ['conj t1 t2] (if (= t1 t2) t1 st)
     :else st))
 
+(defn reduce-seq-conj
+  [st]
+  (let [cnt (count st)]
+    (cond
+      (= 3 cnt) (second st)
+      (odd? cnt) (vec (butlast st))
+      :else st)))
+
 (def reducible-ops
   {'ext-inter `reduce-ext-inter
    '|         `reduce-int-inter

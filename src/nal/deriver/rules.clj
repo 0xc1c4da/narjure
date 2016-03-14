@@ -2,7 +2,7 @@
   (:require [clojure.string :as s]
             [clojure.set :refer [map-invert]]
             [nal.deriver
-             [key-path :refer [rule-path all-paths path-invariants]]
+             [key-path :refer [rule-path all-paths path-invariants path]]
              [utils :refer [walk]]
              [list-expansion :refer [contains-list? generate-all-lists]]
              [premises-swapping :refer [allow-swapping? swap]]
@@ -81,7 +81,7 @@
   of rules that matches [[--> [- :any :any] :any] :and [--> [:any :any]]] path."
   [ac [k {:keys [all starts-with]}]]
   (let [rules (mapcat :rules (vals (select-keys ac all)))]
-    (-> ac
+    ac #_(-> ac
         (update-in [k :rules] concat rules)
         (update-in [k :rules] set))))
 
@@ -92,7 +92,7 @@
   (-> ac
       (update-in [full-path :rules] conj rule)
       (assoc-in [full-path :pattern] [p1 p2])
-      (assoc-in [full-path :all] (all-paths p1 p2))
+      (assoc-in [full-path :all] (all-paths (path p1) (path p2)))
       (assoc-in [full-path :starts-with] (set (path-invariants p1)))
       (assoc-in [full-path :end-with] (set (path-invariants p2)))))
 

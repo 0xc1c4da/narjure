@@ -35,6 +35,7 @@
 
 (def mpath-invariants (memoize path-invariants))
 
+;(all-paths 'Y '(==> (seq-conj X A1 A2 A3) B))
 (defn all-paths
   "Generates all pathes for pair of premises."
   [p1 p2]
