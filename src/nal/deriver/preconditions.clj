@@ -153,13 +153,27 @@
       (and (= :unused arg1) ('#{=|> ==>} arg2)) conclusion
       (and (= :unused arg1) (not ('#{=|> ==>} arg2)))
       `(let [:t-occurrence (~(if (= arg2 'pred-impl) `+ `-)
-                            :t-occurrence ~dur)]
+                             :t-occurrence ~dur)]
          ~conclusion)
-      ('#{=|> ==>} arg2)
+      (and (= :shift-occurrence-forward type) ('#{=|> ==>} arg2))
       `(let [:t-occurrence (+ :t-occurrence ~arg1)]
          ~conclusion)
-      :default
+      (= :shift-occurrence-forward type)
       `(let [:t-occurrence (+ (~(if (= arg2 'pred-impl) `+ `-)
-                               :t-occurrence ~dur)
+                                :t-occurrence ~dur)
                               ~arg1)]
-         ~conclusion))))
+         ~conclusion)
+      (and (= :shift-occurrence-backward type) ('#{=|> ==>} arg2))
+      `(let [:t-occurrence (if (and (coll? ~arg1) (= 'seq-conj (first ~arg1)))
+                             (+ :t-occurrence (last ~arg1))
+                             :t-occurrence)]
+         ~conclusion)
+      (= :shift-occurrence-backward type)
+      `(let [:t-occurrence (if (and (coll? ~arg1) (= 'seq-conj (first ~arg1)))
+                             (+ (~(if (= arg2 'pred-impl) `+ `-)
+                                  :t-occurrence ~dur)
+                                ~arg1)
+                             (~(if (= arg2 'pred-impl) `+ `-)
+                               :t-occurrence ~dur))]
+         ~conclusion)
+      )))

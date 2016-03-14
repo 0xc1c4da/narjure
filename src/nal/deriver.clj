@@ -12,18 +12,17 @@
           fp-inv (set (mpath-invariants pf))
           fl-inv (set (mpath-invariants pl))]
       (and (fp-inv f) (fl-inv l)))))
+(def mchild? (memoize child?))
 
 (defn remove-children [paths]
-  (reduce #(remove (partial child? %2) %1) paths paths))
+  (reduce #(remove (partial mchild? %2) %1) paths paths))
 
 (defn get-matcher [rules p1 p2]
-  (let [paths (->> (mall-paths p1 p2)
-                   (filter rules)
-                   remove-children)
-        matchers (->> (filter rules paths)
+  (let [matchers (->> (mall-paths p1 p2)
+                      (filter rules)
+                      remove-children
                       (select-keys rules)
-                      vals
-                      (map :matcher))]
+                      (map (fn [el] (:matcher (second el)))))]
     (case (count matchers)
       0 (constantly [])
       1 (first matchers)

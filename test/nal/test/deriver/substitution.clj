@@ -27,7 +27,7 @@
 (deftest test-unification-map
   (are [a1 a2] (= a1 (apply unification-map a2))
     ;successfully unifies
-    '{?X tim} ["$" '[--> [ind-var X] alcoholic] '[--> tim alcoholic]]
+    '{[ind-var X] tim} ["$" '[--> [ind-var X] alcoholic] '[--> tim alcoholic]]
 
     ;unifies even if there is no vars
     {} ["$" '[--> tim alcoholic] '[--> tim alcoholic]]
@@ -37,7 +37,7 @@
          '[==> [--> ok a] [--> boss b]]]
 
     ;unifies, different vars can contain the same values
-    '{?X ok ?Y ok}
+    '{[ind-var X] ok [ind-var Y] ok}
     ["$" '[==> [--> [ind-var X] a] [--> [ind-var Y] b]]
      '[==> [--> ok a] [--> ok b]]]))
 
