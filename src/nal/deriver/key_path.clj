@@ -8,6 +8,18 @@
       (conj (map path tail) fst))
     :any))
 
+(defn path-with-max-level
+  ([statement] (path-with-max-level 0 statement))
+  ([level statement]
+   (if (coll? statement)
+     (let [[fst & tail] statement]
+       (cons fst
+             (if (> 1 level)
+               (let [next-level (if (= 'conj fst) level (inc level))]
+                 (map #(path-with-max-level next-level %) tail))
+               (repeat (count tail) :any))))
+     :any)))
+
 (defn rule-path
   "Generates detailed pattern for the rule."
   [p1 p2]
