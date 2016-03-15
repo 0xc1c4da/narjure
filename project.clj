@@ -11,7 +11,8 @@
                  [org.clojure/data.priority-map "0.0.7"]
                  [co.paralleluniverse/pulsar "0.7.4"]
                  [org.immutant/immutant "2.1.2"]
-                 [clj-time "0.11.0"]]
+                 [clj-time "0.11.0"]
+                 [com.taoensso/timbre "4.3.1"]]
   :java-agents [[co.paralleluniverse/quasar-core "0.7.4"]]
   :main ^:skip-aot narjure.core
   :plugins [[lein-cloverage "1.0.6"]
