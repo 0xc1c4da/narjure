@@ -1,5 +1,7 @@
 (ns narjure.defaults)
 
+(def serial-no (atom 0))
+
 (def judgement-frequency 1.0)
 (def judgement-confidence 0.9)
 
