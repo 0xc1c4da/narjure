@@ -4,12 +4,7 @@
 
 (declare --S S --P P <-> |- --> ==> M || && =|> -- A Ai B <=>)
 
-
-;;<style type="text/css">
-;; .syntaxhighlighter.printing .color3, .syntaxhighlighter.printing .color3 a {
-;;   color: black !important;
-;; }
-;; </style>
+;; <div style="z-index: 9999; position: fixed; left: 0; top: 0;"> <iframe name="bible" src="NAL-Specification.pdf" style="position:fixed" width=100% height=35%></iframe> </div>
 
 (defrules rules
           "<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
@@ -26,7 +21,7 @@
           <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
         <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
         <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-<h1>Temporal Induction</h1><br/>
+<h1><a href=\"NAL-Specification.pdf#page=63\" target=\"bible\">Temporal Induction</a></h1><br/>
 Temporal induction, a NAL7 principle, allows the system to temporally relate events.<br/>
 To express this, the <b> ==&gt; &lt;=&gt; </b> truth-related copulas are extended
 to capture whether two events happen after each other,
@@ -43,6 +38,7 @@ for example <b> ((&/,a,/10) =/> b) </b> encodes that <b> b </b> happens <b> 10  
 NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
 
           "
+  ;;CONVERSION RULES
   ;Similarity to Inheritance
   #R[(S --> P) (S <-> P) |- (S --> P) :post (:t/struct-int :p/judgment) :pre (:question?)]
   ;Inheritance to Similarity
@@ -428,8 +424,9 @@ NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
 
   ; NAL7 specific inference
   ; Reasoning about temporal statements. those are using the ==> relation because relation in time is a relation of the truth between statements.
-  #R[X (XI ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" XI (&/ X /0)) (:shift-occurrence-forward XI ==>))]
-  #R[X (BI ==> Y) |- BI :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" Y X) (:shift-occurrence-backward BI ==>))]
+#R[X ((&/ K (:interval I)) ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" K X) (:shift-occurrence-forward I ==>))]
+#_#R[X (XI ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" XI (&/ X :interval)) (:shift-occurrence-forward XI ==>))]
+#_#R[X (BI ==> Y) |- BI :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" Y X) (:shift-occurrence-backward BI ==>))]
 
   ; Temporal induction:
   ; When P and then S happened according to an observation by induction (weak) it may be that alyways after P usually S happens.
@@ -439,7 +436,6 @@ NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
               (&/ S I P) :post (:t/intersection :linkage-temporal))
      :pre ((:measure-time I))]
   #R[P S |- ((S =|> P) :post (:t/induction :linkage-temporal)
-              (P =|> S) :post (:t/induction :linkage-temporal)
               (S <|> P) :post (:t/comparison :linkage-temporal)
               (&| S P) :post (:t/intersection :linkage-temporal))
      :pre [(:concurrent Task Belief) (:not-implication-or-equivalence P) (:not-implication-or-equivalence S)]]
@@ -500,7 +496,6 @@ NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
     (println "Min" (reduce min (vals fr)))
     (println "Max" (reduce (fn [[_ v1 :as p] [_ v :as n]]
                              (if (> v1 v) p n)) fr))))
-
 
 ;; <script>
 ;; function replace_html(a,b){ while(document.body.innerHTML.contains(a)) {

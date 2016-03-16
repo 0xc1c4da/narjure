@@ -13,9 +13,11 @@
                  [org.clojure/core.unify "0.5.5"]]
   :main ^:skip-aot narjure.core
   :plugins [[lein-cloverage "1.0.6"]
+            [jonase/eastwood "0.2.3"]
+            [lein-kibit "0.1.2"]
             [cider/cider-nrepl "0.11.0-SNAPSHOT"]
-            [michaelblume/lein-marginalia "0.9.0"]
-            ]
+            [michaelblume/lein-marginalia "0.9.0"]]
+  :eastwood {:exclude-namespaces [nal.rules]}
   :target-path "target/%s"
   :repl-options {:init-ns          narjure.repl
                  :nrepl-middleware [narjure.repl/narsese-handler]}
