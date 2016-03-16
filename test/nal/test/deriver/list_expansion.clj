@@ -112,6 +112,22 @@
         :pre
         (:question?)
         :post
+        (:t/belief-structural-deduction :p/judgment)]
+       [(W --> (| B A1 A2 A3 A4 A5 A6))
+        (W --> B)
+        |-
+        (W --> (| B A1 A2 A3 A4 A5 A6))
+        :pre
+        (:question?)
+        :post
+        (:t/belief-structural-deduction :p/judgment)]
+       [(W --> (| B A1 A2 A3 A4 A5 A6 A7))
+        (W --> B)
+        |-
+        (W --> (| B A1 A2 A3 A4 A5 A6 A7))
+        :pre
+        (:question?)
+        :post
         (:t/belief-structural-deduction :p/judgment)])
     '[(W --> (| B :list/A))
       (W --> B)

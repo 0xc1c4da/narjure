@@ -3,20 +3,20 @@
             [clojure.core.unify :as u]
             [clojure.string :as s]))
 
-(def vars-map {"$" 'ind-var "#" 'dep-var})
-
 (defn replace-vars
   "Defn replaces var-elements from statemts by placeholders for unification."
   [var-type statement]
   (walk statement
-    (and (coll? el) (= var-type (first el)))
-    (->> el second (str "?") symbol)))
+    (and (coll? :el) (= var-type (first :el)))
+    (->> :el second (str "?") symbol)))
 
 (defn unification-map
   "Returns map of inified elements from both collections."
   [var-symbol p2 p3]
-  (let [var-type (vars-map var-symbol)]
-    (u/unify (replace-vars var-type p2) p3)))
+  (let [var-type (if (= var-symbol "$")
+                   'ind-var
+                   'dep-var)]
+    ((u/make-occurs-unify-fn #(and (coll? %) (= var-type (first %)))) p2 p3)))
 
 (def munification-map (memoize unification-map))
 
@@ -35,7 +35,5 @@
   "Unifies p2 and p3, then replaces elements from the unification map
   inside the conclusion."
   [var-symbol p2 p3 conclusion]
-  (let [var-type (vars-map var-symbol)
-        u-map (munification-map var-symbol p2 p3)
-        u-map (replace-placeholders var-type u-map)]
+  (let [u-map (munification-map var-symbol p2 p3)]
     (walk conclusion (u-map el) (u-map el))))

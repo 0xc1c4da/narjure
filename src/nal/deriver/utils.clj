@@ -11,7 +11,7 @@
   "Macro that helps to replace elements during walk. The first argument
   is collection, rest of the arguments are cond-like
   expressions. Default result of cond is element itself.
-  el is reserved name for current element of collection."
+  el (optionally :el) is reserved name for current element of collection."
   [coll & conditions]
   (let [el (gensym)
         replace-el (fn [coll]

@@ -8,7 +8,7 @@
     [nal.deriver
      [set-functions :refer [f-map not-empty-diff? not-empty-inter?]]
      [substitution :refer [munification-map substitute]]
-     [preconditions :refer [sets compound-precondition shift-transformation
+     [preconditions :refer [sets compound-precondition conclusion-transformation
                             implications-and-equivalences get-terms abs
                             preconditions-transformations]]
      [normalization :refer [commutative-ops sort-commutative reducible-ops]
@@ -23,7 +23,8 @@
     `sort-commutative `n/reduce-ext-inter `n/reduce-symilarity `complement
     `n/reduce-int-dif `n/reduce-and `n/reduce-ext-dif `n/reduce-image
     `n/reduce-int-inter `n/reduce-neg `n/reduce-or `nil? `not `or `abs
-    `implications-and-equivalences `get-terms `empty? `intersection})
+    `implications-and-equivalences `get-terms `empty? `intersection
+    `n/reduce-seq-conj})
 
 (defn quote-operators
   [statement]
@@ -53,7 +54,7 @@
                      :goal (assoc conclusion :desire (list df t1 t2))
                      conclusion)]
     (if sc
-      (shift-transformation sc conclusion)
+      (conclusion-transformation sc conclusion)
       conclusion)))
 
 (defn traverse-node
