@@ -4,41 +4,32 @@
 
 (declare --S S --P P <-> |- --> ==> M || && =|> -- A Ai B <=>)
 
-;; <div style="z-index: 9999; position: fixed; left: 0; top: 0;"> <iframe name="bible" src="NAL-Specification.pdf" style="position:fixed" width=100% height=35%></iframe> </div>
+;; <!-- <div style="z-index: 9999; position: fixed; left: 0; top: 0;"> <button <iframe name="bible" src="NAL-Specification.pdf" style="position:fixed" width=100% height=35%></iframe> </div> -->
 
-(defrules rules
-          "<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-          <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-<h1><a href=\"NAL-Specification.pdf#page=63\" target=\"bible\">Temporal Induction</a></h1><br/>
-Temporal induction, a NAL7 principle, allows the system to temporally relate events.<br/>
-To express this, the <b> ==&gt; &lt;=&gt; </b> truth-related copulas are extended
-to capture whether two events happen after each other,
-<b> a =/> b  </b>, or concurrently <b> a =|&gt; </b>
-These operators are all transitive, also \\\\( \\forall a,b,c \\\\) events
-with truth values \\\\( T1, T2 \\in \\[0, 1\\] \\times \\[0, 1\\]: \\\\) <b> a =/> b </b> \\\\( \\wedge \\\\) <b> b =|> c </b> \\\\( \\implies \\\\)
-<b> a =|> c </b> with truth-value <b> induction( T1 , T2) </b> holds, consistent with the semantics of the copulas.
-Additionally intervals are used to measure the temporal occurrence time
-difference between the events.
-In order to support this, predicate <b> measure_time(I)</b> is introduced.
-which is true if and only if the the time difference between both event premises is <b> I </b>.
-In the language, the time difference is encoded in the sequence,
-for example <b> ((&/,a,/10) =/> b) </b> encodes that <b> b </b> happens <b> 10  </b>  steps after <b> a </b>.
-NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
+(defrules equivalence-and-implication
+          "<h1><a href=\"NAL-Specification.pdf#page=87\">Equivalence and Implication Rules</a></h1><br/>  <!-- target=\"bible\" -->
+These rules are used to <br/>
+capture equivalence and immplication <br/>
+ theorems as described in the<br/>
+  NAL reference.<br/>
+Their correctness follows by the<br/>
+definitions of the NAL statement <br/>
+ copulas. <br/>
+Since the conclusion is equivalent,  <br/>
+the truth value of the  <br/>
+ conclusion is using Identity as <br/>
+ truth and desire function.
+<br/><br/>
+
+
+
+
+<h1><a href=\"NAL-Specification.pdf#page=25\">Negation</a></h1><br/>  <!-- target=\"bible\" -->
+<br/><br/><br/><br/><br/><br/>
+
 
           "
-  ;;CONVERSION RULES
+  ;;Equivalence and Implication Rules
   ;Similarity to Inheritance
   #R[(S --> P) (S <-> P) |- (S --> P) :post (:t/struct-int :p/judgment) :pre (:question?)]
   ;Inheritance to Similarity
@@ -66,8 +57,14 @@ NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
   ; nothing is more general than a property so it's similar
   #R[([S] --> P) [S] |- ([S] <-> P) :post (:t/identity :d/identity :allow-backward)]
   #R[([S] --> P) P |- ([S] <-> P) :post (:t/identity :d/identity :allow-backward)]
+          )
 
-  ; Immediate Inference
+
+(defrules conversion-contraposition-negation
+          "<h1><a href=\"NAL-Specification.pdf#page=25\">Conversion</a></h1><br/>
+          <!-- target=\"bible\" -->\nIn term logics, \"conversion\" is
+          <br/> an inference from a single premise to a conclusion by interchanging the subject and predicate terms of the premise."
+  ;; Conversion
   ; If S can stand for P P can to a certain low degree also represent the class S
   ; If after S usually P happens then it might be a good guess that usually before P happens S happens.
   #R[(P --> S) (S --> P) |- (P --> S) :post (:t/conversion :p/judgment) :pre (:question?)]
@@ -76,6 +73,7 @@ NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
   #R[(P =\> S) (S =/> P) |- (P =\> S) :post (:t/conversion :p/judgment) :pre (:question?)]
   #R[(P =/> S) (S =\> P) |- (P =/> S) :post (:t/conversion :p/judgment) :pre (:question?)]
 
+  ;; Contraposition
   ; "If not smoking lets you be healthy being not healthy may be the result of smoking"
   #R[(--S ==> P) P |- (--P ==> S) :post (:t/contraposition :allow-backward)]
   #R[(--S ==> P) --S |- (--P ==> S) :post (:t/contraposition :allow-backward)]
@@ -86,6 +84,7 @@ NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
   #R[(--S =\> P) P |- (--P =/> S) :post (:t/contraposition :allow-backward)]
   #R[(--S =\> P) --S |- (--P =/> S) :post (:t/contraposition :allow-backward)]
 
+  ;;Negation
   ; A belief b <f c> is equal to --b <1-f c>  which is the negation rule:
   #R[(A --> B) A |- --(A --> B) :post (:t/negation :d/negation :allow-backward)]
   #R[(A --> B) B |- --(A --> B) :post (:t/negation :d/negation :allow-backward)]
@@ -106,7 +105,12 @@ NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
   #R[(A <=> B) B |- --(A <=> B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
   #R[--(A <=> B) A |- (A <=> B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
   #R[--(A <=> B) B |- (A <=> B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
+          )
 
+(defules inheritance-related-syllogism
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+          "
+  ;;Inheritance-Related Syllogisms
   ; If A is a special case of B and B is a special case of C so is A a special case of C (strong) the other variations are hypotheses (weak)
   #R[(A --> B) (B --> C) |- (A --> C) :pre ((:!= A C)) :post (:t/deduction :d/strong :allow-backward)]
   #R[(A --> B) (A --> C) |- (C --> B) :pre ((:!= B C)) :post (:t/abduction :d/weak :allow-backward)]
@@ -130,8 +134,11 @@ NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
   #R[(M --> P) (S <-> M) |- (S --> P) :pre ((:!= S P)) :post (:t/analogy :d/strong :allow-backward)]
   #R[(P --> M) (S <-> M) |- (P --> S) :pre ((:!= S P)) :post (:t/analogy :d/strong :allow-backward)]
   #R[(M <-> P) (S <-> M) |- (S <-> P) :pre ((:!= S P)) :post (:t/resemblance :d/strong :allow-backward)]
-
-  ; inheritance-based composition
+)
+(defules inheritance-based-composition
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+          "
+  ;; inheritance-based composition
   ; If P and S are in the intension/extension of M then union/difference and intersection can be built:
   #R[(P --> M) (S --> M) |- (((S | P) --> M) :post (:t/intersection)
                               ((S & P) --> M) :post (:t/union)
@@ -142,8 +149,11 @@ NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
                               (M --> (P | S)) :post (:t/union)
                               (M --> (P - S)) :post (:t/difference))
      :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))]
-
-  ; inheritance-based decomposition
+         )
+(defules inheritance-based-decomposition
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+                 "
+         ;; inheritance-based decomposition
   ; if (S --> M) is the case and ((| S :list/A) --> M) is not the case then ((| :list/A) --> M) is not the case hence :t/decompose-pnn
   #R[(S --> M) ((| S :list/A) --> M) |- ((| :list/A) --> M) :post (:t/decompose-pnn)]
   #R[(S --> M) ((& S :list/A) --> M) |- ((& :list/A) --> M) :post (:t/decompose-npp)]
@@ -154,8 +164,11 @@ NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
   #R[(M --> S) (M --> (| S :list/A)) |- (M --> (| :list/A)) :post (:t/decompose-npp)]
   #R[(M --> S) (M --> (S ~ P)) |- (M --> P) :post (:t/decompose-pnp)]
   #R[(M --> S) (M --> (P ~ S)) |- (M --> P) :post (:t/decompose-nnn)]
-
-  ; Set comprehension:
+         )
+(defules set-related-rules
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+          "
+  ;; Set comprehension:
   #R[(C --> A) (C --> B) |- (C --> R) :post (:t/union) :pre ((:set-ext? A) (:union A B R))]
   #R[(C --> A) (C --> B) |- (C --> R) :post (:t/intersection) :pre ((:set-int? A) (:union A B R))]
   #R[(A --> C) (B --> C) |- (R --> C) :post (:t/intersection) :pre ((:set-ext? A) (:union A B R))]
@@ -174,14 +187,20 @@ NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
   #R[(C --> [:list/A]) C |- (C --> [:from/A]) :post (:t/structural-deduction)]
   #R[({:list/A} --> C) C |- ({:from/A} --> C) :post (:t/structural-deduction)]
   #R[([:list/A] --> C) C |- ([:from/A] --> C) :post (:t/structural-deduction)]
-
+         )
+(defules nal3-structural-inference
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL3 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
+          "
   ; NAL3 single premise inference:
   #R[((| :list/A) --> M) M |- (:from/A --> M) :post (:t/structural-deduction)]
   #R[(M --> (& :list/A)) M |- (M --> :from/A) :post (:t/structural-deduction)]
 
   #R[((B - G) --> S) S |- (B --> S) :post (:t/structural-deduction)]
   #R[(R --> (B ~ S)) R |- (R --> B) :post (:t/structural-deduction)]
-
+         )
+(defules nal4-structural-inference
+          "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL4 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
+           "
   ; NAL4 - Transformations between products and images:
   ; Relations and transforming them into different representations so that arguments and the relation it'self can become the subject or predicate
   #R[((* :list/A) --> M) Ai |- (Ai --> (/ M :list/A))
@@ -196,7 +215,10 @@ NAL7 chapter in the NAL reference: <a href=\"blub\">NAL7</a>
   #R[((\ M :list/A) --> Ai) M |- (M --> (:list/A))
       :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
      :post (:t/identity :d/identity)]
-
+)
+(defules nal5-implication-based-syllogisms
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL5 implication based syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+           "
   ; implication-based syllogism
   #R[(M ==> P) (S ==> M) |- (S ==> P) :post (:t/deduction :order-for-all-same :allow-backward) :pre ((:!= S P))]
 
