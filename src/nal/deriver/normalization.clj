@@ -63,18 +63,18 @@
   (if (coll? conclusions)
     (let [f (first conclusions)]
       (if (commutative-ops f)
-        (into [] (conj (sort-by hash (drop 1 conclusions)) f))
+        (vec (conj (sort-by hash (drop 1 conclusions)) f))
         conclusions))
     conclusions))
 
 ;https://gist.github.com/TonyLo1/a3f8e05458c5e90c2e72
 (defn union
   ([c1 c2] (sort-by hash (set (concat c1 c2))))
-  ([op c1 c2] (into [] (conj (union c1 c2) op))))
+  ([op c1 c2] (vec (conj (union c1 c2) op))))
 
 (defn diff
   ([c1 c2] (into '() (set/difference (set c1) (set c2))))
-  ([op c1 c2] (into [] (conj (diff c1 c2) op))))
+  ([op c1 c2] (vec (conj (diff c1 c2) op))))
 
 (defn reduce-ext-inter
   [st]
@@ -85,7 +85,7 @@
     [_ ['ext-inter & l1] l2] (union 'ext-inter l1 [l2])
     [_ l1 ['ext-inter & l2]] (union 'ext-inter [l1] l2)
     [_ ['int-set & l1] ['int-set & l2]] (union 'int-set l1 l2)
-    [_ ['ext-set & l1] ['ext-set & l2]] (union 'ext-set l1 l2)
+    ;[_ ['ext-set & l1] ['ext-set & l2]] (union 'ext-set l1 l2)
     :else st))
 
 (defn reduce-int-inter
@@ -121,7 +121,7 @@
 (defn reduce-production
   [st]
   (m/match st
-    ['* ['* & l1] & l2] (into [] (conj (concat l1 l2) '*))
+    ['* ['* & l1] & l2] (vec (conj (concat l1 l2) '*))
     :else st))
 
 (defn reduce-image
@@ -155,6 +155,14 @@
     ['conj l1 ['conj & l2]] (union 'conj [l1] l2)
     ['conj t1 t2] (if (= t1 t2) t1 st)
     :else st))
+
+(defn reduce-seq-conj
+  [st]
+  (let [cnt (count st)]
+    (cond
+      (= 3 cnt) (second st)
+      (odd? cnt) (vec (butlast st))
+      :else st)))
 
 (def reducible-ops
   {'ext-inter `reduce-ext-inter

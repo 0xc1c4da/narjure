@@ -21,8 +21,7 @@
     "(int-image a b)" "(\\ a b)"
     "(ext-image a b)" "(/ a b)"
     "(ind-var X)" "$X"
-    "(dep-var X)" "#X"
-    "(op 1)" "/1"))
+    "(dep-var X)" "#X"))
 
 (deftest test-read-rule
   (are [l s] (= l (read-rule s))

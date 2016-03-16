@@ -39,9 +39,9 @@
     '[ext-inter 2 1] '[ext-inter [ext-inter 1] 2]
     '[ext-inter 2 1] '[ext-inter 1 [ext-inter 2]]
     '[int-set 2 1] '[ext-inter [int-set 1] [int-set 2]]
-    '[ext-set 2 1] '[ext-inter [ext-set 1] [ext-set 2]]
     '[int-set 2 1] '[ext-inter [int-set 1] [int-set 2]]
-    '[ext-set 2 1] '[ext-inter [ext-set 1] [ext-set 2]]
+    '[ext-inter [ext-set 1] [ext-set 2]]
+    '[ext-inter [ext-set 1] [ext-set 2]]
 
     2 '[| 2]
     '[| 1] '[| [| 1] [| 1]]

@@ -42,9 +42,7 @@
       (s/replace #"\(\\" "(int-image")
       (s/replace #"\(/" "(ext-image")
       (s/replace #"\$([A-Z])" "(ind-var $1)")
-      (s/replace #"#([A-Z])" "(dep-var $1)")
-      ;todo what does /0 mean?
-      (s/replace #"\/([0-9]+)" "(op $1)")))
+      (s/replace #"#([A-Z])" "(dep-var $1)")))
 
 (defn read-rule [s]
   (-> s replacements add-brackets read-string))

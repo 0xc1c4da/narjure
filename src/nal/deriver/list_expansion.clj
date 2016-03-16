@@ -2,6 +2,8 @@
   (:require [nal.deriver.utils :refer [walk]]
             [clojure.string :as s]))
 
+(def max-elements-in-list 7)
+
 (defn get-list
   "Finds the first :list element in the rule."
   [prefix statement]
@@ -49,7 +51,7 @@
               (if-let [from-name (get-list ":from" st)]
                 (expand-:from-element st from-name l-name %)
                 [st]))
-            (range 1 6))))
+            (range 1 (inc max-elements-in-list)))))
 
 (defn contains-list?
   "Checks if rule contains any :list element."

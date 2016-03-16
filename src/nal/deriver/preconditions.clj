@@ -1,16 +1,18 @@
 (ns nal.deriver.preconditions
   (:require [nal.deriver.set-functions
              :refer [f-map not-empty-diff? not-empty-inter?]]
-            [nal.deriver.substitution :refer [munification-map]]
             [nal.deriver.utils :refer [walk]]
             [nal.deriver.substitution :refer [substitute munification-map]]
             [nal.deriver.terms-permutation :refer [implications equivalences]]
-            [clojure.set :refer [union intersection]]))
+            [clojure.set :refer [union intersection]]
+            [narjure.defaults :refer [duration]]
+            [clojure.core.match :as m]
+            [nal.deriver.normalization :refer [reduce-seq-conj]]))
+
+(defn abs [^long n] (Math/abs n))
 
 ;TODO preconditions
 ;:shift-occurrence-forward :shift-occurrence-backward
-;:no-common-subterm
-;:measure-time :concurrent
 (defmulti compound-precondition
   "Expands compound precondition to clojure sequence
   that will be evaluted later"
@@ -20,7 +22,7 @@
 
 (defmethod compound-precondition :!=
   [[_ & args]]
-  [(concat (list `not=) args)])
+  [`(not= ~@args)])
 
 (defn check-set [set-type arg]
   `(and (coll? ~arg) (= ~set-type (first ~arg))))
@@ -84,8 +86,13 @@
 
 (defmethod compound-precondition :measure-time
   [_]
-  [`(not= :eternal :t-occurence)
-   `(not= :eternal :b-occurence)])
+  [`(not= :eternal :t-occurrence)
+   `(not= :eternal :b-occurrence)
+   `(<= ~duration (abs (- :t-occurrence :b-occurrence)))])
+
+(defmethod compound-precondition :concurrent
+  [_]
+  [`(> ~duration (abs (- :t-occurrence :b-occurrence)))])
 
 ;-------------------------------------------------------------------------------
 (defmulti precondition-transformation (fn [arg1 _] (first arg1)))
@@ -94,7 +101,7 @@
 
 (defn sets-transformation
   [[cond-name el1 el2 el3] conclusion]
-  (walk conclusion (= el el3)
+  (walk conclusion (= :el el3)
     `(~(f-map cond-name) ~el1 ~el2)))
 
 (doall (map
@@ -122,7 +129,7 @@
 (defmethod precondition-transformation :measure-time
   [[_ arg] conclusion]
   (let [mt (gensym)]
-    (walk `(let [k# 1 ~arg (- :t-occurence :b-occurence)]
+    (walk `(let [~arg (abs (- :t-occurrence :b-occurrence))]
              ~(walk conclusion
                 (= :el arg) [:interval arg]))
       (= :el arg) mt)))
@@ -137,3 +144,58 @@
   "Some transformations of conclusion may be required by precondition."
   [conclusion preconditions]
   (reduce check-precondition conclusion preconditions))
+
+;-------------------------------------------------------------------------------
+(defmulti conclusion-transformation (fn [arg1 _] (first arg1)))
+
+(defn shift-forward-let
+  ([sym conclusion] (shift-forward-let sym nil conclusion nil))
+  ([sym op conclusion duration]
+   `(let [interval# ~sym
+          ~@(if duration
+              `[:t-occurrence (~op :t-occurrence ~duration)]
+              [])
+          :t-occurrence (if interval# (+ :t-occurrence interval#)
+                                      :t-occurrence)]
+      ~conclusion)))
+
+(defmethod conclusion-transformation :shift-occurrence-forward
+  [args concl]
+  (m/match (mapv #(if (and (coll? %) (= 'quote (first %)))
+                   (second %) %) (rest args))
+    [(:or '=|> '==>)] concl
+    ['pred-impl] `(let [:t-occurrence (+ :t-occurrence ~duration)] ~concl)
+    ['retro-impl] `(let [:t-occurrence (- :t-occurrence ~duration)] ~concl)
+    [sym (:or '=|> '==>)] (shift-forward-let sym concl)
+    [sym 'pred-impl] (shift-forward-let sym `+ concl duration)
+    [sym 'retro-impl] (shift-forward-let sym `- concl duration)))
+
+(defn backward-interval-check [sym]
+  `(and (coll? ~sym) (= (first ~sym) (quote ~'seq-conj))
+        (let [cnt# (count ~sym)]
+          (and (odd? cnt#) (get-in ~sym [(dec cnt#) 1])))))
+
+(defn shift-backward-let
+  ([sym conclusion] (shift-backward-let sym nil conclusion nil))
+  ([sym op conclusion duration]
+   `(let [interval# ~(backward-interval-check sym)
+          ~@(if duration
+              `[:t-occurrence (~op :t-occurrence ~duration)]
+              [])
+          :t-occurrence (if interval# (+ :t-occurrence interval#)
+                                      :t-occurrence)]
+      (if interval#
+        (update ~conclusion :statement reduce-seq-conj)
+        ~conclusion))))
+
+(defmethod conclusion-transformation :shift-occurrence-backward
+  [args concl]
+  (let [duration (- duration)]
+    (m/match (mapv #(if (and (coll? %) (= 'quote (first %)))
+                     (second %) %) (rest args))
+      [(:or '=|> '==>)] concl
+      ['pred-impl] `(let [:t-occurrence (+ :t-occurrence ~duration)] ~concl)
+      ['retro-impl] `(let [:t-occurrence (- :t-occurrence ~duration)] ~concl)
+      [sym (:or '=|> '==>)] (shift-backward-let sym concl)
+      [sym 'pred-impl] (shift-backward-let sym `+ concl duration)
+      [sym 'retro-impl] (shift-backward-let sym `- concl duration))))

@@ -113,7 +113,7 @@
 (defn belief-structural-deduction [_ p2]
   (when p2 (deduction p2 [1 d/judgement-confidence])))
 
-(defn belief-structural-difference [p1 p2]
+(defn belief-structural-difference [_ p2]
   (when p2
     (let [[^double f ^double c] (deduction p2 [1 d/judgement-confidence])]
       [(- 1 f) c])))
