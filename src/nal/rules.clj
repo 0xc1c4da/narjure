@@ -6,28 +6,12 @@
 
 ;; <!-- <div style="z-index: 9999; position: fixed; left: 0; top: 0;"> <button <iframe name="bible" src="NAL-Specification.pdf" style="position:fixed" width=100% height=35%></iframe> </div> -->
 
-(defrules equivalence-and-implication
-          "<h1><a href=\"NAL-Specification.pdf#page=87\">Equivalence and Implication Rules</a></h1><br/>  <!-- target=\"bible\" -->
-These rules are used to <br/>
-capture equivalence and immplication <br/>
- theorems as described in the<br/>
-  NAL reference.<br/>
-Their correctness follows by the<br/>
-definitions of the NAL statement <br/>
- copulas. <br/>
-Since the conclusion is equivalent,  <br/>
-the truth value of the  <br/>
- conclusion is using Identity as <br/>
- truth and desire function.
+(defrules nal1-nal2-nal3-equivalence-and-implication
+          "<h1><a href=\"NAL-Specification.pdf#page=87\">NAL1 NAL2 NAL3 Equivalence and Implication Rules</a></h1><br/>  <!-- target=\"bible\" -->
+These rules are used to capture equivalence and immplication theorems as described in the NAL reference.
+Their correctness follows by the definitions of the NAL statement copulas.
+Since the conclusion is equivalent, the truth value of the conclusion is using Identity as truth and desire function.
 <br/><br/>
-
-
-
-
-<h1><a href=\"NAL-Specification.pdf#page=25\">Negation</a></h1><br/>  <!-- target=\"bible\" -->
-<br/><br/><br/><br/><br/><br/>
-
-
           "
   ;;Equivalence and Implication Rules
   ;Similarity to Inheritance
@@ -60,10 +44,13 @@ the truth value of the  <br/>
           )
 
 
-(defrules conversion-contraposition-negation
-          "<h1><a href=\"NAL-Specification.pdf#page=25\">Conversion</a></h1><br/>
+(defrules nal1-nal5-conversion-contraposition-negation
+          "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL1 NAL5 Conversion, Contraposition, Negation</a></h1><br/>
           <!-- target=\"bible\" -->\nIn term logics, \"conversion\" is
-          <br/> an inference from a single premise to a conclusion by interchanging the subject and predicate terms of the premise."
+          <br/> an inference from a single premise to a conclusion by interchanging the subject and predicate terms of the premise.<br/><br/>
+          In logic, contraposition is a law that says that a conditional statement is logically equivalent to its contrapositive.
+          The contrapositive of the statement has its antecedent and consequent inverted and flipped<br/><br/>
+          Negation just creates the negation of a statement, having the frequency of the truth value inverted."
   ;; Conversion
   ; If S can stand for P P can to a certain low degree also represent the class S
   ; If after S usually P happens then it might be a good guess that usually before P happens S happens.
@@ -107,9 +94,12 @@ the truth value of the  <br/>
   #R[--(A <=> B) B |- (A <=> B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
           )
 
-(defules inheritance-related-syllogism
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
-          "
+(defules nal1-nal2-inheritance-related-syllogisms
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL1 NAL2 Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+         Deduction, Induction and Abduction can be naturally represented using the Inheritance-Relation,
+         a relation which makes it possible to build a taxonomic hierachy, for example cat --> animal represents that cats are animals.
+         The following rules implement Deduction, Induction and Abduction just based on this relation, while additionally rules for similarity, which corresponds to
+         a Inheritance-Relation which goes both ways, are added"
   ;;Inheritance-Related Syllogisms
   ; If A is a special case of B and B is a special case of C so is A a special case of C (strong) the other variations are hypotheses (weak)
   #R[(A --> B) (B --> C) |- (A --> C) :pre ((:!= A C)) :post (:t/deduction :d/strong :allow-backward)]
@@ -134,9 +124,20 @@ the truth value of the  <br/>
   #R[(M --> P) (S <-> M) |- (S --> P) :pre ((:!= S P)) :post (:t/analogy :d/strong :allow-backward)]
   #R[(P --> M) (S <-> M) |- (P --> S) :pre ((:!= S P)) :post (:t/analogy :d/strong :allow-backward)]
   #R[(M <-> P) (S <-> M) |- (S <-> P) :pre ((:!= S P)) :post (:t/resemblance :d/strong :allow-backward)]
-)
-(defules inheritance-based-composition
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+          )
+
+(defules nal3-intersection-union-difference
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL3 Intersection, Union, Difference</a></h1><br/>  <!-- target=\"bible\" -->
+          These are the NAL3-related union, intersection and difference rules,
+          allowing the system to create new extensional intersections / intensional intersections and differences based on existing terms.
+          A union of instances (extensional union) are a special case of the properties they share, so are a special case of the intersection of the shared properties (intensional intersection)
+          Also a union of two properties (intensional union), is a general case of all the instances which have both properties (extensional intersection)
+          This symmetry holds when reasoning about the extension and intension, which is why the truth-calculations
+          are swapped in the extension-related and intension-related versions of the specific rules.
+          The rules here are not used for sets, since it would be redundant,
+          for sets there are special rules which follow the same philosophy.
+          Additionally no-common-subterm is used to hamper evidence to be counted twice.
+          Additionally note that ((S & P) & Q) is automatically reduced to (S & P & Q), same for |.
           "
   ;; inheritance-based composition
   ; If P and S are in the intension/extension of M then union/difference and intersection can be built:
@@ -150,9 +151,11 @@ the truth value of the  <br/>
                               (M --> (P - S)) :post (:t/difference))
      :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))]
          )
-(defules inheritance-based-decomposition
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
-                 "
+
+(defules nal3-inheritance-based-decomposition
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL3 Inheritance-based Decomposition</a></h1><br/>  <!-- target=\"bible\" -->
+         This rules are the opposite of what the above rules represent.
+         Instead of composing new intersections, this rules are responsible for decomposing them."
          ;; inheritance-based decomposition
   ; if (S --> M) is the case and ((| S :list/A) --> M) is not the case then ((| :list/A) --> M) is not the case hence :t/decompose-pnn
   #R[(S --> M) ((| S :list/A) --> M) |- ((| :list/A) --> M) :post (:t/decompose-pnn)]
@@ -165,8 +168,12 @@ the truth value of the  <br/>
   #R[(M --> S) (M --> (S ~ P)) |- (M --> P) :post (:t/decompose-pnp)]
   #R[(M --> S) (M --> (P ~ S)) |- (M --> P) :post (:t/decompose-nnn)]
          )
-(defules set-related-rules
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+
+(defules nal3-set-related-rules
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL3 Set-related rules</a></h1><br/>  <!-- target=\"bible\" -->
+         These are the set-versions of the rules above. Sets form the boundaries of the taxonomic hierachy
+         spanned by the inheritance-statements. A property is a thing for which there can be no further generalization,
+         as [furry], while an instance is a thing for which there can be no further specialization, for example {tim}.
           "
   ;; Set comprehension:
   #R[(C --> A) (C --> B) |- (C --> R) :post (:t/union) :pre ((:set-ext? A) (:union A B R))]
@@ -181,25 +188,35 @@ the truth value of the  <br/>
 
   #R[(C --> A) (C --> B) |- (C --> R) :post (:t/difference) :pre ((:difference A B R))]
   #R[(A --> C) (B --> C) |- (R --> C) :post (:t/difference) :pre ((:difference A B R))]
-
-  ; Set element takeout:
-  #R[(C --> {:list/A}) C |- (C --> {:from/A}) :post (:t/structural-deduction)]
-  #R[(C --> [:list/A]) C |- (C --> [:from/A]) :post (:t/structural-deduction)]
-  #R[({:list/A} --> C) C |- ({:from/A} --> C) :post (:t/structural-deduction)]
-  #R[([:list/A] --> C) C |- ([:from/A] --> C) :post (:t/structural-deduction)]
          )
+
 (defules nal3-structural-inference
          "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL3 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
-          "
+          These are some additional meaningful structural deduction rule for the NAL3-statements.
+          For example if it is known that a cat is a furry animal, it can be derived that a cat is an animal."
   ; NAL3 single premise inference:
   #R[((| :list/A) --> M) M |- (:from/A --> M) :post (:t/structural-deduction)]
   #R[(M --> (& :list/A)) M |- (M --> :from/A) :post (:t/structural-deduction)]
 
   #R[((B - G) --> S) S |- (B --> S) :post (:t/structural-deduction)]
   #R[(R --> (B ~ S)) R |- (R --> B) :post (:t/structural-deduction)]
+
+   ; Set element takeout:
+   #R[(C --> {:list/A}) C |- (C --> {:from/A}) :post (:t/structural-deduction)]
+   #R[(C --> [:list/A]) C |- (C --> [:from/A]) :post (:t/structural-deduction)]
+   #R[({:list/A} --> C) C |- ({:from/A} --> C) :post (:t/structural-deduction)]
+   #R[([:list/A] --> C) C |- ([:from/A] --> C) :post (:t/structural-deduction)]
          )
+
 (defules nal4-structural-inference
           "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL4 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
+           The purpose of this rules is structural inference on relations.
+           This allows the system to see a specific relation from different perspective,
+           as demanded to make arguments of relations themselves possibly be the subject or predicate of an Inheritance-statement.
+           For example if the cat eats the mouse, the cat is a special case of something which eats a mouse,
+           additionally the mouse is a special case of something which is eaten by the cat,
+           additionally the the cat and the mouse are in an anonymous relation which itself is a special case of eating.
+           Since this are all different representations of the same relation, the rules use Identity as truth value.
            "
   ; NAL4 - Transformations between products and images:
   ; Relations and transforming them into different representations so that arguments and the relation it'self can become the subject or predicate
@@ -215,9 +232,17 @@ the truth value of the  <br/>
   #R[((\ M :list/A) --> Ai) M |- (M --> (:list/A))
       :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
      :post (:t/identity :d/identity)]
-)
+         )
+
 (defules nal5-implication-based-syllogisms
          "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL5 implication based syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+           While Inheritance represents a relation in meaning, Implication represents a relation in truth.
+           The meaning of ==> is very natural, and the syllogistic inference is analogous to how it was in --> case.
+           Also here a two-sided version of the ==> relation, namely <=> is considered, this one is called Equivalence.
+           Note that there are temporal variables of these copulas, temporally
+           consequent =/> </>, as well as temporal concurrent =|> <|> variants.
+           For ==> there is an additional =\\> relation for \"before\", allowing the system
+           to for example draw deductive conclusion also into the past if the evidence supports them.
            "
   ; implication-based syllogism
   #R[(M ==> P) (S ==> M) |- (S ==> P) :post (:t/deduction :order-for-all-same :allow-backward) :pre ((:!= S P))]
@@ -274,7 +299,13 @@ the truth value of the  <br/>
   #R[(M <=> P) (S <=> M) |- (S <=> P) :pre ((:!= S P)) :post (:t/resemblance :order-for-all-same :allow-backward)]
   #R[(M </> P) (S <|> M) |- (S </> P) :pre ((:!= S P)) :post (:t/resemblance :allow-backward)]
   #R[(M <|> P) (S </> M) |- (S </> P) :pre ((:!= S P)) :post (:t/resemblance :allow-backward)]
+         )
 
+(defules nal5-implication-based-composition
+     "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL5 implication based composition</a></h1><br/>  <!-- target=\"bible\" -->
+     Similar as in classical logics, more complicated statements, involving conjunction and disjunction can be composed,
+     this rules are responsible for this. Note that for the conjunction, &&, there is again a temporal
+     variant &| for concurrent conjunction, and &/ for sequential conjunction."
   ; implication-based composition
   ; Same as for inheritance again
   #R[(P ==> M) (S ==> M) |- (((P || S) ==> M) :post (:t/intersection)
@@ -307,6 +338,11 @@ the truth value of the  <br/>
                               (R =\> K) :post (:t/induction)
                               (K </> R) :post (:t/comparison))
      :pre ((:!= R K))]
+         )
+
+(defules nal5-nal8-implication-based-decomposition
+        "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL5 implication based decomposition and procedural inference</a></h1><br/>  <!-- target=\"bible\" -->
+       Here again, decomposition for ==> to make it possible for the system to decompose what was composed by the previous rules."
 
   ; implication-based decomposition
   ; Same as for inheritance again
@@ -340,10 +376,16 @@ the truth value of the  <br/>
   #R[S (&| (-- S) :list/A) |- (&| :list/A) :post (:t/decompose-nnn)]
   #R[S (&& (-- S) :list/A) |- (&& :list/A) :post (:t/decompose-nnn)]
   #R[S (|| (-- S) :list/A) |- (|| :list/A) :post (:t/decompose-ppp)]
+         )
 
-  ; multi-conditional syllogism
-  ; Inference about the pre/postconditions
-  #R[Y ((&& X :list/A) ==> B) |- ((&& :list/A) ==> B) :pre ((:substitute-if-unifies "$" X Y)) :post (:t/deduction :order-for-all-same :seq-interval-from-premises)]
+(defules nal5-multi-conditional-syllogism
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL5 implication based decomposition</a></h1><br/>  <!-- target=\"bible\" -->
+         Additionally, there are some rules which allow syllogism-style inference directly happen on compounds with conjunctions,
+         whether this rules are really necessary, I am not convinced, but they are at least valid.
+         "
+   ; multi-conditional syllogism
+   ; Inference about the pre/postconditions
+   #R[Y ((&& X :list/A) ==> B) |- ((&& :list/A) ==> B) :pre ((:substitute-if-unifies "$" X Y)) :post (:t/deduction :order-for-all-same :seq-interval-from-premises)]
   #R[((&& M :list/A) ==> C) ((&& :list/A) ==> C) |- M :post (:t/abduction :order-for-all-same)]
 
   ; Can be derived by NAL7 rules so this won't be necessary there (:order-for-all-same left out here)
@@ -355,7 +397,18 @@ the truth value of the  <br/>
   #R[(A ==> M) ((&& M :list/A) ==> C) |- ((&& A :list/A) ==> C) :post (:t/deduction :order-for-all-same :seq-interval-from-premises)]
   #R[((&& M :list/A) ==> C) ((&& A :list/A) ==> C) |- (A ==> M) :post (:t/induction :order-for-all-same)]
   #R[(A ==> M) ((&& A :list/A) ==> C) |- ((&& M :list/A) ==> C) :post (:t/abduction :order-for-all-same :seq-interval-from-premises)]
+         )
 
+(defules nal6-variable-introduction
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL6 Variable Introduction</a></h1><br/>  <!-- target=\"bible\" -->
+         The system has the ability to introduce variabes,
+         similar as in FOPL where there is a all-quantor and an exists-quantor,
+         where here independent-variables correspond to the all-quantor roughly and are written like $X,
+         while dependent-variables correspond to the exists-quantor and are written like #X
+         Nothe that there are also temporal variants here,
+         allowing the system to introduce variables while not loosing the temporal information between the statements.
+         Whether the temporal variants are really needed, is questionable.
+         "
   ; variable introduction
   ; Introduce variables by common subject or predicate
   #R[(S --> M) (P --> M) |- (((P --> $X) ==> (S --> $X)) :post (:t/abduction)
@@ -394,6 +447,30 @@ the truth value of the  <br/>
                               (&| (#Y --> S) (#Y --> P)) :post (:t/intersection :linkage-temporal))
      :pre ((:!= S P) (:concurrent (M --> P) (M --> S)))]
 
+         )
+
+
+(defules nal6-variable-syllogisms
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL6 Variable Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+         Additionally, these rules are valid due to the semantics of the dependent variables.
+         Whether these rules are really needed is however questionable.
+         "
+; conditional abduction by dependent variable
+#R[((A --> R) ==> Z) ((&& (#Y --> B) (#Y --> R) :list/A) ==> Z) |- (A --> B) :post (:t/abduction)]
+#R[((A --> R) ==> Z) ((&& (#Y --> B) (#Y --> R)) ==> Z) |- (A --> B) :post (:t/abduction)]
+
+; conditional deduction "An inverse inference has been implemented as a form of deduction" https://code.google.com/p/open-nars/issues/detail?id=40&can=1
+#R[(U --> L) ((&& (#X --> L) (#X --> R)) ==> Z) |- ((U --> R) ==> Z) :post (:t/deduction)]
+#R[(U --> L) ((&& (#X --> L) (#X --> R) :list/A) ==> Z) |- ((&& (U --> R) :list/A) ==> Z) :pre ((:substitute #X U)) :post (:t/deduction)]
+         )
+
+(defules nal6-multiple-variable-introduction
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL6 Multiple Variable Introduction</a></h1><br/>  <!-- target=\"bible\" -->
+         In order to introduce additional variables and after one was already introduced,
+         and in order to handle multiples these, these rules exist,
+         allowing the system to create more complicated abstractions and to work with them.
+         "
+
   ; 2nd variable introduction
   #R[(A ==> (M --> P)) (M --> S) |- (((&& A ($X --> S)) ==> ($X --> P)) :post (:t/induction)
                                       (&& (A ==> (#Y --> P)) (#Y --> S)) :post (:t/intersection))
@@ -412,27 +489,33 @@ the truth value of the  <br/>
 
   #R[(A --> L) ((A --> S) ==> R) |- ((&& (#X --> L) (#X --> S)) ==> R) :post (:t/induction)]
   #R[(A --> L) ((&& (A --> S) :list/A) ==> R) |- ((&& (#X --> L) (#X --> S) :list/A) ==> R) :pre ((:substitute A #X)) :post (:t/induction)]
-
-  ; dependent variable elimination
-  ; Decomposition with elimination of a variable
-  #R[B (&& A :list/A) |- (&& :list/A) :pre (:judgement? (:substitute-if-unifies "#" A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
-
-  ; conditional abduction by dependent variable
-  #R[((A --> R) ==> Z) ((&& (#Y --> B) (#Y --> R) :list/A) ==> Z) |- (A --> B) :post (:t/abduction)]
-  #R[((A --> R) ==> Z) ((&& (#Y --> B) (#Y --> R)) ==> Z) |- (A --> B) :post (:t/abduction)]
-
-  ; conditional deduction "An inverse inference has been implemented as a form of deduction" https://code.google.com/p/open-nars/issues/detail?id=40&can=1
-  #R[(U --> L) ((&& (#X --> L) (#X --> R)) ==> Z) |- ((U --> R) ==> Z) :post (:t/deduction)]
-  #R[(U --> L) ((&& (#X --> L) (#X --> R) :list/A) ==> Z) |- ((&& (U --> R) :list/A) ==> Z) :pre ((:substitute #X U)) :post (:t/deduction)]
+         )
 
 
-  ; independent variable elimination
+(defules nal6-variable-elimination
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL6 Variable Elimination</a></h1><br/>  <!-- target=\"bible\" -->
+         Additionally, the system has to be able to eliminate variables by filling in the pattern of the second premise,
+         so to specialize a statement when a premise fits in its scheme, this holds for independent as well as dependent variables.
+         "
+   ; dependent variable elimination
+   ; Decomposition with elimination of a variable
+   #R[B (&& A :list/A) |- (&& :list/A) :pre (:judgement? (:substitute-if-unifies "#" A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
+
+
+   ; independent variable elimination
   #_#R[B (A ==> C) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward unused ==>))]
   #_#R[B (C ==> A) |- C (:t/abduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward unused ==>))]
 
   #_#R[B (A <=> C) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward unused <=>))]
   #_#R[B (C <=> A) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward unused <=>))]
 
+         )
+
+(defules nal6-second-layer-variable-handling
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL6 Second Level Variable Handling</a></h1><br/>  <!-- target=\"bible\" -->
+         There were some meaningful cases where variables had to be handled by specific rules at a deeper level,
+         this is what these rules are about. I am still not convinced whether these rules are really needed though.
+         "
   ; second level variable handling rules
   ; second level variable elimination (termlink level2 growth needed in order for these rules to work)
   #R[(A --> K) (&& (#X --> L) (($Y --> K) ==> (&& :list/A))) |- (&& (#X --> L) :list/A) :pre ((:substitute $Y A)) :post (:t/deduction)]
@@ -444,6 +527,26 @@ the truth value of the  <br/>
   #R[(Z ==> (&& C :list/A)) (Z ==> (&& C :list/B)) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/abduction)
                                                       ((&& :list/B) ==> (&& :list/A)) :post (:t/abduction))]
 
+         )
+
+(defules nal7-temporal-inference
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL7 Temporal Inference</a></h1><br/>  <!-- target=\"bible\" -->
+         Altough all above rules also work for temporal statements, there are rules which are only for reasoning about time,
+         these are them. The most important one of these is temporal induction:
+
+         <h1><a href=\"NAL-Specification.pdf#page=63\">Temporal Induction</a></h1><br/>  <!-- target=\"bible\" -->\n
+         Temporal induction, a NAL7 principle, allows the system to temporally relate events.<br/>\nTo express this,
+          the <b> ==&gt; &lt;=&gt; </b> truth-related copulas are extended\nto capture whether two events happen after
+          each other,\n<b> a =/> b  </b>, or concurrently <b> a =|&gt; </b>\nThese operators are all transitive, also
+           \\\\( \\forall a,b,c \\\\) events\nwith truth values \\\\( T1, T2 \\in \\[0, 1\\] \\times \\[0, 1\\]: \\\\)
+           <b> a =/> b </b> \\\\( \\wedge \\\\) <b> b =|> c </b> \\\\( \\implies \\\\)\n<b> a =|> c </b> with truth-value
+            <b> induction( T1 , T2) </b> holds, consistent with the semantics of the copulas.\nAdditionally intervals are
+             used to measure the temporal occurrence time\ndifference between the events.\nIn order to support this,
+             predicate <b> measure_time(I)</b> is introduced.\nwhich is true if and only if the the time difference between
+              both event premises is <b> I </b>.\nIn the language, the time difference is encoded in the sequence,\nfor
+               example <b> ((&/,a,/10) =/> b) </b> encodes that <b> b </b> happens <b> 10  </b>  steps after <b> a </b>.\nNAL7
+               chapter in the NAL reference: <a href=\"blub\">NAL7</a>\n
+         "
   ; NAL7 specific inference
   ; Reasoning about temporal statements. those are using the ==> relation because relation in time is a relation of the truth between statements.
 #R[X ((&/ K (:interval I)) ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" K X) (:shift-occurrence-forward I ==>))]
@@ -467,7 +570,14 @@ the truth value of the  <br/>
                               (B --> A) :post (:p/question)
                               (A <-> B) :post (:p/question))
      :pre (:question?)]
+         )
 
+(defules backward-driven-forward-inference
+         "<h1><a href=\"NAL-Specification.pdf#page=25\">Backward driven forward inference</a></h1><br/>  <!-- target=\"bible\" -->
+         For some rules it is better to only let them succeed if there is a question which explicitly asks for their result.
+         However whether this is really needed is questionable for me, but it has benefits in the preliminary form
+         our control mechanism currently is in.
+         "
   ; and the backward inference driven forward inference:
   ; NAL2:
   #R[([A] <-> [B]) (A <-> B) |- ([A] <-> [B]) :pre (:question?) :post (:t/belief-identity :p/judgment)]
