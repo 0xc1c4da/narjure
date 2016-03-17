@@ -5,10 +5,10 @@
 (declare --S S --P P <-> |- --> ==> M || && =|> -- A Ai B <=>)
 
 ;; <!-- <div style="z-index: 9999; position: fixed; left: 0; top: 0;"> <button <iframe name="bible" src="NAL-Specification.pdf" style="position:fixed" width=100% height=35%></iframe> </div> -->
-;; <style> a{ text-decoration:none } </style>
+
 
 (defrules nal1-nal2-nal3-equivalence-and-implication
-          "<h1><a href=\"NAL-Specification.pdf#page=87\">NAL1 NAL2 NAL3 Equivalence and Implication Rules</a></h1><br/>  <!-- target=\"bible\" -->
+          "<h1><a href=\"NAL-Specification.pdf#page=87\" style=\"text-decoration:none\">NAL1 NAL2 NAL3 Equivalence and Implication Rules</a></h1><br/>  <!-- target=\"bible\" -->
 These rules are used to capture equivalence and implication theorems as described in the NAL reference.
 Their correctness follows by the definitions of the NAL statement copulas.
 Since the conclusion is equivalent, the truth value of the conclusion is using Identity as truth and desire function.
@@ -46,12 +46,15 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
 
 
 (defrules nal1-nal5-conversion-contraposition-negation
-          "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL1 NAL5 Conversion, Contraposition, Negation</a></h1><br/> <!-- target=\"bible\" -->
+          "<h1><a href=\"NAL-Specification.pdf#page=52\" style=\"text-decoration:none\">NAL1 NAL5 Conversion, Contraposition, Negation</a></h1><br/> <!-- target=\"bible\" -->
           In term logics, \"conversion\" is an inference from a single premise to a conclusion by interchanging the subject
-          and predicate terms of the premise.<br/><br/><br/><br/>
+          and predicate terms of the premise. How the truth value is calculated can be seen in
+          <a href=\"NAL-Specification.pdf#page=25\">Conversion</a><br/><br/><br/><br/>
           In logic, contraposition is a law that says that a conditional statement is logically equivalent to its contrapositive.
-          The contrapositive of the statement has its antecedent and consequent inverted and flipped<br/><br/><br/><br/>
-          Negation just creates the negation of a statement, having the frequency of the truth value inverted."
+          In NAL however it is not equivalent, click <a href=\"NAL-Specification.pdf#page=52\">Contraposition</a> to see more detail about this.
+          The contrapositive of the statement has its antecedent and consequent inverted and flipped.<br/><br/><br/>
+          <a href=\"NAL-Specification.pdf#page=50\">Negation</a> just inverts the truth of a statement,
+          which means, due to the semantics of the frequency, that the truth value can be directly obtained by 1-f where f was the frequency of the premise."
   ;; Conversion
   ; If S can stand for P P can to a certain low degree also represent the class S
   ; If after S usually P happens then it might be a good guess that usually before P happens S happens.
@@ -96,11 +99,13 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
           )
 
 (defules nal1-nal2-inheritance-related-syllogisms
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL1 NAL2 Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
-         Deduction, Induction and Abduction can be naturally represented using the Inheritance-Relation.
-         This relation A --> B describes that A is a special case of B, and thus makes it possible to create a generalization-hierachy.
+         "<h1><a href=\"NAL-Specification.pdf#page=24\" style=\"text-decoration:none\">NAL1 NAL2 Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+         <a href=\"NAL-Specification.pdf#page=24\">Deduction</a>, <a href=\"NAL-Specification.pdf#page=24\">Induction</a> and
+         <a href=\"NAL-Specification.pdf#page=24\">Abduction</a> can be naturally represented using the Inheritance-Relation.
+         This relation A --> B describes that A is a special case of B, and thus makes it possible for the system to create a generalization-hierachy by using multiple statements.
          The following rules implement Deduction, Induction and Abduction just based on this relation, while additionally rules for the
-         Similarity relation are added. The Similarity relation itself is defined as a bi-directional Inheritance-Relation."
+         Similarity relation are added. The <a href=\"NAL-Specification.pdf#page=29\">Similarity</a> relation itself is defined as a bi-directional Inheritance-Relation.
+         "
   ;;Inheritance-Related Syllogisms
   ; If A is a special case of B and B is a special case of C so is A a special case of C (strong) the other variations are hypotheses (weak)
   #R[(A --> B) (B --> C) |- (A --> C) :pre ((:!= A C)) :post (:t/deduction :d/strong :allow-backward)]
@@ -128,8 +133,8 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
           )
 
 (defules nal3-intersection-union-difference
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL3 Intersection, Union, Difference</a></h1><br/>  <!-- target=\"bible\" -->
-          These are the NAL3-related union, intersection and difference rules,
+         "<h1><a href=\"NAL-Specification.pdf#page=40\" style=\"text-decoration:none\">NAL3 Intersection, Union, Difference</a></h1><br/>  <!-- target=\"bible\" -->
+          These are the NAL3-related <a href=\"NAL-Specification.pdf#page=35\">union, intersection</a> and <a href=\"NAL-Specification.pdf#page=37\">difference</a> rules,
           allowing the system to create new extensional intersections / intensional intersections and differences based on existing terms.
           A union of instances (extensional union) are a special case of the properties they share, so are a special case of the intersection of the shared properties (intensional intersection)
           Also a union of two properties (intensional union), is a general case of all the instances which have both properties (extensional intersection)
@@ -138,7 +143,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
           The rules here are not used for sets, since it would be redundant,
           for sets there are special rules which follow the same philosophy.
           Additionally no-common-subterm is used to hamper evidence to be counted twice.
-          Additionally note that ((S & P) & Q) is automatically reduced to (S & P & Q), same for |.
+          Additionally note that ((S & P) & Q) is automatically reduced to (S & P & Q), same for |, due to the associativity of this operator.
           "
   ;; inheritance-based composition
   ; If P and S are in the intension/extension of M then union/difference and intersection can be built:
@@ -154,7 +159,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal3-inheritance-based-decomposition
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL3 Inheritance-based Decomposition</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL3 Inheritance-based Decomposition</a></h1><br/>  <!-- target=\"bible\" -->
          This rules are the opposite of what the above rules represent.
          Instead of composing new intersections, this rules are responsible for decomposing them."
          ;; inheritance-based decomposition
@@ -171,7 +176,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal3-set-related-rules
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL3 Set-related rules</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL3 Set-related rules</a></h1><br/>  <!-- target=\"bible\" -->
          These are the set-versions of the rules above. Sets form the boundaries of the taxonomic hierachy
          spanned by the inheritance-statements. A property is a thing for which there can be no further generalization,
          as [furry], while an instance is a thing for which there can be no further specialization, for example {tim}.
@@ -192,7 +197,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal3-structural-inference
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL3 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL3 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
           These are some additional meaningful structural deduction rule for the NAL3-statements.
           For example if it is known that a cat is a furry animal, it can be derived that a cat is an animal."
   ; NAL3 single premise inference:
@@ -210,7 +215,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal4-structural-inference
-          "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL4 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
+          "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL4 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
            The purpose of this rules is structural inference on relations.
            This allows the system to see a specific relation from different perspective,
            as demanded to make arguments of relations themselves possibly be the subject or predicate of an Inheritance-statement.
@@ -236,7 +241,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal5-implication-based-syllogisms
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL5 implication based syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL5 implication based syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
            While Inheritance represents a relation in meaning, Implication represents a relation in truth.
            The meaning of ==> is very natural, and the syllogistic inference is analogous to how it was in --> case.
            Also here a two-sided version of the ==> relation, namely <=> is considered, this one is called Equivalence.
@@ -303,7 +308,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal5-implication-based-composition
-     "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL5 implication based composition</a></h1><br/>  <!-- target=\"bible\" -->
+     "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL5 implication based composition</a></h1><br/>  <!-- target=\"bible\" -->
      Similar as in classical logics, more complicated statements, involving conjunction and disjunction can be composed,
      this rules are responsible for this. Note that for the conjunction, &&, there is again a temporal
      variant &| for concurrent conjunction, and &/ for sequential conjunction."
@@ -342,7 +347,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal5-nal8-implication-based-decomposition
-        "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL5 implication based decomposition and procedural inference</a></h1><br/>  <!-- target=\"bible\" -->
+        "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL5 implication based decomposition and procedural inference</a></h1><br/>  <!-- target=\"bible\" -->
        Here again, decomposition for ==> to make it possible for the system to decompose what was composed by the previous rules."
 
   ; implication-based decomposition
@@ -380,7 +385,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal5-multi-conditional-syllogism
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL5 implication based decomposition</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL5 implication based decomposition</a></h1><br/>  <!-- target=\"bible\" -->
          Additionally, there are some rules which allow syllogism-style inference directly happen on compounds with conjunctions,
          whether this rules are really necessary, I am not convinced, but they are at least valid.
          "
@@ -407,7 +412,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal6-variable-introduction
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL6 Variable Introduction</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL6 Variable Introduction</a></h1><br/>  <!-- target=\"bible\" -->
          The system has the ability to introduce variabes,
          similar as in FOPL where there is a all-quantor and an exists-quantor,
          where here independent-variables correspond to the all-quantor roughly and are written like $X,
@@ -458,7 +463,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
 
 
 (defules nal6-variable-syllogisms
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL6 Variable Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL6 Variable Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
          Additionally, these rules are valid due to the semantics of the dependent variables.
          Whether these rules are really needed is however questionable.
          "
@@ -472,7 +477,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal6-multiple-variable-introduction
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL6 Multiple Variable Introduction</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL6 Multiple Variable Introduction</a></h1><br/>  <!-- target=\"bible\" -->
          In order to introduce additional variables and after one was already introduced,
          and in order to handle multiples these, these rules exist,
          allowing the system to create more complicated abstractions and to work with them.
@@ -500,7 +505,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
 
 
 (defules nal6-variable-elimination
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL6 Variable Elimination</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL6 Variable Elimination</a></h1><br/>  <!-- target=\"bible\" -->
          Additionally, the system has to be able to eliminate variables by filling in the pattern of the second premise,
          so to specialize a statement when a premise fits in its scheme, this holds for independent as well as dependent variables.
          "
@@ -519,7 +524,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal6-second-layer-variable-handling
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL6 Second Level Variable Handling</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL6 Second Level Variable Handling</a></h1><br/>  <!-- target=\"bible\" -->
          There were some meaningful cases where variables had to be handled by specific rules at a deeper level,
          this is what these rules are about. I am still not convinced whether these rules are really needed though.
          "
@@ -530,7 +535,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal7-temporal-inference
-         "<h1><a href=\"NAL-Specification.pdf#page=63\">NAL7 Temporal Inference</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=63\" style=\"text-decoration:none\">NAL7 Temporal Inference</a></h1><br/>  <!-- target=\"bible\" -->
          Altough all above rules also work for temporal statements, there are rules which are only for reasoning about time,
          these are them. The most important one of these is temporal induction:
          Temporal induction, a NAL7 principle, allows the system to temporally relate events.<br/>\nTo express this,
@@ -571,7 +576,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules backward-driven-forward-inference
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">Backward driven forward inference</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">Backward driven forward inference</a></h1><br/>  <!-- target=\"bible\" -->
          For some rules it is better to only let them succeed if there is a question which explicitly asks for their result.
          However whether this is really needed is questionable for me, but it has benefits in the preliminary form
          our control mechanism currently is in.
