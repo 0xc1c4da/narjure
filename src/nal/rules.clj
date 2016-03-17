@@ -2,10 +2,16 @@
   (:require [nal.deriver.rules :refer [defrules]]
             nal.reader))
 
-(declare --S S --P P <-> |- --> ==> M || && =|> -- A Ai B <=>)
-
 ;; <!-- <div style="z-index: 9999; position: fixed; left: 0; top: 0;"> <button <iframe name="bible" src="NAL-Specification.pdf" style="position:fixed" width=100% height=35%></iframe> </div> -->
 
+
+;; <h1> Copulas </h1>
+;; --> is the <a href="NAL-Specification.pdf#page=11">Inheritance-relation</a>. A --> B describes that A is a special case of B. This relation thus makes it possible for the system to create a generalization-hierachy by using multiple statements. <br/>
+;; <-> is the <a href="NAL-Specification.pdf#page=29">Similarity-relation</a>. The Similarity-relation itself is defined as a bi-directional Inheritance-Relation.<br/>
+;; ==> is the <a href="NAL-Specification.pdf#page=46">Implication-relation</a> and naturally encodes the intiutive meaning of implication.<br/>
+;; && stands for <a href="NAL-Specification.pdf#page=46">Conjunction</a>, || for <a href="NAL-Specification.pdf#page=46">Disjunction</a>. More details can be seen in the relevant inference rule sections.
+
+(declare --S S --P P <-> |- --> ==> M || && =|> -- A Ai B <=>)
 
 (defrules nal1-nal2-nal3-equivalence-and-implication
           "<h1><a href=\"NAL-Specification.pdf#page=87\" style=\"text-decoration:none\">NAL1 NAL2 NAL3 Equivalence and Implication Rules</a></h1><br/>  <!-- target=\"bible\" -->
@@ -102,9 +108,8 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          "<h1><a href=\"NAL-Specification.pdf#page=24\" style=\"text-decoration:none\">NAL1 NAL2 Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
          <a href=\"NAL-Specification.pdf#page=24\">Deduction</a>, <a href=\"NAL-Specification.pdf#page=24\">Induction</a> and
          <a href=\"NAL-Specification.pdf#page=24\">Abduction</a> can be naturally represented using the Inheritance-Relation.
-         This relation A --> B describes that A is a special case of B, and thus makes it possible for the system to create a generalization-hierachy by using multiple statements.
          The following rules implement Deduction, Induction and Abduction just based on this relation, while additionally rules for the
-         Similarity relation are added. The <a href=\"NAL-Specification.pdf#page=29\">Similarity</a> relation itself is defined as a bi-directional Inheritance-Relation.
+         Similarity relation are added.
          The main purpose of these rules is to establish Deduction, Induction, Abduction, for the Inheritance-Copula
          and Analogy and Resemblance as a special case of a deduction for the Similarity copula,
          as well as Comparison as a special case of Induction/Abduction also for the Similarity copula.

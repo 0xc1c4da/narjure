@@ -2868,9 +2868,15 @@ net.brehaut.ClojureTools = (function (SH) {
 </script><script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script><title>narjure -- Marginalia</title></head><body><table><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#nal.rules" name="nal.rules"><h1 class="project-name">nal.rules</h1><a class="toc-link" href="toc.html">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns nal.rules
   (:require [nal.deriver.rules :refer [defrules]]
-            nal.reader))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(declare --S S --P P &lt;-&gt; |- --&gt; ==&gt; M || &amp;&amp; =|&gt; -- A Ai B &lt;=&gt;)</pre></td></tr><tr><td class="docs"><!-- <div style="z-index: 9999; position: fixed; left: 0; top: 0;"> <button <iframe name="bible" src="NAL-Specification.pdf" style="position:fixed" width=100% height=35%></iframe> </div> -->
-</td><td class="codes"></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=87" style="text-decoration:none">NAL1 NAL2 NAL3 Equivalence and Implication Rules</a></h1><br/>  <!-- target="bible" -->
+            nal.reader))</pre></td></tr><tr><td class="docs"><!-- <div style="z-index: 9999; position: fixed; left: 0; top: 0;"> <button <iframe name="bible" src="NAL-Specification.pdf" style="position:fixed" width=100% height=35%></iframe> </div> -->
+</td><td class="codes"></td></tr><tr><td class="docs"><h1> Copulas </h1>
+
+<p>--> is the <a href="NAL-Specification.pdf#page=11">Inheritance-relation</a>. A --> B describes that A is a special case of B. This relation thus makes it possible for the system to create a generalization-hierachy by using multiple statements. <br/>
+&lt;-> is the <a href="NAL-Specification.pdf#page=29">Similarity-relation</a>. The Similarity-relation itself is defined as a bi-directional Inheritance-Relation.<br/>
+==> is the <a href="NAL-Specification.pdf#page=46">Implication-relation</a> and naturally encodes the intiutive meaning of implication.<br/>
+&amp;&amp; stands for <a href="NAL-Specification.pdf#page=46">Conjunction</a>, || for <a href="NAL-Specification.pdf#page=46">Disjunction</a>. More details can be seen in the relevant inference rule sections.</p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(declare --S S --P P &lt;-&gt; |- --&gt; ==&gt; M || &amp;&amp; =|&gt; -- A Ai B &lt;=&gt;)</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=87" style="text-decoration:none">NAL1 NAL2 NAL3 Equivalence and Implication Rules</a></h1><br/>  <!-- target="bible" -->
 These rules are used to capture equivalence and implication theorems as described in the NAL reference.
 Their correctness follows by the definitions of the NAL statement copulas.
 Since the conclusion is equivalent, the truth value of the conclusion is using Identity as truth and desire function.
@@ -2948,9 +2954,8 @@ So these rules are for bringing NAL-statements into a different, implied and mor
   #R[--(A &lt;=&gt; B) B |- (A &lt;=&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=24" style="text-decoration:none">NAL1 NAL2 Inheritance-Related Syllogisms</a></h1><br/>  <!-- target="bible" -->
          <a href="NAL-Specification.pdf#page=24">Deduction</a>, <a href="NAL-Specification.pdf#page=24">Induction</a> and
          <a href="NAL-Specification.pdf#page=24">Abduction</a> can be naturally represented using the Inheritance-Relation.
-         This relation A --> B describes that A is a special case of B, and thus makes it possible for the system to create a generalization-hierachy by using multiple statements.
          The following rules implement Deduction, Induction and Abduction just based on this relation, while additionally rules for the
-         Similarity relation are added. The <a href="NAL-Specification.pdf#page=29">Similarity</a> relation itself is defined as a bi-directional Inheritance-Relation.
+         Similarity relation are added.
          The main purpose of these rules is to establish Deduction, Induction, Abduction, for the Inheritance-Copula
          and Analogy and Resemblance as a special case of a deduction for the Similarity copula,
          as well as Comparison as a special case of Induction/Abduction also for the Similarity copula.
@@ -3306,7 +3311,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
   ; second level variable handling rules
   ; second level variable elimination (termlink level2 growth needed in order for these rules to work)
   #R[(A --&gt; K) (&amp;&amp; (#X --&gt; L) (($Y --&gt; K) ==&gt; (&amp;&amp; :list/A))) |- (&amp;&amp; (#X --&gt; L) :list/A) :pre ((:substitute $Y A)) :post (:t/deduction)]
-  #R[(A --&gt; K) (($X --&gt; L) ==&gt; (&amp;&amp; (#Y --&gt; K) :list/A)) |- (($X --&gt; L) ==&gt; (&amp;&amp; :list/A)) :pre ((:substitute #Y A)) :post (:t/anonymous-analogy)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=61" style="text-decoration:none">NAL7 Temporal Inference</a></h1><br/> <!-- target="bible" -->
+  #R[(A --&gt; K) (($X --&gt; L) ==&gt; (&amp;&amp; (#Y --&gt; K) :list/A)) |- (($X --&gt; L) ==&gt; (&amp;&amp; :list/A)) :pre ((:substitute #Y A)) :post (:t/anonymous-analogy)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=61" style="text-decoration:none">NAL7 Temporal Inference</a></h1><br/>  <!-- target="bible" -->
          Altough all above rules also work for temporal statements, there are rules which are only for reasoning about time,
          these are them. The most important one of these is temporal induction:
          Temporal induction, a NAL7 principle, allows the system to temporally relate events.
@@ -3320,7 +3325,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          both event premises is <b> I </b>. In the language, the time difference is encoded in the sequence, for
          example <b> ((&amp;/,a,/10) =/> b) </b> encodes that <b> b </b> happens <b> 10  </b>  steps after <b> a </b>.</p>
 </td><td class="codes"><pre class="brush: clojure">(defules nal7-temporal-inference
-         &quot;&lt;h1&gt;&lt;a href=\&quot;NAL-Specification.pdf#page=61\&quot; style=\&quot;text-decoration:none\&quot;&gt;NAL7 Temporal Inference&lt;/a&gt;&lt;/h1&gt;&lt;br/&gt; &lt;!-- target=\&quot;bible\&quot; --&gt;
+         &quot;&lt;h1&gt;&lt;a href=\&quot;NAL-Specification.pdf#page=61\&quot; style=\&quot;text-decoration:none\&quot;&gt;NAL7 Temporal Inference&lt;/a&gt;&lt;/h1&gt;&lt;br/&gt;  &lt;!-- target=\&quot;bible\&quot; --&gt;
          Altough all above rules also work for temporal statements, there are rules which are only for reasoning about time,
          these are them. The most important one of these is temporal induction:
          Temporal induction, a NAL7 principle, allows the system to temporally relate events.
