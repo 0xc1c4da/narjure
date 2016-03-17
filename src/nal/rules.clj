@@ -397,6 +397,12 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
   #R[(A ==> M) ((&& M :list/A) ==> C) |- ((&& A :list/A) ==> C) :post (:t/deduction :order-for-all-same :seq-interval-from-premises)]
   #R[((&& M :list/A) ==> C) ((&& A :list/A) ==> C) |- (A ==> M) :post (:t/induction :order-for-all-same)]
   #R[(A ==> M) ((&& A :list/A) ==> C) |- ((&& M :list/A) ==> C) :post (:t/abduction :order-for-all-same :seq-interval-from-premises)]
+
+   ; precondition combiner inference rule (variable_unification6):
+   #R[((&& C :list/A) ==> Z) ((&& C :list/B) ==> Z) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/induction)
+                                                         ((&& :list/B) ==> (&& :list/A)) :post (:t/induction))]
+   #R[(Z ==> (&& C :list/A)) (Z ==> (&& C :list/B)) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/abduction)
+                                                         ((&& :list/B) ==> (&& :list/A)) :post (:t/abduction))]
          )
 
 (defules nal6-variable-introduction
@@ -520,13 +526,6 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
   ; second level variable elimination (termlink level2 growth needed in order for these rules to work)
   #R[(A --> K) (&& (#X --> L) (($Y --> K) ==> (&& :list/A))) |- (&& (#X --> L) :list/A) :pre ((:substitute $Y A)) :post (:t/deduction)]
   #R[(A --> K) (($X --> L) ==> (&& (#Y --> K) :list/A)) |- (($X --> L) ==> (&& :list/A)) :pre ((:substitute #Y A)) :post (:t/anonymous-analogy)]
-
-  ; precondition combiner inference rule (variable_unification6):
-  #R[((&& C :list/A) ==> Z) ((&& C :list/B) ==> Z) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/induction)
-                                                        ((&& :list/B) ==> (&& :list/A)) :post (:t/induction))]
-  #R[(Z ==> (&& C :list/A)) (Z ==> (&& C :list/B)) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/abduction)
-                                                      ((&& :list/B) ==> (&& :list/A)) :post (:t/abduction))]
-
          )
 
 (defules nal7-temporal-inference
