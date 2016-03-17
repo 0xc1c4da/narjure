@@ -5,10 +5,11 @@
 (declare --S S --P P <-> |- --> ==> M || && =|> -- A Ai B <=>)
 
 ;; <!-- <div style="z-index: 9999; position: fixed; left: 0; top: 0;"> <button <iframe name="bible" src="NAL-Specification.pdf" style="position:fixed" width=100% height=35%></iframe> </div> -->
+;; <style> a{ text-decoration:none } </style>
 
 (defrules nal1-nal2-nal3-equivalence-and-implication
           "<h1><a href=\"NAL-Specification.pdf#page=87\">NAL1 NAL2 NAL3 Equivalence and Implication Rules</a></h1><br/>  <!-- target=\"bible\" -->
-These rules are used to capture equivalence and immplication theorems as described in the NAL reference.
+These rules are used to capture equivalence and implication theorems as described in the NAL reference.
 Their correctness follows by the definitions of the NAL statement copulas.
 Since the conclusion is equivalent, the truth value of the conclusion is using Identity as truth and desire function.
 <br/><br/>
@@ -45,11 +46,11 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
 
 
 (defrules nal1-nal5-conversion-contraposition-negation
-          "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL1 NAL5 Conversion, Contraposition, Negation</a></h1><br/>
-          <!-- target=\"bible\" -->\nIn term logics, \"conversion\" is
-          <br/> an inference from a single premise to a conclusion by interchanging the subject and predicate terms of the premise.<br/><br/>
+          "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL1 NAL5 Conversion, Contraposition, Negation</a></h1><br/> <!-- target=\"bible\" -->
+          In term logics, \"conversion\" is an inference from a single premise to a conclusion by interchanging the subject
+          and predicate terms of the premise.<br/><br/><br/><br/>
           In logic, contraposition is a law that says that a conditional statement is logically equivalent to its contrapositive.
-          The contrapositive of the statement has its antecedent and consequent inverted and flipped<br/><br/>
+          The contrapositive of the statement has its antecedent and consequent inverted and flipped<br/><br/><br/><br/>
           Negation just creates the negation of a statement, having the frequency of the truth value inverted."
   ;; Conversion
   ; If S can stand for P P can to a certain low degree also represent the class S
@@ -96,10 +97,10 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
 
 (defules nal1-nal2-inheritance-related-syllogisms
          "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL1 NAL2 Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
-         Deduction, Induction and Abduction can be naturally represented using the Inheritance-Relation,
-         a relation which makes it possible to build a taxonomic hierachy, for example cat --> animal represents that cats are animals.
-         The following rules implement Deduction, Induction and Abduction just based on this relation, while additionally rules for similarity, which corresponds to
-         a Inheritance-Relation which goes both ways, are added"
+         Deduction, Induction and Abduction can be naturally represented using the Inheritance-Relation.
+         This relation A --> B describes that A is a special case of B, and thus makes it possible to create a generalization-hierachy.
+         The following rules implement Deduction, Induction and Abduction just based on this relation, while additionally rules for the
+         Similarity relation are added. The Similarity relation itself is defined as a bi-directional Inheritance-Relation."
   ;;Inheritance-Related Syllogisms
   ; If A is a special case of B and B is a special case of C so is A a special case of C (strong) the other variations are hypotheses (weak)
   #R[(A --> B) (B --> C) |- (A --> C) :pre ((:!= A C)) :post (:t/deduction :d/strong :allow-backward)]
@@ -529,11 +530,9 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal7-temporal-inference
-         "<h1><a href=\"NAL-Specification.pdf#page=25\">NAL7 Temporal Inference</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=63\">NAL7 Temporal Inference</a></h1><br/>  <!-- target=\"bible\" -->
          Altough all above rules also work for temporal statements, there are rules which are only for reasoning about time,
          these are them. The most important one of these is temporal induction:
-
-         <h1><a href=\"NAL-Specification.pdf#page=63\">Temporal Induction</a></h1><br/>  <!-- target=\"bible\" -->\n
          Temporal induction, a NAL7 principle, allows the system to temporally relate events.<br/>\nTo express this,
           the <b> ==&gt; &lt;=&gt; </b> truth-related copulas are extended\nto capture whether two events happen after
           each other,\n<b> a =/> b  </b>, or concurrently <b> a =|&gt; </b>\nThese operators are all transitive, also
@@ -631,5 +630,5 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
 ;; <script>
 ;; function replace_html(a,b){ while(document.body.innerHTML.contains(a)) {
 ;;  document.body.innerHTML = document.body.innerHTML.replace(a, b); } }
-;;  replace_html('#R[','    '); replace_html(')]',') ');
+;;  replace_html('#R[','    '); replace_html(')]',') '); replace_html('list/A','A_1..n'); replace_html('list/B','B_1..m');
 ;; </script>
