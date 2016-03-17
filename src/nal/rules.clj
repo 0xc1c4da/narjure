@@ -12,7 +12,7 @@
 These rules are used to capture equivalence and implication theorems as described in the NAL reference.
 Their correctness follows by the definitions of the NAL statement copulas.
 Since the conclusion is equivalent, the truth value of the conclusion is using Identity as truth and desire function.
-<br/><br/>
+So these rules are for bringing NAL-statements into a different, implied and more appropriate form.
           "
   ;;Equivalence and Implication Rules
   ;Similarity to Inheritance
@@ -49,10 +49,10 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
           "<h1><a href=\"NAL-Specification.pdf#page=52\" style=\"text-decoration:none\">NAL1 NAL5 Conversion, Contraposition, Negation</a></h1><br/> <!-- target=\"bible\" -->
           In term logics, \"conversion\" is an inference from a single premise to a conclusion by interchanging the subject
           and predicate terms of the premise. How the truth value is calculated can be seen in
-          <a href=\"NAL-Specification.pdf#page=25\">Conversion</a><br/><br/><br/><br/>
+          <a href=\"NAL-Specification.pdf#page=25\">Conversion</a><br/><br/>
           In logic, contraposition is a law that says that a conditional statement is logically equivalent to its contrapositive.
           In NAL however it is not equivalent, click <a href=\"NAL-Specification.pdf#page=52\">Contraposition</a> to see more detail about this.
-          The contrapositive of the statement has its antecedent and consequent inverted and flipped.<br/><br/><br/>
+          The contrapositive of the statement has its antecedent and consequent inverted and flipped.<br/><br/>
           <a href=\"NAL-Specification.pdf#page=50\">Negation</a> just inverts the truth of a statement,
           which means, due to the semantics of the frequency, that the truth value can be directly obtained by 1-f where f was the frequency of the premise."
   ;; Conversion
@@ -105,6 +105,10 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          This relation A --> B describes that A is a special case of B, and thus makes it possible for the system to create a generalization-hierachy by using multiple statements.
          The following rules implement Deduction, Induction and Abduction just based on this relation, while additionally rules for the
          Similarity relation are added. The <a href=\"NAL-Specification.pdf#page=29\">Similarity</a> relation itself is defined as a bi-directional Inheritance-Relation.
+         The main purpose of these rules is to establish Deduction, Induction, Abduction, for the Inheritance-Copula
+         and Analogy and Resemblance as a special case of a deduction for the Similarity copula,
+         as well as Comparison as a special case of Induction/Abduction also for the Similarity copula.
+         This makes it possible for the system to draw strong conclusions as well as to construct weak but reasonable hypothesis just based on Inheritance-based statements.
          "
   ;;Inheritance-Related Syllogisms
   ; If A is a special case of B and B is a special case of C so is A a special case of C (strong) the other variations are hypotheses (weak)
@@ -144,6 +148,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
           for sets there are special rules which follow the same philosophy.
           Additionally no-common-subterm is used to hamper evidence to be counted twice.
           Additionally note that ((S & P) & Q) is automatically reduced to (S & P & Q), same for |, due to the associativity of this operator.
+          These rules give the system the ability to form differences, intersections and unions of elements of the generalization hierachy.
           "
   ;; inheritance-based composition
   ; If P and S are in the intension/extension of M then union/difference and intersection can be built:
@@ -159,9 +164,10 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal3-inheritance-based-decomposition
-         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL3 Inheritance-based Decomposition</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=86\" style=\"text-decoration:none\">NAL3 Inheritance-based Decomposition</a></h1><br/>  <!-- target=\"bible\" -->
          This rules are the opposite of what the above rules represent.
-         Instead of composing new intersections, this rules are responsible for decomposing them."
+         Instead of composing new intersections, this rules are responsible for decomposing them.
+         This gives the system the ability to work with differences, intersections and unions of elements of the generalization hierachy."
          ;; inheritance-based decomposition
   ; if (S --> M) is the case and ((| S :list/A) --> M) is not the case then ((| :list/A) --> M) is not the case hence :t/decompose-pnn
   #R[(S --> M) ((| S :list/A) --> M) |- ((| :list/A) --> M) :post (:t/decompose-pnn)]
@@ -176,10 +182,15 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal3-set-related-rules
-         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL3 Set-related rules</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=37\" style=\"text-decoration:none\">NAL3 Set-related rules</a></h1><br/>  <!-- target=\"bible\" -->
          These are the set-versions of the rules above. Sets form the boundaries of the taxonomic hierachy
          spanned by the inheritance-statements. A property is a thing for which there can be no further generalization,
          as [furry], while an instance is a thing for which there can be no further specialization, for example {tim}.
+         Most statements, are somewhere between properties and instances in the generalization hierachy,
+         as most things can indeed be meaningfully specialized and generalized.
+         So these set statements are mostly only used by sensors and user input. As example one may consider a sensor which gives information on whether
+         the first pixel in the retina is bright: <{pixel1} --> [bright]>. %degree%
+         So the purpose of these rules is mainly to form compositions of sensor-related properties and instances.
           "
   ;; Set comprehension:
   #R[(C --> A) (C --> B) |- (C --> R) :post (:t/union) :pre ((:set-ext? A) (:union A B R))]
@@ -197,9 +208,10 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal3-structural-inference
-         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL3 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=40\" style=\"text-decoration:none\">NAL3 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
           These are some additional meaningful structural deduction rule for the NAL3-statements.
-          For example if it is known that a cat is a furry animal, it can be derived that a cat is an animal."
+          For example if it is known that a cat is a furry animal, it can be derived that a cat is an animal.
+          So these rules are for valid deductions based on the premises containing intersections and differences."
   ; NAL3 single premise inference:
   #R[((| :list/A) --> M) M |- (:from/A --> M) :post (:t/structural-deduction)]
   #R[(M --> (& :list/A)) M |- (M --> :from/A) :post (:t/structural-deduction)]
@@ -215,7 +227,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal4-structural-inference
-          "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL4 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
+          "<h1><a href=\"NAL-Specification.pdf#page=41\" style=\"text-decoration:none\">NAL4 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
            The purpose of this rules is structural inference on relations.
            This allows the system to see a specific relation from different perspective,
            as demanded to make arguments of relations themselves possibly be the subject or predicate of an Inheritance-statement.
@@ -223,6 +235,8 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
            additionally the mouse is a special case of something which is eaten by the cat,
            additionally the the cat and the mouse are in an anonymous relation which itself is a special case of eating.
            Since this are all different representations of the same relation, the rules use Identity as truth value.
+           The key purpose of tese inference rules is to allow the system to do arbitrary relational reasoning
+           be exposing all aspects about relations to the generalization hierachy.
            "
   ; NAL4 - Transformations between products and images:
   ; Relations and transforming them into different representations so that arguments and the relation it'self can become the subject or predicate
@@ -241,15 +255,18 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal5-implication-based-syllogisms
-         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL5 implication based syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=49\" style=\"text-decoration:none\">NAL5 implication based syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
            While Inheritance represents a relation in meaning, Implication represents a relation in truth.
-           The meaning of ==> is very natural, and the syllogistic inference is analogous to how it was in --> case.
+           The meaning of ==> is very natural and roughly corresponds to the implication in classical logic.
+           Syllogistic inference for ==> is analogous to how it is in case of -->.
            Also here a two-sided version of the ==> relation, namely <=> is considered, this one is called Equivalence.
-           Note that there are temporal variables of these copulas, temporally
-           consequent =/> </>, as well as temporal concurrent =|> <|> variants.
-           For ==> there is an additional =\\> relation for \"before\", allowing the system
+           Note that there are temporal variants of these copulas, temporally
+           consequent =/> </>, as well as the temporal concurrent copulas =|> <|>.
+           For ==> there is an additional =&#92;> relation for \"before\", allowing the system
            to for example draw deductive conclusion also into the past if the evidence supports them.
-           "
+           Note that all inference rules with :order-for-all-same also work for this temporal variants,
+           even if the inference rule itself only speaks about ==>.
+           The key purpose of these rules is to establish deduction, induction, abduction and exemplification for statements using ==> copulas."
   ; implication-based syllogism
   #R[(M ==> P) (S ==> M) |- (S ==> P) :post (:t/deduction :order-for-all-same :allow-backward) :pre ((:!= S P))]
 
@@ -308,10 +325,12 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal5-implication-based-composition
-     "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL5 implication based composition</a></h1><br/>  <!-- target=\"bible\" -->
-     Similar as in classical logics, more complicated statements, involving conjunction and disjunction can be composed,
+     "<h1><a href=\"NAL-Specification.pdf#page=50\" style=\"text-decoration:none\">NAL5 implication based composition</a></h1><br/>  <!-- target=\"bible\" -->
+     Similar as in classical logics, more complicated statements, involving conjunctions and disjunctions can be composed,
      this rules are responsible for this. Note that for the conjunction, &&, there is again a temporal
-     variant &| for concurrent conjunction, and &/ for sequential conjunction."
+     variant &| for concurrent conjunction, and &/ for sequential conjunction.
+     Note that all conjunction variants are associative, but only &| and && are commutative exactly as their semantics suggest.
+     The key purpose of these rules is to make it possible for the system to identify conditions or preconditions for certain statements."
   ; implication-based composition
   ; Same as for inheritance again
   #R[(P ==> M) (S ==> M) |- (((P || S) ==> M) :post (:t/intersection)
@@ -347,8 +366,10 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal5-nal8-implication-based-decomposition
-        "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL5 implication based decomposition and procedural inference</a></h1><br/>  <!-- target=\"bible\" -->
-       Here again, decomposition for ==> to make it possible for the system to decompose what was composed by the previous rules."
+        "<h1><a href=\"NAL-Specification.pdf#page=49\" style=\"text-decoration:none\">NAL5 implication based decomposition and procedural inference</a></h1><br/>  <!-- target=\"bible\" -->
+       Analogical to the previous decomposition rules, decomposition rules for the ==> makes it possible for the system to decompose what was composed by the previous rules,
+       they key purpose of these rules is to make it possible for the system to derive the consequences of a conditional statement when the condition is fullfilled,
+       as well as finding a possible explaination for the truth of the postcondition."
 
   ; implication-based decomposition
   ; Same as for inheritance again
@@ -385,7 +406,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal5-multi-conditional-syllogism
-         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL5 implication based decomposition</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=49\" style=\"text-decoration:none\">NAL5 implication based decomposition</a></h1><br/>  <!-- target=\"bible\" -->
          Additionally, there are some rules which allow syllogism-style inference directly happen on compounds with conjunctions,
          whether this rules are really necessary, I am not convinced, but they are at least valid.
          "
@@ -412,14 +433,16 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal6-variable-introduction
-         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL6 Variable Introduction</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=57\" style=\"text-decoration:none\">NAL6 Variable Introduction</a></h1><br/>  <!-- target=\"bible\" -->
          The system has the ability to introduce variabes,
          similar as in FOPL where there is a all-quantor and an exists-quantor,
          where here independent-variables correspond to the all-quantor roughly and are written like $X,
          while dependent-variables correspond to the exists-quantor and are written like #X
-         Nothe that there are also temporal variants here,
+         Note that there are also temporal variants here,
          allowing the system to introduce variables while not loosing the temporal information between the statements.
          Whether the temporal variants are really needed, is questionable.
+         The purpose of variable introduction itself is mainly to make it possible for the system to talk
+         abstractly but still precisely about things like the statement \"for every lock there exists a key which opens it\" demands.
          "
   ; variable introduction
   ; Introduce variables by common subject or predicate
@@ -463,7 +486,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
 
 
 (defules nal6-variable-syllogisms
-         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL6 Variable Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=57\" style=\"text-decoration:none\">NAL6 Variable Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
          Additionally, these rules are valid due to the semantics of the dependent variables.
          Whether these rules are really needed is however questionable.
          "
@@ -477,10 +500,11 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal6-multiple-variable-introduction
-         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL6 Multiple Variable Introduction</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=57\" style=\"text-decoration:none\">NAL6 Multiple Variable Introduction</a></h1><br/>  <!-- target=\"bible\" -->
          In order to introduce additional variables and after one was already introduced,
          and in order to handle multiples these, these rules exist,
          allowing the system to create more complicated abstractions and to work with them.
+         The purpose of these rules is the same as for variable introduction, while extending the principle to an arbitrary amount of variables.
          "
 
   ; 2nd variable introduction
@@ -505,10 +529,10 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
 
 
 (defules nal6-variable-elimination
-         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL6 Variable Elimination</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=57\" style=\"text-decoration:none\">NAL6 Variable Elimination</a></h1><br/>  <!-- target=\"bible\" -->
          Additionally, the system has to be able to eliminate variables by filling in the pattern of the second premise,
          so to specialize a statement when a premise fits in its scheme, this holds for independent as well as dependent variables.
-         "
+         The purpose of this is to specialize general statements containing variables to specific cases."
    ; dependent variable elimination
    ; Decomposition with elimination of a variable
    #R[B (&& A :list/A) |- (&& :list/A) :pre (:judgement? (:substitute-if-unifies "#" A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
@@ -524,10 +548,9 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal6-second-layer-variable-handling
-         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">NAL6 Second Level Variable Handling</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=57\" style=\"text-decoration:none\">NAL6 Second Level Variable Handling</a></h1><br/>  <!-- target=\"bible\" -->
          There were some meaningful cases where variables had to be handled by specific rules at a deeper level,
-         this is what these rules are about. I am still not convinced whether these rules are really needed though.
-         "
+         this is what these rules are about. I am still not convinced whether these rules are really needed though."
   ; second level variable handling rules
   ; second level variable elimination (termlink level2 growth needed in order for these rules to work)
   #R[(A --> K) (&& (#X --> L) (($Y --> K) ==> (&& :list/A))) |- (&& (#X --> L) :list/A) :pre ((:substitute $Y A)) :post (:t/deduction)]
@@ -535,22 +558,20 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules nal7-temporal-inference
-         "<h1><a href=\"NAL-Specification.pdf#page=63\" style=\"text-decoration:none\">NAL7 Temporal Inference</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1><a href=\"NAL-Specification.pdf#page=61\" style=\"text-decoration:none\">NAL7 Temporal Inference</a></h1><br/>  <!-- target=\"bible\" -->
          Altough all above rules also work for temporal statements, there are rules which are only for reasoning about time,
          these are them. The most important one of these is temporal induction:
-         Temporal induction, a NAL7 principle, allows the system to temporally relate events.<br/>\nTo express this,
-          the <b> ==&gt; &lt;=&gt; </b> truth-related copulas are extended\nto capture whether two events happen after
-          each other,\n<b> a =/> b  </b>, or concurrently <b> a =|&gt; </b>\nThese operators are all transitive, also
-           \\\\( \\forall a,b,c \\\\) events\nwith truth values \\\\( T1, T2 \\in \\[0, 1\\] \\times \\[0, 1\\]: \\\\)
-           <b> a =/> b </b> \\\\( \\wedge \\\\) <b> b =|> c </b> \\\\( \\implies \\\\)\n<b> a =|> c </b> with truth-value
-            <b> induction( T1 , T2) </b> holds, consistent with the semantics of the copulas.\nAdditionally intervals are
-             used to measure the temporal occurrence time\ndifference between the events.\nIn order to support this,
-             predicate <b> measure_time(I)</b> is introduced.\nwhich is true if and only if the the time difference between
-              both event premises is <b> I </b>.\nIn the language, the time difference is encoded in the sequence,\nfor
-               example <b> ((&/,a,/10) =/> b) </b> encodes that <b> b </b> happens <b> 10  </b>  steps after <b> a </b>.\nNAL7
-               chapter in the NAL reference: <a href=\"blub\">NAL7</a>\n
-         "
-  ; NAL7 specific inference
+         Temporal induction, a NAL7 principle, allows the system to temporally relate events.
+         the <b> ==&gt; &lt;=&gt; </b> truth-related copulas are extended to capture whether two events happen after
+         each other, <b> a =/> b  </b>, or concurrently <b> a =|&gt; </b> These operators are all transitive, also
+         \\\\( \\forall a,b,c \\\\) events with truth values \\\\( T1, T2 \\in \\[0, 1\\] \\times \\[0, 1\\]: \\\\)
+         <b> a =/> b </b> \\\\( \\wedge \\\\) <b> b =|> c </b> \\\\( \\implies \\\\) <b> a =|> c </b> with truth-value
+         <b> induction( T1 , T2) </b> holds, consistent with the semantics of the copulas. Additionally intervals are
+         used to measure the temporal occurrence time difference between the events. In order to support this,
+         predicate <b> measure_time(I)</b> is introduced which is true if and only if the the time difference between
+         both event premises is <b> I </b>. In the language, the time difference is encoded in the sequence, for
+         example <b> ((&/,a,/10) =/> b) </b> encodes that <b> b </b> happens <b> 10  </b>  steps after <b> a </b>."
+  ;; NAL7 specific inference
   ; Reasoning about temporal statements. those are using the ==> relation because relation in time is a relation of the truth between statements.
 #R[X ((&/ K (:interval I)) ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" K X) (:shift-occurrence-forward I ==>))]
 #_#R[X (XI ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" XI (&/ X :interval)) (:shift-occurrence-forward XI ==>))]
@@ -576,7 +597,7 @@ Since the conclusion is equivalent, the truth value of the conclusion is using I
          )
 
 (defules backward-driven-forward-inference
-         "<h1><a href=\"NAL-Specification.pdf#page=25\" style=\"text-decoration:none\">Backward driven forward inference</a></h1><br/>  <!-- target=\"bible\" -->
+         "<h1>Backward driven forward inference</h1><br/>  <!-- target=\"bible\" -->
          For some rules it is better to only let them succeed if there is a question which explicitly asks for their result.
          However whether this is really needed is questionable for me, but it has benefits in the preliminary form
          our control mechanism currently is in.
