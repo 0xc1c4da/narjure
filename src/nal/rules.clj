@@ -1,10 +1,10 @@
 (ns nal.rules
-  (:require [nal.deriver.rules :refer [defrules]]
+  (:require [nal.deriver.rules :refer [defrules compile-rules]]
             nal.reader))
 
 (declare --S S --P P <-> |- --> ==> M || && =|> -- A Ai B <=>)
 
-(defrules rules
+(defrules all-rules
   ;Similarity to Inheritance
   #R[(S --> P) (S <-> P) |- (S --> P) :post (:t/struct-int :p/judgement) :pre (:question?)]
   ;Inheritance to Similarity
@@ -450,6 +450,8 @@
   ; compound composition one premise
   #R[(|| B :list/A) B |- (|| B :list/A) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
 )
+
+(def rules (compile-rules all-rules))
 
 (defn freq [task-type]
   "Check frequency"
