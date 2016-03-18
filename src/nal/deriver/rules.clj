@@ -117,24 +117,27 @@
             `~raw-rules
             pairs)))
 
-(defmacro defrules
+(defmacro defrules [name & rules]
+  `(def ~name (quote ~rules)))
+
+(defn compile-rules
   "Define rules. Rules must be #R statements."
   ;TODO exception on duplication of the rule
-  [name & rules]
-  `(time
-     (let [rules# (rules->> (quote ~rules)
-                            contains-list? generate-all-lists
-                            contains-list? generate-all-lists
-                            identity rule
-                            order-for-all-same? generate-all-orders
-                            allow-swapping? swap
-                            allow-backward? expand-backward-rules)
-           judgement-rules# (check-duplication (filter judgement? rules#))
-           question-rules# (check-duplication (filter question? rules#))
-           goal-rules# (check-duplication (filter goal? rules#))]
-       (println "Q rules:" (count question-rules#))
-       (println "J rules:" (count judgement-rules#))
-       (println "G rules:" (count goal-rules#))
-       (def ~name {:judgement (rules-map judgement-rules# :judgement)
-                   :question  (rules-map question-rules# :question)
-                   :goal      (rules-map goal-rules# :goal)}))))
+  [& rules]
+  (time
+    (let [rules (rules->> (apply concat rules)
+                          contains-list? generate-all-lists
+                          contains-list? generate-all-lists
+                          identity rule
+                          order-for-all-same? generate-all-orders
+                          allow-swapping? swap
+                          allow-backward? expand-backward-rules)
+          judgement-rules# (check-duplication (filter judgement? rules))
+          question-rules# (check-duplication (filter question? rules))
+          goal-rules# (check-duplication (filter goal? rules))]
+      (println "Q rules:" (count question-rules#))
+      (println "J rules:" (count judgement-rules#))
+      (println "G rules:" (count goal-rules#))
+      {:judgement (rules-map judgement-rules# :judgement)
+       :question  (rules-map question-rules# :question)
+       :goal      (rules-map goal-rules# :goal)})))
