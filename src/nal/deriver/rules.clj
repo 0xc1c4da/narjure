@@ -117,11 +117,12 @@
             `~raw-rules
             pairs)))
 
-(defmacro defrules [name & rules]
+(defmacro defrules
+  "Define rules. Rules must be #R statements."
+  [name & rules]
   `(def ~name (quote ~rules)))
 
 (defn compile-rules
-  "Define rules. Rules must be #R statements."
   ;TODO exception on duplication of the rule
   [& rules]
   (time
