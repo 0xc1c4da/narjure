@@ -104,7 +104,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
           #R[--(A <=> B) B |- (A <=> B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
           )
 
-(defules nal1-nal2-inheritance-related-syllogisms
+(defrules nal1-nal2-inheritance-related-syllogisms
          "<h1><a href=\"NAL-Specification.pdf#page=24\" style=\"text-decoration:none\">NAL1 NAL2 Inheritance-Related Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
          <a href=\"NAL-Specification.pdf#page=24\">Deduction</a>, <a href=\"NAL-Specification.pdf#page=24\">Induction</a> and
          <a href=\"NAL-Specification.pdf#page=24\">Abduction</a> can be naturally represented using the Inheritance-Relation.
@@ -141,7 +141,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[(M <-> P) (S <-> M) |- (S <-> P) :pre ((:!= S P)) :post (:t/resemblance :d/strong :allow-backward)]
          )
 
-(defules nal3-intersection-union-difference
+(defrules nal3-intersection-union-difference
          "<h1><a href=\"NAL-Specification.pdf#page=40\" style=\"text-decoration:none\">NAL3 Intersection, Union, Difference</a></h1><br/>  <!-- target=\"bible\" -->
           These are the NAL3-related <a href=\"NAL-Specification.pdf#page=35\">union, intersection</a> and <a href=\"NAL-Specification.pdf#page=37\">difference</a> rules,
           allowing the system to create new extensional intersections / intensional intersections and differences based on existing terms.
@@ -168,7 +168,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
             :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))]
          )
 
-(defules nal3-inheritance-based-decomposition
+(defrules nal3-inheritance-based-decomposition
          "<h1><a href=\"NAL-Specification.pdf#page=86\" style=\"text-decoration:none\">NAL3 Inheritance-based Decomposition</a></h1><br/>  <!-- target=\"bible\" -->
          This rules are the opposite of what the above rules represent.
          Instead of composing new intersections, this rules are responsible for decomposing them.
@@ -186,7 +186,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[(M --> S) (M --> (P ~ S)) |- (M --> P) :post (:t/decompose-nnn)]
          )
 
-(defules nal3-set-related-rules
+(defrules nal3-set-related-rules
          "<h1><a href=\"NAL-Specification.pdf#page=37\" style=\"text-decoration:none\">NAL3 Set-related rules</a></h1><br/>  <!-- target=\"bible\" -->
          These are the set-versions of the rules above. Sets form the boundaries of the taxonomic hierachy
          spanned by the inheritance-statements. A property is a thing for which there can be no further generalization,
@@ -212,7 +212,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[(A --> C) (B --> C) |- (R --> C) :post (:t/difference) :pre ((:difference A B R))]
          )
 
-(defules nal3-structural-inference
+(defrules nal3-structural-inference
          "<h1><a href=\"NAL-Specification.pdf#page=40\" style=\"text-decoration:none\">NAL3 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
           These are some additional meaningful structural deduction rule for the NAL3-statements.
           For example if it is known that a cat is a furry animal, it can be derived that a cat is an animal.
@@ -231,7 +231,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[([:list/A] --> C) C |- ([:from/A] --> C) :post (:t/structural-deduction)]
          )
 
-(defules nal4-structural-inference
+(defrules nal4-structural-inference
          "<h1><a href=\"NAL-Specification.pdf#page=41\" style=\"text-decoration:none\">NAL4 structural inference</a></h1><br/>  <!-- target=\"bible\" -->
           The purpose of this rules is structural inference on relations.
           This allows the system to see a specific relation from different perspective,
@@ -259,7 +259,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
 :post (:t/identity :d/identity)]
 )
 
-(defules nal5-implication-based-syllogisms
+(defrules nal5-implication-based-syllogisms
          "<h1><a href=\"NAL-Specification.pdf#page=49\" style=\"text-decoration:none\">NAL5 implication based syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
            While Inheritance represents a relation in meaning, Implication represents a relation in truth.
            The meaning of ==> is very natural and roughly corresponds to the implication in classical logic.
@@ -329,7 +329,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[(M <|> P) (S </> M) |- (S </> P) :pre ((:!= S P)) :post (:t/resemblance :allow-backward)]
          )
 
-(defules nal5-implication-based-composition
+(defrules nal5-implication-based-composition
          "<h1><a href=\"NAL-Specification.pdf#page=50\" style=\"text-decoration:none\">NAL5 implication based composition</a></h1><br/>  <!-- target=\"bible\" -->
          Similar as in classical logics, more complicated statements, involving conjunctions and disjunctions can be composed,
          this rules are responsible for this. Note that for the conjunction, &&, there is again a temporal
@@ -370,7 +370,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
             :pre ((:!= R K))]
          )
 
-(defules nal5-nal8-implication-based-decomposition
+(defrules nal5-nal8-implication-based-decomposition
          "<h1><a href=\"NAL-Specification.pdf#page=49\" style=\"text-decoration:none\">NAL5 implication based decomposition and procedural inference</a></h1><br/>  <!-- target=\"bible\" -->
         Analogical to the previous decomposition rules, decomposition rules for the ==> makes it possible for the system to decompose what was composed by the previous rules,
         they key purpose of these rules is to make it possible for the system to derive the consequences of a conditional statement when the condition is fullfilled,
@@ -410,7 +410,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[S (|| (-- S) :list/A) |- (|| :list/A) :post (:t/decompose-ppp)]
          )
 
-(defules nal5-multi-conditional-syllogism
+(defrules nal5-multi-conditional-syllogism
          "<h1><a href=\"NAL-Specification.pdf#page=49\" style=\"text-decoration:none\">NAL5 implication based decomposition</a></h1><br/>  <!-- target=\"bible\" -->
          Additionally, there are some rules which allow syllogism-style inference directly happen on compounds with conjunctions,
          whether this rules are really necessary, I am not convinced, but they are at least valid.
@@ -437,7 +437,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
                                                                ((&& :list/B) ==> (&& :list/A)) :post (:t/abduction))]
          )
 
-(defules nal6-variable-introduction
+(defrules nal6-variable-introduction
          "<h1><a href=\"NAL-Specification.pdf#page=57\" style=\"text-decoration:none\">NAL6 Variable Introduction</a></h1><br/>  <!-- target=\"bible\" -->
          The system has the ability to introduce variabes,
          similar as in FOPL where there is a all-quantor and an exists-quantor,
@@ -490,7 +490,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          )
 
 
-(defules nal6-variable-syllogisms
+(defrules nal6-variable-syllogisms
          "<h1><a href=\"NAL-Specification.pdf#page=57\" style=\"text-decoration:none\">NAL6 Variable Syllogisms</a></h1><br/>  <!-- target=\"bible\" -->
          Additionally, these rules are valid due to the semantics of the dependent variables.
          Whether these rules are really needed is however questionable.
@@ -504,7 +504,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[(U --> L) ((&& (#X --> L) (#X --> R) :list/A) ==> Z) |- ((&& (U --> R) :list/A) ==> Z) :pre ((:substitute #X U)) :post (:t/deduction)]
          )
 
-(defules nal6-multiple-variable-introduction
+(defrules nal6-multiple-variable-introduction
          "<h1><a href=\"NAL-Specification.pdf#page=57\" style=\"text-decoration:none\">NAL6 Multiple Variable Introduction</a></h1><br/>  <!-- target=\"bible\" -->
          In order to introduce additional variables and after one was already introduced,
          and in order to handle multiples these, these rules exist,
@@ -534,7 +534,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          )
 
 
-(defules nal6-variable-elimination
+(defrules nal6-variable-elimination
          "<h1><a href=\"NAL-Specification.pdf#page=57\" style=\"text-decoration:none\">NAL6 Variable Elimination</a></h1><br/>  <!-- target=\"bible\" -->
          Additionally, the system has to be able to eliminate variables by filling in the pattern of the second premise,
          so to specialize a statement when a premise fits in its scheme, this holds for independent as well as dependent variables.
@@ -552,7 +552,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
 
          )
 
-(defules nal6-second-layer-variable-handling
+(defrules nal6-second-layer-variable-handling
          "<h1><a href=\"NAL-Specification.pdf#page=57\" style=\"text-decoration:none\">NAL6 Second Level Variable Handling</a></h1><br/>  <!-- target=\"bible\" -->
          There were some meaningful cases where variables had to be handled by specific rules at a deeper level,
          this is what these rules are about. I am still not convinced whether these rules are really needed though."
@@ -562,7 +562,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[(A --> K) (($X --> L) ==> (&& (#Y --> K) :list/A)) |- (($X --> L) ==> (&& :list/A)) :pre ((:substitute #Y A)) :post (:t/anonymous-analogy)]
          )
 
-(defules nal7-temporal-inference
+(defrules nal7-temporal-inference
          "<h1><a href=\"NAL-Specification.pdf#page=61\" style=\"text-decoration:none\">NAL7 Temporal Inference</a></h1><br/>  <!-- target=\"bible\" -->
          Altough all above rules also work for temporal statements, there are rules which are only for reasoning about time,
          these are them. The most important one of these is temporal induction:
@@ -598,7 +598,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
 
          )
 
-(defules backward-only-inference
+(defrules backward-only-inference
          "<h1><a href=\"NAL-Specification.pdf#page=57\" style=\"text-decoration:none\">Backward Inference rules</a></h1><br/>  <!-- target=\"bible\" -->
          Most backward inference is captured by deriving two additional rules
          per forward rule, where one premise is exchanged with the conclusion,
@@ -612,7 +612,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          )
 
 
-(defules backward-driven-forward-inference
+(defrules backward-driven-forward-inference
          "<h1>Backward driven forward inference</h1><br/>  <!-- target=\"bible\" -->
          For some rules it is better to only let them succeed if there is a question which explicitly asks for their result.
          However whether this is really needed is questionable for me, but it has benefits in the preliminary form
@@ -646,14 +646,14 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[((* B P) <-> Z) (B <-> A) |- ((* B P) <-> (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
          #R[((* P B) <-> Z) (B <-> A) |- ((* P B) <-> (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
          #R[((\ N A _) --> Z) (N --> R) |- ((\ N A _) --> (\ R A _)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
-#R[((/ N _ B) --> Z) (S --> B) |- ((/ N _ B) --> (/ N _ S)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[((/ N _ B) --> Z) (S --> B) |- ((/ N _ B) --> (/ N _ S)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
 
-; NAL5:
-#R[--A    A |- --A  :pre (:question?) :post (:t/belief-negation :p/judgement)]
-#R[A  --A |-   A  :pre (:question?) :post (:t/belief-negation :p/judgement)]
+         ; NAL5:
+         #R[--A    A |- --A  :pre (:question?) :post (:t/belief-negation :p/judgement)]
+         #R[A  --A |-   A  :pre (:question?) :post (:t/belief-negation :p/judgement)]
 
-; compound composition one premise
-#R[(|| B :list/A) B |- (|| B :list/A) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         ; compound composition one premise
+         #R[(|| B :list/A) B |- (|| B :list/A) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
 )
 
 (def rules (compile-rules nal1-nal2-nal3-equivalence-and-implication nal1-nal5-conversion-contraposition-negation nal1-nal2-inheritance-related-syllogisms
