@@ -2867,7 +2867,7 @@ net.brehaut.ClojureTools = (function (SH) {
 })(SyntaxHighlighter);
 </script><script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script><title>narjure -- Marginalia</title></head><body><table><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#nal.rules" name="nal.rules"><h1 class="project-name">nal.rules</h1><a class="toc-link" href="toc.html">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns nal.rules
-  (:require [nal.deriver.rules :refer [defrules]]
+  (:require [nal.deriver.rules :refer [defrules compile-rules]]
             nal.reader))</pre></td></tr><tr><td class="docs"><!-- <div style="z-index: 9999; position: fixed; left: 0; top: 0;"> <button <iframe name="bible" src="NAL-Specification.pdf" style="position:fixed" width=100% height=35%></iframe> </div> -->
 </td><td class="codes"></td></tr><tr><td class="docs"><h1> Copulas </h1>
 
@@ -2882,31 +2882,31 @@ Their correctness follows by the definitions of the NAL statement copulas.
 Since the conclusion is equivalent, the truth value of the conclusion is using Identity as truth and desire function.
 So these rules are for bringing NAL-statements into a different, implied and more appropriate form.</p>
 </td><td class="codes"><pre class="brush: clojure">(defrules nal1-nal2-nal3-equivalence-and-implication
-  ;;Equivalence and Implication Rules
-  ;Similarity to Inheritance
-  #R[(S --&gt; P) (S &lt;-&gt; P) |- (S --&gt; P) :post (:t/struct-int :p/judgment) :pre (:question?)]
-  ;Inheritance to Similarity
-  #R[(S &lt;-&gt; P) (S --&gt; P) |- (S &lt;-&gt; P) :post (:t/struct-abd :p/judgment) :pre (:question?)]
-  ;Set Definition Similarity to Inheritance
-  #R[(S &lt;-&gt; {P}) S |- (S --&gt; {P}) :post (:t/identity :d/identity :allow-backward)]
-  #R[(S &lt;-&gt; {P}) {P} |- (S --&gt; {P}) :post (:t/identity :d/identity :allow-backward)]
-  #R[([S] &lt;-&gt; P) [S] |- ([S] --&gt; P) :post (:t/identity :d/identity :allow-backward)]
-  #R[([S] &lt;-&gt; P) P |- ([S] --&gt; P) :post (:t/identity :d/identity :allow-backward)]
-  #R[({S} &lt;-&gt; {P}) {S} |- ({P} --&gt; {S}) :post (:t/identity :d/identity :allow-backward)]
-  #R[({S} &lt;-&gt; {P}) {P} |- ({P} --&gt; {S}) :post (:t/identity :d/identity :allow-backward)]
-  #R[([S] &lt;-&gt; [P]) [S] |- ([P] --&gt; [S]) :post (:t/identity :d/identity :allow-backward)]
-  #R[([S] &lt;-&gt; [P]) [P] |- ([P] --&gt; [S]) :post (:t/identity :d/identity :allow-backward)]
-  ;Set Definition Unwrap
-  #R[({S} &lt;-&gt; {P}) {S} |- (S &lt;-&gt; P) :post (:t/identity :d/identity :allow-backward)]
-  #R[({S} &lt;-&gt; {P}) {P} |- (S &lt;-&gt; P) :post (:t/identity :d/identity :allow-backward)]
-  #R[([S] &lt;-&gt; [P]) [S] |- (S &lt;-&gt; P) :post (:t/identity :d/identity :allow-backward)]
-  #R[([S] &lt;-&gt; [P]) [P] |- (S &lt;-&gt; P) :post (:t/identity :d/identity :allow-backward)]
-  ; Nothing is more specific than a instance so it's similar
-  #R[(S --&gt; {P}) S |- (S &lt;-&gt; {P}) :post (:t/identity :d/identity :allow-backward)]
-  #R[(S --&gt; {P}) {P} |- (S &lt;-&gt; {P}) :post (:t/identity :d/identity :allow-backward)]
-  ; nothing is more general than a property so it's similar
-  #R[([S] --&gt; P) [S] |- ([S] &lt;-&gt; P) :post (:t/identity :d/identity :allow-backward)]
-  #R[([S] --&gt; P) P |- ([S] &lt;-&gt; P) :post (:t/identity :d/identity :allow-backward)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=52" style="text-decoration:none">NAL1 NAL5 Conversion, Contraposition, Negation</a></h1><br/> <!-- target="bible" -->
+          ;;Equivalence and Implication Rules
+          ;Similarity to Inheritance
+          #R[(S --&gt; P) (S &lt;-&gt; P) |- (S --&gt; P) :post (:t/struct-int :p/judgement) :pre (:question?)]
+          ;Inheritance to Similarity
+          #R[(S &lt;-&gt; P) (S --&gt; P) |- (S &lt;-&gt; P) :post (:t/struct-abd :p/judgement) :pre (:question?)]
+          ;Set Definition Similarity to Inheritance
+          #R[(S &lt;-&gt; {P}) S |- (S --&gt; {P}) :post (:t/identity :d/identity :allow-backward)]
+          #R[(S &lt;-&gt; {P}) {P} |- (S --&gt; {P}) :post (:t/identity :d/identity :allow-backward)]
+          #R[([S] &lt;-&gt; P) [S] |- ([S] --&gt; P) :post (:t/identity :d/identity :allow-backward)]
+          #R[([S] &lt;-&gt; P) P |- ([S] --&gt; P) :post (:t/identity :d/identity :allow-backward)]
+          #R[({S} &lt;-&gt; {P}) {S} |- ({P} --&gt; {S}) :post (:t/identity :d/identity :allow-backward)]
+          #R[({S} &lt;-&gt; {P}) {P} |- ({P} --&gt; {S}) :post (:t/identity :d/identity :allow-backward)]
+          #R[([S] &lt;-&gt; [P]) [S] |- ([P] --&gt; [S]) :post (:t/identity :d/identity :allow-backward)]
+          #R[([S] &lt;-&gt; [P]) [P] |- ([P] --&gt; [S]) :post (:t/identity :d/identity :allow-backward)]
+          ;Set Definition Unwrap
+          #R[({S} &lt;-&gt; {P}) {S} |- (S &lt;-&gt; P) :post (:t/identity :d/identity :allow-backward)]
+          #R[({S} &lt;-&gt; {P}) {P} |- (S &lt;-&gt; P) :post (:t/identity :d/identity :allow-backward)]
+          #R[([S] &lt;-&gt; [P]) [S] |- (S &lt;-&gt; P) :post (:t/identity :d/identity :allow-backward)]
+          #R[([S] &lt;-&gt; [P]) [P] |- (S &lt;-&gt; P) :post (:t/identity :d/identity :allow-backward)]
+          ; Nothing is more specific than a instance so it's similar
+          #R[(S --&gt; {P}) S |- (S &lt;-&gt; {P}) :post (:t/identity :d/identity :allow-backward)]
+          #R[(S --&gt; {P}) {P} |- (S &lt;-&gt; {P}) :post (:t/identity :d/identity :allow-backward)]
+          ; nothing is more general than a property so it's similar
+          #R[([S] --&gt; P) [S] |- ([S] &lt;-&gt; P) :post (:t/identity :d/identity :allow-backward)]
+          #R[([S] --&gt; P) P |- ([S] &lt;-&gt; P) :post (:t/identity :d/identity :allow-backward)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=52" style="text-decoration:none">NAL1 NAL5 Conversion, Contraposition, Negation</a></h1><br/> <!-- target="bible" -->
           In term logics, "conversion" is an inference from a single premise to a conclusion by interchanging the subject
           and predicate terms of the premise. How the truth value is calculated can be seen in
           <a href="NAL-Specification.pdf#page=25">Conversion</a><br/><br/>
@@ -2916,42 +2916,42 @@ So these rules are for bringing NAL-statements into a different, implied and mor
           <a href="NAL-Specification.pdf#page=50">Negation</a> just inverts the truth of a statement,
           which means, due to the semantics of the frequency, that the truth value can be directly obtained by 1-f where f was the frequency of the premise.</p>
 </td><td class="codes"><pre class="brush: clojure">(defrules nal1-nal5-conversion-contraposition-negation
-  ;; Conversion
-  ; If S can stand for P P can to a certain low degree also represent the class S
-  ; If after S usually P happens then it might be a good guess that usually before P happens S happens.
-  #R[(P --&gt; S) (S --&gt; P) |- (P --&gt; S) :post (:t/conversion :p/judgment) :pre (:question?)]
-  #R[(P ==&gt; S) (S ==&gt; P) |- (P ==&gt; S) :post (:t/conversion :p/judgment) :pre (:question?)]
-  #R[(P =|&gt; S) (S =|&gt; P) |- (P =|&gt; S) :post (:t/conversion :p/judgment) :pre (:question?)]
-  #R[(P =\&gt; S) (S =/&gt; P) |- (P =\&gt; S) :post (:t/conversion :p/judgment) :pre (:question?)]
-  #R[(P =/&gt; S) (S =\&gt; P) |- (P =/&gt; S) :post (:t/conversion :p/judgment) :pre (:question?)]
-  ;; Contraposition
-  ; &quot;If not smoking lets you be healthy being not healthy may be the result of smoking&quot;
-  #R[(--S ==&gt; P) P |- (--P ==&gt; S) :post (:t/contraposition :allow-backward)]
-  #R[(--S ==&gt; P) --S |- (--P ==&gt; S) :post (:t/contraposition :allow-backward)]
-  #R[(--S =|&gt; P) P |- (--P =|&gt; S) :post (:t/contraposition :allow-backward)]
-  #R[(--S =|&gt; P) --S |- (--P =|&gt; S) :post (:t/contraposition :allow-backward)]
-  #R[(--S =/&gt; P) P |- (--P =\&gt; S) :post (:t/contraposition :allow-backward)]
-  #R[(--S =/&gt; P) --S |- (--P =\&gt; S) :post (:t/contraposition :allow-backward)]
-  #R[(--S =\&gt; P) P |- (--P =/&gt; S) :post (:t/contraposition :allow-backward)]
-  #R[(--S =\&gt; P) --S |- (--P =/&gt; S) :post (:t/contraposition :allow-backward)]
-  ;;Negation
-  ; A belief b &lt;f c&gt; is equal to --b &lt;1-f c&gt;  which is the negation rule:
-  #R[(A --&gt; B) A |- --(A --&gt; B) :post (:t/negation :d/negation :allow-backward)]
-  #R[(A --&gt; B) B |- --(A --&gt; B) :post (:t/negation :d/negation :allow-backward)]
-  #R[--(A --&gt; B) A |- (A --&gt; B) :post (:t/negation :d/negation :allow-backward)]
-  #R[--(A --&gt; B) B |- (A --&gt; B) :post (:t/negation :d/negation :allow-backward)]
-  #R[(A &lt;-&gt; B) A |- --(A &lt;-&gt; B) :post (:t/negation :d/negation :allow-backward)]
-  #R[(A &lt;-&gt; B) B |- --(A &lt;-&gt; B) :post (:t/negation :d/negation :allow-backward)]
-  #R[--(A &lt;-&gt; B) A |- (A &lt;-&gt; B) :post (:t/negation :d/negation :allow-backward)]
-  #R[--(A &lt;-&gt; B) B |- (A &lt;-&gt; B) :post (:t/negation :d/negation :allow-backward)]
-  #R[(A ==&gt; B) A |- --(A ==&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-  #R[(A ==&gt; B) B |- --(A ==&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-  #R[--(A ==&gt; B) A |- (A ==&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-  #R[--(A ==&gt; B) B |- (A ==&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-  #R[(A &lt;=&gt; B) A |- --(A &lt;=&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-  #R[(A &lt;=&gt; B) B |- --(A &lt;=&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-  #R[--(A &lt;=&gt; B) A |- (A &lt;=&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-  #R[--(A &lt;=&gt; B) B |- (A &lt;=&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=24" style="text-decoration:none">NAL1 NAL2 Inheritance-Related Syllogisms</a></h1><br/>  <!-- target="bible" -->
+          ;; Conversion
+          ; If S can stand for P P can to a certain low degree also represent the class S
+          ; If after S usually P happens then it might be a good guess that usually before P happens S happens.
+          #R[(P --&gt; S) (S --&gt; P) |- (P --&gt; S) :post (:t/conversion :p/judgement) :pre (:question?)]
+          #R[(P ==&gt; S) (S ==&gt; P) |- (P ==&gt; S) :post (:t/conversion :p/judgement) :pre (:question?)]
+          #R[(P =|&gt; S) (S =|&gt; P) |- (P =|&gt; S) :post (:t/conversion :p/judgement) :pre (:question?)]
+          #R[(P =\&gt; S) (S =/&gt; P) |- (P =\&gt; S) :post (:t/conversion :p/judgement) :pre (:question?)]
+          #R[(P =/&gt; S) (S =\&gt; P) |- (P =/&gt; S) :post (:t/conversion :p/judgement) :pre (:question?)]
+          ;; Contraposition
+          ; &quot;If not smoking lets you be healthy being not healthy may be the result of smoking&quot;
+          #R[(--S ==&gt; P) P |- (--P ==&gt; S) :post (:t/contraposition :allow-backward)]
+          #R[(--S ==&gt; P) --S |- (--P ==&gt; S) :post (:t/contraposition :allow-backward)]
+          #R[(--S =|&gt; P) P |- (--P =|&gt; S) :post (:t/contraposition :allow-backward)]
+          #R[(--S =|&gt; P) --S |- (--P =|&gt; S) :post (:t/contraposition :allow-backward)]
+          #R[(--S =/&gt; P) P |- (--P =\&gt; S) :post (:t/contraposition :allow-backward)]
+          #R[(--S =/&gt; P) --S |- (--P =\&gt; S) :post (:t/contraposition :allow-backward)]
+          #R[(--S =\&gt; P) P |- (--P =/&gt; S) :post (:t/contraposition :allow-backward)]
+          #R[(--S =\&gt; P) --S |- (--P =/&gt; S) :post (:t/contraposition :allow-backward)]
+          ;;Negation
+          ; A belief b &lt;f c&gt; is equal to --b &lt;1-f c&gt;  which is the negation rule:
+          #R[(A --&gt; B) A |- --(A --&gt; B) :post (:t/negation :d/negation :allow-backward)]
+          #R[(A --&gt; B) B |- --(A --&gt; B) :post (:t/negation :d/negation :allow-backward)]
+          #R[--(A --&gt; B) A |- (A --&gt; B) :post (:t/negation :d/negation :allow-backward)]
+          #R[--(A --&gt; B) B |- (A --&gt; B) :post (:t/negation :d/negation :allow-backward)]
+          #R[(A &lt;-&gt; B) A |- --(A &lt;-&gt; B) :post (:t/negation :d/negation :allow-backward)]
+          #R[(A &lt;-&gt; B) B |- --(A &lt;-&gt; B) :post (:t/negation :d/negation :allow-backward)]
+          #R[--(A &lt;-&gt; B) A |- (A &lt;-&gt; B) :post (:t/negation :d/negation :allow-backward)]
+          #R[--(A &lt;-&gt; B) B |- (A &lt;-&gt; B) :post (:t/negation :d/negation :allow-backward)]
+          #R[(A ==&gt; B) A |- --(A ==&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
+          #R[(A ==&gt; B) B |- --(A ==&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
+          #R[--(A ==&gt; B) A |- (A ==&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
+          #R[--(A ==&gt; B) B |- (A ==&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
+          #R[(A &lt;=&gt; B) A |- --(A &lt;=&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
+          #R[(A &lt;=&gt; B) B |- --(A &lt;=&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
+          #R[--(A &lt;=&gt; B) A |- (A &lt;=&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
+          #R[--(A &lt;=&gt; B) B |- (A &lt;=&gt; B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=24" style="text-decoration:none">NAL1 NAL2 Inheritance-Related Syllogisms</a></h1><br/>  <!-- target="bible" -->
          <a href="NAL-Specification.pdf#page=24">Deduction</a>, <a href="NAL-Specification.pdf#page=24">Induction</a> and
          <a href="NAL-Specification.pdf#page=24">Abduction</a> can be naturally represented using the Inheritance-Relation.
          The following rules implement Deduction, Induction and Abduction just based on this relation, while additionally rules for the
@@ -2960,27 +2960,27 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          and Analogy and Resemblance as a special case of a deduction for the Similarity copula,
          as well as Comparison as a special case of Induction/Abduction also for the Similarity copula.
          This makes it possible for the system to draw strong conclusions as well as to construct weak but reasonable hypothesis just based on Inheritance-based statements.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal1-nal2-inheritance-related-syllogisms
-  ;;Inheritance-Related Syllogisms
-  ; If A is a special case of B and B is a special case of C so is A a special case of C (strong) the other variations are hypotheses (weak)
-  #R[(A --&gt; B) (B --&gt; C) |- (A --&gt; C) :pre ((:!= A C)) :post (:t/deduction :d/strong :allow-backward)]
-  #R[(A --&gt; B) (A --&gt; C) |- (C --&gt; B) :pre ((:!= B C)) :post (:t/abduction :d/weak :allow-backward)]
-  #R[(A --&gt; C) (B --&gt; C) |- (B --&gt; A) :pre ((:!= A B)) :post (:t/induction :d/weak :allow-backward)]
-  #R[(A --&gt; B) (B --&gt; C) |- (C --&gt; A) :pre ((:!= C A)) :post (:t/exemplification :d/weak :allow-backward)]
-  ; similarity from inheritance
-  ; If S is a special case of P and P is a special case of S then S and P are similar
-  #R[(S --&gt; P) (P --&gt; S) |- (S &lt;-&gt; P) :post (:t/intersection :d/strong :allow-backward)]
-  ; inheritance from similarty &lt;- TODO check why this one was missing
-  #R[(S &lt;-&gt; P) (P --&gt; S) |- (S --&gt; P) :post (:t/reduce-conjunction :d/strong :allow-backward)]
-  ; similarity-based syllogism
-  ; If P and S are a special case of M then they might be similar (weak)
-  ; also if P and S are a general case of M
-  #R[(P --&gt; M) (S --&gt; M) |- (S &lt;-&gt; P) :post (:t/comparison :d/weak :allow-backward) :pre ((:!= S P))]
-  #R[(M --&gt; P) (M --&gt; S) |- (S &lt;-&gt; P) :post (:t/comparison :d/weak :allow-backward) :pre ((:!= S P))]
-  ; If M is a special case of P and S and M are similar then S is also a special case of P (strong)
-  #R[(M --&gt; P) (S &lt;-&gt; M) |- (S --&gt; P) :pre ((:!= S P)) :post (:t/analogy :d/strong :allow-backward)]
-  #R[(P --&gt; M) (S &lt;-&gt; M) |- (P --&gt; S) :pre ((:!= S P)) :post (:t/analogy :d/strong :allow-backward)]
-  #R[(M &lt;-&gt; P) (S &lt;-&gt; M) |- (S &lt;-&gt; P) :pre ((:!= S P)) :post (:t/resemblance :d/strong :allow-backward)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=40" style="text-decoration:none">NAL3 Intersection, Union, Difference</a></h1><br/>  <!-- target="bible" -->
+</td><td class="codes"><pre class="brush: clojure">(defrules nal1-nal2-inheritance-related-syllogisms
+         ;;Inheritance-Related Syllogisms
+         ; If A is a special case of B and B is a special case of C so is A a special case of C (strong) the other variations are hypotheses (weak)
+         #R[(A --&gt; B) (B --&gt; C) |- (A --&gt; C) :pre ((:!= A C)) :post (:t/deduction :d/strong :allow-backward)]
+         #R[(A --&gt; B) (A --&gt; C) |- (C --&gt; B) :pre ((:!= B C)) :post (:t/abduction :d/weak :allow-backward)]
+         #R[(A --&gt; C) (B --&gt; C) |- (B --&gt; A) :pre ((:!= A B)) :post (:t/induction :d/weak :allow-backward)]
+         #R[(A --&gt; B) (B --&gt; C) |- (C --&gt; A) :pre ((:!= C A)) :post (:t/exemplification :d/weak :allow-backward)]
+         ; similarity from inheritance
+         ; If S is a special case of P and P is a special case of S then S and P are similar
+         #R[(S --&gt; P) (P --&gt; S) |- (S &lt;-&gt; P) :post (:t/intersection :d/strong :allow-backward)]
+         ; inheritance from similarty &lt;- TODO check why this one was missing
+         #R[(S &lt;-&gt; P) (P --&gt; S) |- (S --&gt; P) :post (:t/reduce-conjunction :d/strong :allow-backward)]
+         ; similarity-based syllogism
+         ; If P and S are a special case of M then they might be similar (weak)
+         ; also if P and S are a general case of M
+         #R[(P --&gt; M) (S --&gt; M) |- (S &lt;-&gt; P) :post (:t/comparison :d/weak :allow-backward) :pre ((:!= S P))]
+         #R[(M --&gt; P) (M --&gt; S) |- (S &lt;-&gt; P) :post (:t/comparison :d/weak :allow-backward) :pre ((:!= S P))]
+         ; If M is a special case of P and S and M are similar then S is also a special case of P (strong)
+         #R[(M --&gt; P) (S &lt;-&gt; M) |- (S --&gt; P) :pre ((:!= S P)) :post (:t/analogy :d/strong :allow-backward)]
+         #R[(P --&gt; M) (S &lt;-&gt; M) |- (P --&gt; S) :pre ((:!= S P)) :post (:t/analogy :d/strong :allow-backward)]
+         #R[(M &lt;-&gt; P) (S &lt;-&gt; M) |- (S &lt;-&gt; P) :pre ((:!= S P)) :post (:t/resemblance :d/strong :allow-backward)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=40" style="text-decoration:none">NAL3 Intersection, Union, Difference</a></h1><br/>  <!-- target="bible" -->
           These are the NAL3-related <a href="NAL-Specification.pdf#page=35">union, intersection</a> and <a href="NAL-Specification.pdf#page=37">difference</a> rules,
           allowing the system to create new extensional intersections / intensional intersections and differences based on existing terms.
           A union of instances (extensional union) are a special case of the properties they share, so are a special case of the intersection of the shared properties (intensional intersection)
@@ -2992,31 +2992,31 @@ So these rules are for bringing NAL-statements into a different, implied and mor
           Additionally no-common-subterm is used to hamper evidence to be counted twice.
           Additionally note that ((S &amp; P) &amp; Q) is automatically reduced to (S &amp; P &amp; Q), same for |, due to the associativity of this operator.
           These rules give the system the ability to form differences, intersections and unions of elements of the generalization hierachy.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal3-intersection-union-difference
-  ;; inheritance-based composition
-  ; If P and S are in the intension/extension of M then union/difference and intersection can be built:
-  #R[(P --&gt; M) (S --&gt; M) |- (((S | P) --&gt; M) :post (:t/intersection)
-                              ((S &amp; P) --&gt; M) :post (:t/union)
-                              ((P ~ S) --&gt; M) :post (:t/difference))
-     :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))]
-  #R[(M --&gt; P) (M --&gt; S) |- ((M --&gt; (P &amp; S)) :post (:t/intersection)
-                              (M --&gt; (P | S)) :post (:t/union)
-                              (M --&gt; (P - S)) :post (:t/difference))
-     :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=86" style="text-decoration:none">NAL3 Inheritance-based Decomposition</a></h1><br/>  <!-- target="bible" -->
+</td><td class="codes"><pre class="brush: clojure">(defrules nal3-intersection-union-difference
+         ;; inheritance-based composition
+         ; If P and S are in the intension/extension of M then union/difference and intersection can be built:
+         #R[(P --&gt; M) (S --&gt; M) |- (((S | P) --&gt; M) :post (:t/intersection)
+                                     ((S &amp; P) --&gt; M) :post (:t/union)
+                                     ((P ~ S) --&gt; M) :post (:t/difference))
+            :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))]
+         #R[(M --&gt; P) (M --&gt; S) |- ((M --&gt; (P &amp; S)) :post (:t/intersection)
+                                     (M --&gt; (P | S)) :post (:t/union)
+                                     (M --&gt; (P - S)) :post (:t/difference))
+            :pre ((:not-set? S) (:not-set? P)(:!= S P) (:no-common-subterm S P))])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=86" style="text-decoration:none">NAL3 Inheritance-based Decomposition</a></h1><br/>  <!-- target="bible" -->
          This rules are the opposite of what the above rules represent.
          Instead of composing new intersections, this rules are responsible for decomposing them.
          This gives the system the ability to work with differences, intersections and unions of elements of the generalization hierachy.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal3-inheritance-based-decomposition
+</td><td class="codes"><pre class="brush: clojure">(defrules nal3-inheritance-based-decomposition
          ;; inheritance-based decomposition
-  ; if (S --&gt; M) is the case and ((| S :list/A) --&gt; M) is not the case then ((| :list/A) --&gt; M) is not the case hence :t/decompose-pnn
-  #R[(S --&gt; M) ((| S :list/A) --&gt; M) |- ((| :list/A) --&gt; M) :post (:t/decompose-pnn)]
-  #R[(S --&gt; M) ((&amp; S :list/A) --&gt; M) |- ((&amp; :list/A) --&gt; M) :post (:t/decompose-npp)]
-  #R[(S --&gt; M) ((S - P) --&gt; M) |- (P --&gt; M) :post (:t/decompose-pnp)]
-  #R[(S --&gt; M) ((P - S) --&gt; M) |- (P --&gt; M) :post (:t/decompose-nnn)]
-  #R[(M --&gt; S) (M --&gt; (&amp; S :list/A)) |- (M --&gt; (&amp; :list/A)) :post (:t/decompose-pnn)]
-  #R[(M --&gt; S) (M --&gt; (| S :list/A)) |- (M --&gt; (| :list/A)) :post (:t/decompose-npp)]
-  #R[(M --&gt; S) (M --&gt; (S ~ P)) |- (M --&gt; P) :post (:t/decompose-pnp)]
-  #R[(M --&gt; S) (M --&gt; (P ~ S)) |- (M --&gt; P) :post (:t/decompose-nnn)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=37" style="text-decoration:none">NAL3 Set-related rules</a></h1><br/>  <!-- target="bible" -->
+         ; if (S --&gt; M) is the case and ((| S :list/A) --&gt; M) is not the case then ((| :list/A) --&gt; M) is not the case hence :t/decompose-pnn
+         #R[(S --&gt; M) ((| S :list/A) --&gt; M) |- ((| :list/A) --&gt; M) :post (:t/decompose-pnn)]
+         #R[(S --&gt; M) ((&amp; S :list/A) --&gt; M) |- ((&amp; :list/A) --&gt; M) :post (:t/decompose-npp)]
+         #R[(S --&gt; M) ((S - P) --&gt; M) |- (P --&gt; M) :post (:t/decompose-pnp)]
+         #R[(S --&gt; M) ((P - S) --&gt; M) |- (P --&gt; M) :post (:t/decompose-nnn)]
+         #R[(M --&gt; S) (M --&gt; (&amp; S :list/A)) |- (M --&gt; (&amp; :list/A)) :post (:t/decompose-pnn)]
+         #R[(M --&gt; S) (M --&gt; (| S :list/A)) |- (M --&gt; (| :list/A)) :post (:t/decompose-npp)]
+         #R[(M --&gt; S) (M --&gt; (S ~ P)) |- (M --&gt; P) :post (:t/decompose-pnp)]
+         #R[(M --&gt; S) (M --&gt; (P ~ S)) |- (M --&gt; P) :post (:t/decompose-nnn)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=37" style="text-decoration:none">NAL3 Set-related rules</a></h1><br/>  <!-- target="bible" -->
          These are the set-versions of the rules above. Sets form the boundaries of the taxonomic hierachy
          spanned by the inheritance-statements. A property is a thing for which there can be no further generalization,
          as [furry], while an instance is a thing for which there can be no further specialization, for example {tim}.
@@ -3025,56 +3025,56 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          So these set statements are mostly only used by sensors and user input. As example one may consider a sensor which gives information on whether
          the first pixel in the retina is bright: &lt;{pixel1} --> [bright]>. %degree%
          So the purpose of these rules is mainly to form compositions of sensor-related properties and instances.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal3-set-related-rules
-  ;; Set comprehension:
-  #R[(C --&gt; A) (C --&gt; B) |- (C --&gt; R) :post (:t/union) :pre ((:set-ext? A) (:union A B R))]
-  #R[(C --&gt; A) (C --&gt; B) |- (C --&gt; R) :post (:t/intersection) :pre ((:set-int? A) (:union A B R))]
-  #R[(A --&gt; C) (B --&gt; C) |- (R --&gt; C) :post (:t/intersection) :pre ((:set-ext? A) (:union A B R))]
-  #R[(A --&gt; C) (B --&gt; C) |- (R --&gt; C) :post (:t/union) :pre ((:set-int? A) (:union A B R))]
-  #R[(C --&gt; A) (C --&gt; B) |- (C --&gt; R) :post (:t/intersection) :pre ((:set-ext? A) (:intersection A B R))]
-  #R[(C --&gt; A) (C --&gt; B) |- (C --&gt; R) :post (:t/union) :pre ((:set-int? A) (:intersection A B R))]
-  #R[(A --&gt; C) (B --&gt; C) |- (R --&gt; C) :post (:t/union) :pre ((:set-ext? A) (:intersection A B R))]
-  #R[(A --&gt; C) (B --&gt; C) |- (R --&gt; C) :post (:t/intersection) :pre ((:set-int? A) (:intersection A B R))]
-  #R[(C --&gt; A) (C --&gt; B) |- (C --&gt; R) :post (:t/difference) :pre ((:difference A B R))]
-  #R[(A --&gt; C) (B --&gt; C) |- (R --&gt; C) :post (:t/difference) :pre ((:difference A B R))])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=40" style="text-decoration:none">NAL3 structural inference</a></h1><br/>  <!-- target="bible" -->
+</td><td class="codes"><pre class="brush: clojure">(defrules nal3-set-related-rules
+         ;; Set comprehension:
+         #R[(C --&gt; A) (C --&gt; B) |- (C --&gt; R) :post (:t/union) :pre ((:set-ext? A) (:union A B R))]
+         #R[(C --&gt; A) (C --&gt; B) |- (C --&gt; R) :post (:t/intersection) :pre ((:set-int? A) (:union A B R))]
+         #R[(A --&gt; C) (B --&gt; C) |- (R --&gt; C) :post (:t/intersection) :pre ((:set-ext? A) (:union A B R))]
+         #R[(A --&gt; C) (B --&gt; C) |- (R --&gt; C) :post (:t/union) :pre ((:set-int? A) (:union A B R))]
+         #R[(C --&gt; A) (C --&gt; B) |- (C --&gt; R) :post (:t/intersection) :pre ((:set-ext? A) (:intersection A B R))]
+         #R[(C --&gt; A) (C --&gt; B) |- (C --&gt; R) :post (:t/union) :pre ((:set-int? A) (:intersection A B R))]
+         #R[(A --&gt; C) (B --&gt; C) |- (R --&gt; C) :post (:t/union) :pre ((:set-ext? A) (:intersection A B R))]
+         #R[(A --&gt; C) (B --&gt; C) |- (R --&gt; C) :post (:t/intersection) :pre ((:set-int? A) (:intersection A B R))]
+         #R[(C --&gt; A) (C --&gt; B) |- (C --&gt; R) :post (:t/difference) :pre ((:difference A B R))]
+         #R[(A --&gt; C) (B --&gt; C) |- (R --&gt; C) :post (:t/difference) :pre ((:difference A B R))])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=40" style="text-decoration:none">NAL3 structural inference</a></h1><br/>  <!-- target="bible" -->
           These are some additional meaningful structural deduction rule for the NAL3-statements.
           For example if it is known that a cat is a furry animal, it can be derived that a cat is an animal.
           So these rules are for valid deductions based on the premises containing intersections and differences.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal3-structural-inference
-  ; NAL3 single premise inference:
-  #R[((| :list/A) --&gt; M) M |- (:from/A --&gt; M) :post (:t/structural-deduction)]
-  #R[(M --&gt; (&amp; :list/A)) M |- (M --&gt; :from/A) :post (:t/structural-deduction)]
-  #R[((B - G) --&gt; S) S |- (B --&gt; S) :post (:t/structural-deduction)]
-  #R[(R --&gt; (B ~ S)) R |- (R --&gt; B) :post (:t/structural-deduction)]
-   ; Set element takeout:
-   #R[(C --&gt; {:list/A}) C |- (C --&gt; {:from/A}) :post (:t/structural-deduction)]
-   #R[(C --&gt; [:list/A]) C |- (C --&gt; [:from/A]) :post (:t/structural-deduction)]
-   #R[({:list/A} --&gt; C) C |- ({:from/A} --&gt; C) :post (:t/structural-deduction)]
-   #R[([:list/A] --&gt; C) C |- ([:from/A] --&gt; C) :post (:t/structural-deduction)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=41" style="text-decoration:none">NAL4 structural inference</a></h1><br/>  <!-- target="bible" -->
-           The purpose of this rules is structural inference on relations.
-           This allows the system to see a specific relation from different perspective,
-           as demanded to make arguments of relations themselves possibly be the subject or predicate of an Inheritance-statement.
-           For example if the cat eats the mouse, the cat is a special case of something which eats a mouse,
-           additionally the mouse is a special case of something which is eaten by the cat,
-           additionally the the cat and the mouse are in an anonymous relation which itself is a special case of eating.
-           Since this are all different representations of the same relation, the rules use Identity as truth value.
-           The key purpose of tese inference rules is to allow the system to do arbitrary relational reasoning
-           be exposing all aspects about relations to the generalization hierachy.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal4-structural-inference
-  ; NAL4 - Transformations between products and images:
-  ; Relations and transforming them into different representations so that arguments and the relation it'self can become the subject or predicate
-  #R[((* :list/A) --&gt; M) Ai |- (Ai --&gt; (/ M :list/A))
-     :pre ((:substitute-from-list Ai _) (:contains? (:list/A) Ai))
-     :post (:t/identity :d/identity)]
-  #R[(M --&gt; (* :list/A)) Ai |- ((\ M :list/A) --&gt; Ai)
-     :pre ((:substitute-from-list Ai _) (:contains? (:list/A) Ai))
-     :post (:t/identity :d/identity)]
-  #R[(Ai --&gt; (/ M :list/A )) M |- ((* :list/A) --&gt; M)
-     :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
-     :post (:t/identity :d/identity)]
-  #R[((\ M :list/A) --&gt; Ai) M |- (M --&gt; (:list/A))
-      :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
-     :post (:t/identity :d/identity)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=49" style="text-decoration:none">NAL5 implication based syllogisms</a></h1><br/>  <!-- target="bible" -->
+</td><td class="codes"><pre class="brush: clojure">(defrules nal3-structural-inference
+         ; NAL3 single premise inference:
+         #R[((| :list/A) --&gt; M) M |- (:from/A --&gt; M) :post (:t/structural-deduction)]
+         #R[(M --&gt; (&amp; :list/A)) M |- (M --&gt; :from/A) :post (:t/structural-deduction)]
+         #R[((B - G) --&gt; S) S |- (B --&gt; S) :post (:t/structural-deduction)]
+         #R[(R --&gt; (B ~ S)) R |- (R --&gt; B) :post (:t/structural-deduction)]
+         ; Set element takeout:
+         #R[(C --&gt; {:list/A}) C |- (C --&gt; {:from/A}) :post (:t/structural-deduction)]
+         #R[(C --&gt; [:list/A]) C |- (C --&gt; [:from/A]) :post (:t/structural-deduction)]
+         #R[({:list/A} --&gt; C) C |- ({:from/A} --&gt; C) :post (:t/structural-deduction)]
+         #R[([:list/A] --&gt; C) C |- ([:from/A] --&gt; C) :post (:t/structural-deduction)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=41" style="text-decoration:none">NAL4 structural inference</a></h1><br/>  <!-- target="bible" -->
+          The purpose of this rules is structural inference on relations.
+          This allows the system to see a specific relation from different perspective,
+          as demanded to make arguments of relations themselves possibly be the subject or predicate of an Inheritance-statement.
+          For example if the cat eats the mouse, the cat is a special case of something which eats a mouse,
+          additionally the mouse is a special case of something which is eaten by the cat,
+          additionally the the cat and the mouse are in an anonymous relation which itself is a special case of eating.
+          Since this are all different representations of the same relation, the rules use Identity as truth value.
+          The key purpose of tese inference rules is to allow the system to do arbitrary relational reasoning
+          be exposing all aspects about relations to the generalization hierachy.</p>
+</td><td class="codes"><pre class="brush: clojure">(defrules nal4-structural-inference
+         ; NAL4 - Transformations between products and images:
+         ; Relations and transforming them into different representations so that arguments and the relation it'self can become the subject or predicate
+         #R[((* :list/A) --&gt; M) Ai |- (Ai --&gt; (/ M :list/A))
+            :pre ((:substitute-from-list Ai _) (:contains? (:list/A) Ai))
+            :post (:t/identity :d/identity)]
+         #R[(M --&gt; (* :list/A)) Ai |- ((\ M :list/A) --&gt; Ai)
+:pre ((:substitute-from-list Ai _) (:contains? (:list/A) Ai))
+:post (:t/identity :d/identity)]
+#R[(Ai --&gt; (/ M :list/A )) M |- ((* :list/A) --&gt; M)
+   :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
+   :post (:t/identity :d/identity)]
+#R[((\ M :list/A) --&gt; Ai) M |- (M --&gt; (:list/A))
+:pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
+:post (:t/identity :d/identity)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=49" style="text-decoration:none">NAL5 implication based syllogisms</a></h1><br/>  <!-- target="bible" -->
            While Inheritance represents a relation in meaning, Implication represents a relation in truth.
            The meaning of ==> is very natural and roughly corresponds to the implication in classical logic.
            Syllogistic inference for ==> is analogous to how it is in case of -->.
@@ -3086,143 +3086,143 @@ So these rules are for bringing NAL-statements into a different, implied and mor
            Note that all inference rules with :order-for-all-same also work for this temporal variants,
            even if the inference rule itself only speaks about ==>.
            The key purpose of these rules is to establish deduction, induction, abduction and exemplification for statements using ==> copulas.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal5-implication-based-syllogisms
-  ; implication-based syllogism
-  #R[(M ==&gt; P) (S ==&gt; M) |- (S ==&gt; P) :post (:t/deduction :order-for-all-same :allow-backward) :pre ((:!= S P))]
-  #R[(P ==&gt; M) (S ==&gt; M) |- (S ==&gt; P) :post (:t/induction :allow-backward) :pre ((:!= S P))]
-  #R[(P =|&gt; M) (S =|&gt; M) |- (S =|&gt; P) :post (:t/induction :allow-backward) :pre ((:!= S P))]
-  #R[(P =/&gt; M) (S =/&gt; M) |- (S =|&gt; P) :post (:t/induction :allow-backward) :pre ((:!= S P))]
-  #R[(P =\&gt; M) (S =\&gt; M) |- (S =|&gt; P) :post (:t/induction :allow-backward) :pre ((:!= S P))]
-  #R[(M ==&gt; P) (M ==&gt; S) |- (S ==&gt; P) :post (:t/abduction :allow-backward) :pre ((:!= S P))]
-  #R[(M =/&gt; P) (M =/&gt; S) |- (S =|&gt; P) :post (:t/abduction :allow-backward) :pre ((:!= S P))]
-  #R[(M =|&gt; P) (M =|&gt; S) |- (S =|&gt; P) :post (:t/abduction :allow-backward) :pre ((:!= S P))]
-  #R[(M =\&gt; P) (M =\&gt; S) |- (S =|&gt; P) :post (:t/abduction :allow-backward) :pre ((:!= S P))]
-  #R[(P ==&gt; M) (M ==&gt; S) |- (S ==&gt; P) :post (:t/exemplification :allow-backward) :pre ((:!= S P))]
-  #R[(P =/&gt; M) (M =/&gt; S) |- (S =\&gt; P) :post (:t/exemplification :allow-backward) :pre ((:!= S P))]
-  #R[(P =\&gt; M) (M =\&gt; S) |- (S =/&gt; P) :post (:t/exemplification :allow-backward) :pre ((:!= S P))]
-  #R[(P =|&gt; M) (M =|&gt; S) |- (S =|&gt; P) :post (:t/exemplification :allow-backward) :pre ((:!= S P))]
-  ; equivalence-based syllogism
-  ; Same as for inheritance again
-  #R[(P ==&gt; M) (S ==&gt; M) |- (S &lt;=&gt; P) :pre ((:!= S P)) :post (:t/comparison :allow-backward)]
-  #R[(P =/&gt; M) (S =/&gt; M) |- ((S &lt;|&gt; P) :post (:t/comparison :allow-backward)
-                              (S &lt;/&gt; P) :post (:t/comparison :allow-backward)
-                              (P &lt;/&gt; S) :post (:t/comparison :allow-backward))
-     :pre ((:!= S P))]
-  #R[(P =|&gt; M) (S =|&gt; M) |- (S &lt;|&gt; P) :pre ((:!= S P)) :post (:t/comparison :allow-backward)]
-  #R[(P =\&gt; M) (S =\&gt; M) |- ((S &lt;|&gt; P) :post (:t/comparison :allow-backward)
-                              (S &lt;/&gt; P) :post (:t/comparison :allow-backward)
-                              (P &lt;/&gt; S) :post (:t/comparison :allow-backward))
-     :pre ((:!= S P))]
-  #R[(M ==&gt; P) (M ==&gt; S) |- (S &lt;=&gt; P) :pre ((:!= S P)) :post (:t/comparison :allow-backward)]
-  #R[(M =/&gt; P) (M =/&gt; S) |- ((S &lt;|&gt; P) :post (:t/comparison :allow-backward)
-                              (S &lt;/&gt; P) :post (:t/comparison :allow-backward)
-                              (P &lt;/&gt; S) :post (:t/comparison :allow-backward))
-     :pre ((:!= S P))]
-  #R[(M =|&gt; P) (M =|&gt; S) |- (S &lt;|&gt; P) :pre ((:!= S P)) :post (:t/comparison :allow-backward)]
-  ; Same as for inheritance again
-  #R[(M ==&gt; P) (S &lt;=&gt; M) |- (S ==&gt; P) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
-  #R[(M =/&gt; P) (S &lt;/&gt; M) |- (S =/&gt; P) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
-  #R[(M =/&gt; P) (S &lt;|&gt; M) |- (S =/&gt; P) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
-  #R[(M =|&gt; P) (S &lt;|&gt; M) |- (S =|&gt; P) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
-  #R[(M =\&gt; P) (M &lt;/&gt; S) |- (S =\&gt; P) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
-  #R[(M =\&gt; P) (S &lt;|&gt; M) |- (S =\&gt; P) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
-  #R[(P ==&gt; M) (S &lt;=&gt; M) |- (P ==&gt; S) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
-  #R[(P =/&gt; M) (S &lt;|&gt; M) |- (P =/&gt; S) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
-  #R[(P =|&gt; M) (S &lt;|&gt; M) |- (P =|&gt; S) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
-  #R[(P =\&gt; M) (S &lt;/&gt; M) |- (P =\&gt; S) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
-  #R[(P =\&gt; M) (S &lt;|&gt; M) |- (P =\&gt; S) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
-  #R[(M &lt;=&gt; P) (S &lt;=&gt; M) |- (S &lt;=&gt; P) :pre ((:!= S P)) :post (:t/resemblance :order-for-all-same :allow-backward)]
-  #R[(M &lt;/&gt; P) (S &lt;|&gt; M) |- (S &lt;/&gt; P) :pre ((:!= S P)) :post (:t/resemblance :allow-backward)]
-  #R[(M &lt;|&gt; P) (S &lt;/&gt; M) |- (S &lt;/&gt; P) :pre ((:!= S P)) :post (:t/resemblance :allow-backward)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=50" style="text-decoration:none">NAL5 implication based composition</a></h1><br/>  <!-- target="bible" -->
-     Similar as in classical logics, more complicated statements, involving conjunctions and disjunctions can be composed,
-     this rules are responsible for this. Note that for the conjunction, &amp;&amp;, there is again a temporal
-     variant &amp;| for concurrent conjunction, and &amp;/ for sequential conjunction.
-     Note that all conjunction variants are associative, but only &amp;| and &amp;&amp; are commutative exactly as their semantics suggest.
-     The key purpose of these rules is to make it possible for the system to identify conditions or preconditions for certain statements.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal5-implication-based-composition
-  ; implication-based composition
-  ; Same as for inheritance again
-  #R[(P ==&gt; M) (S ==&gt; M) |- (((P || S) ==&gt; M) :post (:t/intersection)
-                              ((P &amp;&amp; S) ==&gt; M) :post (:t/union))
-     :pre ((:!= S P))]
-  #R[(P =|&gt; M) (S =|&gt; M) |- (((P || S) =|&gt; M) :post (:t/intersection)
-                              ((P &amp;| S) =|&gt; M) :post (:t/union))
-     :pre ((:!= S P))]
-  #R[(P =/&gt; M) (S =/&gt; M) |- (((P || S) =/&gt; M) :post (:t/intersection)
-                              ((P &amp;| S) =/&gt; M) :post (:t/union))
-     :pre ((:!= S P)) ]
-  #R[(P =\&gt; M) (S =\&gt; M) |- (((P || S) =\&gt; M) :post (:t/intersection)
-                                ((P &amp;| S) =\&gt; M) :post (:t/union))
-     :pre ((:!= S P))]
-  #R[(M ==&gt; P) (M ==&gt; S) |- ((M ==&gt; (P &amp;&amp; S)) :post (:t/intersection)
-                              (M ==&gt; (P || S)) :post (:t/union))
-     :pre ((:!= S P))]
-  #R[(M =/&gt; P) (M =/&gt; S) |- ((M =/&gt; (P &amp;| S)) :post (:t/intersection)
-                              (M =/&gt; (P || S)) :post (:t/union))
-     :pre ((:!= S P))]
-  #R[(M =|&gt; P) (M =|&gt; S) |- ((M =|&gt; (P &amp;| S)) :post (:t/intersection)
-                              (M =|&gt; (P || S)) :post (:t/union))
-     :pre ((:!= S P))]
-  #R[(M =\&gt; P) (M =\&gt; S) |- ((M =\&gt; (P &amp;| S)) :post (:t/intersection)
-                              (M =\&gt; (P || S)) :post (:t/union))
-     :pre ((:!= S P))]
-  #R[(D =/&gt; R) (D =\&gt; K) |- ((K =/&gt; R) :post (:t/abduction)
-                              (R =\&gt; K) :post (:t/induction)
-                              (K &lt;/&gt; R) :post (:t/comparison))
-     :pre ((:!= R K))])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=49" style="text-decoration:none">NAL5 implication based decomposition and procedural inference</a></h1><br/>  <!-- target="bible" -->
-       Analogical to the previous decomposition rules, decomposition rules for the ==> makes it possible for the system to decompose what was composed by the previous rules,
-       they key purpose of these rules is to make it possible for the system to derive the consequences of a conditional statement when the condition is fullfilled,
-       as well as finding a possible explaination for the truth of the postcondition.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal5-nal8-implication-based-decomposition
-  ; implication-based decomposition
-  ; Same as for inheritance again
-  #R[(S ==&gt; M) ((|| S :list/A) ==&gt; M) |- ((|| :list/A) ==&gt; M) :post (:t/decompose-pnn :order-for-all-same)]
-  #R[(S ==&gt; M) ((&amp;&amp; S :list/A) ==&gt; M) |- ((&amp;&amp; :list/A) ==&gt; M) :post (:t/decompose-npp :order-for-all-same :seq-interval-from-premises)]
-  #R[(M ==&gt; S) (M ==&gt; (&amp;&amp; S :list/A)) |- (M ==&gt; (&amp;&amp; :list/A)) :post (:t/decompose-pnn :order-for-all-same :seq-interval-from-premises)]
-  #R[(M ==&gt; S) (M ==&gt; (|| S :list/A)) |- (M ==&gt; (|| :list/A)) :post (:t/decompose-npp :order-for-all-same)]
-  ; conditional syllogism
-  ; If after M P usually happens and M happens it means P is expected to happen
-  #R[M (M ==&gt; P) |- P :post (:t/deduction :d/induction :order-for-all-same) :pre ((:shift-occurrence-forward unused ==&gt;))]
-  #R[M (P ==&gt; M) |- P :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:shift-occurrence-backward unused ==&gt;))]
-  #R[M (S &lt;=&gt; M) |- S :post (:t/analogy :d/strong :order-for-all-same) :pre ((:shift-occurrence-backward unused &lt;=&gt;))]
-  #R[M (M &lt;=&gt; S) |- S :post (:t/analogy :d/strong :order-for-all-same) :pre ((:shift-occurrence-forward unused ==&gt;))]
-  ; conjunction decompose
-  #R[(&amp;&amp; :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
-  #R[(&amp;/ :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
-  #R[(&amp;| :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
-  #R[(&amp;/ B :list/A) B |- (&amp;/ :list/A) :pre (:goal?) :post (:t/deduction :d/strong :seq-interval-from-premises)]
-  ; propositional decomposition
-  ; If S is the case and (&amp;&amp; S :list/A) is not the case it can't be that (&amp;&amp; :list/A) is the case
-  #R[S (&amp;/ S :list/A) |- (&amp;/ :list/A) :post (:t/decompose-pnn :seq-interval-from-premises)]
-  #R[S (&amp;| S :list/A) |- (&amp;| :list/A) :post (:t/decompose-pnn)]
-  #R[S (&amp;&amp; S :list/A) |- (&amp;&amp; :list/A) :post (:t/decompose-pnn)]
-  #R[S (|| S :list/A) |- (|| :list/A) :post (:t/decompose-npp)]
-  ; Additional for negation: https://groups.google.com/forum/#!topic/open-nars/g-7r0jjq2Vc
-  #R[S (&amp;/ (-- S) :list/A) |- (&amp;/ :list/A) :post (:t/decompose-nnn :seq-interval-from-premises)]
-  #R[S (&amp;| (-- S) :list/A) |- (&amp;| :list/A) :post (:t/decompose-nnn)]
-  #R[S (&amp;&amp; (-- S) :list/A) |- (&amp;&amp; :list/A) :post (:t/decompose-nnn)]
-  #R[S (|| (-- S) :list/A) |- (|| :list/A) :post (:t/decompose-ppp)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=49" style="text-decoration:none">NAL5 implication based decomposition</a></h1><br/>  <!-- target="bible" -->
+</td><td class="codes"><pre class="brush: clojure">(defrules nal5-implication-based-syllogisms
+         ; implication-based syllogism
+         #R[(M ==&gt; P) (S ==&gt; M) |- (S ==&gt; P) :post (:t/deduction :order-for-all-same :allow-backward) :pre ((:!= S P))]
+         #R[(P ==&gt; M) (S ==&gt; M) |- (S ==&gt; P) :post (:t/induction :allow-backward) :pre ((:!= S P))]
+         #R[(P =|&gt; M) (S =|&gt; M) |- (S =|&gt; P) :post (:t/induction :allow-backward) :pre ((:!= S P))]
+         #R[(P =/&gt; M) (S =/&gt; M) |- (S =|&gt; P) :post (:t/induction :allow-backward) :pre ((:!= S P))]
+         #R[(P =\&gt; M) (S =\&gt; M) |- (S =|&gt; P) :post (:t/induction :allow-backward) :pre ((:!= S P))]
+         #R[(M ==&gt; P) (M ==&gt; S) |- (S ==&gt; P) :post (:t/abduction :allow-backward) :pre ((:!= S P))]
+         #R[(M =/&gt; P) (M =/&gt; S) |- (S =|&gt; P) :post (:t/abduction :allow-backward) :pre ((:!= S P))]
+         #R[(M =|&gt; P) (M =|&gt; S) |- (S =|&gt; P) :post (:t/abduction :allow-backward) :pre ((:!= S P))]
+         #R[(M =\&gt; P) (M =\&gt; S) |- (S =|&gt; P) :post (:t/abduction :allow-backward) :pre ((:!= S P))]
+         #R[(P ==&gt; M) (M ==&gt; S) |- (S ==&gt; P) :post (:t/exemplification :allow-backward) :pre ((:!= S P))]
+         #R[(P =/&gt; M) (M =/&gt; S) |- (S =\&gt; P) :post (:t/exemplification :allow-backward) :pre ((:!= S P))]
+         #R[(P =\&gt; M) (M =\&gt; S) |- (S =/&gt; P) :post (:t/exemplification :allow-backward) :pre ((:!= S P))]
+         #R[(P =|&gt; M) (M =|&gt; S) |- (S =|&gt; P) :post (:t/exemplification :allow-backward) :pre ((:!= S P))]
+         ; equivalence-based syllogism
+         ; Same as for inheritance again
+         #R[(P ==&gt; M) (S ==&gt; M) |- (S &lt;=&gt; P) :pre ((:!= S P)) :post (:t/comparison :allow-backward)]
+         #R[(P =/&gt; M) (S =/&gt; M) |- ((S &lt;|&gt; P) :post (:t/comparison :allow-backward)
+                                     (S &lt;/&gt; P) :post (:t/comparison :allow-backward)
+                                     (P &lt;/&gt; S) :post (:t/comparison :allow-backward))
+            :pre ((:!= S P))]
+         #R[(P =|&gt; M) (S =|&gt; M) |- (S &lt;|&gt; P) :pre ((:!= S P)) :post (:t/comparison :allow-backward)]
+         #R[(P =\&gt; M) (S =\&gt; M) |- ((S &lt;|&gt; P) :post (:t/comparison :allow-backward)
+                                     (S &lt;/&gt; P) :post (:t/comparison :allow-backward)
+                                     (P &lt;/&gt; S) :post (:t/comparison :allow-backward))
+            :pre ((:!= S P))]
+         #R[(M ==&gt; P) (M ==&gt; S) |- (S &lt;=&gt; P) :pre ((:!= S P)) :post (:t/comparison :allow-backward)]
+         #R[(M =/&gt; P) (M =/&gt; S) |- ((S &lt;|&gt; P) :post (:t/comparison :allow-backward)
+                                     (S &lt;/&gt; P) :post (:t/comparison :allow-backward)
+                                     (P &lt;/&gt; S) :post (:t/comparison :allow-backward))
+            :pre ((:!= S P))]
+         #R[(M =|&gt; P) (M =|&gt; S) |- (S &lt;|&gt; P) :pre ((:!= S P)) :post (:t/comparison :allow-backward)]
+         ; Same as for inheritance again
+         #R[(M ==&gt; P) (S &lt;=&gt; M) |- (S ==&gt; P) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
+         #R[(M =/&gt; P) (S &lt;/&gt; M) |- (S =/&gt; P) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
+         #R[(M =/&gt; P) (S &lt;|&gt; M) |- (S =/&gt; P) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
+         #R[(M =|&gt; P) (S &lt;|&gt; M) |- (S =|&gt; P) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
+         #R[(M =\&gt; P) (M &lt;/&gt; S) |- (S =\&gt; P) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
+         #R[(M =\&gt; P) (S &lt;|&gt; M) |- (S =\&gt; P) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
+         #R[(P ==&gt; M) (S &lt;=&gt; M) |- (P ==&gt; S) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
+         #R[(P =/&gt; M) (S &lt;|&gt; M) |- (P =/&gt; S) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
+         #R[(P =|&gt; M) (S &lt;|&gt; M) |- (P =|&gt; S) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
+         #R[(P =\&gt; M) (S &lt;/&gt; M) |- (P =\&gt; S) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
+         #R[(P =\&gt; M) (S &lt;|&gt; M) |- (P =\&gt; S) :pre ((:!= S P)) :post (:t/analogy :allow-backward)]
+         #R[(M &lt;=&gt; P) (S &lt;=&gt; M) |- (S &lt;=&gt; P) :pre ((:!= S P)) :post (:t/resemblance :order-for-all-same :allow-backward)]
+         #R[(M &lt;/&gt; P) (S &lt;|&gt; M) |- (S &lt;/&gt; P) :pre ((:!= S P)) :post (:t/resemblance :allow-backward)]
+         #R[(M &lt;|&gt; P) (S &lt;/&gt; M) |- (S &lt;/&gt; P) :pre ((:!= S P)) :post (:t/resemblance :allow-backward)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=50" style="text-decoration:none">NAL5 implication based composition</a></h1><br/>  <!-- target="bible" -->
+         Similar as in classical logics, more complicated statements, involving conjunctions and disjunctions can be composed,
+         this rules are responsible for this. Note that for the conjunction, &amp;&amp;, there is again a temporal
+         variant &amp;| for concurrent conjunction, and &amp;/ for sequential conjunction.
+         Note that all conjunction variants are associative, but only &amp;| and &amp;&amp; are commutative exactly as their semantics suggest.
+         The key purpose of these rules is to make it possible for the system to identify conditions or preconditions for certain statements.</p>
+</td><td class="codes"><pre class="brush: clojure">(defrules nal5-implication-based-composition
+         ; implication-based composition
+         ; Same as for inheritance again
+         #R[(P ==&gt; M) (S ==&gt; M) |- (((P || S) ==&gt; M) :post (:t/intersection)
+                                     ((P &amp;&amp; S) ==&gt; M) :post (:t/union))
+            :pre ((:!= S P))]
+         #R[(P =|&gt; M) (S =|&gt; M) |- (((P || S) =|&gt; M) :post (:t/intersection)
+                                     ((P &amp;| S) =|&gt; M) :post (:t/union))
+            :pre ((:!= S P))]
+         #R[(P =/&gt; M) (S =/&gt; M) |- (((P || S) =/&gt; M) :post (:t/intersection)
+                                     ((P &amp;| S) =/&gt; M) :post (:t/union))
+            :pre ((:!= S P)) ]
+         #R[(P =\&gt; M) (S =\&gt; M) |- (((P || S) =\&gt; M) :post (:t/intersection)
+                                     ((P &amp;| S) =\&gt; M) :post (:t/union))
+            :pre ((:!= S P))]
+         #R[(M ==&gt; P) (M ==&gt; S) |- ((M ==&gt; (P &amp;&amp; S)) :post (:t/intersection)
+                                     (M ==&gt; (P || S)) :post (:t/union))
+            :pre ((:!= S P))]
+         #R[(M =/&gt; P) (M =/&gt; S) |- ((M =/&gt; (P &amp;| S)) :post (:t/intersection)
+                                     (M =/&gt; (P || S)) :post (:t/union))
+            :pre ((:!= S P))]
+         #R[(M =|&gt; P) (M =|&gt; S) |- ((M =|&gt; (P &amp;| S)) :post (:t/intersection)
+                                     (M =|&gt; (P || S)) :post (:t/union))
+            :pre ((:!= S P))]
+         #R[(M =\&gt; P) (M =\&gt; S) |- ((M =\&gt; (P &amp;| S)) :post (:t/intersection)
+                                     (M =\&gt; (P || S)) :post (:t/union))
+            :pre ((:!= S P))]
+         #R[(D =/&gt; R) (D =\&gt; K) |- ((K =/&gt; R) :post (:t/abduction)
+                                     (R =\&gt; K) :post (:t/induction)
+                                     (K &lt;/&gt; R) :post (:t/comparison))
+            :pre ((:!= R K))])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=49" style="text-decoration:none">NAL5 implication based decomposition and procedural inference</a></h1><br/>  <!-- target="bible" -->
+        Analogical to the previous decomposition rules, decomposition rules for the ==> makes it possible for the system to decompose what was composed by the previous rules,
+        they key purpose of these rules is to make it possible for the system to derive the consequences of a conditional statement when the condition is fullfilled,
+        as well as finding a possible explaination for the truth of the postcondition.</p>
+</td><td class="codes"><pre class="brush: clojure">(defrules nal5-nal8-implication-based-decomposition
+         ; implication-based decomposition
+         ; Same as for inheritance again
+         #R[(S ==&gt; M) ((|| S :list/A) ==&gt; M) |- ((|| :list/A) ==&gt; M) :post (:t/decompose-pnn :order-for-all-same)]
+         #R[(S ==&gt; M) ((&amp;&amp; S :list/A) ==&gt; M) |- ((&amp;&amp; :list/A) ==&gt; M) :post (:t/decompose-npp :order-for-all-same :seq-interval-from-premises)]
+         #R[(M ==&gt; S) (M ==&gt; (&amp;&amp; S :list/A)) |- (M ==&gt; (&amp;&amp; :list/A)) :post (:t/decompose-pnn :order-for-all-same :seq-interval-from-premises)]
+         #R[(M ==&gt; S) (M ==&gt; (|| S :list/A)) |- (M ==&gt; (|| :list/A)) :post (:t/decompose-npp :order-for-all-same)]
+         ; conditional syllogism
+         ; If after M P usually happens and M happens it means P is expected to happen
+         #R[M (M ==&gt; P) |- P :post (:t/deduction :d/induction :order-for-all-same) :pre ((:shift-occurrence-forward ==&gt;))]
+         #R[M (P ==&gt; M) |- P :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:shift-occurrence-backward ==&gt;))]
+         #R[M (S &lt;=&gt; M) |- S :post (:t/analogy :d/strong :order-for-all-same) :pre ((:shift-occurrence-backward &lt;=&gt;))]
+         #R[M (M &lt;=&gt; S) |- S :post (:t/analogy :d/strong :order-for-all-same) :pre ((:shift-occurrence-forward ==&gt;))]
+         ; conjunction decompose
+         #R[(&amp;&amp; :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
+         #R[(&amp;/ :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
+         #R[(&amp;| :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
+         #R[(&amp;/ B :list/A) B |- (&amp;/ :list/A) :pre (:goal?) :post (:t/deduction :d/strong :seq-interval-from-premises)]
+         ; propositional decomposition
+         ; If S is the case and (&amp;&amp; S :list/A) is not the case it can't be that (&amp;&amp; :list/A) is the case
+         #R[S (&amp;/ S :list/A) |- (&amp;/ :list/A) :post (:t/decompose-pnn :seq-interval-from-premises)]
+         #R[S (&amp;| S :list/A) |- (&amp;| :list/A) :post (:t/decompose-pnn)]
+         #R[S (&amp;&amp; S :list/A) |- (&amp;&amp; :list/A) :post (:t/decompose-pnn)]
+         #R[S (|| S :list/A) |- (|| :list/A) :post (:t/decompose-npp)]
+         ; Additional for negation: https://groups.google.com/forum/#!topic/open-nars/g-7r0jjq2Vc
+         #R[S (&amp;/ (-- S) :list/A) |- (&amp;/ :list/A) :post (:t/decompose-nnn :seq-interval-from-premises)]
+         #R[S (&amp;| (-- S) :list/A) |- (&amp;| :list/A) :post (:t/decompose-nnn)]
+         #R[S (&amp;&amp; (-- S) :list/A) |- (&amp;&amp; :list/A) :post (:t/decompose-nnn)]
+         #R[S (|| (-- S) :list/A) |- (|| :list/A) :post (:t/decompose-ppp)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=49" style="text-decoration:none">NAL5 implication based decomposition</a></h1><br/>  <!-- target="bible" -->
          Additionally, there are some rules which allow syllogism-style inference directly happen on compounds with conjunctions,
          whether this rules are really necessary, I am not convinced, but they are at least valid.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal5-multi-conditional-syllogism
-   ; multi-conditional syllogism
-   ; Inference about the pre/postconditions
-   #R[Y ((&amp;&amp; X :list/A) ==&gt; B) |- ((&amp;&amp; :list/A) ==&gt; B) :pre ((:substitute-if-unifies &quot;$&quot; X Y)) :post (:t/deduction :order-for-all-same :seq-interval-from-premises)]
-  #R[((&amp;&amp; M :list/A) ==&gt; C) ((&amp;&amp; :list/A) ==&gt; C) |- M :post (:t/abduction :order-for-all-same)]
-  ; Can be derived by NAL7 rules so this won't be necessary there (:order-for-all-same left out here)
-  ; the first rule does not have :order-for-all-same because it would be invalid see: https://groups.google.com/forum/#!topic/open-nars/r5UJo64Qhrk
-  #R[((&amp;&amp; :list/A) ==&gt; C) M |- ((&amp;&amp; M :list/A) ==&gt; C) :pre ((:not-implication-or-equivalence M)) :post (:t/induction)]
-  #R[((&amp;&amp; :list/A) =|&gt; C) M |- ((&amp;&amp; M :list/A) =|&gt; C) :pre ((:not-implication-or-equivalence M)) :post (:t/induction)]
-  #R[((&amp;&amp; :list/A) =/&gt; C) M |- ((&amp;&amp; M :list/A) =/&gt; C) :pre ((:not-implication-or-equivalence M)) :post (:t/induction)]
-  #R[((&amp;&amp; :list/A) =\&gt; C) M |- ((&amp;&amp; M :list/A) =\&gt; C) :pre ((:not-implication-or-equivalence M)) :post (:t/induction)]
-  #R[(A ==&gt; M) ((&amp;&amp; M :list/A) ==&gt; C) |- ((&amp;&amp; A :list/A) ==&gt; C) :post (:t/deduction :order-for-all-same :seq-interval-from-premises)]
-  #R[((&amp;&amp; M :list/A) ==&gt; C) ((&amp;&amp; A :list/A) ==&gt; C) |- (A ==&gt; M) :post (:t/induction :order-for-all-same)]
-  #R[(A ==&gt; M) ((&amp;&amp; A :list/A) ==&gt; C) |- ((&amp;&amp; M :list/A) ==&gt; C) :post (:t/abduction :order-for-all-same :seq-interval-from-premises)]
-   ; precondition combiner inference rule (variable_unification6):
-   #R[((&amp;&amp; C :list/A) ==&gt; Z) ((&amp;&amp; C :list/B) ==&gt; Z) |- (((&amp;&amp; :list/A) ==&gt; (&amp;&amp; :list/B)) :post (:t/induction)
-                                                         ((&amp;&amp; :list/B) ==&gt; (&amp;&amp; :list/A)) :post (:t/induction))]
-   #R[(Z ==&gt; (&amp;&amp; C :list/A)) (Z ==&gt; (&amp;&amp; C :list/B)) |- (((&amp;&amp; :list/A) ==&gt; (&amp;&amp; :list/B)) :post (:t/abduction)
-                                                         ((&amp;&amp; :list/B) ==&gt; (&amp;&amp; :list/A)) :post (:t/abduction))])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=57" style="text-decoration:none">NAL6 Variable Introduction</a></h1><br/>  <!-- target="bible" -->
+</td><td class="codes"><pre class="brush: clojure">(defrules nal5-multi-conditional-syllogism
+         ; multi-conditional syllogism
+         ; Inference about the pre/postconditions
+         #R[Y ((&amp;&amp; X :list/A) ==&gt; B) |- ((&amp;&amp; :list/A) ==&gt; B) :pre ((:substitute-if-unifies &quot;$&quot; X Y)) :post (:t/deduction :order-for-all-same :seq-interval-from-premises)]
+         #R[((&amp;&amp; M :list/A) ==&gt; C) ((&amp;&amp; :list/A) ==&gt; C) |- M :post (:t/abduction :order-for-all-same)]
+         ; Can be derived by NAL7 rules so this won't be necessary there (:order-for-all-same left out here)
+         ; the first rule does not have :order-for-all-same because it would be invalid see: https://groups.google.com/forum/#!topic/open-nars/r5UJo64Qhrk
+         #R[((&amp;&amp; :list/A) ==&gt; C) M |- ((&amp;&amp; M :list/A) ==&gt; C) :pre ((:not-implication-or-equivalence M)) :post (:t/induction)]
+         #R[((&amp;&amp; :list/A) =|&gt; C) M |- ((&amp;&amp; M :list/A) =|&gt; C) :pre ((:not-implication-or-equivalence M)) :post (:t/induction)]
+         #R[((&amp;&amp; :list/A) =/&gt; C) M |- ((&amp;&amp; M :list/A) =/&gt; C) :pre ((:not-implication-or-equivalence M)) :post (:t/induction)]
+         #R[((&amp;&amp; :list/A) =\&gt; C) M |- ((&amp;&amp; M :list/A) =\&gt; C) :pre ((:not-implication-or-equivalence M)) :post (:t/induction)]
+         #R[(A ==&gt; M) ((&amp;&amp; M :list/A) ==&gt; C) |- ((&amp;&amp; A :list/A) ==&gt; C) :post (:t/deduction :order-for-all-same :seq-interval-from-premises)]
+         #R[((&amp;&amp; M :list/A) ==&gt; C) ((&amp;&amp; A :list/A) ==&gt; C) |- (A ==&gt; M) :post (:t/induction :order-for-all-same)]
+         #R[(A ==&gt; M) ((&amp;&amp; A :list/A) ==&gt; C) |- ((&amp;&amp; M :list/A) ==&gt; C) :post (:t/abduction :order-for-all-same :seq-interval-from-premises)]
+         ; precondition combiner inference rule (variable_unification6):
+         #R[((&amp;&amp; C :list/A) ==&gt; Z) ((&amp;&amp; C :list/B) ==&gt; Z) |- (((&amp;&amp; :list/A) ==&gt; (&amp;&amp; :list/B)) :post (:t/induction)
+                                                               ((&amp;&amp; :list/B) ==&gt; (&amp;&amp; :list/A)) :post (:t/induction))]
+         #R[(Z ==&gt; (&amp;&amp; C :list/A)) (Z ==&gt; (&amp;&amp; C :list/B)) |- (((&amp;&amp; :list/A) ==&gt; (&amp;&amp; :list/B)) :post (:t/abduction)
+                                                               ((&amp;&amp; :list/B) ==&gt; (&amp;&amp; :list/A)) :post (:t/abduction))])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=57" style="text-decoration:none">NAL6 Variable Introduction</a></h1><br/>  <!-- target="bible" -->
          The system has the ability to introduce variabes,
          similar as in FOPL where there is a all-quantor and an exists-quantor,
          where here independent-variables correspond to the all-quantor roughly and are written like $X,
@@ -3232,86 +3232,86 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          Whether the temporal variants are really needed, is questionable.
          The purpose of variable introduction itself is mainly to make it possible for the system to talk
          abstractly but still precisely about things like the statement "for every lock there exists a key which opens it" demands.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal6-variable-introduction
-  ; variable introduction
-  ; Introduce variables by common subject or predicate
-  #R[(S --&gt; M) (P --&gt; M) |- (((P --&gt; $X) ==&gt; (S --&gt; $X)) :post (:t/abduction)
-                              ((S --&gt; $X) ==&gt; (P --&gt; $X)) :post (:t/induction)
-                              ((P --&gt; $X) &lt;=&gt; (S --&gt; $X)) :post (:t/comparison)
-                              (&amp;&amp; (S --&gt; #Y) (P --&gt; #Y)) :post (:t/intersection))
-                                  :pre ((:!= S P))]
- #_#R[(S --&gt; M) (P --&gt; M) |- (((&amp;/ (P --&gt; $X) I) =/&gt; (S --&gt; $X)) :post (:t/induction :linkage-temporal)
-                              ((S --&gt; $X) =\&gt; (&amp;/ (P --&gt; $X) I)) :post (:t/abduction :linkage-temporal)
-                              ((&amp;/ (P --&gt; $X) I) &lt;/&gt; (S --&gt; $X)) :post (:t/comparison :linkage-temporal)
-                              (&amp;/ (P --&gt; #Y) I (S --&gt; #Y)) :post (:t/intersection :linkage-temporal))
+</td><td class="codes"><pre class="brush: clojure">(defrules nal6-variable-introduction
+         ; variable introduction
+         ; Introduce variables by common subject or predicate
+         #R[(S --&gt; M) (P --&gt; M) |- (((P --&gt; $X) ==&gt; (S --&gt; $X)) :post (:t/abduction)
+                                     ((S --&gt; $X) ==&gt; (P --&gt; $X)) :post (:t/induction)
+                                     ((P --&gt; $X) &lt;=&gt; (S --&gt; $X)) :post (:t/comparison)
+                                     (&amp;&amp; (S --&gt; #Y) (P --&gt; #Y)) :post (:t/intersection))
+                                         :pre ((:!= S P))]
+         #R[(S --&gt; M) (P --&gt; M) |- (((&amp;/ (P --&gt; $X) I) =/&gt; (S --&gt; $X)) :post (:t/induction :linkage-temporal)
+                                     ((S --&gt; $X) =\&gt; (&amp;/ (P --&gt; $X) I)) :post (:t/abduction :linkage-temporal)
+                                     ((&amp;/ (P --&gt; $X) I) &lt;/&gt; (S --&gt; $X)) :post (:t/comparison :linkage-temporal)
+                                     (&amp;/ (P --&gt; #Y) I (S --&gt; #Y)) :post (:t/intersection :linkage-temporal))
+                                       :pre ((:!= S P) (:measure-time I))]
+         #R[(S --&gt; M) (P --&gt; M) |- (((P --&gt; $X) =|&gt; (S --&gt; $X)) :post (:t/abduction :linkage-temporal)
+                                     ((S --&gt; $X) =|&gt; (P --&gt; $X)) :post (:t/induction :linkage-temporal)
+                                     ((P --&gt; $X) &lt;|&gt; (S --&gt; $X)) :post (:t/comparison :linkage-temporal)
+                                     (&amp;| (P --&gt; #Y) (S --&gt; #Y)) :post (:t/intersection :linkage-temporal))
+                                         :pre ((:!= S P) (:concurrent Task Belief))]
+         #R[(M --&gt; S) (M --&gt; P) |- ((($X --&gt; S) ==&gt; ($X --&gt; P)) :post (:t/induction)
+                                     (($X --&gt; P) ==&gt; ($X --&gt; S)) :post (:t/abduction)
+                                     (($X --&gt; S) &lt;=&gt; ($X --&gt; P)) :post (:t/comparison)
+                                     (&amp;&amp; (#Y --&gt; S) (#Y --&gt; P)) :post (:t/intersection))
+            :pre ((:!= S P)) ]
+         #R[(M --&gt; S) (M --&gt; P) |- (((&amp;/ ($X --&gt; P) I) =/&gt; ($X --&gt; S))  :post (:t/induction :linkage-temporal)
+                                     (($X --&gt; S) =\&gt; (&amp;/ ($X --&gt; P) I)) :post (:t/abduction :linkage-temporal)
+                                     ((&amp;/ ($X --&gt; P) I) &lt;/&gt; ($X --&gt; S)) :post (:t/comparison :linkage-temporal)
+                                     (&amp;/ (#Y --&gt; P) I (#Y --&gt; S)) :post (:t/intersection :linkage-temporal))
             :pre ((:!= S P) (:measure-time I))]
-  #_#R[(S --&gt; M) (P --&gt; M) |- (((P --&gt; $X) =|&gt; (S --&gt; $X)) :post (:t/abduction :linkage-temporal)
-                              ((S --&gt; $X) =|&gt; (P --&gt; $X)) :post (:t/induction :linkage-temporal)
-                              ((P --&gt; $X) &lt;|&gt; (S --&gt; $X)) :post (:t/comparison :linkage-temporal)
-                              (&amp;| (P --&gt; #Y) (S --&gt; #Y)) :post (:t/intersection :linkage-temporal))
-            :pre ((:!= S P) (concurrent Task Belief))]
-  #R[(M --&gt; S) (M --&gt; P) |- ((($X --&gt; S) ==&gt; ($X --&gt; P)) :post (:t/induction)
-                              (($X --&gt; P) ==&gt; ($X --&gt; S)) :post (:t/abduction)
-                              (($X --&gt; S) &lt;=&gt; ($X --&gt; P)) :post (:t/comparison)
-                              (&amp;&amp; (#Y --&gt; S) (#Y --&gt; P)) :post (:t/intersection))
-     :pre ((:!= S P)) ]
-  #R[(M --&gt; S) (M --&gt; P) |- (((&amp;/ ($X --&gt; P) I) =/&gt; ($X --&gt; S))  :post (:t/induction :linkage-temporal)
-                              (($X --&gt; S) =\&gt; (&amp;/ ($X --&gt; P) I)) :post (:t/abduction :linkage-temporal)
-                              ((&amp;/ ($X --&gt; P) I) &lt;/&gt; ($X --&gt; S)) :post (:t/comparison :linkage-temporal)
-                              (&amp;/ (#Y --&gt; P) I (#Y --&gt; S)) :post (:t/intersection :linkage-temporal))
-     :pre ((:!= S P) (:measure-time I))]
-  #_#R[(M --&gt; S) (M --&gt; P) |- ((($X --&gt; S) =|&gt; ($X --&gt; P)) :post (:t/induction :linkage-temporal)
-                              (($X --&gt; P) =|&gt; ($X --&gt; S)) :post (:t/abduction :linkage-temporal)
-                              (($X --&gt; S) &lt;|&gt; ($X --&gt; P)) :post (:t/comparison :linkage-temporal)
-                              (&amp;| (#Y --&gt; S) (#Y --&gt; P)) :post (:t/intersection :linkage-temporal))
-     :pre ((:!= S P) (:concurrent (M --&gt; P) (M --&gt; S)))])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=57" style="text-decoration:none">NAL6 Variable Syllogisms</a></h1><br/>  <!-- target="bible" -->
+         #R[(M --&gt; S) (M --&gt; P) |- ((($X --&gt; S) =|&gt; ($X --&gt; P)) :post (:t/induction :linkage-temporal)
+                                     (($X --&gt; P) =|&gt; ($X --&gt; S)) :post (:t/abduction :linkage-temporal)
+                                     (($X --&gt; S) &lt;|&gt; ($X --&gt; P)) :post (:t/comparison :linkage-temporal)
+                                     (&amp;| (#Y --&gt; S) (#Y --&gt; P)) :post (:t/intersection :linkage-temporal))
+            :pre ((:!= S P) (:concurrent (M --&gt; P) (M --&gt; S)))])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=57" style="text-decoration:none">NAL6 Variable Syllogisms</a></h1><br/>  <!-- target="bible" -->
          Additionally, these rules are valid due to the semantics of the dependent variables.
          Whether these rules are really needed is however questionable.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal6-variable-syllogisms
-; conditional abduction by dependent variable
-#R[((A --&gt; R) ==&gt; Z) ((&amp;&amp; (#Y --&gt; B) (#Y --&gt; R) :list/A) ==&gt; Z) |- (A --&gt; B) :post (:t/abduction)]
-#R[((A --&gt; R) ==&gt; Z) ((&amp;&amp; (#Y --&gt; B) (#Y --&gt; R)) ==&gt; Z) |- (A --&gt; B) :post (:t/abduction)]
-; conditional deduction &quot;An inverse inference has been implemented as a form of deduction&quot; https://code.google.com/p/open-nars/issues/detail?id=40&amp;can=1
-#R[(U --&gt; L) ((&amp;&amp; (#X --&gt; L) (#X --&gt; R)) ==&gt; Z) |- ((U --&gt; R) ==&gt; Z) :post (:t/deduction)]
-#R[(U --&gt; L) ((&amp;&amp; (#X --&gt; L) (#X --&gt; R) :list/A) ==&gt; Z) |- ((&amp;&amp; (U --&gt; R) :list/A) ==&gt; Z) :pre ((:substitute #X U)) :post (:t/deduction)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=57" style="text-decoration:none">NAL6 Multiple Variable Introduction</a></h1><br/>  <!-- target="bible" -->
+</td><td class="codes"><pre class="brush: clojure">(defrules nal6-variable-syllogisms
+         ; conditional abduction by dependent variable
+         #R[((A --&gt; R) ==&gt; Z) ((&amp;&amp; (#Y --&gt; B) (#Y --&gt; R) :list/A) ==&gt; Z) |- (A --&gt; B) :post (:t/abduction)]
+         #R[((A --&gt; R) ==&gt; Z) ((&amp;&amp; (#Y --&gt; B) (#Y --&gt; R)) ==&gt; Z) |- (A --&gt; B) :post (:t/abduction)]
+         ; conditional deduction &quot;An inverse inference has been implemented as a form of deduction&quot; https://code.google.com/p/open-nars/issues/detail?id=40&amp;can=1
+         #R[(U --&gt; L) ((&amp;&amp; (#X --&gt; L) (#X --&gt; R)) ==&gt; Z) |- ((U --&gt; R) ==&gt; Z) :post (:t/deduction)]
+         #R[(U --&gt; L) ((&amp;&amp; (#X --&gt; L) (#X --&gt; R) :list/A) ==&gt; Z) |- ((&amp;&amp; (U --&gt; R) :list/A) ==&gt; Z) :pre ((:substitute #X U)) :post (:t/deduction)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=57" style="text-decoration:none">NAL6 Multiple Variable Introduction</a></h1><br/>  <!-- target="bible" -->
          In order to introduce additional variables and after one was already introduced,
          and in order to handle multiples these, these rules exist,
          allowing the system to create more complicated abstractions and to work with them.
          The purpose of these rules is the same as for variable introduction, while extending the principle to an arbitrary amount of variables.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal6-multiple-variable-introduction
-  ; 2nd variable introduction
-  #R[(A ==&gt; (M --&gt; P)) (M --&gt; S) |- (((&amp;&amp; A ($X --&gt; S)) ==&gt; ($X --&gt; P)) :post (:t/induction)
-                                      (&amp;&amp; (A ==&gt; (#Y --&gt; P)) (#Y --&gt; S)) :post (:t/intersection))
-     :pre ((:!= A (M --&gt; S)))]
-  #R[(&amp;&amp; (M --&gt; P) :list/A) (M --&gt; S) |- ((($Y --&gt; S) ==&gt; (&amp;&amp; ($Y --&gt; P) :list/A)) :post (:t/induction)
-                                           (&amp;&amp; (#Y --&gt; S) (#Y --&gt; P) :list/A) :post (:t/intersection))
-     :pre ((:!= S P))]
-  #R[(A ==&gt; (P --&gt; M)) (S --&gt; M) |- (((&amp;&amp; A (P --&gt; $X)) ==&gt; (S --&gt; $X)) :post (:t/abduction)
-                                       (&amp;&amp; (A ==&gt; (P --&gt; #Y)) (S --&gt; #Y)) :post (:t/intersection)) ]
-  #R[(&amp;&amp; (P --&gt; M) :list/A) (S --&gt; M) |- (((S --&gt; $Y) ==&gt; (&amp;&amp; (P --&gt; $Y) :list/A))  :post (:t/abduction)
-                                            (&amp;&amp;  (S --&gt; #Y) (P --&gt; #Y) :list/A) :post (:t/intersection))
-                                                 :pre ((:!= S P))]
-  #R[(A --&gt; L) ((A --&gt; S) ==&gt; R) |- ((&amp;&amp; (#X --&gt; L) (#X --&gt; S)) ==&gt; R) :post (:t/induction)]
-  #R[(A --&gt; L) ((&amp;&amp; (A --&gt; S) :list/A) ==&gt; R) |- ((&amp;&amp; (#X --&gt; L) (#X --&gt; S) :list/A) ==&gt; R) :pre ((:substitute A #X)) :post (:t/induction)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=57" style="text-decoration:none">NAL6 Variable Elimination</a></h1><br/>  <!-- target="bible" -->
+</td><td class="codes"><pre class="brush: clojure">(defrules nal6-multiple-variable-introduction
+         ; 2nd variable introduction
+         #R[(A ==&gt; (M --&gt; P)) (M --&gt; S) |- (((&amp;&amp; A ($X --&gt; S)) ==&gt; ($X --&gt; P)) :post (:t/induction)
+                                             (&amp;&amp; (A ==&gt; (#Y --&gt; P)) (#Y --&gt; S)) :post (:t/intersection))
+            :pre ((:!= A (M --&gt; S)))]
+         #R[(&amp;&amp; (M --&gt; P) :list/A) (M --&gt; S) |- ((($Y --&gt; S) ==&gt; (&amp;&amp; ($Y --&gt; P) :list/A)) :post (:t/induction)
+                                                  (&amp;&amp; (#Y --&gt; S) (#Y --&gt; P) :list/A) :post (:t/intersection))
+            :pre ((:!= S P))]
+         #R[(A ==&gt; (P --&gt; M)) (S --&gt; M) |- (((&amp;&amp; A (P --&gt; $X)) ==&gt; (S --&gt; $X)) :post (:t/abduction)
+                                             (&amp;&amp; (A ==&gt; (P --&gt; #Y)) (S --&gt; #Y)) :post (:t/intersection)) ]
+         #R[(&amp;&amp; (P --&gt; M) :list/A) (S --&gt; M) |- (((S --&gt; $Y) ==&gt; (&amp;&amp; (P --&gt; $Y) :list/A))  :post (:t/abduction)
+                                                  (&amp;&amp;  (S --&gt; #Y) (P --&gt; #Y) :list/A) :post (:t/intersection))
+                                                       :pre ((:!= S P))]
+         #R[(A --&gt; L) ((A --&gt; S) ==&gt; R) |- ((&amp;&amp; (#X --&gt; L) (#X --&gt; S)) ==&gt; R) :post (:t/induction)]
+         #R[(A --&gt; L) ((&amp;&amp; (A --&gt; S) :list/A) ==&gt; R) |- ((&amp;&amp; (#X --&gt; L) (#X --&gt; S) :list/A) ==&gt; R) :pre ((:substitute A #X)) :post (:t/induction)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=57" style="text-decoration:none">NAL6 Variable Elimination</a></h1><br/>  <!-- target="bible" -->
          Additionally, the system has to be able to eliminate variables by filling in the pattern of the second premise,
          so to specialize a statement when a premise fits in its scheme, this holds for independent as well as dependent variables.
          The purpose of this is to specialize general statements containing variables to specific cases.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal6-variable-elimination
-   ; dependent variable elimination
-   ; Decomposition with elimination of a variable
-   #R[B (&amp;&amp; A :list/A) |- (&amp;&amp; :list/A) :pre (:judgement? (:substitute-if-unifies &quot;#&quot; A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
-   ; independent variable elimination
-  #_#R[B (A ==&gt; C) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; A B) (:shift-occurrence-forward unused ==&gt;))]
-  #_#R[B (C ==&gt; A) |- C (:t/abduction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; A B) (:shift-occurrence-backward unused ==&gt;))]
-  #_#R[B (A &lt;=&gt; C) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; A B) (:shift-occurrence-backward unused &lt;=&gt;))]
-  #_#R[B (C &lt;=&gt; A) |- C (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; A B) (:shift-occurrence-forward unused &lt;=&gt;))])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=57" style="text-decoration:none">NAL6 Second Level Variable Handling</a></h1><br/>  <!-- target="bible" -->
+</td><td class="codes"><pre class="brush: clojure">(defrules nal6-variable-elimination
+         ; dependent variable elimination
+         ; Decomposition with elimination of a variable
+         #R[B (&amp;&amp; A :list/A) |- (&amp;&amp; :list/A) :pre (:judgement? (:substitute-if-unifies &quot;#&quot; A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
+         ; independent variable elimination
+         #R[B (A ==&gt; C) |- C :post (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; A B) (:shift-occurrence-forward ==&gt;))]
+         #R[B (C ==&gt; A) |- C :post (:t/abduction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; A B) (:shift-occurrence-backward C ==&gt;))]
+         #R[B (A &lt;=&gt; C) |- C :post (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; A B) (:shift-occurrence-backward &lt;=&gt;))]
+         #R[B (C &lt;=&gt; A) |- C :post (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; A B) (:shift-occurrence-forward &lt;=&gt;))])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=57" style="text-decoration:none">NAL6 Second Level Variable Handling</a></h1><br/>  <!-- target="bible" -->
          There were some meaningful cases where variables had to be handled by specific rules at a deeper level,
          this is what these rules are about. I am still not convinced whether these rules are really needed though.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal6-second-layer-variable-handling
-  ; second level variable handling rules
-  ; second level variable elimination (termlink level2 growth needed in order for these rules to work)
-  #R[(A --&gt; K) (&amp;&amp; (#X --&gt; L) (($Y --&gt; K) ==&gt; (&amp;&amp; :list/A))) |- (&amp;&amp; (#X --&gt; L) :list/A) :pre ((:substitute $Y A)) :post (:t/deduction)]
-  #R[(A --&gt; K) (($X --&gt; L) ==&gt; (&amp;&amp; (#Y --&gt; K) :list/A)) |- (($X --&gt; L) ==&gt; (&amp;&amp; :list/A)) :pre ((:substitute #Y A)) :post (:t/anonymous-analogy)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=61" style="text-decoration:none">NAL7 Temporal Inference</a></h1><br/>  <!-- target="bible" -->
+</td><td class="codes"><pre class="brush: clojure">(defrules nal6-second-layer-variable-handling
+         ; second level variable handling rules
+         ; second level variable elimination (termlink level2 growth needed in order for these rules to work)
+         #R[(A --&gt; K) (&amp;&amp; (#X --&gt; L) (($Y --&gt; K) ==&gt; (&amp;&amp; :list/A))) |- (&amp;&amp; (#X --&gt; L) :list/A) :pre ((:substitute $Y A)) :post (:t/deduction)]
+         #R[(A --&gt; K) (($X --&gt; L) ==&gt; (&amp;&amp; (#Y --&gt; K) :list/A)) |- (($X --&gt; L) ==&gt; (&amp;&amp; :list/A)) :pre ((:substitute #Y A)) :post (:t/anonymous-analogy)])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=61" style="text-decoration:none">NAL7 Temporal Inference</a></h1><br/>  <!-- target="bible" -->
          Altough all above rules also work for temporal statements, there are rules which are only for reasoning about time,
          these are them. The most important one of these is temporal induction:
          Temporal induction, a NAL7 principle, allows the system to temporally relate events.
@@ -3324,7 +3324,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          predicate <b> measure_time(I)</b> is introduced which is true if and only if the the time difference between
          both event premises is <b> I </b>. In the language, the time difference is encoded in the sequence, for
          example <b> ((&amp;/,a,/10) =/> b) </b> encodes that <b> b </b> happens <b> 10  </b>  steps after <b> a </b>.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules nal7-temporal-inference
+</td><td class="codes"><pre class="brush: clojure">(defrules nal7-temporal-inference
          &quot;&lt;h1&gt;&lt;a href=\&quot;NAL-Specification.pdf#page=61\&quot; style=\&quot;text-decoration:none\&quot;&gt;NAL7 Temporal Inference&lt;/a&gt;&lt;/h1&gt;&lt;br/&gt;  &lt;!-- target=\&quot;bible\&quot; --&gt;
          Altough all above rules also work for temporal statements, there are rules which are only for reasoning about time,
          these are them. The most important one of these is temporal induction:
@@ -3338,61 +3338,71 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          predicate &lt;b&gt; measure_time(I)&lt;/b&gt; is introduced which is true if and only if the the time difference between
          both event premises is &lt;b&gt; I &lt;/b&gt;. In the language, the time difference is encoded in the sequence, for
          example &lt;b&gt; ((&amp;/,a,/10) =/&gt; b) &lt;/b&gt; encodes that &lt;b&gt; b &lt;/b&gt; happens &lt;b&gt; 10  &lt;/b&gt;  steps after &lt;b&gt; a &lt;/b&gt;.&quot;
-  ;; NAL7 specific inference
-  ; Reasoning about temporal statements. those are using the ==&gt; relation because relation in time is a relation of the truth between statements.
-#R[X ((&amp;/ K (:interval I)) ==&gt; B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; K X) (:shift-occurrence-forward I ==&gt;))]
-#_#R[X (XI ==&gt; B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; XI (&amp;/ X :interval)) (:shift-occurrence-forward XI ==&gt;))]
-#_#R[X (BI ==&gt; Y) |- BI :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; Y X) (:shift-occurrence-backward BI ==&gt;))]
-  ; Temporal induction:
-  ; When P and then S happened according to an observation by induction (weak) it may be that alyways after P usually S happens.
-  #R[P S |- (((&amp;/ S I) =/&gt; P) :post (:t/induction :linkage-temporal)
-              (P =\&gt; (&amp;/ S I)) :post (:t/abduction :linkage-temporal)
-              ((&amp;/ S I) &lt;/&gt; P) :post (:t/comparison :linkage-temporal)
-              (&amp;/ S I P) :post (:t/intersection :linkage-temporal))
-     :pre ((:measure-time I))]
-  #R[P S |- ((S =|&gt; P) :post (:t/induction :linkage-temporal)
-              (S &lt;|&gt; P) :post (:t/comparison :linkage-temporal)
-              (&amp;| S P) :post (:t/intersection :linkage-temporal))
-     :pre [(:concurrent Task Belief) (:not-implication-or-equivalence P) (:not-implication-or-equivalence S)]]
-  ; here now are the backward inference rules which should really only work on backward inference:
-  #R[(A --&gt; S) (B --&gt; S) |- ((A --&gt; B) :post (:p/question)
-                              (B --&gt; A) :post (:p/question)
-                              (A &lt;-&gt; B) :post (:p/question))
-     :pre (:question?)])</pre></td></tr><tr><td class="docs"><p><h1>Backward driven forward inference</h1><br/>  <!-- target="bible" -->
+         ;; NAL7 specific inference
+         ; Reasoning about temporal statements. those are using the ==&gt; relation because relation in time is a relation of the truth between statements.
+         #R[X ((&amp;/ K (:interval I)) ==&gt; B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; K X) (:shift-occurrence-forward I ==&gt;))]
+         #_#R[X (XI ==&gt; B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; XI (&amp;/ X :interval)) (:shift-occurrence-forward XI ==&gt;))]
+         #_#R[X (BI ==&gt; Y) |- BI :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:substitute-if-unifies &quot;$&quot; Y X) (:shift-occurrence-backward BI ==&gt;))]
+         ; Temporal induction:
+         ; When P and then S happened according to an observation by induction (weak) it may be that alyways after P usually S happens.
+         #R[P S |- (((&amp;/ S I) =/&gt; P) :post (:t/induction :linkage-temporal)
+                     (P =\&gt; (&amp;/ S I)) :post (:t/abduction :linkage-temporal)
+                     ((&amp;/ S I) &lt;/&gt; P) :post (:t/comparison :linkage-temporal)
+                     (&amp;/ S I P) :post (:t/intersection :linkage-temporal))
+            :pre ((:measure-time I))]
+         #R[P S |- ((S =|&gt; P) :post (:t/induction :linkage-temporal)
+                     (S &lt;|&gt; P) :post (:t/comparison :linkage-temporal)
+                     (&amp;| S P) :post (:t/intersection :linkage-temporal))
+            :pre [(:concurrent Task Belief) (:not-implication-or-equivalence P) (:not-implication-or-equivalence S)]])</pre></td></tr><tr><td class="docs"><p><h1><a href="NAL-Specification.pdf#page=57" style="text-decoration:none">Backward Inference rules</a></h1><br/>  <!-- target="bible" -->
+         Most backward inference is captured by deriving two additional rules
+         per forward rule, where one premise is exchanged with the conclusion,
+         with addtional task("?") predicate added. In this section we see backward rules which
+         would not be captured by this principle.</p>
+</td><td class="codes"><pre class="brush: clojure">(defrules backward-only-inference
+         ; here now are the backward inference rules which should really only work on backward inference:
+         #R[(A --&gt; S) (B --&gt; S) |- ((A --&gt; B) :post (:p/question)
+                                     (B --&gt; A) :post (:p/question)
+                                     (A &lt;-&gt; B) :post (:p/question))
+            :pre (:question?)])</pre></td></tr><tr><td class="docs"><p><h1>Backward driven forward inference</h1><br/>  <!-- target="bible" -->
          For some rules it is better to only let them succeed if there is a question which explicitly asks for their result.
          However whether this is really needed is questionable for me, but it has benefits in the preliminary form
          our control mechanism currently is in.</p>
-</td><td class="codes"><pre class="brush: clojure">(defules backward-driven-forward-inference
-  ; and the backward inference driven forward inference:
-  ; NAL2:
-  #R[([A] &lt;-&gt; [B]) (A &lt;-&gt; B) |- ([A] &lt;-&gt; [B]) :pre (:question?) :post (:t/belief-identity :p/judgment)]
-  #R[({A} &lt;-&gt; {B}) (A &lt;-&gt; B) |- ({A} &lt;-&gt; {B}) :pre (:question?) :post (:t/belief-identity :p/judgment)]
-  #R[([A] --&gt; [B]) (A &lt;-&gt; B) |- ([A] --&gt; [B]) :pre (:question?) :post (:t/belief-identity :p/judgment)]
-  #R[({A} --&gt; {B}) (A &lt;-&gt; B) |- ({A} --&gt; {B}) :pre (:question?) :post (:t/belief-identity :p/judgment)]
-  ; NAL3:
-  ; composition on both sides of a statement:
-  #R[((&amp; B :list/A) --&gt; (&amp; A :list/A)) (B --&gt; A) |- ((&amp; B :list/A) --&gt; (&amp; A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((| B :list/A) --&gt; (| A :list/A)) (B --&gt; A) |- ((| B :list/A) --&gt; (| A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((- S A) --&gt; (- S B)) (B --&gt; A) |- ((- S A) --&gt; (- S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((~ S A) --&gt; (~ S B)) (B --&gt; A) |- ((~ S A) --&gt; (~ S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  ; composition on one side of a statement:
-  #R[(W --&gt; (| B :list/A)) (W --&gt; B) |- (W --&gt; (| B :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((&amp; B :list/A) --&gt; W) (B --&gt; W) |- ((&amp; B :list/A) --&gt; W) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[(W --&gt; (- S B)) (W --&gt; B) |- (W --&gt; (- S B)) :pre (:question?) :post (:t/belief-structural-difference :p/judgment)]
-  #R[((~ S B) --&gt; W) (B --&gt; W) |- ((~ S B) --&gt; W) :pre (:question?) :post (:t/belief-structural-difference :p/judgment)]
-  ; NAL4:
-  ; composition on both sides of a statement:
-  #R[((* B P) --&gt; Z) (B --&gt; A) |- ((* B P) --&gt; (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((* P B) --&gt; Z) (B --&gt; A) |- ((* P B) --&gt; (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((* B P) &lt;-&gt; Z) (B &lt;-&gt; A) |- ((* B P) &lt;-&gt; (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((* P B) &lt;-&gt; Z) (B &lt;-&gt; A) |- ((* P B) &lt;-&gt; (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((\ N A _) --&gt; Z) (N --&gt; R) |- ((\ N A _) --&gt; (\ R A _)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((/ N _ B) --&gt; Z) (S --&gt; B) |- ((/ N _ B) --&gt; (/ N _ S)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  ; NAL5:
-  #R[--A    A |- --A  :pre (:question?) :post (:t/belief-negation :p/judgment)]
-  #R[A  --A |-   A  :pre (:question?) :post (:t/belief-negation :p/judgment)]
-  ; compound composition one premise
-  #R[(|| B :list/A) B |- (|| B :list/A) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)])</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defrules backward-driven-forward-inference
+         ; and the backward inference driven forward inference:
+         ; NAL2:
+         #R[([A] &lt;-&gt; [B]) (A &lt;-&gt; B) |- ([A] &lt;-&gt; [B]) :pre (:question?) :post (:t/belief-identity :p/judgement)]
+         #R[({A} &lt;-&gt; {B}) (A &lt;-&gt; B) |- ({A} &lt;-&gt; {B}) :pre (:question?) :post (:t/belief-identity :p/judgement)]
+         #R[([A] --&gt; [B]) (A &lt;-&gt; B) |- ([A] --&gt; [B]) :pre (:question?) :post (:t/belief-identity :p/judgement)]
+         #R[({A} --&gt; {B}) (A &lt;-&gt; B) |- ({A} --&gt; {B}) :pre (:question?) :post (:t/belief-identity :p/judgement)]
+         ; NAL3:
+         ; composition on both sides of a statement:
+         #R[((&amp; B :list/A) --&gt; (&amp; A :list/A)) (B --&gt; A) |- ((&amp; B :list/A) --&gt; (&amp; A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[((| B :list/A) --&gt; (| A :list/A)) (B --&gt; A) |- ((| B :list/A) --&gt; (| A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[((- S A) --&gt; (- S B)) (B --&gt; A) |- ((- S A) --&gt; (- S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[((~ S A) --&gt; (~ S B)) (B --&gt; A) |- ((~ S A) --&gt; (~ S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         ; composition on one side of a statement:
+         #R[(W --&gt; (| B :list/A)) (W --&gt; B) |- (W --&gt; (| B :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[((&amp; B :list/A) --&gt; W) (B --&gt; W) |- ((&amp; B :list/A) --&gt; W) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[(W --&gt; (- S B)) (W --&gt; B) |- (W --&gt; (- S B)) :pre (:question?) :post (:t/belief-structural-difference :p/judgement)]
+         #R[((~ S B) --&gt; W) (B --&gt; W) |- ((~ S B) --&gt; W) :pre (:question?) :post (:t/belief-structural-difference :p/judgement)]
+         ; NAL4:
+         ; composition on both sides of a statement:
+         #R[((* B P) --&gt; Z) (B --&gt; A) |- ((* B P) --&gt; (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[((* P B) --&gt; Z) (B --&gt; A) |- ((* P B) --&gt; (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[((* B P) &lt;-&gt; Z) (B &lt;-&gt; A) |- ((* B P) &lt;-&gt; (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[((* P B) &lt;-&gt; Z) (B &lt;-&gt; A) |- ((* P B) &lt;-&gt; (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[((\ N A _) --&gt; Z) (N --&gt; R) |- ((\ N A _) --&gt; (\ R A _)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[((/ N _ B) --&gt; Z) (S --&gt; B) |- ((/ N _ B) --&gt; (/ N _ S)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         ; NAL5:
+         #R[--A    A |- --A  :pre (:question?) :post (:t/belief-negation :p/judgement)]
+         #R[A  --A |-   A  :pre (:question?) :post (:t/belief-negation :p/judgement)]
+         ; compound composition one premise
+         #R[(|| B :list/A) B |- (|| B :list/A) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)])</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def rules (compile-rules nal1-nal2-nal3-equivalence-and-implication nal1-nal5-conversion-contraposition-negation nal1-nal2-inheritance-related-syllogisms
+                          nal3-intersection-union-difference nal3-inheritance-based-decomposition nal3-set-related-rules nal3-structural-inference
+                          nal4-structural-inference nal5-implication-based-syllogisms nal5-implication-based-composition nal5-nal8-implication-based-decomposition
+                          nal5-multi-conditional-syllogism nal6-variable-introduction nal6-variable-syllogisms nal6-multiple-variable-introduction
+                          nal6-variable-elimination nal6-second-layer-variable-handling nal7-temporal-inference backward-only-inference backward-driven-forward-inference))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn freq [task-type]
   &quot;Check frequency&quot;
   (into {} (map (fn [[k v]] [(str k) (count (:rules v))]) (task-type rules))))</pre></td></tr><tr><td class="docs">
@@ -3403,12 +3413,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
     (println &quot;Freq&quot; (sort (frequencies (vals fr))))
     (println &quot;Min&quot; (reduce min (vals fr)))
     (println &quot;Max&quot; (reduce (fn [[_ v1 :as p] [_ v :as n]]
-                             (if (&gt; v1 v) p n)) fr))))</pre></td></tr><tr><td class="docs"><script>
-function replace_html(a,b){ while(document.body.innerHTML.contains(a)) {
- document.body.innerHTML = document.body.innerHTML.replace(a, b); } }
- replace_html('#R[','    '); replace_html(')]',') '); replace_html('list/A','A_1..n'); replace_html('list/B','B_1..m');
-</script>
-</td><td class="codes"></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+                             (if (&gt; v1 v) p n)) fr))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
 SyntaxHighlighter.all();
 
 // hackity hack
