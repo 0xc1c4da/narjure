@@ -119,8 +119,9 @@
 
 (defmacro defrules
   "Define rules. Rules must be #R statements."
-  [name & rules]
-  `(def ~name (quote ~rules)))
+  [name first & rules]
+  (let [rules (if (string? first) rules (cons first rules))]
+    `(def ~name (quote ~rules))))
 
 (defn compile-rules
   ;TODO exception on duplication of the rule
