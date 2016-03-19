@@ -590,12 +590,9 @@ So these rules are for bringing NAL-statements into a different, implied and mor
                      (&/ S I P) :post (:t/intersection :linkage-temporal))
             :pre ((:measure-time I))]
          #R[P S |- ((S =|> P) :post (:t/induction :linkage-temporal)
-                     ;(P =|> S) :post (:t/induction :linkage-temporal)
                      (S <|> P) :post (:t/comparison :linkage-temporal)
                      (&| S P) :post (:t/intersection :linkage-temporal))
             :pre [(:concurrent Task Belief) (:not-implication-or-equivalence P) (:not-implication-or-equivalence S)]]
-
-
          )
 
 (defrules backward-only-inference
