@@ -1,4 +1,4 @@
-(ns narjure.actor.task-dispatcher
+(ns narjure.memory_management.task-dispatcher
   (:require
     [co.paralleluniverse.pulsar
      [core :refer [defsfn]]

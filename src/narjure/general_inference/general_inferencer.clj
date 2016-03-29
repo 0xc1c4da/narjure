@@ -1,4 +1,4 @@
-(ns narjure.actor.general-inferencer
+(ns narjure.general_inference.general-inferencer
   (:require
     [co.paralleluniverse.pulsar
      [core :refer [defsfn]]

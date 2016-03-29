@@ -1,4 +1,4 @@
-(ns narjure.actor.anticipated-event
+(ns narjure.perception_action.anticipated-event
   (:require
     [co.paralleluniverse.pulsar
      [core :refer [defsfn]]

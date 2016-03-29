@@ -1,4 +1,4 @@
-(ns narjure.actor.concept
+(ns narjure.memory_management.concept
   (:require
     [co.paralleluniverse.pulsar
      [core :refer [defsfn]]

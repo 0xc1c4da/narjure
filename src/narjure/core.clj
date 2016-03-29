@@ -4,19 +4,21 @@
      [core :refer :all]
      [actors :refer :all]]
     [immutant.scheduling :refer :all]
-    [narjure.actor
-     [active-concept-collator :refer [active-concept-collator]]
-     [anticipated-event :refer [anticipated-event]]
+    [narjure.memory_management
      [concept-creator :refer [concept-creator]]
-     [cross-modal-integrator :refer [cross-modal-integrator]]
-     [derived-task-creator :refer [derived-task-creator]]
      [forgettable-concept-collator :refer [forgettable-concept-collator]]
-     [general-inferencer :refer [general-inferencer]]
-     [operator-executor :refer [operator-executor]]
      [persistence-manager :refer [persistence-manager]]
-     [sentence-parser :refer [sentence-parser]]
-     [system-time :refer [system-time]]
      [task-dispatcher :refer [task-dispatcher]]]
+    [narjure.general_inference
+     [active-concept-collator :refer [active-concept-collator]]
+     [derived-task-creator :refer [derived-task-creator]]
+     [general-inferencer :refer [general-inferencer]]]
+    [narjure.perception_action
+     [anticipated-event :refer [anticipated-event]]
+     [cross-modal-integrator :refer [cross-modal-integrator]]
+     [operator-executor :refer [operator-executor]]
+     [sentence-parser :refer [sentence-parser]]
+     [system-time :refer [system-time]]]
     [taoensso.timbre :refer [info set-level!]])
   (:refer-clojure :exclude [promise await])
   (:import (ch.qos.logback.classic Level)
@@ -94,7 +96,7 @@
 
   (info "System timer initialisation complete."))
 
-(def disable-third-party-loggers []
+(defn disable-third-party-loggers []
   (doseq [logger ["co.paralleluniverse.actors.JMXActorMonitor"
                   "org.quartz.core.QuartzScheduler"
                   "co.paralleluniverse.actors.LocalActorRegistry"

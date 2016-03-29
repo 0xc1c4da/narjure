@@ -1,4 +1,4 @@
-(ns narjure.actor.persistence-manager
+(ns narjure.memory_management.persistence-manager
   (:require
     [co.paralleluniverse.pulsar
      [core :refer [defsfn]]

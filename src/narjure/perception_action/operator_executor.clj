@@ -1,4 +1,4 @@
-(ns narjure.actor.derived-task-creator
+(ns narjure.perception_action.operator-executor
   (:require
     [co.paralleluniverse.pulsar
      [core :refer [defsfn]]
@@ -7,20 +7,25 @@
     [taoensso.timbre :refer [debug]])
   (:refer-clojure :exclude [promise await]))
 
-(declare derived-task-creator process)
+(declare operator-executor process)
 
-(def aname :derived-task-creator)
+(def aname :operator-executor)
 
-(defsfn derived-task-creator
-  "State is system-time."
+(defsfn operator-executor
+  "state is system-time"
   []
   (register! aname @self)
   (set-state! {:time 0})
   (actor-loop aname process))
 
-(defn process-system-time [[_ time] _]
+(defhandler process)
+
+(defmethod process :system-time-msg [[_ time] _]
   (debug aname "process-system-time")
   {:time time})
 
-(defn process-inference-result [_ _]
-  (debug aname "process-inference-result"))
+(defmethod process :operator-execution-req-msg [_ _]
+  (debug aname "process-operator-execution-req"))
+
+
+

@@ -1,9 +1,9 @@
-(ns narjure.actor.concept-creator
+(ns narjure.memory_management.concept-creator
   (:require
     [co.paralleluniverse.pulsar
      [core :refer [defsfn]]
      [actors :refer [register! set-state! self ! spawn]]]
-    [narjure.actor.concept :refer [concept]]
+    [narjure.memory_management.concept :refer [concept]]
     [narjure.actor.utils :refer [actor-loop]]
     [taoensso.timbre :refer [debug]])
   (:refer-clojure :exclude [promise await]))

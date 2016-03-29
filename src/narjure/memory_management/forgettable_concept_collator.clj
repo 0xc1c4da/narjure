@@ -1,4 +1,4 @@
-(ns narjure.actor.forgettable-concept-collator
+(ns narjure.memory_management.forgettable-concept-collator
   (:require
     [co.paralleluniverse.pulsar
      [core :refer [defsfn]]

@@ -1,4 +1,4 @@
-(ns narjure.actor.cross-modal-integrator
+(ns narjure.perception_action.cross-modal-integrator
   (:require
     [co.paralleluniverse.pulsar
      [core :refer [defsfn]]

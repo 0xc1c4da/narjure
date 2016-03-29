@@ -1,4 +1,4 @@
-(ns narjure.actor.active-concept-collator
+(ns narjure.general_inference.active-concept-collator
   (:require
     [co.paralleluniverse.pulsar
      [core :refer [defsfn]]
