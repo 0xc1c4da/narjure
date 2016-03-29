@@ -1,7 +1,6 @@
 (ns nal.deriver.matching
   (:require
     [nal.deriver.utils :refer [walk operator? not-operator?]]
-    [clojure.core.match :refer [match]]
     [clojure.core.unify :as u]
     [clojure.set :refer [map-invert intersection]]
     [clojure.string :as s]
@@ -25,6 +24,14 @@
     `n/reduce-int-inter `n/reduce-neg `n/reduce-or `nil? `not `or `abs
     `implications-and-equivalences `get-terms `empty? `intersection
     `n/reduce-seq-conj})
+
+(defn operators->placeholders
+  [statement]
+  (walk statement
+    (and (symbol? :el)
+         (operator? :el)) '_
+    (= :interval :el) '_
+    (coll? :el) (vec :el)))
 
 (defn quote-operators
   [statement]
@@ -93,14 +100,14 @@
     (replace-occurrences
       `(fn [{p1# :statement ~t1 ~truth-kw :t-occurrence :occurrence :as ~task}
             {p2# :statement ~t2 :truth :b-occurrence :occurrence :as ~belief}]
-         (match [p1# p2#] ~(quote-operators pattern)
+         (let [~(operators->placeholders (first pattern)) p1#
+               ~(operators->placeholders (second pattern)) p2#]
            ~(traversal {:t1        t1
                         :t2        t2
                         :task      task
                         :belief    belief
                         :task-type task-type}
-                       rules)
-           :else nil)))))
+                       rules))))))
 
 (defn find-and-replace-symbols
   "Replaces all terms in statemnt to placeholders that will be used in pattern

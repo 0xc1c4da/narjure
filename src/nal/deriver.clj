@@ -8,8 +8,8 @@
 (defn get-matcher [rules p1 p2]
   (let [matchers (->> (mall-paths p1 p2)
                       (filter rules)
-                      (select-keys rules)
-                      (map (fn [el] (:matcher (second el)))))]
+                      (map rules)
+                      (map (fn [el] (:matcher el))))]
     (case (count matchers)
       0 (constantly [])
       1 (first matchers)
