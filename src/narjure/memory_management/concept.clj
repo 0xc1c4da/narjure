@@ -21,7 +21,7 @@
 
 (defn debug [msg] (t/debug :concept msg))
 
-(defmethod process :task [_ _]
+(defmethod process :task-msg [_ _]
   #_(debug "process-task"))
 
 (defmethod process :belief-req [_ _]
