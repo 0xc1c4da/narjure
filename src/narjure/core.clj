@@ -102,12 +102,12 @@
                   "org.projectodd.wunderboss.scheduling.Scheduling"]]
     (.setLevel (LoggerFactory/getLogger logger) Level/OFF)))
 
-(defn logging-setup []
+(defn setup-logging []
   (set-level! :info)
   (disable-third-party-loggers))
 
 (defn start-nars [& _]
-  (logging-setup)
+  (setup-logging)
   (info "NARS initialising...")
 
   ; spawn all actors except concepts
