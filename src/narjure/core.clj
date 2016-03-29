@@ -23,13 +23,6 @@
            (org.slf4j LoggerFactory))
   (:gen-class))
 
-(set-level! :info)
-(doseq [logger ["co.paralleluniverse.actors.JMXActorMonitor"
-                "org.quartz.core.QuartzScheduler"
-                "co.paralleluniverse.actors.LocalActorRegistry"
-                "co.paralleluniverse.actors.ActorRegistry"
-                "org.projectodd.wunderboss.scheduling.Scheduling"]]
-  (.setLevel (LoggerFactory/getLogger logger) Level/OFF))
 
 ;co.paralleluniverse.actors.JMXActorMonitor
 (def actors-names
@@ -101,7 +94,20 @@
 
   (info "System timer initialisation complete."))
 
+(def disable-third-party-loggers []
+  (doseq [logger ["co.paralleluniverse.actors.JMXActorMonitor"
+                  "org.quartz.core.QuartzScheduler"
+                  "co.paralleluniverse.actors.LocalActorRegistry"
+                  "co.paralleluniverse.actors.ActorRegistry"
+                  "org.projectodd.wunderboss.scheduling.Scheduling"]]
+    (.setLevel (LoggerFactory/getLogger logger) Level/OFF)))
+
+(defn logging-setup []
+  (set-level! :info)
+  (disable-third-party-loggers))
+
 (defn start-nars [& _]
+  (logging-setup)
   (info "NARS initialising...")
 
   ; spawn all actors except concepts
