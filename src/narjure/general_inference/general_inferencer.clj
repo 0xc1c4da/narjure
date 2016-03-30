@@ -1,24 +1,17 @@
-(ns narjure.general_inference.general-inferencer
+(ns narjure.general-inference.general-inferencer
   (:require
-    [co.paralleluniverse.pulsar
-     [core :refer [defsfn]]
-     [actors :refer [register! set-state! self]]]
-    [narjure.actor.utils :refer [actor-loop]]
+    [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :refer [debug]])
   (:refer-clojure :exclude [promise await]))
 
 (declare general-inferencer do-inference)
 
-(def aname :general-inferencer)
-
-(defsfn general-inferencer
-  "state is inference rule trie or equivalent"
-  []
-  (register! aname @self)
-  (set-state! {:trie 0})
-  (actor-loop aname do-inference))
+(defactor general-inferencer
+  "State is inference rule trie or equivalent."
+  {:trie 0}
+  {:do-inference-msg do-inference})
 
 (defn do-inference [_ _]
-  (debug aname "process-do-inference"))
+  (debug :general-inferencer "process-do-inference"))
 
 

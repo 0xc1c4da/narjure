@@ -1,34 +1,30 @@
-(ns narjure.memory_management.concept
+(ns narjure.memory-management.concept
   (:require
-    [co.paralleluniverse.pulsar
-     [core :refer [defsfn]]
-     [actors :refer [register! set-state!]]]
-    [narjure.actor.utils :refer [actor-loop defhandler]]
+    [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :as t])
   (:refer-clojure :exclude [promise await]))
 
-(declare concept process)
+(declare concept task-req belief-req inference-req persistence-req)
 
-(defsfn concept
+(defactor concept
   "State is a map
   {:name :budget :activation-level :belief-tab :goal-tab :task-bag :term-bag}
   (this list may not be complete)."
-  []
-  (set-state! {})
-  (actor-loop :concept process))
-
-(defhandler process)
+  {:task-msg            task-req
+   :belief-req-msq      belief-req
+   :inference-req-msq   inference-req
+   :persistence-req-msg persistence-req})
 
 (defn debug [msg] (t/debug :concept msg))
 
-(defmethod process :task-msg [_ _]
+(defn task-req [_ _]
   #_(debug "process-task"))
 
-(defmethod process :belief-req [_ _]
+(defn belief-req [_ _]
   (debug "process-belief-req"))
 
-(defmethod process :inference-req [_ _]
+(defn inference-req [_ _]
   (debug "process-inference-req"))
 
-(defmethod process :persistence-req [_ _]
+(defn persistence-req [_ _]
   (debug "process-persistence-req"))

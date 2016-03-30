@@ -1,35 +1,31 @@
-(ns narjure.perception_action.anticipated-event
+(ns narjure.perception-action.anticipated-event
   (:require
-    [co.paralleluniverse.pulsar
-     [core :refer [defsfn]]
-     [actors :refer [register! set-state! self !]]]
-    [narjure.actor.utils :refer [actor-loop defhandler]]
+    [co.paralleluniverse.pulsar.actors :refer [!]]
+    [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :refer [debug]])
   (:refer-clojure :exclude [promise await]))
 
-(declare anticipated-event process)
+(declare anticipated-event anticipated-event-handler system-time input-task)
 
 (def aname :anticipated-event)
 
-(defsfn anticipated-event
+(defactor anticipated-event
   "State is system-time and collection of anticipated events."
-  []
-  (register! aname @self)
-  (set-state! {:time 0 :anticipated-events {}})
-  (actor-loop aname process))
+  {:time 0 :anticipated-events {}}
+  {:system-time-msg       system-time
+   :anticipated-event-msg anticipated-event-handler
+   :input-task-msg        input-task})
 
-(defhandler process)
-
-(defmethod process :system-time-msg
+(defn system-time
   [[_ time] state]
   (debug aname "process-system-time")
   {:time time :anticipated-events (state :percepts)})
 
-(defmethod process :anticipated-event-msg
+(defn anticipated-event-handler
   [_ _]
   #_(debug aname "process-anticipated-event"))
 
-(defmethod process :input-task-msg
+(defn input-task
   [[_ input-task] _]
   #_(debug aname "process-input-task")
   (! :task-dispatcher [:task-msg input-task]))

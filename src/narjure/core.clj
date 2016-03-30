@@ -4,16 +4,16 @@
      [core :refer :all]
      [actors :refer :all]]
     [immutant.scheduling :refer :all]
-    [narjure.memory_management
+    [narjure.memory-management
      [concept-creator :refer [concept-creator]]
      [forgettable-concept-collator :refer [forgettable-concept-collator]]
      [persistence-manager :refer [persistence-manager]]
      [task-dispatcher :refer [task-dispatcher]]]
-    [narjure.general_inference
+    [narjure.general-inference
      [active-concept-collator :refer [active-concept-collator]]
      [derived-task-creator :refer [derived-task-creator]]
      [general-inferencer :refer [general-inferencer]]]
-    [narjure.perception_action
+    [narjure.perception-action
      [anticipated-event :refer [anticipated-event]]
      [cross-modal-integrator :refer [cross-modal-integrator]]
      [operator-executor :refer [operator-executor]]
@@ -105,7 +105,7 @@
     (.setLevel (LoggerFactory/getLogger logger) Level/OFF)))
 
 (defn setup-logging []
-  (set-level! :info)
+  (set-level! :debug)
   (disable-third-party-loggers))
 
 (defn start-nars [& _]

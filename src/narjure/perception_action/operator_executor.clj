@@ -1,31 +1,25 @@
-(ns narjure.perception_action.operator-executor
+(ns narjure.perception-action.operator-executor
   (:require
     [co.paralleluniverse.pulsar
      [core :refer [defsfn]]
      [actors :refer [register! set-state! self]]]
-    [narjure.actor.utils :refer [actor-loop defhandler]]
+    [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :refer [debug]])
   (:refer-clojure :exclude [promise await]))
 
-(declare operator-executor process)
+(declare operator-executor process system-time operator-execution-req)
+
+(defactor operator-executor
+  "State is system-time"
+  {:time 0}
+  {:system-time-msg            system-time
+   :operator-execution-req-msg operator-execution-req})
 
 (def aname :operator-executor)
 
-(defsfn operator-executor
-  "state is system-time"
-  []
-  (register! aname @self)
-  (set-state! {:time 0})
-  (actor-loop aname process))
-
-(defhandler process)
-
-(defmethod process :system-time-msg [[_ time] _]
+(defn system-time [[_ time] _]
   (debug aname "process-system-time")
   {:time time})
 
-(defmethod process :operator-execution-req-msg [_ _]
+(defn operator-execution-req [_ _]
   (debug aname "process-operator-execution-req"))
-
-
-

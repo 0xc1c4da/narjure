@@ -1,28 +1,23 @@
-(ns narjure.perception_action.sentence-parser
+(ns narjure.perception-action.sentence-parser
   (:require
-    [co.paralleluniverse.pulsar
-     [core :refer [defsfn]]
-     [actors :refer [register! set-state! self !]]]
+    [co.paralleluniverse.pulsar.actors :refer [!]]
     [narjure.narsese :refer [parse]]
-    [narjure.actor.utils :refer [actor-loop defhandler]]
+    [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :refer [debug info]])
   (:refer-clojure :exclude [promise await]))
 
-(declare sentence-parser process)
-
-(def aname :sentence-parser)
+(declare sentence-parser system-time narsese-string)
 
 (def serial-no (atom 0))
 
-(defsfn sentence-parser
-  []
-  (register! aname @self)
-  (set-state! {:time 0})
-  (actor-loop aname process))
+(defactor sentence-parser
+  {:time 0}
+  {:system-time-msg    system-time
+   :narsese-string-msg narsese-string})
 
-(defhandler process)
+(def aname :sentence-parser)
 
-(defmethod process :system-time-msg [[_ time] _]
+(defn system-time [[_ time] _]
   (debug aname "process-system-time")
   {:time time})
 
@@ -36,8 +31,9 @@
      :occurrence-time system-time
      :trail           [serial-no]}))
 
-(defmethod process :narsese-string-msg
-  [[_ string] {time :time}]
+(defn narsese-string
+  [[_ string] {time :time :as state}]
   (let [task (parse-task string time)]
     (! :anticipated-event [:input-task-msg task])
-    (info aname (str "process-narsese-string" task))))
+    (info aname (str "process-narsese-string" task)))
+  state)

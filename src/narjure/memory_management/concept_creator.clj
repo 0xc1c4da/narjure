@@ -1,21 +1,16 @@
-(ns narjure.memory_management.concept-creator
+(ns narjure.memory-management.concept-creator
   (:require
-    [co.paralleluniverse.pulsar
-     [core :refer [defsfn]]
-     [actors :refer [register! set-state! self ! spawn]]]
-    [narjure.memory_management.concept :refer [concept]]
-    [narjure.actor.utils :refer [actor-loop]]
+    [co.paralleluniverse.pulsar.actors :refer [! spawn]]
+    [narjure.memory-management.concept :refer [concept]]
+    [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :refer [debug]])
   (:refer-clojure :exclude [promise await]))
 
-(declare concept-creator process-task)
+(declare concept-creator task)
+
+(defactor concept-creator {:create-concept-msg task})
 
 (def aname :concept-creator)
-
-(defsfn concept-creator
-  []
-  (register! aname @self)
-  (actor-loop aname process-task))
 
 (defn create-concept
   ;TODO: update state for concept-actor to state initialiser
@@ -25,7 +20,7 @@
     (swap! c-map assoc term (spawn concept))
     #_(debug aname (str "Created concept: " term))))
 
-(defn process-task
+(defn task
   "When concept-map does not contain :term, create concept actor for term
    then post task to task-dispatcher either way."
   [[_ from task c-map] _]

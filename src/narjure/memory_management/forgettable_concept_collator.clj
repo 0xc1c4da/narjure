@@ -1,27 +1,20 @@
-(ns narjure.memory_management.forgettable-concept-collator
+(ns narjure.memory-management.forgettable-concept-collator
   (:require
-    [co.paralleluniverse.pulsar
-     [core :refer [defsfn]]
-     [actors :refer [register! set-state! self]]]
-    [narjure.actor.utils :refer [actor-loop defhandler]]
+    [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :refer [debug]])
   (:refer-clojure :exclude [promise await]))
 
-(declare forgettable-concept-collator process)
+(declare forgettable-concept-collator forgetting-tick forgettable-concept)
+
+(defactor forgettable-concept-collator
+  "State is collection of forgettable concepts."
+  {:forgetting-tick-msg     forgetting-tick
+   :forgettable-concept-msg forgettable-concept})
 
 (def aname :forgettable-concept-collator)
 
-(defsfn forgettable-concept-collator
-  "State is collection of forgettable concepts."
-  []
-  (register! :forgettable-concept-collator @self)
-  (set-state! [])
-  (actor-loop aname process))
-
-(defhandler process)
-
-(defmethod process :forgetting-tick-msg [_ _]
+(defn forgetting-tick [_ _]
   #_(debug aname "process-forgetting-tick"))
 
-(defmethod process :forgettable-concept-msg [_ _]
+(defn forgettable-concept [_ _]
   (debug aname "process-forgettable-concept"))
