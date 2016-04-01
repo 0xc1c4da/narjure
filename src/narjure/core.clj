@@ -15,7 +15,6 @@
     [narjure.perception-action
      [operator-executor :refer [operator-executor]]
      [sentence-parser :refer [sentence-parser]]
-     [system-time :refer [system-time]]
      [task-creator :refer [task-creator]]]
     [taoensso.timbre :refer [info set-level!]])
   (:refer-clojure :exclude [promise await])
@@ -33,7 +32,6 @@
     :operator-executor
     :persistence-manager
     :sentence-parser
-    :system-time
     :task-creator
     :task-dispatcher})
 
@@ -47,7 +45,6 @@
   (spawn operator-executor)
   (spawn persistence-manager :state)
   (spawn sentence-parser)
-  (spawn system-time)
   (spawn task-creator)
   (spawn task-dispatcher))
 
@@ -71,7 +68,7 @@
   (! :forgettable-concept-collator [:forgetting-tick-msg]))
 
 (defn system-tick []
-  (! :system-time [:system-time-tick-msg]))
+  (! :task-creator [:system-time-tick-msg]))
 
 (defn prn-ok [msg] (info (format "\t[OK] %s" msg)))
 
