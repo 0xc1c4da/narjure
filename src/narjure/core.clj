@@ -2,146 +2,151 @@
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]
-     [actors :refer :all]
-     ]
+     [actors :refer :all]]
     [immutant.scheduling :refer :all]
-    [narjure.actor.active-concept-collator-actor :refer [active-concept-collator-actor]]
-    [narjure.actor.anticipated-event-actor :refer [anticipated-event-actor]]
-    [narjure.actor.concept-creator-actor :refer [concept-creator-actor]]
-    [narjure.actor.cross-modal-integrator-actor :refer [cross-modal-integrator-actor]]
-    [narjure.actor.derived-task-creator-actor :refer [derived-task-creator-actor]]
-    [narjure.actor.forgettable-concept-collator-actor :refer [forgettable-concept-collator-actor]]
-    [narjure.actor.general-inferencer-actor :refer [general-inferencer-actor]]
-    [narjure.actor.operator-executor-actor :refer [operator-executor-actor]]
-    [narjure.actor.persistence-manager-actor :refer [persistence-manager-actor]]
-    [narjure.actor.sentence-parser-actor :refer [sentence-parser-actor]]
-    [narjure.actor.system-time-actor :refer [system-time-actor]]
-    [narjure.actor.task-dispatcher-actor :refer [task-dispatcher-actor]]
-    [narjure.actor.logger :refer [logger]])
+    [narjure.memory-management
+     [concept-creator :refer [concept-creator]]
+     [forgettable-concept-collator :refer [forgettable-concept-collator]]
+     [persistence-manager :refer [persistence-manager]]
+     [task-dispatcher :refer [task-dispatcher]]]
+    [narjure.general-inference
+     [active-concept-collator :refer [active-concept-collator]]
+     [derived-task-creator :refer [derived-task-creator]]
+     [general-inferencer :refer [general-inferencer]]]
+    [narjure.perception-action
+     [anticipated-event :refer [anticipated-event]]
+     [cross-modal-integrator :refer [cross-modal-integrator]]
+     [operator-executor :refer [operator-executor]]
+     [sentence-parser :refer [sentence-parser]]
+     [system-time :refer [system-time]]]
+    [taoensso.timbre :refer [info set-level!]])
   (:refer-clojure :exclude [promise await])
+  (:import (ch.qos.logback.classic Level)
+           (org.slf4j LoggerFactory))
   (:gen-class))
 
+
+;co.paralleluniverse.actors.JMXActorMonitor
+(def actors-names
+  #{:active-concept-collator
+    :anticipated-event
+    :concept-creator
+    :cross-modal-integrator
+    :derived-task-creator
+    :forgettable-concept-collator
+    :general-inferencer
+    :operator-executor
+    :persistence-manager
+    :sentence-parser
+    :system-time
+    :task-dispatcher})
+
 (defn create-system-actors
-  "spawns all actors which self register!
-  "
+  "Spawns all actors which self register!"
   []
-  (spawn active-concept-collator-actor)
-  (spawn anticipated-event-actor)
-  (spawn concept-creator-actor)
-  (spawn cross-modal-integrator-actor)
-  (spawn derived-task-creator-actor)
-  (spawn forgettable-concept-collator-actor)
-  (spawn general-inferencer-actor)
-  (spawn operator-executor-actor)
-  (spawn persistence-manager-actor :state)
-  (spawn sentence-parser-actor)
-  (spawn system-time-actor)
-  (spawn task-dispatcher-actor)
-  (spawn logger :log-info)
-  )
+  (spawn active-concept-collator)
+  (spawn anticipated-event)
+  (spawn concept-creator)
+  (spawn cross-modal-integrator)
+  (spawn derived-task-creator)
+  (spawn forgettable-concept-collator)
+  (spawn general-inferencer)
+  (spawn operator-executor)
+  (spawn persistence-manager :state)
+  (spawn sentence-parser)
+  (spawn system-time)
+  (spawn task-dispatcher))
 
-(defn check-actors-registered
-  "
-  "
-  []
+(defn check-actor [actor-name]
+  (info (if (whereis actor-name) "\t[OK]" "\t[FAILED]") (str actor-name)))
 
-  (defn check-actor [actor-name]
-    (if (whereis actor-name)
-      (println "\t[OK]" (str actor-name))
-      (println "\t[FAILED]" (str actor-name)))
-    )
+(defn check-actors-registered []
+  (info "Checking all services are registered...")
+  (doseq [actor-name actors-names]
+    (check-actor actor-name))
+  (info "All services registered."))
 
-  (println "\nChecking all services are registered...")
-  (check-actor :logger)
-  (check-actor :active-concept-collator)
-  (check-actor :anticipated-event)
-  (check-actor :concept-creator)
-  (check-actor :cross-modal-integrator)
-  (check-actor :derived-task-creator)
-  (check-actor :forgettable-concept-collator)
-  (check-actor :general-inferencer)
-  (check-actor :operator-executor)
-  (check-actor :persistence-manager)
-  (check-actor :sentence-parser)
-  (check-actor :system-time)
-  (check-actor :task-dispatcher))
-  (println "\nAll services registered.")
+(def inference-tick-interval 2500)
+(def forgetting-tick-interval 3000)
+(def system-tick-interval 2000)
 
-(defn start-timers
-  "
-  "
-  []
-  (println "\nInitialising system timers...")
-  (def inference-tick-interval 2500)
-  (defn inference-tick [] (! :active-concept-collator :inference-tick-msg))
-  (schedule inference-tick (-> {:in inference-tick-interval :every inference-tick-interval}))
-  (println "\t[OK] ":system-timer "")
+(defn inference-tick []
+  (! :active-concept-collator [:inference-tick-msg]))
 
-  (def forgetting-tick-interval 3000)
-  (defn forgetting-tick [] (! :forgettable-concept-collator :forgetting-tick-msg))
-  (schedule forgetting-tick (-> {:in forgetting-tick-interval :every forgetting-tick-interval}))
-  (println "\t[OK] ":forgetting-timer "")
+(defn forgetting-tick []
+  (! :forgettable-concept-collator [:forgetting-tick-msg]))
 
-  (def system-tick-interval 2000)
-  (defn system-tick [] (! :system-time :system-time-tick-msg))
-  (schedule system-tick (-> {:every system-tick-interval}))
-  (println "\t[OK] ":inference-timer "")
+(defn system-tick []
+  (! :system-time [:system-time-tick-msg]))
 
-  (println "\nSystem timer initialisation complete.")
-  )
+(defn prn-ok [msg] (info (format "\t[OK] %s" msg)))
 
-(defn start-nars
-  "
-  "
-  [& args]
+(defn start-timers []
+  (info "Initialising system timers...")
+  (schedule inference-tick {:in    inference-tick-interval
+                            :every inference-tick-interval})
+  (prn-ok :system-timer)
 
-  (println  "NARS initialising...")
+  (schedule forgetting-tick {:in    forgetting-tick-interval
+                             :every forgetting-tick-interval})
+  (prn-ok :forgetting-timer)
+
+  (schedule system-tick {:every system-tick-interval})
+  (prn-ok :inference-timer)
+
+  (info "System timer initialisation complete."))
+
+(defn disable-third-party-loggers []
+  (doseq [logger ["co.paralleluniverse.actors.JMXActorMonitor"
+                  "org.quartz.core.QuartzScheduler"
+                  "co.paralleluniverse.actors.LocalActorRegistry"
+                  "co.paralleluniverse.actors.ActorRegistry"
+                  "org.projectodd.wunderboss.scheduling.Scheduling"]]
+    (.setLevel (LoggerFactory/getLogger logger) Level/OFF)))
+
+(defn setup-logging []
+  (set-level! :debug)
+  (disable-third-party-loggers))
+
+(defn start-nars [& _]
+  (setup-logging)
+  (info "NARS initialising...")
+
   ; spawn all actors except concepts
   (create-system-actors)
-  (Thread/sleep 1000) ; allow delay for all actors to be initialised
+  ; allow delay for all actors to be initialised
+  (sleep 1 :sec)
   (check-actors-registered)
   (start-timers)
 
   ; update user with status
-  (! :logger [:log-msg :log-info :anon "NARS initialised."])
-
+  (info "NARS initialised.")
 
   ; *** Test code
-  (def task-dispatcher (whereis :task-dispatcher))
-  (! :logger [:log-msg :log-info :anon "Beginning test..."])
-  (time
-    (loop [n 0]
-      (when (< n 1000000)
-        (let [n1 (if (< (rand) 0.01) n (rand-int (/ n 10)))] ; select approximately 90% from existing concepts
-          (! task-dispatcher [:task-msg {:term (format "a --> %d" n1) :other "other"}])
-          (when (== (mod n 100000) 0)
-            (! :logger [:log-msg :log-info :anon (str "processed [" n "] messages")])
-            ))
-        (recur (inc n)))))
-  (Thread/sleep 100) ; allow delay for all actors to process their queues
-  (! :logger [:log-msg :log-info :anon "Test complete."])
+  (let [task-dispatcher (whereis :task-dispatcher)]
+    (info "Beginning test...")
+    (time
+      (loop [n 0]
+        (when (< n 1000000)
+          ; select approximately 90% from existing concepts
+          (let [n1 (if (< (rand) 0.01) n (rand-int (/ n 10)))]
+            (! task-dispatcher [:task-msg {:term  (format "a --> %d" n1)
+                                           :other "other"}])
+            (when (== (mod n 100000) 0)
+              (info (format "processed [%s] messages" n))))
+          (recur (inc n))))))
+  ; allow delay for all actors to process their queues
+  (Thread/sleep 100)
+  (info "Test complete.")
   ; *** End test code
 
   ; join all actors so the terminate cleanly
-  (join (whereis :active-concept-collator))
-  (join (whereis :anticipated-event))
-  (join (whereis :concept-creator))
-  (join (whereis :cross-modal-integrator))
-  (join (whereis :derived-task-creator))
-  (join (whereis :forgettable-concept-collator))
-  (join (whereis :general-inferencer))
-  (join (whereis :new-input-task-creator))
-  (join (whereis :operator-executor))
-  (join (whereis :persistence-manager))
-  (join (whereis :sentence-parser))
-  (join (whereis :serialiser))
-  (join (whereis :system-time))
-  (join (whereis :task-dispatcher))
-  (join (whereis :logger))
+  (doseq [actor-name actors-names]
+    (join (whereis actor-name)))
 
   ; cancel schedulers
-  (stop)
-  )
+  (stop))
 
 ; call main function
-(start-nars)
+(defn run []
+  (future (start-nars)))
