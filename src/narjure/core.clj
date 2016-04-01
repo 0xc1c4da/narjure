@@ -11,14 +11,12 @@
      [task-dispatcher :refer [task-dispatcher]]]
     [narjure.general-inference
      [active-concept-collator :refer [active-concept-collator]]
-     [derived-task-creator :refer [derived-task-creator]]
      [general-inferencer :refer [general-inferencer]]]
     [narjure.perception-action
-     [anticipated-event :refer [anticipated-event]]
-     [cross-modal-integrator :refer [cross-modal-integrator]]
      [operator-executor :refer [operator-executor]]
      [sentence-parser :refer [sentence-parser]]
-     [system-time :refer [system-time]]]
+     [system-time :refer [system-time]]
+     [task-creator :refer [task-creator]]]
     [taoensso.timbre :refer [info set-level!]])
   (:refer-clojure :exclude [promise await])
   (:import (ch.qos.logback.classic Level)
@@ -29,32 +27,28 @@
 ;co.paralleluniverse.actors.JMXActorMonitor
 (def actors-names
   #{:active-concept-collator
-    :anticipated-event
     :concept-creator
-    :cross-modal-integrator
-    :derived-task-creator
     :forgettable-concept-collator
     :general-inferencer
     :operator-executor
     :persistence-manager
     :sentence-parser
     :system-time
+    :task-creator
     :task-dispatcher})
 
 (defn create-system-actors
   "Spawns all actors which self register!"
   []
-  (spawn active-concept-collator)
   (spawn anticipated-event)
   (spawn concept-creator)
-  (spawn cross-modal-integrator)
-  (spawn derived-task-creator)
   (spawn forgettable-concept-collator)
   (spawn general-inferencer)
   (spawn operator-executor)
   (spawn persistence-manager :state)
   (spawn sentence-parser)
   (spawn system-time)
+  (spawn task-creator)
   (spawn task-dispatcher))
 
 (defn check-actor [actor-name]
