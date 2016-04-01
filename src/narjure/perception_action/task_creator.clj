@@ -4,7 +4,7 @@
     [taoensso.timbre :refer [debug]])
   (:refer-clojure :exclude [promise await]))
 
-(declare concept-state task-creator)
+(declare task-creator sentence)
 
 (defactor task-creator
   "Creates task from Sentence
@@ -14,4 +14,4 @@
   {:sentence-msg  sentence})
 
 (defn sentence [_ _]
-  #_(debug aname (str "process-sentence")))
+  (debug aname "process-sentence"))
