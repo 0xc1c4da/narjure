@@ -7,6 +7,11 @@
 (declare concept-state task-creator)
 
 (defactor task-creator
-  ""
-  []
-  {})
+  "Creates task from Sentence
+  - Sets source property based on origin
+  - Add serial-no
+  - Converts tense to occurrence time (has system time in state)"
+  {:sentence-msg  sentence})
+
+(defn sentence [_ _]
+  #_(debug aname (str "process-sentence")))
