@@ -5,16 +5,6 @@
      [actors :refer [set-state! state receive ! self register!]]]
     [taoensso.timbre :refer [debug]]))
 
-
-(defmacro actor-loop [name f]
-  `(loop []
-     (let [msg# (receive)
-           result# (~f msg# @state)]
-       (if (= :unhandled result#)
-         (debug ~name (str "unhandled msg:" msg#))
-         (set-state! result#))
-       (recur))))
-
 (defn create-actor
   ([name handlers]
    (create-actor name "" {} handlers))
@@ -36,6 +26,13 @@
               (debug ~name (str "unhandled msg:" msg#))
               (set-state! (handler# msg# @state)))
             (recur)))))))
+
+(defn side-effect!
+  "Wraps handler which generates side effect. Returns state without changes."
+  [handler]
+  (fn [message state]
+    (handler message state)
+    state))
 
 (defmacro defactor [& args]
   (apply create-actor args))
