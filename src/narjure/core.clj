@@ -38,7 +38,7 @@
 (defn create-system-actors
   "Spawns all actors which self register!"
   []
-  (spawn anticipated-event)
+  (spawn active-concept-collator)
   (spawn concept-creator)
   (spawn forgettable-concept-collator)
   (spawn general-inferencer)

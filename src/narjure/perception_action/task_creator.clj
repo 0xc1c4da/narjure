@@ -4,7 +4,7 @@
     [taoensso.timbre :refer [debug]])
   (:refer-clojure :exclude [promise await]))
 
-(declare task-creator sentence)
+(declare task-creator sentence system-time-tick)
 
 (defactor task-creator
   "Creates task from Sentence
@@ -14,9 +14,11 @@
   {:sentence-msg  sentence
    :system-time-tick-msg system-time-tick})
 
+(def aname :task-creator)
+
 (defn sentence [_ _]
   (debug aname "process-sentence"))
 
 (defn system-time-tick [_ state]
-  ;(debug :system-time (str "process-system-time-tick " state))
+  (debug aname "process-system-time-tick")
   (inc state))
