@@ -59,7 +59,7 @@
 
 (defn goal?
   "Return true if rule allows only goal as task."
-  [{pre :pre [{post :post} :as concls] :conclusions}]
+  [{pre :pre [{post :post}] :conclusions}]
   (or (some #{:goal?} pre)
       (some (fn [el] (and (keyword? el)
                           (s/starts-with? (str el) ":d/")))
@@ -79,9 +79,9 @@
   so, if we find rule with path [[--> :any :any] :and [--> [:any :any]]],
   it matches to current's rule path too, hence it should be added to the set
   of rules that matches [[--> [- :any :any] :any] :and [--> [:any :any]]] path."
-  [ac [k {:keys [all starts-with]}]]
+  [ac [k {:keys [all]}]]
   (let [rules (mapcat :rules (vals (select-keys ac all)))]
-    ac #_(-> ac
+    (-> ac
         (update-in [k :rules] concat rules)
         (update-in [k :rules] set))))
 
@@ -102,7 +102,7 @@
   values from the premises, rules will be used to generate deriver."
   [ruleset task-type]
   (let [rules (reduce rule->map {} ruleset)]
-    (generate-matching (reduce add-possible-paths rules rules) task-type)))
+    (generate-matching rules task-type)))
 
 ;---------------------------------------------------------------------------
 
