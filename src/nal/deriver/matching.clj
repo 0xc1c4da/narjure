@@ -19,7 +19,7 @@
   #{`= `not= `seq? `first `and `let `pos? `> `>= `< `<= `coll? `set `quote
     `count 'aops `- `not-empty-diff? `not-empty-inter? `walk `munification-map
     `substitute `sets `some `deref `do `vreset! `volatile! `fn `mapv `if
-    `sort-commutative `n/reduce-ext-inter `n/reduce-symilarity `complement
+    `sort-commutative `n/reduce-ext-inter `n/reduce-similarity `complement
     `n/reduce-int-dif `n/reduce-and `n/reduce-ext-dif `n/reduce-image
     `n/reduce-int-inter `n/reduce-neg `n/reduce-or `nil? `not `or `abs
     `implications-and-equivalences `get-terms `empty? `intersection
