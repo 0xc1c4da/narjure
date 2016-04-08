@@ -67,19 +67,24 @@
 (defn traverse-node
   "Generates code for precondition node."
   [vars result {:keys [conclusions children condition]}]
-  `(when ~(quote-operators condition)
-     ~(when-not (zero? (count conclusions))
-        `(vswap! ~result concat
-                 ~@(set (map #(mapv (partial form-conclusion vars) %)
-                             (quote-operators conclusions)))))
-     ~@(map (fn [n] (traverse-node vars result n)) children)))
+  (let [conclusions (remove
+                      nil?
+                      [(when-not (zero? (count conclusions))
+                         `(vswap! ~result concat
+                                  ~@(set (map #(mapv (partial form-conclusion vars) %)
+                                              (quote-operators conclusions)))))])
+        children (mapcat (fn [n] (traverse-node vars result n)) children)]
+    (if (true? condition)
+      (concat conclusions children)
+      [`(when ~(quote-operators condition)
+          ~@(concat conclusions children))])))
 
 (defn traversal
   "Walk through preconditions tree and generates code for matcher."
   [vars tree]
   (let [results (gensym)]
     `(let [~results (volatile! [])]
-       ~(traverse-node vars results tree)
+       ~@(traverse-node vars results tree)
        @~results)))
 
 (defn replace-occurrences
