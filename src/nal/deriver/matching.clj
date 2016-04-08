@@ -345,6 +345,5 @@
                     match-fn-code (-> main-pattern
                                       (gen-rules rules)
                                       (match-rules main-pattern task-type))]
-                [k (assoc v :matcher (eval match-fn-code)
-                            :matcher-code match-fn-code)])))
+                [k (eval match-fn-code)])))
        (into {})))
