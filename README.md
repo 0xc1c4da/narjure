@@ -2,31 +2,17 @@
 
 A Clojure implementation of the [Non-Axiomatic Reasoning System](https://github.com/opennars/opennars) proposed by Pei Wang.
 
-## Installation
+## Come chat with us
 
-Download from http://example.com/FIXME.
+Join us on [irc://irc.freenode.net:667/#nars](irc://irc.freenode.net:667/#nars]) or [freenode webchat](https://webchat.freenode.net/?channels=nars) and come chat.
 
 ## Usage
 
-FIXME: explanation
+OpenNARS 2.0 is still in development, please find OpenNaRS 1.7.0 [source here](https://github.com/opennars/opennars) or [binaries here](http://opennars.github.io/opennars/)
 
-    $ java -jar narjure-0.1.0-standalone.jar [args]
+## In the meantime
 
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+Please read over the [OpenNARS 2.0 System Design](https://goo.gl/nXlg0p) document and [watch our Teamviewer sessions](https://goo.gl/6o7cfY).
 
 ## License
 
