@@ -4,7 +4,7 @@ A Clojure implementation of the [Non-Axiomatic Reasoning System](https://github.
 
 ## Come chat with us
 
-Join us on [irc://irc.freenode.net:667/#nars](irc://irc.freenode.net:667/#nars]) or [freenode webchat](https://webchat.freenode.net/?channels=nars) and come chat.
+Join us on [irc://irc.freenode.net:6667/#nars](irc://irc.freenode.net:667/#nars]) or [freenode webchat](https://webchat.freenode.net/?channels=nars) and come chat.
 
 ## Usage
 
