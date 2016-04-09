@@ -108,6 +108,8 @@
 
 (defn t-identity [p1 _] p1)
 
+(defn d-identity [p1 _] p1)
+
 (defn belief-identity [p1 p2] (when p2 p1))
 
 (defn belief-structural-deduction [_ p2]
@@ -166,6 +168,6 @@
    :d/deduction         intersection
    :d/weak              desire-weak
    :d/induction         desire-induction
-   :d/identity          identity
+   :d/identity          d-identity
    :d/negation          negation
    :d/structural-strong desire-structural-strong})

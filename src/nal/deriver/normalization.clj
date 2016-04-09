@@ -111,7 +111,7 @@
     [_ ['ext-set & l1] ['ext-set & l2]] (diff 'ext-set l1 l2)
     :else st))
 
-(defn reduce-symilarity
+(defn reduce-similarity
   [st]
   (m/match st
     ['<-> ['ext-set s] ['ext-set p]] ['<-> s p]
@@ -169,7 +169,7 @@
    '|         `reduce-int-inter
    '-         `reduce-ext-dif
    'int-dif   `reduce-int-dif
-   '<->       `reduce-symilarity
+   '<->       `reduce-similarity
    '*         `reduce-production
    'int-image `reduce-image
    'ext-image `reduce-image
@@ -185,7 +185,7 @@
       | (reduce-int-inter st)
       - (reduce-ext-dif st)
       int-dif (reduce-int-dif st)
-      <-> (reduce-symilarity st)
+      <-> (reduce-similarity st)
       * (reduce-production st)
       int-image (reduce-image st)
       ext-image (reduce-image st)

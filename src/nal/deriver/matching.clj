@@ -19,7 +19,7 @@
   #{`= `not= `seq? `first `and `let `pos? `> `>= `< `<= `coll? `set `quote
     `count 'aops `- `not-empty-diff? `not-empty-inter? `walk `munification-map
     `substitute `sets `some `deref `do `vreset! `volatile! `fn `mapv `if
-    `sort-commutative `n/reduce-ext-inter `n/reduce-symilarity `complement
+    `sort-commutative `n/reduce-ext-inter `n/reduce-similarity `complement
     `n/reduce-int-dif `n/reduce-and `n/reduce-ext-dif `n/reduce-image
     `n/reduce-int-inter `n/reduce-neg `n/reduce-or `nil? `not `or `abs
     `implications-and-equivalences `get-terms `empty? `intersection
@@ -67,19 +67,24 @@
 (defn traverse-node
   "Generates code for precondition node."
   [vars result {:keys [conclusions children condition]}]
-  `(when ~(quote-operators condition)
-     ~(when-not (zero? (count conclusions))
-        `(vswap! ~result concat
-                 ~@(set (map #(mapv (partial form-conclusion vars) %)
-                             (quote-operators conclusions)))))
-     ~@(map (fn [n] (traverse-node vars result n)) children)))
+  (let [conclusions (remove
+                      nil?
+                      [(when-not (zero? (count conclusions))
+                         `(vswap! ~result concat
+                                  ~@(set (map #(mapv (partial form-conclusion vars) %)
+                                              (quote-operators conclusions)))))])
+        children (mapcat (fn [n] (traverse-node vars result n)) children)]
+    (if (true? condition)
+      (concat conclusions children)
+      [`(when ~(quote-operators condition)
+          ~@(concat conclusions children))])))
 
 (defn traversal
   "Walk through preconditions tree and generates code for matcher."
   [vars tree]
   (let [results (gensym)]
     `(let [~results (volatile! [])]
-       ~(traverse-node vars results tree)
+       ~@(traverse-node vars results tree)
        @~results)))
 
 (defn replace-occurrences
@@ -340,6 +345,5 @@
                     match-fn-code (-> main-pattern
                                       (gen-rules rules)
                                       (match-rules main-pattern task-type))]
-                [k (assoc v :matcher (eval match-fn-code)
-                            :matcher-code match-fn-code)])))
+                [k (eval match-fn-code)])))
        (into {})))
