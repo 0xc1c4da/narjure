@@ -22,9 +22,9 @@ So these rules are for bringing NAL-statements into a different, implied and mor
           "
           ;;Equivalence and Implication Rules
           ;Similarity to Inheritance
-          #R[(S --> P) (S <-> P) |- (S --> P) :post (:t/struct-int :p/judgement) :pre (:question?)]
+          #R[(S --> P) (S <-> P) |- (S --> P) :post (:t/struct-int :p/belief) :pre (:question?)]
           ;Inheritance to Similarity
-          #R[(S <-> P) (S --> P) |- (S <-> P) :post (:t/struct-abd :p/judgement) :pre (:question?)]
+          #R[(S <-> P) (S --> P) |- (S <-> P) :post (:t/struct-abd :p/belief) :pre (:question?)]
           ;Set Definition Similarity to Inheritance
           #R[(S <-> {P}) S |- (S --> {P}) :post (:t/identity :d/identity :allow-backward)]
           #R[(S <-> {P}) {P} |- (S --> {P}) :post (:t/identity :d/identity :allow-backward)]
@@ -64,11 +64,11 @@ So these rules are for bringing NAL-statements into a different, implied and mor
           ;; Conversion
           ; If S can stand for P P can to a certain low degree also represent the class S
           ; If after S usually P happens then it might be a good guess that usually before P happens S happens.
-          #R[(P --> S) (S --> P) |- (P --> S) :post (:t/conversion :p/judgement) :pre (:question?)]
-          #R[(P ==> S) (S ==> P) |- (P ==> S) :post (:t/conversion :p/judgement) :pre (:question?)]
-          #R[(P =|> S) (S =|> P) |- (P =|> S) :post (:t/conversion :p/judgement) :pre (:question?)]
-          #R[(P =\> S) (S =/> P) |- (P =\> S) :post (:t/conversion :p/judgement) :pre (:question?)]
-          #R[(P =/> S) (S =\> P) |- (P =/> S) :post (:t/conversion :p/judgement) :pre (:question?)]
+          #R[(P --> S) (S --> P) |- (P --> S) :post (:t/conversion :p/belief) :pre (:question?)]
+          #R[(P ==> S) (S ==> P) |- (P ==> S) :post (:t/conversion :p/belief) :pre (:question?)]
+          #R[(P =|> S) (S =|> P) |- (P =|> S) :post (:t/conversion :p/belief) :pre (:question?)]
+          #R[(P =\> S) (S =/> P) |- (P =\> S) :post (:t/conversion :p/belief) :pre (:question?)]
+          #R[(P =/> S) (S =\> P) |- (P =/> S) :post (:t/conversion :p/belief) :pre (:question?)]
 
           ;; Contraposition
           ; "If not smoking lets you be healthy being not healthy may be the result of smoking"
@@ -541,7 +541,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          The purpose of this is to specialize general statements containing variables to specific cases."
          ; dependent variable elimination
          ; Decomposition with elimination of a variable
-         #R[B (&& A :list/A) |- (&& :list/A) :pre (:judgement? (:substitute-if-unifies "#" A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
+         #R[B (&& A :list/A) |- (&& :list/A) :pre (:belief? (:substitute-if-unifies "#" A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
 
          ; independent variable elimination
          #R[B (A ==> C) |- C :post (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward ==>))]
@@ -617,40 +617,40 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          "
          ; and the backward inference driven forward inference:
          ; NAL2:
-         #R[([A] <-> [B]) (A <-> B) |- ([A] <-> [B]) :pre (:question?) :post (:t/belief-identity :p/judgement)]
-         #R[({A} <-> {B}) (A <-> B) |- ({A} <-> {B}) :pre (:question?) :post (:t/belief-identity :p/judgement)]
+         #R[([A] <-> [B]) (A <-> B) |- ([A] <-> [B]) :pre (:question?) :post (:t/belief-identity :p/belief)]
+         #R[({A} <-> {B}) (A <-> B) |- ({A} <-> {B}) :pre (:question?) :post (:t/belief-identity :p/belief)]
 
-         #R[([A] --> [B]) (A <-> B) |- ([A] --> [B]) :pre (:question?) :post (:t/belief-identity :p/judgement)]
-         #R[({A} --> {B}) (A <-> B) |- ({A} --> {B}) :pre (:question?) :post (:t/belief-identity :p/judgement)]
+         #R[([A] --> [B]) (A <-> B) |- ([A] --> [B]) :pre (:question?) :post (:t/belief-identity :p/belief)]
+         #R[({A} --> {B}) (A <-> B) |- ({A} --> {B}) :pre (:question?) :post (:t/belief-identity :p/belief)]
 
          ; NAL3:
          ; composition on both sides of a statement:
-         #R[((& B :list/A) --> (& A :list/A)) (B --> A) |- ((& B :list/A) --> (& A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
-         #R[((| B :list/A) --> (| A :list/A)) (B --> A) |- ((| B :list/A) --> (| A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
-         #R[((- S A) --> (- S B)) (B --> A) |- ((- S A) --> (- S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
-         #R[((~ S A) --> (~ S B)) (B --> A) |- ((~ S A) --> (~ S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[((& B :list/A) --> (& A :list/A)) (B --> A) |- ((& B :list/A) --> (& A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+         #R[((| B :list/A) --> (| A :list/A)) (B --> A) |- ((| B :list/A) --> (| A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+         #R[((- S A) --> (- S B)) (B --> A) |- ((- S A) --> (- S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+         #R[((~ S A) --> (~ S B)) (B --> A) |- ((~ S A) --> (~ S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
 
          ; composition on one side of a statement:
-         #R[(W --> (| B :list/A)) (W --> B) |- (W --> (| B :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
-         #R[((& B :list/A) --> W) (B --> W) |- ((& B :list/A) --> W) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
-         #R[(W --> (- S B)) (W --> B) |- (W --> (- S B)) :pre (:question?) :post (:t/belief-structural-difference :p/judgement)]
-         #R[((~ S B) --> W) (B --> W) |- ((~ S B) --> W) :pre (:question?) :post (:t/belief-structural-difference :p/judgement)]
+         #R[(W --> (| B :list/A)) (W --> B) |- (W --> (| B :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+         #R[((& B :list/A) --> W) (B --> W) |- ((& B :list/A) --> W) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+         #R[(W --> (- S B)) (W --> B) |- (W --> (- S B)) :pre (:question?) :post (:t/belief-structural-difference :p/belief)]
+         #R[((~ S B) --> W) (B --> W) |- ((~ S B) --> W) :pre (:question?) :post (:t/belief-structural-difference :p/belief)]
 
          ; NAL4:
          ; composition on both sides of a statement:
-         #R[((* B P) --> Z) (B --> A) |- ((* B P) --> (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
-         #R[((* P B) --> Z) (B --> A) |- ((* P B) --> (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
-         #R[((* B P) <-> Z) (B <-> A) |- ((* B P) <-> (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
-         #R[((* P B) <-> Z) (B <-> A) |- ((* P B) <-> (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
-         #R[((\ N A _) --> Z) (N --> R) |- ((\ N A _) --> (\ R A _)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
-         #R[((/ N _ B) --> Z) (S --> B) |- ((/ N _ B) --> (/ N _ S)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[((* B P) --> Z) (B --> A) |- ((* B P) --> (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+         #R[((* P B) --> Z) (B --> A) |- ((* P B) --> (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+         #R[((* B P) <-> Z) (B <-> A) |- ((* B P) <-> (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+         #R[((* P B) <-> Z) (B <-> A) |- ((* P B) <-> (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+         #R[((\ N A _) --> Z) (N --> R) |- ((\ N A _) --> (\ R A _)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+         #R[((/ N _ B) --> Z) (S --> B) |- ((/ N _ B) --> (/ N _ S)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
 
          ; NAL5:
-         #R[--A    A |- --A  :pre (:question?) :post (:t/belief-negation :p/judgement)]
-         #R[A  --A |-   A  :pre (:question?) :post (:t/belief-negation :p/judgement)]
+         #R[--A    A |- --A  :pre (:question?) :post (:t/belief-negation :p/belief)]
+         #R[A  --A |-   A  :pre (:question?) :post (:t/belief-negation :p/belief)]
 
          ; compound composition one premise
-         #R[(|| B :list/A) B |- (|| B :list/A) :pre (:question?) :post (:t/belief-structural-deduction :p/judgement)]
+         #R[(|| B :list/A) B |- (|| B :list/A) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
 )
 
 (def rules (compile-rules nal1-nal2-nal3-equivalence-and-implication nal1-nal5-conversion-contraposition-negation nal1-nal2-inheritance-related-syllogisms

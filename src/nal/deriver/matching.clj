@@ -50,14 +50,14 @@
 (defn form-conclusion
   "Formation of cocnlusion in terms of task and truth/desire functions"
   [{:keys [t1 t2 task-type]}
-   {c  :statement tf :t-function pj :p/judgement df :d-function
+   {c  :statement tf :t-function pj :p/belief df :d-function
     sc :shift-conditions}]
-  (let [conclusion-type (if pj :judgement task-type)
+  (let [conclusion-type (if pj :belief task-type)
         conclusion {:statement  c
                     :task-type  conclusion-type
                     :occurrence :t-occurrence}
         conclusion (case conclusion-type
-                     :judgement (assoc conclusion :truth (list tf t1 t2))
+                     :belief (assoc conclusion :truth (list tf t1 t2))
                      :goal (assoc conclusion :desire (list df t1 t2))
                      conclusion)]
     (if sc
@@ -267,7 +267,7 @@
                                       sym-map)
                   :t-function       (t/tvtypes (get-truth-fn post))
                   :d-function       (t/dvtypes (get-desire-fn post))
-                  :p/judgement      (some #{:p/judgement} post)}
+                  :p/belief      (some #{:p/belief} post)}
      :conditions (remove nil?
                          (walk (concat (check-conditions sym-map) pre)
                            (and (coll? el) (= \a (first (str (first el)))))
