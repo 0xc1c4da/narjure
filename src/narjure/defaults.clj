@@ -32,4 +32,4 @@
 
 (def ^{:type double} horizon 1)
 
-(def duration 80)
+(def temporal-window-duration 80)

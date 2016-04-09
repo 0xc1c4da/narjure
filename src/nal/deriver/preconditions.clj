@@ -5,7 +5,7 @@
             [nal.deriver.substitution :refer [substitute munification-map]]
             [nal.deriver.terms-permutation :refer [implications equivalences]]
             [clojure.set :refer [union intersection]]
-            [narjure.defaults :refer [duration]]
+            [narjure.defaults :refer [temporal-window-duration]]
             [clojure.core.match :as m]
             [nal.deriver.normalization :refer [reduce-seq-conj]]))
 
@@ -88,11 +88,11 @@
   [_]
   [`(not= :eternal :t-occurrence)
    `(not= :eternal :b-occurrence)
-   `(<= ~duration (abs (- :t-occurrence :b-occurrence)))])
+   `(<= ~temporal-window-duration (abs (- :t-occurrence :b-occurrence)))])
 
 (defmethod compound-precondition :concurrent
   [_]
-  [`(> ~duration (abs (- :t-occurrence :b-occurrence)))])
+  [`(> ~temporal-window-duration (abs (- :t-occurrence :b-occurrence)))])
 
 ;-------------------------------------------------------------------------------
 (defmulti precondition-transformation (fn [arg1 _] (first arg1)))
@@ -150,10 +150,10 @@
 
 (defn shift-forward-let
   ([sym conclusion] (shift-forward-let sym nil conclusion nil))
-  ([sym op conclusion duration]
+  ([sym op conclusion temporal-window-duration]
    `(let [interval# ~sym
-          ~@(if duration
-              `[:t-occurrence (~op :t-occurrence ~duration)]
+          ~@(if temporal-window-duration
+              `[:t-occurrence (~op :t-occurrence ~temporal-window-duration)]
               [])
           :t-occurrence (if interval# (+ :t-occurrence interval#)
                                       :t-occurrence)]
@@ -164,11 +164,11 @@
   (m/match (mapv #(if (and (coll? %) (= 'quote (first %)))
                    (second %) %) (rest args))
     [(:or '=|> '==>)] concl
-    ['pred-impl] `(let [:t-occurrence (+ :t-occurrence ~duration)] ~concl)
-    ['retro-impl] `(let [:t-occurrence (- :t-occurrence ~duration)] ~concl)
+    ['pred-impl] `(let [:t-occurrence (+ :t-occurrence ~temporal-window-duration)] ~concl)
+    ['retro-impl] `(let [:t-occurrence (- :t-occurrence ~temporal-window-duration)] ~concl)
     [sym (:or '=|> '==>)] (shift-forward-let sym concl)
-    [sym 'pred-impl] (shift-forward-let sym `+ concl duration)
-    [sym 'retro-impl] (shift-forward-let sym `- concl duration)))
+    [sym 'pred-impl] (shift-forward-let sym `+ concl temporal-window-duration)
+    [sym 'retro-impl] (shift-forward-let sym `- concl temporal-window-duration)))
 
 (defn backward-interval-check [sym]
   `(and (coll? ~sym) (= (first ~sym) (quote ~'seq-conj))
@@ -177,10 +177,10 @@
 
 (defn shift-backward-let
   ([sym conclusion] (shift-backward-let sym nil conclusion nil))
-  ([sym op conclusion duration]
+  ([sym op conclusion temporal-window-duration]
    `(let [interval# ~(backward-interval-check sym)
-          ~@(if duration
-              `[:t-occurrence (~op :t-occurrence ~duration)]
+          ~@(if temporal-window-duration
+              `[:t-occurrence (~op :t-occurrence ~temporal-window-duration)]
               [])
           :t-occurrence (if interval# (+ :t-occurrence interval#)
                                       :t-occurrence)]
@@ -190,12 +190,12 @@
 
 (defmethod conclusion-transformation :shift-occurrence-backward
   [args concl]
-  (let [duration (- duration)]
+  (let [temporal-window-duration (- temporal-window-duration)]
     (m/match (mapv #(if (and (coll? %) (= 'quote (first %)))
                      (second %) %) (rest args))
       [(:or '=|> '==>)] concl
-      ['pred-impl] `(let [:t-occurrence (+ :t-occurrence ~duration)] ~concl)
-      ['retro-impl] `(let [:t-occurrence (- :t-occurrence ~duration)] ~concl)
+      ['pred-impl] `(let [:t-occurrence (+ :t-occurrence ~temporal-window-duration)] ~concl)
+      ['retro-impl] `(let [:t-occurrence (- :t-occurrence ~temporal-window-duration)] ~concl)
       [sym (:or '=|> '==>)] (shift-backward-let sym concl)
-      [sym 'pred-impl] (shift-backward-let sym `+ concl duration)
-      [sym 'retro-impl] (shift-backward-let sym `- concl duration))))
+      [sym 'pred-impl] (shift-backward-let sym `+ concl temporal-window-duration)
+      [sym 'retro-impl] (shift-backward-let sym `- concl temporal-window-duration))))
