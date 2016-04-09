@@ -57,6 +57,12 @@
   [{:keys [pre]}]
   (some #{:question?} pre))
 
+(defn quest?
+  "Return true if rule allows only quest as task."
+  [{:keys [pre] [{post :post}] :conclusions}]
+  (and (some #{:question?} pre)
+       (every? #(not (#{:p/judgement} %)) post)))
+
 (defn goal?
   "Return true if rule allows only goal as task."
   [{pre :pre [{post :post}] :conclusions}]
@@ -124,6 +130,7 @@
     `(def ~name (quote ~rules))))
 
 (defn compile-rules
+  "Define rules. Rules must be #R statements."
   ;TODO exception on duplication of the rule
   [& rules]
   (time
@@ -136,10 +143,13 @@
                           allow-backward? expand-backward-rules)
           judgement-rules# (check-duplication (filter judgement? rules))
           question-rules# (check-duplication (filter question? rules))
-          goal-rules# (check-duplication (filter goal? rules))]
-      (println "Q rules:" (count question-rules#))
-      (println "J rules:" (count judgement-rules#))
-      (println "G rules:" (count goal-rules#))
+          goal-rules# (check-duplication (filter goal? rules))
+          quest-rules# (check-duplication (filter quest? rules))]
+      (println "Beliefs rules:" (count judgement-rules#))
+      (println "Questions rules:" (count question-rules#))
+      (println "Goal rules:" (count goal-rules#))
+      (println "Quests rules:" (count quest-rules#))
       {:judgement (rules-map judgement-rules# :judgement)
        :question  (rules-map question-rules# :question)
-       :goal      (rules-map goal-rules# :goal)})))
+       :goal      (rules-map goal-rules# :goal)
+       :quest     (rules-map quest-rules# :quest)})))
