@@ -1,22 +1,38 @@
 (ns narjure.test.bag
   (:require [clojure.test :refer :all]
-            [narjure.bag :refer :all]))
+            [narjure.bag :as b]))
 
-(defn abc-bag
-  ([] (abc-bag 3))
-  ([cap] (-> (default-bag cap)
-             (put-el {:key :a :priority 0.7})
-             (put-el {:key :b :priority 0.7})
-             (put-el {:key :c :priority 0.7}))))
+(deftest test-default-bag
+  (let [n 10
+        elements (mapv (fn [id] {:priority (rand)
+                                 :id       id})
+                       (range n))
+        bag (reduce b/add-element (b/default-bag n) elements)
+        min-priority (apply min (map :priority elements))
+        max-priority (apply max (map :priority elements))
+        max-idx (:id (last (sort-by :priority elements)))
+        [element bag] (b/pop-element bag)]
+    (is (= (:priority element) min-priority))
+    (is (= (dec n) (b/count-elements bag)))
+    (is (= (get-in (b/get-by-index bag 0) [0 :priority]) max-priority))
+    (is (= (get-in (b/get-by-id bag max-idx) [0 :priority]) max-priority))
+    (is (= 10 (b/count-elements (b/add-element bag {:id       1000
+                                                    :priority (rand)}))))
+    (let [bag (reduce b/add-element (b/default-bag) [{:id 1 :priority 1}
+                                                     {:id 1 :priority 1}])]
+      (is (= 1 (b/count-elements bag))))
+    (let [bag (reduce b/add-element (b/default-bag) [{:id 1 :priority 1}
+                                                     {:id 1 :priority 0.7}])]
+      (is (= 1 (b/count-elements bag))))
+    (let [bag (reduce b/add-element (b/default-bag) [{:id 1 :priority 0.7}
+                                                     {:id 2 :priority 0.7}])]
+      (is (= 2 (b/count-elements bag))))
 
-(def a-bag (put-el (default-bag) {:key :a :priority 0.7}))
+    (let [id 123
+          element {:id id :priority 1}
+          bag (-> (b/pop-element bag)
+                  second
+                  (b/add-element {:id id :priority 0.9})
+                  (b/update-element  element))]
+      (is (= (first (b/get-by-id bag 123)) element)))))
 
-(deftest test-bag
-  (is (= 3 (count-els (abc-bag))))
-  (is (= 2 (count (-> (default-bag)
-                      (put-el {:key :a :priority 0.7})
-                      (put-el {:key :b :priority 0.7})
-                      (put-el {:key :a :priority 0.7})
-                      :queue))))
-  (is (= 2 (count-els (abc-bag 2))))
-  (is (nil? (get-el a-bag :b))))
