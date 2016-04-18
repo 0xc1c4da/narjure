@@ -22,7 +22,6 @@
            (org.slf4j LoggerFactory))
   (:gen-class))
 
-
 ;co.paralleluniverse.actors.JMXActorMonitor
 (def actors-names
   #{:active-concept-collator
@@ -39,6 +38,7 @@
   "Spawns all actors which self register!"
   []
   (spawn active-concept-collator)
+  ;;(register! :concept-creator (spawn concept-creator))
   (spawn concept-creator)
   (spawn forgettable-concept-collator)
   (spawn general-inferencer)
@@ -58,17 +58,13 @@
   (info "All services registered."))
 
 (def inference-tick-interval 2500)
-(def forgetting-tick-interval 3000)
 (def system-tick-interval 2000)
 
 (defn inference-tick []
-  (! :active-concept-collator [:inference-tick-msg]))
-
-(defn forgetting-tick []
-  (! :forgettable-concept-collator [:forgetting-tick-msg]))
+  (cast! (whereis :active-concept-collator) [:inference-tick-msg]))
 
 (defn system-tick []
-  (! :task-creator [:system-time-tick-msg]))
+  (cast! (whereis :task-creator) [:system-time-tick-msg]))
 
 (defn prn-ok [msg] (info (format "\t[OK] %s" msg)))
 
@@ -77,10 +73,6 @@
   (schedule inference-tick {:in    inference-tick-interval
                             :every inference-tick-interval})
   (prn-ok :system-timer)
-
-  (schedule forgetting-tick {:in    forgetting-tick-interval
-                             :every forgetting-tick-interval})
-  (prn-ok :forgetting-timer)
 
   (schedule system-tick {:every system-tick-interval})
   (prn-ok :inference-timer)
@@ -114,16 +106,15 @@
   (info "NARS initialised.")
 
   ; *** Test code
-  (let [task-dispatcher (whereis :task-dispatcher)]
+  (do
     (info "Beginning test...")
     (time
       (loop [n 0]
-        (when (< n 1000000)
+        (when (< n 100000)
           ; select approximately 90% from existing concepts
           (let [n1 (if (< (rand) 0.01) n (rand-int (/ n 10)))]
-            (! task-dispatcher [:task-msg {:term  (format "a --> %d" n1)
-                                           :other "other"}])
-            (when (== (mod n 100000) 0)
+            (cast! (whereis :task-dispatcher) [:task-msg {:term  (format "a --> %d" n1) :other "other"}])
+            (when (== (mod n 10000) 0)
               (info (format "processed [%s] messages" n))))
           (recur (inc n))))))
   ; allow delay for all actors to process their queues
@@ -131,9 +122,22 @@
   (info "Test complete.")
   ; *** End test code
 
-  ; join all actors so the terminate cleanly
+  (comment
+    (shutdown! (whereis :sentence-parser))
+    (shutdown! (whereis :active-concept-collator))
+    (shutdown! (whereis :concept-creator))
+    (shutdown! (whereis :task-dispatcher))
+    (shutdown! (whereis :task-creator))
+    (shutdown! (whereis :operator-executor))
+    (shutdown! (whereis :persistence-manager))
+    (shutdown! (whereis :forgettable-concept-collator))
+    (shutdown! (whereis :general-inferencer)))
+
+  ; shutdown all actors so they terminate cleanly
   (doseq [actor-name actors-names]
-    (join (whereis actor-name)))
+    (let [actor-ref (whereis actor-name)]
+      (shutdown! actor-ref)
+      (join actor-ref)))
 
   ; cancel schedulers
   (stop))
@@ -141,3 +145,4 @@
 ; call main function
 (defn run []
   (future (start-nars)))
+(run)

@@ -1,14 +1,10 @@
 (ns narjure.memory-management.concept-creator
   (:require
-    [co.paralleluniverse.pulsar.actors :refer [! spawn]]
+    [co.paralleluniverse.pulsar.actors :refer [! spawn gen-server register! cast! Server self]]
     [narjure.memory-management.concept :refer [concept]]
     [narjure.actor.utils :refer [defactor]]
-    [taoensso.timbre :refer [debug]])
+    [taoensso.timbre :refer [debug info]])
   (:refer-clojure :exclude [promise await]))
-
-(declare concept-creator task)
-
-(defactor concept-creator {:create-concept-msg task})
 
 (def aname :concept-creator)
 
@@ -20,14 +16,28 @@
     (swap! c-map assoc term (spawn concept))
     #_(debug aname (str "Created concept: " term))))
 
-(defn task
+(defn task-handler
   "When concept-map does not contain :term, create concept actor for term
    then post task to task-dispatcher either way."
-  [[_ from task c-map] _]
+  [from [msg task c-map]]
   (let [term (task :term)]
     ; when concept not exist then create - goes here
     (when (not (contains? @c-map term))
       (create-concept task c-map)))
 
-  (! from [:task-msg task])
+  (cast! from [:task-msg task])
   #_(debug aname "concept-creator - process-task"))
+
+(defn msg-handler
+  "Identifies message type and selects the correct message handler.
+   if there is no match it generates a log message for the unhandled message "
+  [from [type _ _ :as message]]
+  (case type
+    :create-concept-msg (task-handler from message)
+    :default (debug aname (str "unhandled msg: " type))))
+
+(def concept-creator (gen-server
+                       (reify Server
+                         (init [_] (register! aname @self))
+                         (terminate [_ cause] (info (str aname " terminated.")))
+                         (handle-cast [_ from id message] (msg-handler from message)))))

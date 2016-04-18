@@ -1,39 +1,30 @@
 (ns narjure.perception-action.sentence-parser
   (:require
-    [co.paralleluniverse.pulsar.actors :refer [!]]
+    [co.paralleluniverse.pulsar.actors :refer [! spawn gen-server register! cast! Server self whereis]]
     [narjure.narsese :refer [parse]]
     [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :refer [debug info]])
   (:refer-clojure :exclude [promise await]))
 
-(declare sentence-parser system-time narsese-string)
-
-(def serial-no (atom 0))
-
-(defactor sentence-parser
-  {:time 0}
-  {:system-time-msg    system-time
-   :narsese-string-msg narsese-string})
-
 (def aname :sentence-parser)
 
-(defn system-time [[_ time] _]
-  (debug aname "process-system-time")
-  {:time time})
+(defn narsese-string-handler
+  "Parses a narsese string and posts a :sentence-msg to task-creator"
+  [from [msg string]]
+  (let [sentence (parse string)]
+    (info (str sentence))
+    (cast! (whereis :task-creator)  [:sentence-msg sentence])))
 
-(defn parse-task
-  "Parses a narsese string."
-  [string system-time]
-  (assoc (parse string)
-    :stamp
-    {:id              (swap! serial-no inc)
-     :creation-time   system-time
-     :occurrence-time system-time
-     :trail           [serial-no]}))
+(defn msg-handler
+  "Identifies message type and selects the correct message handler.
+   if there is no match it generates a log message for the unhandled message "
+  [from [type _ :as message]]
+  (case type
+    ::narsese-string-msg (narsese-string-handler from message)
+    :default (debug aname (str "unhandled msg: " type))))
 
-(defn narsese-string
-  [[_ string] {time :time :as state}]
-  (let [task (parse-task string time)]
-    (! :anticipated-event [:input-task-msg task])
-    (info aname (str "process-narsese-string" task)))
-  state)
+(def sentence-parser (gen-server
+                       (reify Server
+                         (init [_] (register! aname @self))
+                         (terminate [_ cause] (info (str aname " terminated.")))
+                         (handle-cast [_ from id message] (msg-handler from message)))))
