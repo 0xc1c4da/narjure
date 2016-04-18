@@ -2,6 +2,8 @@
   (:require [avl.clj :as avl]))
 
 (defn compare-elements
+  "Compares elements. If priority of elements is equal, compares the hashes of
+  the ids. It is done to allow bag to contain elements with equal priority."
   [{p1 :priority id1 :id}
    {p2 :priority id2 :id}]
   (if (= p1 p2)
@@ -9,11 +11,24 @@
     (and (> p1 p2) (not= id1 id2))))
 
 (defprotocol Bag
-  (add-element [_ element])
-  (get-by-index [_ index])
-  (get-by-id [_ id])
-  (pop-element [_])
-  (update-element [_ element])
+  (add-element
+    ;Adds element to bag, removes element with lowest priority if bag is full.
+    [_ element])
+  (get-by-index
+    ;Returns tuple of element and updated bag. If element with such index
+    ; doesn't exist returns tuple of nil and bag without any changes.
+    [_ index])
+  (get-by-id
+    ;Returns tuple of element and updated bag. If element with such id
+    ; doesn't exist returns tuple of nil and bag without any changes.
+    [_ id])
+  (pop-element
+    ;Returns tuple of element and updated bag. If bag is empty returns tuple
+    ; of nil and bag without any changes.
+    [_])
+  (update-element
+    ;Replaces entrie with the same id.
+    [_ element])
   (count-elements [_]))
 
 (defrecord DefaultBag [priority-index elements-map capacity]
