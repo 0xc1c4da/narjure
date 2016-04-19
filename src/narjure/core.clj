@@ -1,5 +1,6 @@
 (ns narjure.core
   (:require
+    [narjure.narsese :refer [parse]]
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]]
@@ -8,7 +9,7 @@
      [concept-creator :refer [concept-creator]]
      [forgettable-concept-collator :refer [forgettable-concept-collator]]
      [persistence-manager :refer [persistence-manager]]
-     [task-dispatcher :refer [task-dispatcher]]]
+     [task-dispatcher :refer [task-dispatcher c-map]]]
     [narjure.general-inference
      [active-concept-collator :refer [active-concept-collator]]
      [general-inferencer :refer [general-inferencer]]]
@@ -38,7 +39,6 @@
   "Spawns all actors which self register!"
   []
   (spawn active-concept-collator)
-  ;;(register! :concept-creator (spawn concept-creator))
   (spawn concept-creator)
   (spawn forgettable-concept-collator)
   (spawn general-inferencer)
@@ -72,10 +72,10 @@
   (info "Initialising system timers...")
   (schedule inference-tick {:in    inference-tick-interval
                             :every inference-tick-interval})
-  (prn-ok :system-timer)
+  (prn-ok :inference-timer)
 
   (schedule system-tick {:every system-tick-interval})
-  (prn-ok :inference-timer)
+  (prn-ok :system-timer)
 
   (info "System timer initialisation complete."))
 
@@ -110,11 +110,13 @@
     (info "Beginning test...")
     (time
       (loop [n 0]
-        (when (< n 100000)
+        (when (< n 10000)
           ; select approximately 90% from existing concepts
           (let [n1 (if (< (rand) 0.01) n (rand-int (/ n 10)))]
-            (cast! (whereis :task-dispatcher) [:task-msg {:term  (format "a --> %d" n1) :other "other"}])
-            (when (== (mod n 10000) 0)
+
+            ;;(cast! (whereis :task-dispatcher) [:task-msg {:term  (format "a --> %d" n1) :other "other"}])
+            (cast! (whereis :sentence-parser) [:narsese-string-msg (format "<a --> %d>." n1)])
+            (when (== (mod n 1000) 0)
               (info (format "processed [%s] messages" n))))
           (recur (inc n))))))
   ; allow delay for all actors to process their queues
@@ -122,27 +124,18 @@
   (info "Test complete.")
   ; *** End test code
 
-  (comment
-    (shutdown! (whereis :sentence-parser))
-    (shutdown! (whereis :active-concept-collator))
-    (shutdown! (whereis :concept-creator))
-    (shutdown! (whereis :task-dispatcher))
-    (shutdown! (whereis :task-creator))
-    (shutdown! (whereis :operator-executor))
-    (shutdown! (whereis :persistence-manager))
-    (shutdown! (whereis :forgettable-concept-collator))
-    (shutdown! (whereis :general-inferencer)))
+  ; cancel schedulers
+  (stop)
 
   ; shutdown all actors so they terminate cleanly
   (doseq [actor-name actors-names]
-    (let [actor-ref (whereis actor-name)]
-      (shutdown! actor-ref)
-      (join actor-ref)))
+    (shutdown! (whereis actor-name)))
 
-  ; cancel schedulers
-  (stop))
-
+  (doseq [actor-name actors-names]
+    (join (whereis actor-name)))
+)
 ; call main function
 (defn run []
-  (future (start-nars)))
+  (future (start-nars))
+  (info :main " terminated."))
 (run)

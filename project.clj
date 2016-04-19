@@ -21,4 +21,4 @@
   :repl-options {:init-ns          narjure.repl
                  :nrepl-middleware [narjure.repl/narsese-handler]}
   :profiles {:uberjar {:aot :all}}
-  :jvm-opts ["-Dco.paralleluniverse.fibers.detectRunawayFibers=false"])
+  :jvm-opts ["-Dco.paralleluniverse.fibers.detectRunawayFibers=false -Dco.paralleluniverse.fibers.verifyInstrumentation"])
