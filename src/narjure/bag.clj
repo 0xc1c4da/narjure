@@ -1,15 +1,6 @@
 (ns narjure.bag
   (:require [avl.clj :as avl]))
 
-(defn compare-elements
-  "Compares elements. If priority of elements is equal, compares the hashes of
-  the ids. It is done to allow bag to contain elements with equal priority."
-  [{p1 :priority id1 :id}
-   {p2 :priority id2 :id}]
-  (if (= p1 p2)
-    (> (hash id1) (hash id2))
-    (and (> p1 p2) (not= id1 id2))))
-
 (defprotocol Bag
   (add-element
     ;Adds element to bag, removes element with lowest priority if bag is full.
@@ -31,6 +22,13 @@
     [_ element])
   (count-elements [_]))
 
+;;DefaultBag consist of the next elements:
+;; 1) priority-index. Sortet set which contains entries like
+;; {:id 1 :priority 0.9}, sotred by priority. It provides access by index,
+;; and is used to find id of entry by its index
+;; 2) elements-map contains all elements mapped by their ids
+;; 3) capacity. Limit of elemts inside the bag, when bag is full elements
+;; with lowest priority will be removed on addition
 (defrecord DefaultBag [priority-index elements-map capacity]
   Bag
   (add-element [bag element]
@@ -77,6 +75,15 @@
       (add-element bag' element)))
 
   (count-elements [_] (count priority-index)))
+
+(defn compare-elements
+  "Compares elements. If priority of elements is equal, compares the hashes of
+  the ids. It is done to allow bag to contain elements with equal priority."
+  [{p1 :priority id1 :id}
+   {p2 :priority id2 :id}]
+  (if (= p1 p2)
+    (> (hash id1) (hash id2))
+    (and (> p1 p2) (not= id1 id2))))
 
 (defn default-bag
   ([] (default-bag 50))
