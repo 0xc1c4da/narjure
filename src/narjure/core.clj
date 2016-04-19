@@ -1,6 +1,5 @@
 (ns narjure.core
   (:require
-    [narjure.narsese :refer [parse]]
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]]
@@ -110,19 +109,19 @@
     (info "Beginning test...")
     (time
       (loop [n 0]
-        (when (< n 100000)
+        (when (< n 10000)
           ; select approximately 90% from existing concepts
           (let [n1 (if (< (rand) 0.01) n (rand-int (/ n 10)))]
 
             ;;(cast! (whereis :task-dispatcher) [:task-msg {:term  (format "a --> %d" n1) :other "other"}])
             (cast! (whereis :sentence-parser) [:narsese-string-msg (format "<a --> %d>." n1)])
-            (when (== (mod n 10000) 0)
+            (when (== (mod n 1000) 0)
               (info (format "processed [%s] messages" n))))
           (recur (inc n))))))
 
   ; allow delay for all actors to process their queues
   (print "Processing .")
-  (dotimes [n 30]
+  (dotimes [n 15]
           (print ".")
           (flush)
           (Thread/sleep 1000))
@@ -131,6 +130,8 @@
   (info "Test complete.")
   ; *** End test code
 
+  (info "Shutting down actors...")
+
   ; cancel schedulers
   (stop)
 
@@ -138,11 +139,11 @@
   (doseq [actor-name actors-names]
     (shutdown! (whereis actor-name)))
 
-  (doseq [actor-name actors-names]
-    (join (whereis actor-name)))
+  ;;wait for concepts to shutdown
+  (Thread/sleep 5000)
+  (info "System shutdown complete.")
 )
 ; call main function
 (defn run []
-  (future (start-nars))
-  (info :main " terminated."))
+  (future (start-nars)))
 (run)

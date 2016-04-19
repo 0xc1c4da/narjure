@@ -12,7 +12,6 @@
     generated derived results, budget and occurrence time for derived tasks.
     Posts derived sentences to task creator"
   [from [msg task belief]]
-  ()
   (debug aname "process-do-inference-msg"))
 
 (defn shutdown-handler

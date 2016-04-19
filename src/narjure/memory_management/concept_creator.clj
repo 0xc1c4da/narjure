@@ -1,6 +1,8 @@
 (ns narjure.memory-management.concept-creator
   (:require
-    [co.paralleluniverse.pulsar.actors :refer [! spawn gen-server register! cast! Server self shutdown! unregister! set-state! state whereis]]
+    [co.paralleluniverse.pulsar.actors
+     :refer [! spawn gen-server register! cast! Server self
+             shutdown! unregister! set-state! state whereis]]
     [narjure.memory-management.concept :refer [concept]]
     [narjure.memory-management.task-dispatcher :refer [c-map]]
     [narjure.actor.utils :refer [defactor]]
@@ -15,14 +17,15 @@
    add a key value pair to c-map for the created concept.
    Updates the concept count and if it the count exceeds
    the specified limit a :concept-limit-msg is posted to
-   :forgettahle-concept-collator"
+   :forgettable-concept-collator"
   [term c-map]
-  (swap! c-map assoc term (spawn concept))
-  (set-state! (update @state :concept-count inc))
+  (let [concept-ref (spawn (concept))]
+    (swap! c-map assoc term concept-ref)
+    (set-state! (update @state :concept-count inc))
+    (cast! concept-ref [:set-content-msg term]))
   (if (> (:concept-count @state) max-concepts)
     (cast! (:forgettable-concept-collator @state) [:concept-limit-msg]))
-  #_(debug aname (str "Created concept: " term))
-  )
+  #_(debug aname (str "Created concept: " term)))
 
 (defn task-handler
   "Create a concept for each term in statement plus one for
@@ -46,8 +49,7 @@
   (shutdown!))
 
 (defn initialise
-  "Initialises actor:
-      registers actor and sets actor state"
+  "Initialises actor: registers actor and sets actor state"
   [aname actor-ref]
   (register! aname actor-ref)
   (set-state! {:concept-count 0 :forgettable-concept-collator (whereis :forgettable-concept-collator)}))
@@ -56,8 +58,7 @@
   "Send :exit message to all concepts"
   [actor-ref]
   (doseq [actor-ref (vals @c-map)]
-    #_(! actor-ref [:exit])
-    ()))
+    (shutdown! actor-ref)))
 
 (defn msg-handler
   "Identifies message type and selects the correct message handler.

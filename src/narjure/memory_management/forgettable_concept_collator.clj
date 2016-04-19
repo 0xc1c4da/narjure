@@ -12,14 +12,12 @@
     selects lowest ranked concept in forgettable
     concept bag and shuts it down"
   [from [msg]]
-  ()
-  (debug aname "Process-free-memory-msg"))
+  #_(debug aname "Process-free-memory-msg"))
 
 (defn forgettable-concept-handler
   "Processes :forgettable-concept-msg:
     Adds concept to forgettable concept bag"
   [from [msg concept]]
-  ()
   (debug aname "process-forgettable-concept-msg"))
 
 (defn shutdown-handler

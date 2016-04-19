@@ -1,30 +1,80 @@
 (ns narjure.memory-management.concept
   (:require
+    [co.paralleluniverse.pulsar.actors
+     :refer [! spawn gen-server register! cast! Server self
+             shutdown! unregister! set-state! state whereis]]
     [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :as t])
   (:refer-clojure :exclude [promise await]))
 
-(declare concept task-req belief-req inference-req persistence-req exit)
-
-(defactor concept
-          "State is a map
-          {:name :budget :activation-level :belief-tab :goal-tab :task-bag :term-bag}
-          (this list may not be complete)."
-          {:task-msg            task-req
-           :belief-req-msq      belief-req
-           :inference-req-msq   inference-req
-           :persistence-req-msg persistence-req})
-
 (defn debug [msg] (t/debug :concept msg))
 
-(defn task-req [_ _]
-  #_(debug "process-task"))
+(defn task-handler
+  ""
+  [from message]
+  ())
 
-(defn belief-req [_ _]
-  (debug "process-belief-req"))
+(defn belief-request-handler
+  ""
+  [from message]
+  ())
 
-(defn inference-req [_ _]
-  (debug "process-inference-req"))
+(defn inference-request-handler
+  ""
+  [from message]
+  ())
 
-(defn persistence-req [_ _]
-  (debug "process-persistence-req"))
+(defn concept-state-handler
+  ""
+  [from message]
+  ())
+
+(defn task-budget-update-handler
+  ""
+  [from message]
+  ())
+
+(defn set-content-handler
+  "Initilise the cocnept state with the term that is the content.
+   This is sent from concept-creator on creation"
+  [from [msg content]]
+  (set-state! (assoc @state :name content ))
+  #_(debug (str "set-content-msg: " content)))
+
+(defn shutdown-handler
+  "Processes :shutdown-msg and shuts down actor"
+  [from msg]
+  (unregister!)
+  (shutdown!))
+
+(defn initialise
+  "Initialises actor: registers actor and sets actor state"
+  []
+  (set-state! {:name :name
+               :budget '(0.0 0.0)
+               :satisfaction '(0.0 0.0)
+               :tasks {}
+               :termlinks {}
+               :active-concept-collator (whereis :active-concept-collator)
+               :general-inferencer (whereis :general-inferencer)
+               :forgettable-concept-collator (whereis :forgettable-concept-collator)}))
+
+(defn msg-handler
+  "Identifies message type and selects the correct message handler.
+   if there is no match it generates a log message for the unhandled message "
+  [from [type :as message]]
+  (case type
+    :task-msg (task-handler from message)
+    :belief-request-msg (belief-request-handler from message)
+    :inference-request-msg (inference-request-handler from message)
+    :concept-state-request (concept-state-handler from message)
+    :task-budget-update-msg (task-budget-update-handler from message)
+    :set-content-msg (set-content-handler from message)
+    :shutdown (shutdown-handler from message)
+    (debug (str "unhandled msg: " type))))
+
+(defn concept []  (gen-server
+                    (reify Server
+                      (init [_] (initialise))
+                      (terminate [_ cause] #_(info (str aname " terminated.")))
+                      (handle-cast [_ from id message] (msg-handler from message)))))

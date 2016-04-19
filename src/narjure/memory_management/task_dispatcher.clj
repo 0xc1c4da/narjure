@@ -15,7 +15,7 @@
   [from [_ task]]
   (doseq [term (get-in task [:statement :terms])]
     (if-let [concept (@c-map term)]
-      (! concept :task-msg task)
+      (cast! concept [:task-msg task])
       (cast! (:concept-creator @state) [:create-concept-msg task c-map]))
     )
   #_(debug aname (str "process-task" task)))

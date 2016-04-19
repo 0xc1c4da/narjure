@@ -12,14 +12,13 @@
 
 (defn active-concept-handler
   "Processes :active-cocnept-msg:
-    Add concept to concepts bags: general or temproal respectively"
+    Add concept to concepts bags: general or temporal respectively"
   [from [msg concept]]
-  ()
   (debug aname "process-active-concept-msg"))
 
 (defn inference-tick-handler
   "Processes :inference-tick-msg:
-    Executes cocnept selection process for general inference.
+    Executes concept selection process for general inference.
     Both temporal and general concept are selected"
   [from [msg]]
   ()
