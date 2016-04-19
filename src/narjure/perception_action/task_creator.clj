@@ -39,7 +39,7 @@
    convert tense to occurrence time if applicable"
   [sentence time id]
   {:creation time
-   :occurence 0
+   :occurrence 0
    :source :input
    :id id
    :evidence '(id)
@@ -51,7 +51,7 @@
    and default values for the remaining parameters"
   [sentence budget occurrence time id]
   {:creation time
-   :occurence occurrence
+   :occurrence occurrence
    :source :derived
    :id id
    :evidence '(id)

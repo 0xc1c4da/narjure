@@ -57,8 +57,8 @@
     (check-actor actor-name))
   (info "All services registered."))
 
-(def inference-tick-interval 2500)
-(def system-tick-interval 2000)
+(def inference-tick-interval 25)
+(def system-tick-interval 10)
 
 (defn inference-tick []
   (cast! (whereis :active-concept-collator) [:inference-tick-msg]))
@@ -110,17 +110,24 @@
     (info "Beginning test...")
     (time
       (loop [n 0]
-        (when (< n 10000)
+        (when (< n 100000)
           ; select approximately 90% from existing concepts
           (let [n1 (if (< (rand) 0.01) n (rand-int (/ n 10)))]
 
             ;;(cast! (whereis :task-dispatcher) [:task-msg {:term  (format "a --> %d" n1) :other "other"}])
             (cast! (whereis :sentence-parser) [:narsese-string-msg (format "<a --> %d>." n1)])
-            (when (== (mod n 1000) 0)
+            (when (== (mod n 10000) 0)
               (info (format "processed [%s] messages" n))))
           (recur (inc n))))))
+
   ; allow delay for all actors to process their queues
-  (Thread/sleep 100)
+  (print "Processing .")
+  (dotimes [n 30]
+          (print ".")
+          (flush)
+          (Thread/sleep 1000))
+  (println "")
+
   (info "Test complete.")
   ; *** End test code
 

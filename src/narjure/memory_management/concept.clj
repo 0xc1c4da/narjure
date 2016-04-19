@@ -4,7 +4,7 @@
     [taoensso.timbre :as t])
   (:refer-clojure :exclude [promise await]))
 
-(declare concept task-req belief-req inference-req persistence-req)
+(declare concept task-req belief-req inference-req persistence-req exit)
 
 (defactor concept
           "State is a map
