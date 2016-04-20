@@ -12,27 +12,28 @@
 (defn task-handler
   ""
   [from message]
-  ())
+  ;todo
+  )
 
 (defn belief-request-handler
   ""
   [from message]
-  ())
+  ;todo)
 
 (defn inference-request-handler
   ""
   [from message]
-  ())
+  ;todo)
 
 (defn concept-state-handler
   ""
   [from message]
-  ())
+  ;todo)
 
 (defn task-budget-update-handler
   ""
   [from message]
-  ())
+  ;todo)
 
 (defn set-content-handler
   "Initilise the cocnept state with the term that is the content.
@@ -51,8 +52,8 @@
   "Initialises actor: registers actor and sets actor state"
   []
   (set-state! {:name :name
-               :budget '(0.0 0.0)
-               :satisfaction '(0.0 0.0)
+               :budget [0.0 0.0]
+               :satisfaction [0.0 0.0]
                :tasks {}
                :termlinks {}
                :active-concept-collator (whereis :active-concept-collator)

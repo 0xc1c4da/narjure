@@ -32,13 +32,10 @@
    occurrence time if they dont exist. Then post the task
    back to task-dispatcher. Note that occurrence time keys
    are keys, whilst term keys are terms, which can be numbers"
-  [from [msg task c-map]]
-  (doseq [term (get-in task [:statement :terms])]
-    (if-not (contains? @c-map term)
-      (create-concept term c-map)))
-  (let [oc (keyword (str (:occurrence task)))]
-    (if-not (contains? @c-map oc)
-      (create-concept oc c-map)))
+  [from [_ {:keys [statement occurrence]  :as task} c-map]]
+  (doseq [term (conj (:terms statement) (keyword (str occurrence)))]
+    (when-not (@c-map term)
+      create-concept term c-map))
   (cast! from [:task-msg task])
   #_(debug aname "concept-creator - process-task"))
 
@@ -56,7 +53,7 @@
 
 (defn clean-up
   "Send :exit message to all concepts"
-  [actor-ref]
+  []
   (doseq [actor-ref (vals @c-map)]
     (shutdown! actor-ref)))
 
@@ -72,5 +69,5 @@
 (def concept-creator (gen-server
                        (reify Server
                          (init [_] (initialise aname @self))
-                         (terminate [_ cause] (clean-up @self))
+                         (terminate [_ cause] (clean-up))
                          (handle-cast [_ from id message] (msg-handler from message)))))
