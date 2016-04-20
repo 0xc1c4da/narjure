@@ -21,6 +21,11 @@
     (let [bag (reduce b/add-element (b/default-bag) [{:id 1 :priority 1}
                                                      {:id 1 :priority 1}])]
       (is (= 1 (b/count-elements bag))))
+    (let [bag (reduce b/update-element (b/default-bag) [{:id 1 :priority 1}
+                                                        {:id 1 :priority 1}])]
+      (is (= {:id 1 :priority 1}
+             (first (b/get-by-id bag 1))
+             (first (b/get-by-index bag 0)))))
     (let [bag (reduce b/add-element (b/default-bag) [{:id 1 :priority 1}
                                                      {:id 1 :priority 0.7}])]
       (is (= 1 (b/count-elements bag))))
@@ -33,6 +38,18 @@
           bag (-> (b/pop-element bag)
                   second
                   (b/add-element {:id id :priority 0.9})
-                  (b/update-element  element))]
-      (is (= (first (b/get-by-id bag 123)) element)))))
+                  (b/update-element element))]
+      (is (= (first (b/get-by-id bag 123)) element)))
+    (is (thrown? IndexOutOfBoundsException
+                 (b/get-by-index (b/default-bag) 1)))))
 
+
+(comment
+  (def db (b/default-bag))
+  (b/update-element db {:id 1 :priority 1})
+
+  (doseq [n [10 100 1000 10000 100000 1000000]]
+    (time (mapv (fn [_]
+                  (doall (b/update-element db {:id 1 :priority 1
+                                               :ok (rand)})))
+                (range 100000)))))
