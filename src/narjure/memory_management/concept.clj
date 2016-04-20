@@ -18,22 +18,26 @@
 (defn belief-request-handler
   ""
   [from message]
-  ;todo)
+  ;todo
+  )
 
 (defn inference-request-handler
   ""
   [from message]
-  ;todo)
+  ;todo
+  )
 
 (defn concept-state-handler
   ""
   [from message]
-  ;todo)
+  ;todo
+  )
 
 (defn task-budget-update-handler
   ""
   [from message]
-  ;todo)
+  ;todo
+  )
 
 (defn set-content-handler
   "Initilise the cocnept state with the term that is the content.
