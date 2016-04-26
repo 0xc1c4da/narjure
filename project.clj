@@ -11,7 +11,7 @@
                  [org.clojure/data.priority-map "0.0.7"]
                  [co.paralleluniverse/pulsar "0.7.4"]
                  [org.immutant/immutant "2.1.2"]
-                 [org.clojure/data.avl "0.0.13"]
+                 [avl.clj "0.0.9"]
                  [clj-time "0.11.0"]
                  [com.taoensso/timbre "4.3.1"]]
   :java-agents [[co.paralleluniverse/quasar-core "0.7.4"]]
