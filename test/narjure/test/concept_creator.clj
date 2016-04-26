@@ -32,20 +32,7 @@
 ; a. initial state is correct
 ; b. actor is registered
 
-(deftest test1 "The spawn macro will evaluate arguments by value"
-               (is (= (let [a (spawn #(do
-                        (spawn (fn [parent] (! parent :something)) @self)
-                        (receive [m] :something m :after 1000 nil)))]
-                        (join a))
-                      :something)))
 
-(deftest test2 "Check is registered"
-               (is (= (let [a (spawn (concept-creator))]
-                        (join a)) nil)))
-
-
-(let [called (atom false)]
-  gs (spawn (concept-creator)))
 ; test_2 - shutdown test
 ; a. check :shutdown is handled correctly
 
