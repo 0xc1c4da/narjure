@@ -1,34 +1,51 @@
 (ns narjure.memory-management.task-dispatcher
   (:require
-    [co.paralleluniverse.pulsar.actors :refer [self ! whereis]]
+    [co.paralleluniverse.pulsar.actors :refer [self ! whereis cast! Server gen-server register! shutdown! unregister! state set-state!]]
     [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :refer [debug info]])
   (:refer-clojure :exclude [promise await]))
 
-(declare task-dispatcher task forget-concept concept-count)
-
 (def c-map (atom {}))
-
-(defactor task-dispatcher
-  "Concept-map is atom {:term :actor-ref} shared between
-         task-dispatcher and concept-creator"
-  {:task-msg           task
-   :forget-concept-msg forget-concept
-   :concept-count-msg  concept-count})
 
 (def aname :task-dispatcher)
 
-(defn task
-  [[_ input-task] _]
-  (let [concept-creator (whereis :concept-creator)
-        term (input-task :term)]
+(defn task-handler
+  "processes :task-msg and dispatches tasks to resepctive concepts
+   or if concept, or any sub concepts, do not exist posts task to concept-creator"
+  [from [_ task]]
+  (doseq [term (get-in task [:statement :terms])]
     (if-let [concept (@c-map term)]
-      (! concept :task-msg input-task)
-      (! concept-creator [:create-concept-msg @self input-task c-map])))
-  #_(debug aname (str "process-task" input-task)))
+      (cast! concept [:task-msg task])
+      (cast! (:concept-creator @state) [:create-concept-msg task c-map]))
+    )
+  #_(debug aname (str "process-task" task)))
 
-(defn forget-concept [[_ forget-concept] _]
-  (debug aname "process-forget-concept"))
+(defn shutdown-handler
+  "Processes :shutdown-msg and shuts down actor"
+  [from msg]
+  (do
+    (unregister!)
+    (shutdown!)))
 
-(defn concept-count [_ _]
-  (info aname (format "Concept count[%s]" (count @c-map))))
+(defn initialise
+  "Initialises actor:
+    registers actor and sets actor state"
+  [aname actor-ref]
+  (do
+    (register! aname actor-ref)
+    (set-state! {:concept-creator (whereis :concept-creator)})))
+
+(defn msg-handler
+  "Identifies message type and selects the correct message handler.
+   if there is no match it generates a log message for the unhandled message "
+  [from [type :as message]]
+  (case type
+    :task-msg (task-handler from message)
+    :shutdown (shutdown-handler from message)
+    (debug aname (str "unhandled msg: " type))))
+
+(def task-dispatcher (gen-server
+                       (reify Server
+                         (init [_] (initialise aname @self))
+                         (terminate [_ cause] #_(info (str aname " terminated.")))
+                         (handle-cast [_ from id message] (msg-handler from message)))))
