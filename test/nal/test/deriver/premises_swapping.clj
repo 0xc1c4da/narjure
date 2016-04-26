@@ -6,7 +6,7 @@
   '{:p1          (--> P S)
     :p2          (--> S P)
     :conclusions [{:conclusion (--> P S)
-                   :post       (:t/conversion :p/judgment)}]
+                   :post       (:t/conversion :p/belief)}]
     :full-path   [(--> :any :any) :and (--> :any :any)]
     :pre         (:question?)})
 

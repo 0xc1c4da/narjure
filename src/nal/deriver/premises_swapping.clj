@@ -4,7 +4,7 @@
 
 ;the set of keys which prevent premises swapping for rule
 (def anti-swapping-keys
-  #{:question? :judgement? :goal? :measure-time :t/belief-structural-deduction
+  #{:question? :belief? :goal? :measure-time :t/belief-structural-deduction
     :t/structural-deduction :t/belief-structural-difference :t/identity
     :t/negation :union :intersection :t/intersection :t/union})
 

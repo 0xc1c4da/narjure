@@ -43,7 +43,7 @@
 (defn get-compound-term [[_ operator-srt]]
   (compound-terms operator-srt))
 
-(def actions {"." :judgement
+(def actions {"." :belief
               "?" :question})
 
 (def ^:dynamic *action* (atom nil))

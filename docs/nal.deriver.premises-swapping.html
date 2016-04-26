@@ -2870,7 +2870,7 @@ net.brehaut.ClojureTools = (function (SH) {
   (:require [nal.deriver.key-path :refer [rule-path]]
             [nal.deriver.normalization :refer [commutative-ops]]))</pre></td></tr><tr><td class="docs"><p>the set of keys which prevent premises swapping for rule</p>
 </td><td class="codes"><pre class="brush: clojure">(def anti-swapping-keys
-  #{:question? :judgement? :goal? :measure-time :t/belief-structural-deduction
+  #{:question? :belief? :goal? :measure-time :t/belief-structural-deduction
     :t/structural-deduction :t/belief-structural-difference :t/identity
     :t/negation :union :intersection :t/intersection :t/union})</pre></td></tr><tr><td class="docs"><p>Checks if rule allow swapping of premises.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn allow-swapping?

@@ -33,10 +33,10 @@
   (both-equal
     '[{:p1          (--> S P),
        :p2          (<-> S P),
-       :conclusions [{:conclusion (--> S P), :post (:t/struct-int :p/judgment)}],
+       :conclusions [{:conclusion (--> S P), :post (:t/struct-int :p/belief)}],
        :full-path   [(--> :any :any) :and (<-> :any :any)],
        :pre         (:question?)}]
-    (rule '[(S --> P) (S <-> P) |- (S --> P) :post (:t/struct-int :p/judgment)
+    (rule '[(S --> P) (S <-> P) |- (S --> P) :post (:t/struct-int :p/belief)
             :pre (:question?)])
 
     '({:conclusions [{:conclusion (pred-impl K R)

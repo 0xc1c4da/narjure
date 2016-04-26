@@ -2935,9 +2935,9 @@ https://github.com/opennars/opennars/blob/7b27dacec4cdbe77ca03d89296323d49875ac2
       [(- 1 fn) (t-and fn c1 c2)])))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn difference [[^double f1 ^double c1] [^double f2 ^double c2]]
   [(t-and f1 (- 1 f2)) (t-and c1 c2)])</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn structual-intersection [_ p2] (deduction p2 [1 d/judgement-confidence]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn structual-deduction [p1 _] (deduction p1 [1 d/judgement-confidence]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn structual-abduction [p1 _] (abduction p1 [1 d/judgement-confidence]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn structual-intersection [_ p2] (deduction p2 [1 d/belief-confidence]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn structual-deduction [p1 _] (deduction p1 [1 d/belief-confidence]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn structual-abduction [p1 _] (abduction p1 [1 d/belief-confidence]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn reduce-conjunction [p1 p2]
   (-&gt; (negation p1 p2)
       (intersection p2)
@@ -2946,10 +2946,10 @@ https://github.com/opennars/opennars/blob/7b27dacec4cdbe77ca03d89296323d49875ac2
 </td><td class="codes"><pre class="brush: clojure">(defn t-identity [p1 _] p1)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn belief-identity [p1 p2] (when p2 p1))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn belief-structural-deduction [_ p2]
-  (when p2 (deduction p2 [1 d/judgement-confidence])))</pre></td></tr><tr><td class="docs">
+  (when p2 (deduction p2 [1 d/belief-confidence])))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn belief-structural-difference [_ p2]
   (when p2
-    (let [[^double f ^double c] (deduction p2 [1 d/judgement-confidence])]
+    (let [[^double f ^double c] (deduction p2 [1 d/belief-confidence])]
       [(- 1 f) c])))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn belief-negation [_ p2] (when p2 (negation p2 nil)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn desire-weak [[f1 c1] [f2 c2]]
@@ -2959,7 +2959,7 @@ https://github.com/opennars/opennars/blob/7b27dacec4cdbe77ca03d89296323d49875ac2
   [f1 (w2c (t-and f2 c1 c2))])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn desire-structural-strong
   [t _]
-  (analogy t [1.0 d/judgement-confidence]))</pre></td></tr><tr><td class="docs">
+  (analogy t [1.0 d/belief-confidence]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def tvtypes
   {:t/structural-deduction         structual-abduction
    :t/struct-int                   structual-intersection

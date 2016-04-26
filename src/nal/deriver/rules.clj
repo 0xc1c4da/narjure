@@ -61,7 +61,7 @@
   "Return true if rule allows only quest as task."
   [{:keys [pre] [{post :post}] :conclusions}]
   (and (some #{:question?} pre)
-       (every? #(not (#{:p/judgement} %)) post)))
+       (every? #(not (#{:p/belief} %)) post)))
 
 (defn goal?
   "Return true if rule allows only goal as task."
@@ -71,8 +71,8 @@
                           (s/starts-with? (str el) ":d/")))
             post)))
 
-(defn judgement?
-  "Return true if rule allows only judgement as task."
+(defn belief?
+  "Return true if rule allows only belief as task."
   [{:keys [pre] :as rule}]
   (not (or (question? rule) (some #{:goal} pre))))
 
@@ -141,15 +141,15 @@
                           order-for-all-same? generate-all-orders
                           allow-swapping? swap
                           allow-backward? expand-backward-rules)
-          judgement-rules# (check-duplication (filter judgement? rules))
+          belief-rules# (check-duplication (filter belief? rules))
           question-rules# (check-duplication (filter question? rules))
           goal-rules# (check-duplication (filter goal? rules))
           quest-rules# (check-duplication (filter quest? rules))]
-      (println "Beliefs rules:" (count judgement-rules#))
+      (println "Beliefs rules:" (count belief-rules#))
       (println "Questions rules:" (count question-rules#))
       (println "Goal rules:" (count goal-rules#))
       (println "Quests rules:" (count quest-rules#))
-      {:judgement (rules-map judgement-rules# :judgement)
+      {:belief (rules-map belief-rules# :belief)
        :question  (rules-map question-rules# :question)
        :goal      (rules-map goal-rules# :goal)
        :quest     (rules-map quest-rules# :quest)})))

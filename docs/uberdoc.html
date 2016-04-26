@@ -2874,7 +2874,7 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defn choice [[f1 c1] [f2 c2]]
   (if (&gt;= c1 c2) [f1 c1] [f2 c2]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn inference [task belief]
-  (generate-conclusions (r/rules :judgement) task belief))</pre></td></tr><tr><td class="docs">
+  (generate-conclusions (r/rules :belief) task belief))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn backward-inference [question belief]
   (generate-conclusions (r/rules :question) question belief))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def revision t/revision)</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#nal.deriver.backward-rules" name="nal.deriver.backward-rules"><h1 class="project-name">nal.deriver.backward-rules</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
@@ -3346,7 +3346,7 @@ not commutative: --> ==> =/> => </> &amp;/ - ~</p>
   (:require [nal.deriver.key-path :refer [rule-path]]
             [nal.deriver.normalization :refer [commutative-ops]]))</pre></td></tr><tr><td class="docs"><p>the set of keys which prevent premises swapping for rule</p>
 </td><td class="codes"><pre class="brush: clojure">(def anti-swapping-keys
-  #{:question? :judgement? :goal? :measure-time :t/belief-structural-deduction
+  #{:question? :belief? :goal? :measure-time :t/belief-structural-deduction
     :t/structural-deduction :t/belief-structural-difference :t/identity
     :t/negation :union :intersection :t/intersection :t/union})</pre></td></tr><tr><td class="docs"><p>Checks if rule allow swapping of premises.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn allow-swapping?
@@ -3464,11 +3464,11 @@ not commutative: --> ==> =/> => </> &amp;/ - ~</p>
                           order-for-all-same? generate-all-orders
                           allow-swapping? swap
                           allow-backward? expand-backward-rules)
-         judgement-rules# (remove question? rules#)
+         belief-rules# (remove question? rules#)
          question-rules# (filter question? rules#)]
      (println &quot;Q rules:&quot; (count question-rules#))
-     (println &quot;J rules:&quot; (count judgement-rules#))
-     (def ~name {:judgement (rules-map judgement-rules#)
+     (println &quot;J rules:&quot; (count belief-rules#))
+     (def ~name {:belief (rules-map belief-rules#)
                  :question  (rules-map question-rules#)})))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#nal.deriver.set-functions" name="nal.deriver.set-functions"><h1 class="project-name">nal.deriver.set-functions</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns nal.deriver.set-functions
   (:require [clojure.set :as set]))</pre></td></tr><tr><td class="docs"><p>todo performance</p>
@@ -3624,9 +3624,9 @@ https://github.com/opennars/opennars/blob/7b27dacec4cdbe77ca03d89296323d49875ac2
       [(- 1 fn) (t-and fn c1 c2)])))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn difference [[^double f1 ^double c1] [^double f2 ^double c2]]
   [(t-and f1 (- 1 f2)) (t-and c1 c2)])</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn structual-intersection [_ p2] (deduction p2 [1 d/judgement-confidence]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn structual-deduction [p1 _] (deduction p1 [1 d/judgement-confidence]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn structual-abduction [p1 _] (abduction p1 [1 d/judgement-confidence]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn structual-intersection [_ p2] (deduction p2 [1 d/belief-confidence]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn structual-deduction [p1 _] (deduction p1 [1 d/belief-confidence]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn structual-abduction [p1 _] (abduction p1 [1 d/belief-confidence]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn reduce-conjunction [p1 p2]
   (-&gt; (negation p1 p2)
       (intersection p2)
@@ -3635,10 +3635,10 @@ https://github.com/opennars/opennars/blob/7b27dacec4cdbe77ca03d89296323d49875ac2
 </td><td class="codes"><pre class="brush: clojure">(defn t-identity [p1 _] p1)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn belief-identity [p1 p2] (when p2 p1))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn belief-structural-deduction [_ p2]
-  (when p2 (deduction p2 [1 d/judgement-confidence])))</pre></td></tr><tr><td class="docs">
+  (when p2 (deduction p2 [1 d/belief-confidence])))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn belief-structural-difference [p1 p2]
   (when p2
-    (let [[^double f ^double c] (deduction p2 [1 d/judgement-confidence])]
+    (let [[^double f ^double c] (deduction p2 [1 d/belief-confidence])]
       [(- 1 f) c])))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn belief-negation [_ p2] (when p2 (negation p2 nil)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def tvtypes
@@ -3769,9 +3769,9 @@ https://github.com/opennars/opennars/blob/7b27dacec4cdbe77ca03d89296323d49875ac2
 </td><td class="codes"><pre class="brush: clojure">(declare --S S --P P &lt;-&gt; |- --&gt; ==&gt; M || &amp;&amp; =|&gt; -- A Ai B &lt;=&gt;)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defrules rules
   ;Similarity to Inheritance
-  #R[(S --&gt; P) (S &lt;-&gt; P) |- (S --&gt; P) :post (:t/struct-int :p/judgment) :pre (:question?)]
+  #R[(S --&gt; P) (S &lt;-&gt; P) |- (S --&gt; P) :post (:t/struct-int :p/belief) :pre (:question?)]
   ;Inheritance to Similarity
-  #R[(S &lt;-&gt; P) (S --&gt; P) |- (S &lt;-&gt; P) :post (:t/struct-abd :p/judgment) :pre (:question?)]
+  #R[(S &lt;-&gt; P) (S --&gt; P) |- (S &lt;-&gt; P) :post (:t/struct-abd :p/belief) :pre (:question?)]
   ;Set Definition Similarity to Inheritance
   #R[(S &lt;-&gt; {P}) S |- (S --&gt; {P}) :post (:t/identity :d/identity :allow-backward)]
   #R[(S &lt;-&gt; {P}) {P} |- (S --&gt; {P}) :post (:t/identity :d/identity :allow-backward)]
@@ -3795,11 +3795,11 @@ https://github.com/opennars/opennars/blob/7b27dacec4cdbe77ca03d89296323d49875ac2
   ; Immediate Inference
   ; If S can stand for P P can to a certain low degree also represent the class S
   ; If after S usually P happens then it might be a good guess that usually before P happens S happens.
-  #R[(P --&gt; S) (S --&gt; P) |- (P --&gt; S) :post (:t/conversion :p/judgment) :pre (:question?)]
-  #R[(P ==&gt; S) (S ==&gt; P) |- (P ==&gt; S) :post (:t/conversion :p/judgment) :pre (:question?)]
-  #R[(P =|&gt; S) (S =|&gt; P) |- (P =|&gt; S) :post (:t/conversion :p/judgment) :pre (:question?)]
-  #R[(P =\&gt; S) (S =/&gt; P) |- (P =\&gt; S) :post (:t/conversion :p/judgment) :pre (:question?)]
-  #R[(P =/&gt; S) (S =\&gt; P) |- (P =/&gt; S) :post (:t/conversion :p/judgment) :pre (:question?)]
+  #R[(P --&gt; S) (S --&gt; P) |- (P --&gt; S) :post (:t/conversion :p/belief) :pre (:question?)]
+  #R[(P ==&gt; S) (S ==&gt; P) |- (P ==&gt; S) :post (:t/conversion :p/belief) :pre (:question?)]
+  #R[(P =|&gt; S) (S =|&gt; P) |- (P =|&gt; S) :post (:t/conversion :p/belief) :pre (:question?)]
+  #R[(P =\&gt; S) (S =/&gt; P) |- (P =\&gt; S) :post (:t/conversion :p/belief) :pre (:question?)]
+  #R[(P =/&gt; S) (S =\&gt; P) |- (P =/&gt; S) :post (:t/conversion :p/belief) :pre (:question?)]
   ; &quot;If not smoking lets you be healthy being not healthy may be the result of smoking&quot;
   #R[(--S ==&gt; P) P |- (--P ==&gt; S) :post (:t/contraposition :allow-backward)]
   #R[(--S ==&gt; P) --S |- (--P ==&gt; S) :post (:t/contraposition :allow-backward)]
@@ -4066,7 +4066,7 @@ https://github.com/opennars/opennars/blob/7b27dacec4cdbe77ca03d89296323d49875ac2
   #R[(A --&gt; L) ((&amp;&amp; (A --&gt; S) :list/A) ==&gt; R) |- ((&amp;&amp; (#X --&gt; L) (#X --&gt; S) :list/A) ==&gt; R) :pre ((:substitute A #X)) :post (:t/induction)]
   ; dependent variable elimination
   ; Decomposition with elimination of a variable
-  #R[B (&amp;&amp; A :list/A) |- (&amp;&amp; :list/A) :pre (:judgement? (:substitute-if-unifies &quot;#&quot; A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
+  #R[B (&amp;&amp; A :list/A) |- (&amp;&amp; :list/A) :pre (:belief? (:substitute-if-unifies &quot;#&quot; A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
   ; conditional abduction by dependent variable
   #R[((A --&gt; R) ==&gt; Z) ((&amp;&amp; (#Y --&gt; B) (#Y --&gt; R) :list/A) ==&gt; Z) |- (A --&gt; B) :post (:t/abduction)]
   #R[((A --&gt; R) ==&gt; Z) ((&amp;&amp; (#Y --&gt; B) (#Y --&gt; R)) ==&gt; Z) |- (A --&gt; B) :post (:t/abduction)]
@@ -4110,34 +4110,34 @@ https://github.com/opennars/opennars/blob/7b27dacec4cdbe77ca03d89296323d49875ac2
      :pre (:question?)]
   ; and the backward inference driven forward inference:
   ; NAL2:
-  #R[([A] &lt;-&gt; [B]) (A &lt;-&gt; B) |- ([A] &lt;-&gt; [B]) :pre (:question?) :post (:t/belief-identity :p/judgment)]
-  #R[({A} &lt;-&gt; {B}) (A &lt;-&gt; B) |- ({A} &lt;-&gt; {B}) :pre (:question?) :post (:t/belief-identity :p/judgment)]
-  #R[([A] --&gt; [B]) (A &lt;-&gt; B) |- ([A] --&gt; [B]) :pre (:question?) :post (:t/belief-identity :p/judgment)]
-  #R[({A} --&gt; {B}) (A &lt;-&gt; B) |- ({A} --&gt; {B}) :pre (:question?) :post (:t/belief-identity :p/judgment)]
+  #R[([A] &lt;-&gt; [B]) (A &lt;-&gt; B) |- ([A] &lt;-&gt; [B]) :pre (:question?) :post (:t/belief-identity :p/belief)]
+  #R[({A} &lt;-&gt; {B}) (A &lt;-&gt; B) |- ({A} &lt;-&gt; {B}) :pre (:question?) :post (:t/belief-identity :p/belief)]
+  #R[([A] --&gt; [B]) (A &lt;-&gt; B) |- ([A] --&gt; [B]) :pre (:question?) :post (:t/belief-identity :p/belief)]
+  #R[({A} --&gt; {B}) (A &lt;-&gt; B) |- ({A} --&gt; {B}) :pre (:question?) :post (:t/belief-identity :p/belief)]
   ; NAL3:
   ; composition on both sides of a statement:
-  #R[((&amp; B :list/A) --&gt; (&amp; A :list/A)) (B --&gt; A) |- ((&amp; B :list/A) --&gt; (&amp; A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((| B :list/A) --&gt; (| A :list/A)) (B --&gt; A) |- ((| B :list/A) --&gt; (| A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((- S A) --&gt; (- S B)) (B --&gt; A) |- ((- S A) --&gt; (- S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((~ S A) --&gt; (~ S B)) (B --&gt; A) |- ((~ S A) --&gt; (~ S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
+  #R[((&amp; B :list/A) --&gt; (&amp; A :list/A)) (B --&gt; A) |- ((&amp; B :list/A) --&gt; (&amp; A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+  #R[((| B :list/A) --&gt; (| A :list/A)) (B --&gt; A) |- ((| B :list/A) --&gt; (| A :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+  #R[((- S A) --&gt; (- S B)) (B --&gt; A) |- ((- S A) --&gt; (- S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+  #R[((~ S A) --&gt; (~ S B)) (B --&gt; A) |- ((~ S A) --&gt; (~ S B)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
   ; composition on one side of a statement:
-  #R[(W --&gt; (| B :list/A)) (W --&gt; B) |- (W --&gt; (| B :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((&amp; B :list/A) --&gt; W) (B --&gt; W) |- ((&amp; B :list/A) --&gt; W) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[(W --&gt; (- S B)) (W --&gt; B) |- (W --&gt; (- S B)) :pre (:question?) :post (:t/belief-structural-difference :p/judgment)]
-  #R[((~ S B) --&gt; W) (B --&gt; W) |- ((~ S B) --&gt; W) :pre (:question?) :post (:t/belief-structural-difference :p/judgment)]
+  #R[(W --&gt; (| B :list/A)) (W --&gt; B) |- (W --&gt; (| B :list/A)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+  #R[((&amp; B :list/A) --&gt; W) (B --&gt; W) |- ((&amp; B :list/A) --&gt; W) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+  #R[(W --&gt; (- S B)) (W --&gt; B) |- (W --&gt; (- S B)) :pre (:question?) :post (:t/belief-structural-difference :p/belief)]
+  #R[((~ S B) --&gt; W) (B --&gt; W) |- ((~ S B) --&gt; W) :pre (:question?) :post (:t/belief-structural-difference :p/belief)]
   ; NAL4:
   ; composition on both sides of a statement:
-  #R[((* B P) --&gt; Z) (B --&gt; A) |- ((* B P) --&gt; (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((* P B) --&gt; Z) (B --&gt; A) |- ((* P B) --&gt; (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((* B P) &lt;-&gt; Z) (B &lt;-&gt; A) |- ((* B P) &lt;-&gt; (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((* P B) &lt;-&gt; Z) (B &lt;-&gt; A) |- ((* P B) &lt;-&gt; (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((\ N A _) --&gt; Z) (N --&gt; R) |- ((\ N A _) --&gt; (\ R A _)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
-  #R[((/ N _ B) --&gt; Z) (S --&gt; B) |- ((/ N _ B) --&gt; (/ N _ S)) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)]
+  #R[((* B P) --&gt; Z) (B --&gt; A) |- ((* B P) --&gt; (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+  #R[((* P B) --&gt; Z) (B --&gt; A) |- ((* P B) --&gt; (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+  #R[((* B P) &lt;-&gt; Z) (B &lt;-&gt; A) |- ((* B P) &lt;-&gt; (* A P)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+  #R[((* P B) &lt;-&gt; Z) (B &lt;-&gt; A) |- ((* P B) &lt;-&gt; (* P A)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+  #R[((\ N A _) --&gt; Z) (N --&gt; R) |- ((\ N A _) --&gt; (\ R A _)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
+  #R[((/ N _ B) --&gt; Z) (S --&gt; B) |- ((/ N _ B) --&gt; (/ N _ S)) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)]
   ; NAL5:
-  #R[--A    A |- --A  :pre (:question?) :post (:t/belief-negation :p/judgment)]
-  #R[A  --A |-   A  :pre (:question?) :post (:t/belief-negation :p/judgment)]
+  #R[--A    A |- --A  :pre (:question?) :post (:t/belief-negation :p/belief)]
+  #R[A  --A |-   A  :pre (:question?) :post (:t/belief-negation :p/belief)]
   ; compound composition one premise
-  #R[(|| B :list/A) B |- (|| B :list/A) :pre (:question?) :post (:t/belief-structural-deduction :p/judgment)])</pre></td></tr><tr><td class="docs">
+  #R[(|| B :list/A) B |- (|| B :list/A) :pre (:question?) :post (:t/belief-structural-deduction :p/belief)])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn freq [task-type]
   &quot;Check frequency&quot;
   (into {} (map (fn [[k v]] [(str k) (count (:rules v))]) (task-type rules))))</pre></td></tr><tr><td class="docs">
@@ -4434,25 +4434,25 @@ to produce derived tasks.</li></ol></li>
         (task-&gt;buffer (parse &quot;&lt;bird --&gt; swimmer&gt;?&quot;))
         do-cycle)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#narjure.defaults" name="narjure.defaults"><h1 class="project-name">narjure.defaults</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns narjure.defaults)</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def judgement-frequency 1.0)
-(def judgement-confidence 0.9)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def belief-frequency 1.0)
+(def belief-confidence 0.9)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def truth-value
-  [judgement-frequency judgement-confidence])</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def judgement-priority 0.5)
-(def judgement-durability 0.8)</pre></td></tr><tr><td class="docs"><p>todo clarify this</p>
-</td><td class="codes"><pre class="brush: clojure">(def judgement-quality 0.5)</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def judgement-budget
-  [judgement-priority judgement-durability judgement-quality])</pre></td></tr><tr><td class="docs">
+  [belief-frequency belief-confidence])</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def belief-priority 0.5)
+(def belief-durability 0.8)</pre></td></tr><tr><td class="docs"><p>todo clarify this</p>
+</td><td class="codes"><pre class="brush: clojure">(def belief-quality 0.5)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def belief-budget
+  [belief-priority belief-durability belief-quality])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def question-priority 0.5)
 (def question-durability 0.9)</pre></td></tr><tr><td class="docs"><p>todo clarify this</p>
 </td><td class="codes"><pre class="brush: clojure">(def question-quality 0.5)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def question-budget
-  [judgement-priority judgement-durability judgement-quality])</pre></td></tr><tr><td class="docs">
+  [belief-priority belief-durability belief-quality])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def goal-confidence 0.9)
 (def goal-priority 0.5)
 (def goal-durability 0.8)</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def budgets
-  {:judgement judgement-budget
+  {:belief belief-budget
    :question question-budget})</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^{:type double} horizon 1)</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#narjure.narsese" name="narjure.narsese"><h1 class="project-name">narjure.narsese</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns narjure.narsese
@@ -4493,7 +4493,7 @@ to produce derived tasks.</li></ol></li>
    &quot;&amp;|&quot; 'parallel-events})</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defn get-compound-term [[_ operator-srt]]
   (compound-terms operator-srt))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def actions {&quot;.&quot; :judgement
+</td><td class="codes"><pre class="brush: clojure">(def actions {&quot;.&quot; :belief
               &quot;?&quot; :question})</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(def ^:dynamic *action* (atom nil))
 (def ^:dynamic *lvars* (atom []))

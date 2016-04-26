@@ -14,7 +14,7 @@
        :pre
        (:question?)
        :post
-       (:t/belief-structural-deduction :p/judgment)]]
+       (:t/belief-structural-deduction :p/belief)]]
 
     :from/A
     [":from"
@@ -40,7 +40,7 @@
       :pre
       (:question?)
       :post
-      (:t/belief-structural-deduction :p/judgment)]
+      (:t/belief-structural-deduction :p/belief)]
 
     ['[(W --> (| B :list/A))
        (W --> B)
@@ -49,7 +49,7 @@
        :pre
        (:question?)
        :post
-       (:t/belief-structural-deduction :p/judgment)]
+       (:t/belief-structural-deduction :p/belief)]
      :list/A
      "A"
      4]
@@ -80,7 +80,7 @@
        :pre
        (:question?)
        :post
-       (:t/belief-structural-deduction :p/judgment)]
+       (:t/belief-structural-deduction :p/belief)]
        [(W --> (| B A1 A2))
         (W --> B)
         |-
@@ -88,7 +88,7 @@
         :pre
         (:question?)
         :post
-        (:t/belief-structural-deduction :p/judgment)]
+        (:t/belief-structural-deduction :p/belief)]
        [(W --> (| B A1 A2 A3))
         (W --> B)
         |-
@@ -96,7 +96,7 @@
         :pre
         (:question?)
         :post
-        (:t/belief-structural-deduction :p/judgment)]
+        (:t/belief-structural-deduction :p/belief)]
        [(W --> (| B A1 A2 A3 A4))
         (W --> B)
         |-
@@ -104,7 +104,7 @@
         :pre
         (:question?)
         :post
-        (:t/belief-structural-deduction :p/judgment)]
+        (:t/belief-structural-deduction :p/belief)]
        [(W --> (| B A1 A2 A3 A4 A5))
         (W --> B)
         |-
@@ -112,7 +112,7 @@
         :pre
         (:question?)
         :post
-        (:t/belief-structural-deduction :p/judgment)]
+        (:t/belief-structural-deduction :p/belief)]
        [(W --> (| B A1 A2 A3 A4 A5 A6))
         (W --> B)
         |-
@@ -120,7 +120,7 @@
         :pre
         (:question?)
         :post
-        (:t/belief-structural-deduction :p/judgment)]
+        (:t/belief-structural-deduction :p/belief)]
        [(W --> (| B A1 A2 A3 A4 A5 A6 A7))
         (W --> B)
         |-
@@ -128,7 +128,7 @@
         :pre
         (:question?)
         :post
-        (:t/belief-structural-deduction :p/judgment)])
+        (:t/belief-structural-deduction :p/belief)])
     '[(W --> (| B :list/A))
       (W --> B)
       |-
@@ -136,4 +136,4 @@
       :pre
       (:question?)
       :post
-      (:t/belief-structural-deduction :p/judgment)]))
+      (:t/belief-structural-deduction :p/belief)]))

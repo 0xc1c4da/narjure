@@ -94,11 +94,11 @@
 (defn difference [[^double f1 ^double c1] [^double f2 ^double c2]]
   [(t-and f1 (- 1 f2)) (t-and c1 c2)])
 
-(defn structual-intersection [_ p2] (deduction p2 [1 d/judgement-confidence]))
+(defn structual-intersection [_ p2] (deduction p2 [1 d/belief-confidence]))
 
-(defn structual-deduction [p1 _] (deduction p1 [1 d/judgement-confidence]))
+(defn structual-deduction [p1 _] (deduction p1 [1 d/belief-confidence]))
 
-(defn structual-abduction [p1 _] (abduction p1 [1 d/judgement-confidence]))
+(defn structual-abduction [p1 _] (abduction p1 [1 d/belief-confidence]))
 
 (defn reduce-conjunction [p1 p2]
   (-> (negation p1 p2)
@@ -113,11 +113,11 @@
 (defn belief-identity [p1 p2] (when p2 p1))
 
 (defn belief-structural-deduction [_ p2]
-  (when p2 (deduction p2 [1 d/judgement-confidence])))
+  (when p2 (deduction p2 [1 d/belief-confidence])))
 
 (defn belief-structural-difference [_ p2]
   (when p2
-    (let [[^double f ^double c] (deduction p2 [1 d/judgement-confidence])]
+    (let [[^double f ^double c] (deduction p2 [1 d/belief-confidence])]
       [(- 1 f) c])))
 
 (defn belief-negation [_ p2] (when p2 (negation p2 nil)))
@@ -131,7 +131,7 @@
 
 (defn desire-structural-strong
   [t _]
-  (analogy t [1.0 d/judgement-confidence]))
+  (analogy t [1.0 d/belief-confidence]))
 
 (def tvtypes
   {:t/structural-deduction         structual-abduction

@@ -31,8 +31,8 @@
 
     '[((int-set A) <-> (int-set B)) (A <-> B) |- ((int-set A) <-> (int-set B))
       :pre (:question?)
-      :post (:t/belief-identity :p/judgment)]
-    "([A] <-> [B]) (A <-> B) |- ([A] <-> [B]) :pre (:question?) :post (:t/belief-identity :p/judgment)"
+      :post (:t/belief-identity :p/belief)]
+    "([A] <-> [B]) (A <-> B) |- ([A] <-> [B]) :pre (:question?) :post (:t/belief-identity :p/belief)"
 
     '[(M retro-impl P) (M retro-impl S) |- ((M retro-impl (P &| S)) :post (:t/intersection)
                                              (M retro-impl (P || S)) :post (:t/union))

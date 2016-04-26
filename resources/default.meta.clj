@@ -15,11 +15,11 @@
 
     ; Similarity to Inheritance
 
-    (S --> P) (S <-> P) |- (S --> P) :pre [:question?] :post [:t/structural-intersection :p/judgment]
+    (S --> P) (S <-> P) |- (S --> P) :pre [:question?] :post [:t/structural-intersection :p/belief]
 
     ; Inheritance to Similarity
 
-    (S <-> P) (S --> P) |- (S <-> P) :pre [:question?] :post [:t/structural-abduction :p/judgment]
+    (S <-> P) (S --> P) |- (S <-> P) :pre [:question?] :post [:t/structural-abduction :p/belief]
 
     ; Set Definition Similarity to Inheritance
 
@@ -56,12 +56,12 @@
     ; If S can stand for P P can to a certain low degree also represent the class S
     ; If after S usually P happens then it might be a good guess that usually before P happens S happens.
 
-    (P --> S) (S --> P) |- (P --> S) :pre [:question?] :post [:t/conversion :p/judgment]
-    (P --> S) (S --> P) |- (P --> S) :pre [:question?] :post [:t/conversion :p/judgment]
-    (P ==> S) (S ==> P) |- (P ==> S) :pre [:question?] :post [:t/conversion :p/judgment]
-    (P =|> S) (S =|> P) |- (P =|> S) :pre [:question?] :post [:t/conversion :p/judgment]
-    (P =\> S) (S =/> P) |- (P =\> S) :pre [:question?] :post [:t/conversion :p/judgment]
-    (P =/> S) (S =\> P) |- (P =/> S) :pre [:question?] :post [:t/conversion :p/judgment]
+    (P --> S) (S --> P) |- (P --> S) :pre [:question?] :post [:t/conversion :p/belief]
+    (P --> S) (S --> P) |- (P --> S) :pre [:question?] :post [:t/conversion :p/belief]
+    (P ==> S) (S ==> P) |- (P ==> S) :pre [:question?] :post [:t/conversion :p/belief]
+    (P =|> S) (S =|> P) |- (P =|> S) :pre [:question?] :post [:t/conversion :p/belief]
+    (P =\> S) (S =/> P) |- (P =\> S) :pre [:question?] :post [:t/conversion :p/belief]
+    (P =/> S) (S =\> P) |- (P =/> S) :pre [:question?] :post [:t/conversion :p/belief]
 
     ; "If not smoking lets you be healthy being not healthy may be the result of smoking"
 
@@ -483,46 +483,46 @@
 
     ; NAL2:
 
-    ([A] <-> [B]) (A <-> B) |- ([A] <-> [B]) :pre [:question?] :post [:t/belief-identity :p/judgment]
-    ({A} <-> {B}) (A <-> B) |- ({A} <-> {B}) :pre [:question?] :post [:t/belief-identity :p/judgment]
+    ([A] <-> [B]) (A <-> B) |- ([A] <-> [B]) :pre [:question?] :post [:t/belief-identity :p/belief]
+    ({A} <-> {B}) (A <-> B) |- ({A} <-> {B}) :pre [:question?] :post [:t/belief-identity :p/belief]
 
-    ([A] --> [B]) (A <-> B) |- ([A] --> [B]) :pre [:question?] :post [:t/belief-identity :p/judgment]
-    ({A} --> {B}) (A <-> B) |- ({A} --> {B}) :pre [:question?] :post [:t/belief-identity :p/judgment]
+    ([A] --> [B]) (A <-> B) |- ([A] --> [B]) :pre [:question?] :post [:t/belief-identity :p/belief]
+    ({A} --> {B}) (A <-> B) |- ({A} --> {B}) :pre [:question?] :post [:t/belief-identity :p/belief]
 
     ; NAL3:
 
     ; composition on both sides of a statement:
 
-    ((& B :list/A) --> (& A :list/A)) (B --> A) |- ((& B :list/A) --> (& A :list/A)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
-    ((| B :list/A) --> (| A :list/A)) (B --> A) |- ((| B :list/A) --> (| A :list/A)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
+    ((& B :list/A) --> (& A :list/A)) (B --> A) |- ((& B :list/A) --> (& A :list/A)) :pre [:question?] :post [:t/belief-structural-deduction :p/belief]
+    ((| B :list/A) --> (| A :list/A)) (B --> A) |- ((| B :list/A) --> (| A :list/A)) :pre [:question?] :post [:t/belief-structural-deduction :p/belief]
 
-    ((- S A) --> (- S B)) (B --> A) |- ((- S A) --> (- S B)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
-    ((~ S A) --> (~ S B)) (B --> A) |- ((~ S A) --> (~ S B)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
+    ((- S A) --> (- S B)) (B --> A) |- ((- S A) --> (- S B)) :pre [:question?] :post [:t/belief-structural-deduction :p/belief]
+    ((~ S A) --> (~ S B)) (B --> A) |- ((~ S A) --> (~ S B)) :pre [:question?] :post [:t/belief-structural-deduction :p/belief]
 
     ; composition on one side of a statement:
 
-    (W --> (| B :list/A)) (W --> B) |- (W --> (| B :list/A)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
-    ((& B :list/A) --> W) (B --> W) |- ((& B :list/A) --> W) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
+    (W --> (| B :list/A)) (W --> B) |- (W --> (| B :list/A)) :pre [:question?] :post [:t/belief-structural-deduction :p/belief]
+    ((& B :list/A) --> W) (B --> W) |- ((& B :list/A) --> W) :pre [:question?] :post [:t/belief-structural-deduction :p/belief]
 
-    (W --> (- S B)) (W --> B) |- (W --> (- S B)) :pre [:question?] :post [:t/beliefStructuralDifference :p/judgment]
-    ((~ S B) --> W) (B --> W) |- ((~ S B) --> W) :pre [:question?] :post [:t/beliefStructuralDifference :p/judgment]
+    (W --> (- S B)) (W --> B) |- (W --> (- S B)) :pre [:question?] :post [:t/beliefStructuralDifference :p/belief]
+    ((~ S B) --> W) (B --> W) |- ((~ S B) --> W) :pre [:question?] :post [:t/beliefStructuralDifference :p/belief]
 
     ; NAL4:
 
     ; composition on both sides of a statement:
 
-    ((B P) --> Z) (B --> A) |- ((B P) --> (A P)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
-    ((P B) --> Z) (B --> A) |- ((P B) --> (P A)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
-    ((B P) <-> Z) (B <-> A) |- ((B P) <-> (A P)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
-    ((P B) <-> Z) (B <-> A) |- ((P B) <-> (P A)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
-    ((\ N A _) --> Z) (N --> R) |- ((\ N A _) --> (\ R A _)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
-    ((/ N _ B) --> Z) (S --> B) |- ((/ N _ B) --> (/ N _ S)) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
+    ((B P) --> Z) (B --> A) |- ((B P) --> (A P)) :pre [:question?] :post [:t/belief-structural-deduction :p/belief]
+    ((P B) --> Z) (B --> A) |- ((P B) --> (P A)) :pre [:question?] :post [:t/belief-structural-deduction :p/belief]
+    ((B P) <-> Z) (B <-> A) |- ((B P) <-> (A P)) :pre [:question?] :post [:t/belief-structural-deduction :p/belief]
+    ((P B) <-> Z) (B <-> A) |- ((P B) <-> (P A)) :pre [:question?] :post [:t/belief-structural-deduction :p/belief]
+    ((\ N A _) --> Z) (N --> R) |- ((\ N A _) --> (\ R A _)) :pre [:question?] :post [:t/belief-structural-deduction :p/belief]
+    ((/ N _ B) --> Z) (S --> B) |- ((/ N _ B) --> (/ N _ S)) :pre [:question?] :post [:t/belief-structural-deduction :p/belief]
 
     ; NAL5:
 
-  --A    A |- --A  :pre [:question?] :post [:t/belief-negation :p/judgment]
-    A  --A |-   A  :pre [:question?] :post [:t/belief-negation :p/judgment]
+  --A    A |- --A  :pre [:question?] :post [:t/belief-negation :p/belief]
+    A  --A |-   A  :pre [:question?] :post [:t/belief-negation :p/belief]
 
     ; compound composition one premise
 
-    (|| B :list/A) B |- (|| B :list/A) :pre [:question?] :post [:t/belief-structural-deduction :p/judgment]
+    (|| B :list/A) B |- (|| B :list/A) :pre [:question?] :post [:t/belief-structural-deduction :p/belief]
