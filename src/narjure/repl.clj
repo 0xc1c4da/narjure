@@ -6,8 +6,7 @@
             [clojure.core.logic :as l]
             [clojure.string :refer [trim]]
             [clojure.pprint :as p]
-            [clojure.tools.nrepl.middleware :refer [set-descriptor!]]
-            [narjure.cycle :as cycle]))
+            [clojure.tools.nrepl.middleware :refer [set-descriptor!]]))
 
 (defonce narsese-repl-mode (atom false))
 
@@ -19,13 +18,13 @@
   (reset! narsese-repl-mode false)
   (println "Narsese repl was stopped."))
 
-(defonce db (atom (cycle/default-memory)))
+(defonce db (atom {}))
 
-(defn clear-db! [] (reset! db (cycle/default-memory)))
+(defn clear-db! [] (reset! db {}))
 
 (defn collect!
   [{:keys [statement truth] :as task}]
-  (swap! db cycle/task->buffer task)
+  #_(swap! db cycle/task->buffer task)
   [statement truth])
 
 (defn- parse-int [s]
@@ -35,8 +34,8 @@
   (str "(narjure.repl/handle-narsese \"" code "\")"))
 
 (defn run [n]
-  (swap! db cycle/do-cycles n)
-  (cycle/print-results! @db)
+  #_(swap! db cycle/do-cycles n)
+  #_(cycle/print-results! @db)
   (swap! db dissoc :forward-inf-results :local-inf-results :answers)
   nil)
 
