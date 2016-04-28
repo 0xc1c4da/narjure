@@ -33,15 +33,18 @@
   "process each :concept-state-msg by serialising the state to backing store.
    where state specifies the path of the backing store. The number of received
    states is tracked. The file is overwritten."
-  [from [_ concept-state]]
-  (let [c-state (dissoc concept-state :active-concept-collator :general-inferencer :forgettable-concept-collator)]
-    (if (zero? (:received-states @state))
-      (spit (:path @state) c-state)
-      (spit (:path @state) c-state :append true))
-    )
-  (set-state! (update @state :received-states inc))
-  (when (= (:received-states @state) (:concept-count @state))
-    (info aname "Persisting concept state to disk complete")))
+  [from [_ concept-state] state]
+  (let [c-state (dissoc concept-state
+                        :active-concept-collator
+                        :general-inferencer
+                        :forgettable-concept-collator)
+        {:keys [path received-states concept-count]} state]
+    (if (zero? (:received-states state))
+      (spit path c-state)
+      (spit path c-state :append true))
+    (set-state! (update state :received-states inc))
+    (when (= (:received-states state) concept-count)
+      (info aname "Persisting concept state to disk complete"))))
 
 (defn restore-concept-state-handler
   "read concept state from passed path, create concept for each 'record'
@@ -74,7 +77,7 @@
   (case type
     :persist-concept-state-msg (persist-concept-state-handler from message)
     :restore-concept-state-msg (restore-concept-state-handler from message)
-    :concept-state-msg (concept-state-handler from message)
+    :concept-state-msg (concept-state-handler from message @state)
     :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
