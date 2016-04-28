@@ -13,6 +13,7 @@
                  [org.immutant/immutant "2.1.2"]
                  [avl.clj "0.0.9"]
                  [clj-time "0.11.0"]
+                 [environ "1.0.2"]
                  [com.taoensso/timbre "4.3.1"]]
   :java-agents [[co.paralleluniverse/quasar-core "0.7.4"]]
   :main ^:skip-aot narjure.core
@@ -23,3 +24,5 @@
                  :nrepl-middleware [narjure.repl/narsese-handler]}
   :profiles {:uberjar {:aot :all}}
   :jvm-opts ["-Dco.paralleluniverse.fibers.detectRunawayFibers=false -Dco.paralleluniverse.fibers.verifyInstrumentation"])
+
+

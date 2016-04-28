@@ -5,6 +5,7 @@
     [narjure.memory-management.task-dispatcher :refer [c-map]]
     [narjure.memory-management.concept-creator :refer [create-concept]]
     [narjure.actor.utils :refer [read-seq-from-file]]
+    [environ.core :refer [env]]
     [taoensso.timbre :refer [debug info]])
   (:refer-clojure :exclude [promise await]))
 
@@ -18,13 +19,23 @@
     (cast! concept-ref [:concept-state-request-msg]))
   #_(debug aname "process-persist-concept-state-msg"))
 
+
+{:name :name
+ :budget [0.0 0.0]
+ :satisfaction [0.0 0.0]
+ :tasks {}
+ :termlinks {}
+ :active-concept-collator (whereis :active-concept-collator)
+ :general-inferencer (whereis :general-inferencer)
+ :forgettable-concept-collator (whereis :forgettable-concept-collator)}
+
 (defn concept-state-handler
   "process each :concept-state-msg by serialising the state to backing store.
    where state specifies the path of the backing store. The number of received
    states is tracked. The file is overwritten."
   [from [_ concept-state]]
   (let [c-state (dissoc concept-state :active-concept-collator :general-inferencer :forgettable-concept-collator)]
-    (if (= (:received-states @state) 0)
+    (if (zero? (:received-states @state))
       (spit (:path @state) c-state)
       (spit (:path @state) c-state :append true))
     )
@@ -54,7 +65,7 @@
   "Initialises actor: registers actor and sets actor state"
   [aname actor-ref]
   (register! aname actor-ref)
-  (set-state! {:path "d:/persistence/snapshot.nar" :concept-count 0 :received-states 0}))
+  (set-state! {:path (env :persistence-path) :concept-count 0 :received-states 0}))
 
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
