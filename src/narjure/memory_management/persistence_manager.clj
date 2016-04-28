@@ -19,16 +19,6 @@
     (cast! concept-ref [:concept-state-request-msg]))
   #_(debug aname "process-persist-concept-state-msg"))
 
-
-{:name :name
- :budget [0.0 0.0]
- :satisfaction [0.0 0.0]
- :tasks {}
- :termlinks {}
- :active-concept-collator (whereis :active-concept-collator)
- :general-inferencer (whereis :general-inferencer)
- :forgettable-concept-collator (whereis :forgettable-concept-collator)}
-
 (defn concept-state-handler
   "process each :concept-state-msg by serialising the state to backing store.
    where state specifies the path of the backing store. The number of received
