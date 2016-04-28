@@ -38,7 +38,7 @@
                         :active-concept-collator
                         :general-inferencer
                         :forgettable-concept-collator)
-        {:keys [path received-states concept-count]} state]
+        {:keys [path concept-count]} state]
     (if (zero? (:received-states state))
       (spit path c-state)
       (spit path c-state :append true))
