@@ -21,10 +21,13 @@
 (def truth-tolerance 0.005)
 
 (defn truth-equal?
-  [f s1 s2]
-  (< (Math/abs (- (f (:truth s1))
-                  (f (:truth s2))))
-     truth-tolerance))
+  ([s1 s2]
+   (and (truth-equal? first s1 s2)
+        (truth-equal? last s1 s2)))
+  ([f s1 s2]
+   (< (Math/abs (- (f (:truth s1))
+                   (f (:truth s2))))
+      truth-tolerance)))
 
 (defn derived                                               ;must derive single step (no tick parameter), no control dependency
   "Checks whether a certain expected conclusion is derived"
@@ -34,8 +37,7 @@
                      (some #(and (= (:statement %) (:statement parsed-c))
                                  (or (= (:action parsed-p1) :question)
                                      (= (:action parsed-p1) :quest)
-                                     (and (truth-equal? first % parsed-c)
-                                          (truth-equal? last % parsed-c))))
+                                     (truth-equal? % parsed-c)))
                            (conclusions p1 p2)))) clist)))
 
 ;NAL1 testcases:
