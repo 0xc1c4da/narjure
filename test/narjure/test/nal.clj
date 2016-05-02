@@ -18,14 +18,22 @@
             (assoc parsed-p1 :occurrence occurrence)
             (assoc parsed-p2 :occurrence occurrence))))))
 
+(def truth-tolerance 0.005)
+
+(defn truth-equal?
+  [f s1 s2]
+  (< (Math/abs (- (f (:truth s1))
+                  (f (:truth s2))))
+     truth-tolerance))
+
 (defn derived                                               ;must derive single step (no tick parameter), no control dependency
   "Checks whether a certain expected conclusion is derived"
   [p1 p2 clist]
   (every? (fn [c] (let [parsed-c (parse c)]
                     (some #(and (= (:statement %) (:statement parsed-c))
-                                (= (:truth %) (:truth parsed-c)))
-                          (conclusions p1 p2))))
-          clist))
+                                (truth-equal? first % parsed-c)
+                                (truth-equal? last % parsed-c))
+                          (conclusions p1 p2)))) clist))
 
 ;NAL1 testcases:
 
@@ -35,11 +43,17 @@
                ["<shark --> animal>. %1.00;0.81%"])))
 
 
-;(deftest nal1-abduction
-;  (is (derived "<sport --> competition>."
-;               "<chess --> competition>. %0.90;0.90%"
-;               ["<sport --> chess>. %1.00;0.42%"
-;                "<chess --> sport>. %0.90;0.45%"])))
+(deftest nal1-abduction
+  (is (derived "<sport --> competition>."
+               "<chess --> competition>. %0.90;0.90%"
+               ["<sport --> chess>. %1.00;0.42%"
+                "<chess --> sport>. %0.90;0.45%"])))
+
+(deftest nal1-induction
+  (is (derived "<swan --> swimmer>. %0.90;0.90%"
+               "<swan --> bird>."
+               ["<bird --> swimmer>. %0.90;0.45%"
+                "<swimmer --> bird>. %1.00;0.42%"])))
 
 ;NAL2 testcases:
 
