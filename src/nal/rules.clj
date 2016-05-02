@@ -249,14 +249,14 @@ So these rules are for bringing NAL-statements into a different, implied and mor
             :pre ((:substitute-from-list Ai _) (:contains? (:list/A) Ai))
             :post (:t/identity :d/identity)]
          #R[(M --> (* :list/A)) Ai |- ((\ M :list/A) --> Ai)
-:pre ((:substitute-from-list Ai _) (:contains? (:list/A) Ai))
-:post (:t/identity :d/identity)]
-#R[(Ai --> (/ M :list/A )) M |- ((* :list/A) --> M)
-   :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
-   :post (:t/identity :d/identity)]
-#R[((\ M :list/A) --> Ai) M |- (M --> (:list/A))
-:pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
-:post (:t/identity :d/identity)]
+            :pre ((:substitute-from-list Ai _) (:contains? (:list/A) Ai))
+            :post (:t/identity :d/identity)]
+            #R[(Ai --> (/ M :list/A )) M |- ((* :list/A) --> M)
+               :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
+               :post (:t/identity :d/identity)]
+            #R[((\ M :list/A) --> Ai) M |- (M --> (:list/A))
+            :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
+            :post (:t/identity :d/identity)]
 )
 
 (defrules nal5-implication-based-syllogisms
@@ -294,19 +294,19 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          ; Same as for inheritance again
          #R[(P ==> M) (S ==> M) |- (S <=> P) :pre ((:!= S P)) :post (:t/comparison :allow-backward)]
          #R[(P =/> M) (S =/> M) |- ((S <|> P) :post (:t/comparison :allow-backward)
-                                     (S </> P) :post (:t/comparison :allow-backward)
-                                     (P </> S) :post (:t/comparison :allow-backward))
+                                    (S </> P) :post (:t/comparison :allow-backward)
+                                    (P </> S) :post (:t/comparison :allow-backward))
             :pre ((:!= S P))]
          #R[(P =|> M) (S =|> M) |- (S <|> P) :pre ((:!= S P)) :post (:t/comparison :allow-backward)]
          #R[(P =\> M) (S =\> M) |- ((S <|> P) :post (:t/comparison :allow-backward)
-                                     (S </> P) :post (:t/comparison :allow-backward)
-                                     (P </> S) :post (:t/comparison :allow-backward))
+                                    (S </> P) :post (:t/comparison :allow-backward)
+                                    (P </> S) :post (:t/comparison :allow-backward))
             :pre ((:!= S P))]
 
          #R[(M ==> P) (M ==> S) |- (S <=> P) :pre ((:!= S P)) :post (:t/comparison :allow-backward)]
          #R[(M =/> P) (M =/> S) |- ((S <|> P) :post (:t/comparison :allow-backward)
-                                     (S </> P) :post (:t/comparison :allow-backward)
-                                     (P </> S) :post (:t/comparison :allow-backward))
+                                    (S </> P) :post (:t/comparison :allow-backward)
+                                    (P </> S) :post (:t/comparison :allow-backward))
             :pre ((:!= S P))]
          #R[(M =|> P) (M =|> S) |- (S <|> P) :pre ((:!= S P)) :post (:t/comparison :allow-backward)]
 
@@ -339,34 +339,34 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          ; implication-based composition
          ; Same as for inheritance again
          #R[(P ==> M) (S ==> M) |- (((P || S) ==> M) :post (:t/intersection)
-                                     ((P && S) ==> M) :post (:t/union))
+                                    ((P && S) ==> M) :post (:t/union))
             :pre ((:!= S P))]
          #R[(P =|> M) (S =|> M) |- (((P || S) =|> M) :post (:t/intersection)
-                                     ((P &| S) =|> M) :post (:t/union))
+                                    ((P &| S) =|> M) :post (:t/union))
             :pre ((:!= S P))]
          #R[(P =/> M) (S =/> M) |- (((P || S) =/> M) :post (:t/intersection)
-                                     ((P &| S) =/> M) :post (:t/union))
+                                    ((P &| S) =/> M) :post (:t/union))
             :pre ((:!= S P)) ]
          #R[(P =\> M) (S =\> M) |- (((P || S) =\> M) :post (:t/intersection)
-                                     ((P &| S) =\> M) :post (:t/union))
+                                    ((P &| S) =\> M) :post (:t/union))
             :pre ((:!= S P))]
 
          #R[(M ==> P) (M ==> S) |- ((M ==> (P && S)) :post (:t/intersection)
-                                     (M ==> (P || S)) :post (:t/union))
+                                    (M ==> (P || S)) :post (:t/union))
             :pre ((:!= S P))]
          #R[(M =/> P) (M =/> S) |- ((M =/> (P &| S)) :post (:t/intersection)
-                                     (M =/> (P || S)) :post (:t/union))
+                                    (M =/> (P || S)) :post (:t/union))
             :pre ((:!= S P))]
          #R[(M =|> P) (M =|> S) |- ((M =|> (P &| S)) :post (:t/intersection)
-                                     (M =|> (P || S)) :post (:t/union))
+                                    (M =|> (P || S)) :post (:t/union))
             :pre ((:!= S P))]
          #R[(M =\> P) (M =\> S) |- ((M =\> (P &| S)) :post (:t/intersection)
-                                     (M =\> (P || S)) :post (:t/union))
+                                    (M =\> (P || S)) :post (:t/union))
             :pre ((:!= S P))]
 
          #R[(D =/> R) (D =\> K) |- ((K =/> R) :post (:t/abduction)
-                                     (R =\> K) :post (:t/induction)
-                                     (K </> R) :post (:t/comparison))
+                                    (R =\> K) :post (:t/induction)
+                                    (K </> R) :post (:t/comparison))
             :pre ((:!= R K))]
          )
 
@@ -432,9 +432,9 @@ So these rules are for bringing NAL-statements into a different, implied and mor
 
          ; precondition combiner inference rule (variable_unification6):
          #R[((&& C :list/A) ==> Z) ((&& C :list/B) ==> Z) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/induction)
-                                                               ((&& :list/B) ==> (&& :list/A)) :post (:t/induction))]
+                                                              ((&& :list/B) ==> (&& :list/A)) :post (:t/induction))]
          #R[(Z ==> (&& C :list/A)) (Z ==> (&& C :list/B)) |- (((&& :list/A) ==> (&& :list/B)) :post (:t/abduction)
-                                                               ((&& :list/B) ==> (&& :list/A)) :post (:t/abduction))]
+                                                              ((&& :list/B) ==> (&& :list/A)) :post (:t/abduction))]
          )
 
 (defrules nal6-variable-introduction
@@ -452,39 +452,39 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          ; variable introduction
          ; Introduce variables by common subject or predicate
          #R[(S --> M) (P --> M) |- (((P --> $X) ==> (S --> $X)) :post (:t/abduction)
-                                     ((S --> $X) ==> (P --> $X)) :post (:t/induction)
-                                     ((P --> $X) <=> (S --> $X)) :post (:t/comparison)
-                                     (&& (S --> #Y) (P --> #Y)) :post (:t/intersection))
+                                    ((S --> $X) ==> (P --> $X)) :post (:t/induction)
+                                    ((P --> $X) <=> (S --> $X)) :post (:t/comparison)
+                                    (&& (S --> #Y) (P --> #Y)) :post (:t/intersection))
                                          :pre ((:!= S P))]
 
          #R[(S --> M) (P --> M) |- (((&/ (P --> $X) I) =/> (S --> $X)) :post (:t/induction :linkage-temporal)
-                                     ((S --> $X) =\> (&/ (P --> $X) I)) :post (:t/abduction :linkage-temporal)
-                                     ((&/ (P --> $X) I) </> (S --> $X)) :post (:t/comparison :linkage-temporal)
-                                     (&/ (P --> #Y) I (S --> #Y)) :post (:t/intersection :linkage-temporal))
+                                    ((S --> $X) =\> (&/ (P --> $X) I)) :post (:t/abduction :linkage-temporal)
+                                    ((&/ (P --> $X) I) </> (S --> $X)) :post (:t/comparison :linkage-temporal)
+                                    (&/ (P --> #Y) I (S --> #Y)) :post (:t/intersection :linkage-temporal))
                                        :pre ((:!= S P) (:measure-time I))]
 
          #R[(S --> M) (P --> M) |- (((P --> $X) =|> (S --> $X)) :post (:t/abduction :linkage-temporal)
-                                     ((S --> $X) =|> (P --> $X)) :post (:t/induction :linkage-temporal)
-                                     ((P --> $X) <|> (S --> $X)) :post (:t/comparison :linkage-temporal)
-                                     (&| (P --> #Y) (S --> #Y)) :post (:t/intersection :linkage-temporal))
+                                    ((S --> $X) =|> (P --> $X)) :post (:t/induction :linkage-temporal)
+                                    ((P --> $X) <|> (S --> $X)) :post (:t/comparison :linkage-temporal)
+                                    (&| (P --> #Y) (S --> #Y)) :post (:t/intersection :linkage-temporal))
                                          :pre ((:!= S P) (:concurrent Task Belief))]
 
          #R[(M --> S) (M --> P) |- ((($X --> S) ==> ($X --> P)) :post (:t/induction)
-                                     (($X --> P) ==> ($X --> S)) :post (:t/abduction)
-                                     (($X --> S) <=> ($X --> P)) :post (:t/comparison)
-                                     (&& (#Y --> S) (#Y --> P)) :post (:t/intersection))
+                                    (($X --> P) ==> ($X --> S)) :post (:t/abduction)
+                                    (($X --> S) <=> ($X --> P)) :post (:t/comparison)
+                                    (&& (#Y --> S) (#Y --> P)) :post (:t/intersection))
             :pre ((:!= S P)) ]
 
          #R[(M --> S) (M --> P) |- (((&/ ($X --> P) I) =/> ($X --> S))  :post (:t/induction :linkage-temporal)
-                                     (($X --> S) =\> (&/ ($X --> P) I)) :post (:t/abduction :linkage-temporal)
-                                     ((&/ ($X --> P) I) </> ($X --> S)) :post (:t/comparison :linkage-temporal)
-                                     (&/ (#Y --> P) I (#Y --> S)) :post (:t/intersection :linkage-temporal))
+                                    (($X --> S) =\> (&/ ($X --> P) I)) :post (:t/abduction :linkage-temporal)
+                                    ((&/ ($X --> P) I) </> ($X --> S)) :post (:t/comparison :linkage-temporal)
+                                    (&/ (#Y --> P) I (#Y --> S)) :post (:t/intersection :linkage-temporal))
             :pre ((:!= S P) (:measure-time I))]
 
          #R[(M --> S) (M --> P) |- ((($X --> S) =|> ($X --> P)) :post (:t/induction :linkage-temporal)
-                                     (($X --> P) =|> ($X --> S)) :post (:t/abduction :linkage-temporal)
-                                     (($X --> S) <|> ($X --> P)) :post (:t/comparison :linkage-temporal)
-                                     (&| (#Y --> S) (#Y --> P)) :post (:t/intersection :linkage-temporal))
+                                    (($X --> P) =|> ($X --> S)) :post (:t/abduction :linkage-temporal)
+                                    (($X --> S) <|> ($X --> P)) :post (:t/comparison :linkage-temporal)
+                                    (&| (#Y --> S) (#Y --> P)) :post (:t/intersection :linkage-temporal))
             :pre ((:!= S P) (:concurrent (M --> P) (M --> S)))]
 
          )
@@ -522,7 +522,7 @@ So these rules are for bringing NAL-statements into a different, implied and mor
             :pre ((:!= S P))]
 
          #R[(A ==> (P --> M)) (S --> M) |- (((&& A (P --> $X)) ==> (S --> $X)) :post (:t/abduction)
-                                             (&& (A ==> (P --> #Y)) (S --> #Y)) :post (:t/intersection)) ]
+                                             (&& (A ==> (P --> #Y)) (S --> #Y)) :post (:t/intersection))]
 
          #R[(&& (P --> M) :list/A) (S --> M) |- (((S --> $Y) ==> (&& (P --> $Y) :list/A))  :post (:t/abduction)
                                                   (&&  (S --> #Y) (P --> #Y) :list/A) :post (:t/intersection))
@@ -603,8 +603,8 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          would not be captured by this principle."
          ; here now are the backward inference rules which should really only work on backward inference:
          #R[(A --> S) (B --> S) |- ((A --> B) :post (:p/question)
-                                     (B --> A) :post (:p/question)
-                                     (A <-> B) :post (:p/question))
+                                    (B --> A) :post (:p/question)
+                                    (A <-> B) :post (:p/question))
             :pre (:question?)]
          )
 

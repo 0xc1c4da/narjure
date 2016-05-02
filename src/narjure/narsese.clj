@@ -45,6 +45,7 @@
 
 (def actions {"." :belief
               "?" :question
+              "@" :quest
               "!" :goal})
 
 (def ^:dynamic *action* (atom nil))

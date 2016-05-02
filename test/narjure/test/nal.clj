@@ -29,31 +29,50 @@
 (defn derived                                               ;must derive single step (no tick parameter), no control dependency
   "Checks whether a certain expected conclusion is derived"
   [p1 p2 clist]
-  (every? (fn [c] (let [parsed-c (parse c)]
-                    (some #(and (= (:statement %) (:statement parsed-c))
-                                (truth-equal? first % parsed-c)
-                                (truth-equal? last % parsed-c))
-                          (conclusions p1 p2)))) clist))
+  (let [parsed-p1 (parse p1)]
+    (every? (fn [c] (let [parsed-c (parse c)]
+                     (some #(and (= (:statement %) (:statement parsed-c))
+                                 (or (= (:action parsed-p1) :question)
+                                     (= (:action parsed-p1) :quest)
+                                     (and (truth-equal? first % parsed-c)
+                                          (truth-equal? last % parsed-c))))
+                           (conclusions p1 p2)))) clist)))
 
 ;NAL1 testcases:
 
-(deftest nal1-deduction
+(deftest nal1-inheritance-related-syllogisms-deduction
   (is (derived "<shark --> fish>."
                "<fish --> animal>."
                ["<shark --> animal>. %1.00;0.81%"])))
 
 
-(deftest nal1-abduction
+(deftest nal1-inheritance-related-syllogisms-abduction
   (is (derived "<sport --> competition>."
                "<chess --> competition>. %0.90;0.90%"
                ["<sport --> chess>. %1.00;0.42%"
                 "<chess --> sport>. %0.90;0.45%"])))
 
-(deftest nal1-induction
+(deftest nal1-inheritance-related-syllogisms-induction
   (is (derived "<swan --> swimmer>. %0.90;0.90%"
                "<swan --> bird>."
                ["<bird --> swimmer>. %0.90;0.45%"
                 "<swimmer --> bird>. %1.00;0.42%"])))
+
+(deftest nal1-inheritance-related-syllogisms-exemplification
+  (is (derived "<robin --> bird>. %0.90;0.90%"
+               "<bird --> animal>."
+               ["<animal --> robin>. %1.00;0.42%"])))
+
+(deftest nal1-inheritance-related-syllogisms-conversion
+  (is (derived "<swimmer --> bird>?"
+               "<bird --> swimmer>."
+               ["<swimmer --> bird>. %1.00;0.47%"])))
+
+(deftest nal1-backward
+  (is (derived "<?1 --> swimmer>?"
+               "<bird --> swimmer>."
+               ["<?1 --> bird>?",
+                "<bird --> ?1>?"])))
 
 ;NAL2 testcases:
 
