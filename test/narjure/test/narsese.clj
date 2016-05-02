@@ -7,23 +7,23 @@
 (defn get-truth [s] (:truth (parse s)))
 
 (deftest test-parser
-  (is (= '[[conjunction [inheritance tim fish] [inheritance tom fish]]]
+  (is (= '[[conjunction [--> tim fish] [--> tom fish]]]
          (narsese->clj "(&&, <tim --> fish>, <tom --> fish>).")))
-  (is (= '[[conjunction [inheritance tim fish] [inheritance tom fish]]]
+  (is (= '[[conjunction [--> tim fish] [--> tom fish]]]
          (narsese->clj "(<tim --> fish> && <tom --> fish>).")))
-  (is (= '[[conjunction [inheritance tim fish] [inheritance tom fish]]]
+  (is (= '[[conjunction [--> tim fish] [--> tom fish]]]
          (narsese->clj "((tim --> fish) && (tom --> fish)).")))
-  (is (= '[inheritance bird swimmer]
+  (is (= '[--> bird swimmer]
          (narsese->clj "<bird --> swimmer>.")))
   (is (= [1.0 0.9] (get-truth "<bird --> swimmer>. %1;0.9%")))
   (is (= '[[negation bird]] (narsese->clj "--bird.")))
   (is (= '[[negation bird]] (narsese->clj "(--,bird).")))
   (is (= '[[int-image bird animal]] (narsese->clj "(\\,bird,animal).")))
-  (is (= '[[conjunction [inheritance d_1 [int-set red]] [inheritance d_1 apple]]]
+  (is (= '[[conjunction [--> d_1 [int-set red]] [--> d_1 apple]]]
          (narsese->clj "(&&,<#1 --> [red]>,<#1 --> apple>).")))
   (is (= '[retrospective-implication
-           [inheritance [product x room_101] enter]
-           [inheritance [product x door_101] open]]
+           [--> [product x room_101] enter]
+           [--> [product x door_101] open]]
          (narsese->clj "<<( $x, room_101) --> enter> =\\> <( $x, door_101) --> open>>. %0.9;0.1%"))))
 
 (deftest test-numbers-validation

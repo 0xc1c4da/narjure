@@ -10,7 +10,7 @@
   (i/parser (io/resource bnf-file) :auto-whitespace :standard))
 
 (def copulas
-  {"-->"  'inheritance
+  {"-->"  '-->
    "<->"  'similarity
    "{--"  'instance
    "--]"  'property
@@ -44,7 +44,8 @@
   (compound-terms operator-srt))
 
 (def actions {"." :belief
-              "?" :question})
+              "?" :question
+              "!" :goal})
 
 (def ^:dynamic *action* (atom nil))
 (def ^:dynamic *lvars* (atom []))
