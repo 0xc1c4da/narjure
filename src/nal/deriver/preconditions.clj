@@ -92,7 +92,9 @@
 
 (defmethod compound-precondition :concurrent
   [_]
-  [`(> ~temporal-window-duration (abs (- :t-occurrence :b-occurrence)))])
+  [`(not= :eternal :t-occurrence)
+   `(not= :eternal :b-occurrence)
+   `(> ~temporal-window-duration (abs (- :t-occurrence :b-occurrence)))])
 
 ;-------------------------------------------------------------------------------
 (defmulti precondition-transformation (fn [arg1 _] (first arg1)))
