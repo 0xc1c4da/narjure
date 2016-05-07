@@ -269,14 +269,17 @@
 
 (deftest compound_decomposition_one_premise
   (is (derived "<robin --> (-,bird,swimmer)>. %0.9;0.9%"
+               "robin."
                ["<robin --> bird>. %0.90;0.73%"])))
 
 (deftest compound_decomposition_one_premise2
   (is (derived "<(|, boy, girl) --> youth>. %0.9;0.9%"
+               "youth."
                ["<boy --> youth>. %0.90;0.73%"])))
 
 (deftest compound_decomposition_one_premise3
   (is (derived "<(~, boy, girl) --> [strong]>. %0.9;0.9%"
+               "[strong]."
                ["<boy --> [strong]>. %0.90;0.73%"])))
 
 ;NAL4 testcases:
