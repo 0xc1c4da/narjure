@@ -28,24 +28,24 @@
 (defn operators->placeholders
   [statement]
   (walk statement
-    (and (symbol? :el)
-         (operator? :el)) '_
-    (= :interval :el) '_
-    (coll? :el) (vec :el)))
+        (and (symbol? :el)
+             (operator? :el)) '_
+        (= :interval :el) '_
+        (coll? :el) (vec :el)))
 
 (defn quote-operators
   [statement]
   (walk statement
-    (and
-      (not (reserved-operators :el))
-      (symbol? :el)
-      (or (operator? :el) (#{'Y 'X} :el))) `'~:el
-    (and (coll? :el)
-         ((complement map?) :el)
-         (let [f (first :el)]
-           (and (not (reserved-operators f))
-                (not (fn? f)))))
-    (vec :el)))
+        (and
+          (not (reserved-operators :el))
+          (symbol? :el)
+          (or (operator? :el) (#{'Y 'X} :el))) `'~:el
+        (and (coll? :el)
+             ((complement map?) :el)
+             (let [f (first :el)]
+               (and (not (reserved-operators f))
+                    (not (fn? f)))))
+        (vec :el)))
 
 (defn form-conclusion
   "Formation of cocnlusion in terms of task and truth/desire functions"
@@ -92,8 +92,8 @@
   [code]
   (let [t-occurrence (gensym) b-occurrence (gensym)]
     (walk code
-      (= :el :t-occurrence) t-occurrence
-      (= :el :b-occurrence) b-occurrence)))
+          (= :el :t-occurrence) t-occurrence
+          (= :el :b-occurrence) b-occurrence)))
 
 (defn match-rules
   "Generates code of function that will match premises. Generated function
@@ -128,11 +128,11 @@
         sym-map (volatile! {})
         get-sym #(symbol (str prefix %))
         result (walk statement
-                 (and (symbol? el) (not-operator? el))
-                 (let [s (get-sym @cnt)]
-                   (vswap! cnt inc)
-                   (vswap! sym-map assoc s el)
-                   s))]
+                     (and (symbol? el) (not-operator? el))
+                     (let [s (get-sym @cnt)]
+                       (vswap! cnt inc)
+                       (vswap! sym-map assoc s el)
+                       s))]
     [@sym-map result]))
 
 (defn symbols->placeholders
@@ -169,7 +169,7 @@
   [conclusion sym-map]
   (let [sym-map (map-invert sym-map)]
     (walk conclusion
-      (sym-map el) (sym-map el))))
+          (sym-map el) (sym-map el))))
 
 (defn find-kv-by-prefix [prefix coll]
   (first (filter #(and (keyword? %) (s/starts-with? (str %) prefix)) coll)))
@@ -210,8 +210,8 @@
 
 (defn check-reduction [conclusion]
   (walk conclusion
-    (and (coll? :el) (reducible-ops (first :el)) (<= 3 (count :el)))
-    `(~(reducible-ops (first :el)) ~:el)))
+        (and (coll? :el) (reducible-ops (first :el)) (<= 3 (count :el)))
+        `(~(reducible-ops (first :el)) ~:el)))
 
 (defn find-shift-precondition
   [preconditions]
@@ -222,128 +222,135 @@
                :shift-occurrence-forward}
               (first %))) preconditions)))
 
-(defn premises-pattern
-  "Creates map with preconditions and conclusions regarding to the main pattern
-   of rules branch.
-   Example:
+(defn consider-truth-swap [func post]
+  (if (and (not= func nil)
+           (some #{:truth-swapped} post))
+    (fn [a b]
+      (func a b))
+    func))
 
-   the main pattern of riles branch is
-   [[--> :any [- :any :any]] :and [--> :any :any]]
+  (defn premises-pattern
+    "Creates map with preconditions and conclusions regarding to the main pattern
+     of rules branch.
+     Example:
 
-   before it will be applied to pattern matching it will be transformed to
-   [[--> x1 [- x2 x3]] [--> x4 x5]]
+     the main pattern of riles branch is
+     [[--> :any [- :any :any]] :and [--> :any :any]]
 
-   When whe want to use the pattern above to derive conclusions from some
-   another rule, we have to map placeholders from pattern to terms in this rule.
+     before it will be applied to pattern matching it will be transformed to
+     [[--> x1 [- x2 x3]] [--> x4 x5]]
 
-   For rule with premises [[--> A B] [--> B C]] and conclusion [--> A C]
-   map will be
-   {x1 A, ['- x2 x3] B, x4 B, x5 C}
+     When whe want to use the pattern above to derive conclusions from some
+     another rule, we have to map placeholders from pattern to terms in this rule.
 
-   From this map, conditions will be the list with one condition:
-   [(= ['- x2 x3] x4)]
+     For rule with premises [[--> A B] [--> B C]] and conclusion [--> A C]
+     map will be
+     {x1 A, ['- x2 x3] B, x4 B, x5 C}
 
-   and conclusion will be
-   [--> x1 x4]."
-  [pattern premise {:keys [post conclusion]} preconditions]
-  (let [[sym-map pat] (find-and-replace-symbols premise "?a")
-        unification-map (u/unify pattern pat)
-        sym-map (into {} (map (fn [[k v]] [(k unification-map) v]) sym-map))
-        inverted-sym-map (map-invert sym-map)
-        pre (walk (apply-preconditions preconditions)
-              (inverted-sym-map el) (inverted-sym-map el)
-              (seq? el)
-              (let [[f & tail] el]
-                (if-not (#{`munification-map `not-empty-diff?} f)
-                  (concat (list f) (sort-placeholders tail))
-                  el)))]
-    {:conclusion {:statement        (-> conclusion
-                                        (preconditions-transformations preconditions)
-                                        (replace-symbols sym-map)
-                                        check-commutative
-                                        check-reduction)
-                  :shift-conditions (replace-symbols
-                                      (find-shift-precondition preconditions)
-                                      sym-map)
-                  :t-function       (t/tvtypes (get-truth-fn post))
-                  :d-function       (t/dvtypes (get-desire-fn post))
-                  :p/belief      (some #{:p/belief} post)}
-     :conditions (remove nil?
-                         (walk (concat (check-conditions sym-map) pre)
-                           (and (coll? el) (= \a (first (str (first el)))))
-                           (concat '() el)
-                           (and (coll? el) (not ((conj reserved-operators 'quote)
-                                                  (first el))))
-                           (vec el)))}))
+     From this map, conditions will be the list with one condition:
+     [(= ['- x2 x3] x4)]
 
-(defn conditions->conclusions-map
-  "Creates map from conditions to conclusions."
-  [main rules]
-  (->> rules
-       (map (fn [[premises conclusions preconditions]]
-              (premises-pattern main premises conclusions preconditions)))
-       (group-by :conditions)
-       (map (fn [[k v]] [k (map :conclusion v)]))))
+     and conclusion will be
+     [--> x1 x4]."
+    [pattern premise {:keys [post conclusion]} preconditions]
+    (let [[sym-map pat] (find-and-replace-symbols premise "?a")
+          unification-map (u/unify pattern pat)
+          sym-map (into {} (map (fn [[k v]] [(k unification-map) v]) sym-map))
+          inverted-sym-map (map-invert sym-map)
+          pre (walk (apply-preconditions preconditions)
+                    (inverted-sym-map el) (inverted-sym-map el)
+                    (seq? el)
+                    (let [[f & tail] el]
+                      (if-not (#{`munification-map `not-empty-diff?} f)
+                        (concat (list f) (sort-placeholders tail))
+                        el)))]
+      {:conclusion {:statement        (-> conclusion
+                                          (preconditions-transformations preconditions)
+                                          (replace-symbols sym-map)
+                                          check-commutative
+                                          check-reduction)
+                    :shift-conditions (replace-symbols
+                                        (find-shift-precondition preconditions)
+                                        sym-map)
+                    :t-function       (consider-truth-swap (t/tvtypes (get-truth-fn post)) post)
+                    :d-function       (consider-truth-swap (t/tvtypes (get-desire-fn post)) post)
+                    :p/belief         (some #{:p/belief} post)}
+       :conditions (remove nil?
+                           (walk (concat (check-conditions sym-map) pre)
+                                 (and (coll? el) (= \a (first (str (first el)))))
+                                 (concat '() el)
+                                 (and (coll? el) (not ((conj reserved-operators 'quote)
+                                                        (first el))))
+                                 (vec el)))}))
 
-(defrecord TreeNode [condition conclusions children])
+  (defn conditions->conclusions-map
+    "Creates map from conditions to conclusions."
+    [main rules]
+    (->> rules
+         (map (fn [[premises conclusions preconditions]]
+                (premises-pattern main premises conclusions preconditions)))
+         (group-by :conditions)
+         (map (fn [[k v]] [k (map :conclusion v)]))))
 
-(defn group-conditions
-  "Groups conditions->conclusions map by first condition and remove it."
-  [conds]
-  (into {} (map (fn [[k v]]
-                  [k (map (fn [[k v]]
-                            [(drop 1 k) (set v)]) v)])
-                (group-by #(-> % first first) conds))))
+  (defrecord TreeNode [condition conclusions children])
 
-(defn generate-tree
-  "Generates tree of conditions from conditions->conclusions map."
-  ([conds] (generate-tree true conds))
-  ([cond conds]
-   (let [grouped-conditions (group-conditions conds)
-         reached-keys (map second (grouped-conditions nil))
-         other (dissoc grouped-conditions nil)]
-     (->TreeNode cond reached-keys
-                 (map (fn [[cond conds]]
-                        (generate-tree cond conds))
-                      other)))))
+  (defn group-conditions
+    "Groups conditions->conclusions map by first condition and remove it."
+    [conds]
+    (into {} (map (fn [[k v]]
+                    [k (map (fn [[k v]]
+                              [(drop 1 k) (set v)]) v)])
+                  (group-by #(-> % first first) conds))))
 
-(defn conds-priorities-map
-  "Generates the map of priorities for coditions according to their frequency."
-  [conds]
-  (->> (mapcat (fn [[cnds k]]
-                 (if (not-empty cnds)
-                   (map (fn [c] [c k]) cnds)
-                   [(list '() k)])) conds)
-       (group-by first)
-       (map (fn [[k v]] [k (+ (- (count v)) (rand 0.4))]))
-       (into {})))
+  (defn generate-tree
+    "Generates tree of conditions from conditions->conclusions map."
+    ([conds] (generate-tree true conds))
+    ([cond conds]
+     (let [grouped-conditions (group-conditions conds)
+           reached-keys (map second (grouped-conditions nil))
+           other (dissoc grouped-conditions nil)]
+       (->TreeNode cond reached-keys
+                   (map (fn [[cond conds]]
+                          (generate-tree cond conds))
+                        other)))))
 
-(defn sort-conds
-  "Sorts conditions in conditions->conclusions map according to the map of
-   priorities of conditions. If condition occurs frequntly it will have higher
-   priority."
-  [conds cpm]
-  (map (fn [[cnds k]] [(sort-by cpm cnds) k]) conds))
+  (defn conds-priorities-map
+    "Generates the map of priorities for coditions according to their frequency."
+    [conds]
+    (->> (mapcat (fn [[cnds k]]
+                   (if (not-empty cnds)
+                     (map (fn [c] [c k]) cnds)
+                     [(list '() k)])) conds)
+         (group-by first)
+         (map (fn [[k v]] [k (+ (- (count v)) (rand 0.4))]))
+         (into {})))
 
-(defn gen-rules
-  "Prepeares data for generation of conditions tree and then generates tree."
-  [main-pattern rules]
-  (let [rules (mapcat (fn [{:keys [p1 p2 conclusions pre]}]
-                        (map #(vector [p1 p2] % pre) conclusions))
-                      rules)
-        cond-conclusions-m (conditions->conclusions-map main-pattern rules)
-        cpm (conds-priorities-map cond-conclusions-m)
-        sorted-conds (sort-conds cond-conclusions-m cpm)]
-    (generate-tree sorted-conds)))
+  (defn sort-conds
+    "Sorts conditions in conditions->conclusions map according to the map of
+     priorities of conditions. If condition occurs frequntly it will have higher
+     priority."
+    [conds cpm]
+    (map (fn [[cnds k]] [(sort-by cpm cnds) k]) conds))
 
-(defn generate-matching
-  "Generates code for rule matcher."
-  [rules task-type]
-  (->> rules
-       (map (fn [[k {:keys [pattern rules] :as v}]]
-              (let [main-pattern (symbols->placeholders pattern)
-                    match-fn-code (-> main-pattern
-                                      (gen-rules rules)
-                                      (match-rules main-pattern task-type))]
-                [k (eval match-fn-code)])))
-       (into {})))
+  (defn gen-rules
+    "Prepeares data for generation of conditions tree and then generates tree."
+    [main-pattern rules]
+    (let [rules (mapcat (fn [{:keys [p1 p2 conclusions pre]}]
+                          (map #(vector [p1 p2] % pre) conclusions))
+                        rules)
+          cond-conclusions-m (conditions->conclusions-map main-pattern rules)
+          cpm (conds-priorities-map cond-conclusions-m)
+          sorted-conds (sort-conds cond-conclusions-m cpm)]
+      (generate-tree sorted-conds)))
+
+  (defn generate-matching
+    "Generates code for rule matcher."
+    [rules task-type]
+    (->> rules
+         (map (fn [[k {:keys [pattern rules] :as v}]]
+                (let [main-pattern (symbols->placeholders pattern)
+                      match-fn-code (-> main-pattern
+                                        (gen-rules rules)
+                                        (match-rules main-pattern task-type))]
+                  [k (eval match-fn-code)])))
+         (into {})))

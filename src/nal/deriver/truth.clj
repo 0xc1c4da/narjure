@@ -134,7 +134,7 @@
   (analogy t [1.0 d/belief-confidence]))
 
 (def tvtypes
-  {:t/structural-deduction         structual-abduction
+  {:t/structural-deduction         structual-deduction
    :t/struct-int                   structual-intersection
    :t/struct-abd                   structual-abduction
    :t/identity                     t-identity

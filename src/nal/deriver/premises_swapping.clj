@@ -17,8 +17,15 @@
 
 (defn swap-premises
   [{:keys [p1 p2] :as rule}]
-  (assoc rule :p1 p2
-              :p2 p1
-              :full-path (rule-path p2 p1)))
+
+  (let [premise-swapped (assoc rule :p1 p2
+                                    :p2 p1
+                                    :full-path (rule-path p2 p1))]
+    (assoc premise-swapped
+      :conclusions
+      (for [c (:conclusions premise-swapped)]
+        (assoc c
+          :post
+          (conj (:post c) :truth-swapped))))))
 
 (defn swap [rule] [rule (swap-premises rule)])

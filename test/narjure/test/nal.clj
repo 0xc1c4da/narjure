@@ -53,12 +53,12 @@
 (deftest nal1-abduction
   (is (derived "<sport --> competition>."
                "<chess --> competition>. %0.90;0.90%"
-               ["<sport --> chess>. %1.00;0.42%"])))
+               ["<chess --> sport>. %0.90;0.45%"])))
 
 (deftest nal1-abduction-swap
   (is (derived "<sport --> competition>."
                "<chess --> competition>. %0.90;0.90%"
-               ["<chess --> sport>. %0.90;0.45%"])))
+               ["<sport --> chess>. %1.00;0.42%"])))
 
 (deftest nal1-induction
   (is (derived "<swan --> swimmer>. %0.90;0.90%"
