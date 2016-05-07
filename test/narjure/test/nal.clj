@@ -128,7 +128,7 @@
 
 (deftest setDefinition
   (is (derived "<{Tweety} --> {Birdie}>."
-               "{Tweety}"
+               "{Tweety}."
                ["<{Tweety} <-> {Birdie}>. %1.0;0.9%"])))
 
 (deftest setDefinition2
@@ -144,24 +144,28 @@
 
 (deftest setDefinition4
   (is (derived "<[bright] <-> [smart]>."
+               "[bright]."
                ["<bright <-> smart>. %1.0;0.9%"
                 "<[bright] --> [smart]>. %1.0;0.9%"])))
 
 (deftest structureTransformation
   (is (derived "<Birdie <-> Tweety>. %0.9;0,9%";
+               "Birdie."
       ["<{Birdie} <-> {Tweety}>. %0.9;0.9%"])))
 
 (deftest structureTransformation2
   (is (derived "<bright <-> smart>. %0.9;0,9%"
-      ["<[bright] --> [smart]>. %0.9;0.9%"])))
+               "bright."
+               ["<[bright] --> [smart]>. %0.9;0.9%"])))
 
 (deftest structureTransformation3
   (is (derived "<bright <-> smart>. %0.9;0,9%"
+               "bright."
       ["<{bright} --> {smart}>. %0.9;0.9%"])))
 
 (deftest backwardInference
   (is (derived "<{?x} --> swimmer>?"
-        "<bird --> swimmer>."
+               "<bird --> swimmer>."
                ["<{?1} --> bird>?"])))
 
 (deftest missingEdgeCase1
@@ -413,7 +417,7 @@
 
 (deftest compound_composition_one_premises
   (is (derived "<robin --> [flying]>."
-               [" (||,<robin --> swimmer>,<robin --> [flying]>). %1.00;0.81%"])))
+               ["(||,<robin --> swimmer>,<robin --> [flying]>). %1.00;0.81%"])))
 
 (deftest compound_decomposition_one_premises
   (is (derived "(&&,<robin --> swimmer>,<robin --> [flying]>). %0.9;0.9%"
@@ -430,32 +434,32 @@
 
 (deftest contraposition
   (is (derived "<(--,<robin --> bird>) ==> <robin --> [flying]>>. %0.1;0.9%"
-               [" <(--,<robin --> [flying]>) ==> <robin --> bird>>. %0.00;0.45%"])))
+               ["<(--,<robin --> [flying]>) ==> <robin --> bird>>. %0.00;0.45%"])))
 
 (deftest conditional_deduction
   (is (derived "<(&&,<robin --> [flying]>,<robin --> [withWings]>) ==> <robin --> bird>>."
                "<robin --> [flying]>."
-               [" <<robin --> [withWings]> ==> <robin --> bird>>. %1.00;0.81%"])))
+               ["<<robin --> [withWings]> ==> <robin --> bird>>. %1.00;0.81%"])))
 
 (deftest conditional_deduction2
   (is (derived "<(&&,<robin --> [chirping]>,<robin --> [flying]>,<robin --> [withWings]>) ==> <robin --> bird>>."
                "<robin --> [flying]>."
-               [" <(&&,<robin --> [chirping]>,<robin --> [withWings]>) ==> <robin --> bird>>. %1.00;0.81%"])))
+               ["<(&&,<robin --> [chirping]>,<robin --> [withWings]>) ==> <robin --> bird>>. %1.00;0.81%"])))
 
 (deftest conditional_deduction3
   (is (derived "<(&&,<robin --> bird>,<robin --> [living]>) ==> <robin --> animal>>."
                "<<robin --> [flying]> ==> <robin --> bird>>."
-               [" <(&&,<robin --> [flying]>,<robin --> [living]>) ==> <robin --> animal>>. %1.00;0.81%"])))
+               ["<(&&,<robin --> [flying]>,<robin --> [living]>) ==> <robin --> animal>>. %1.00;0.81%"])))
 
 (deftest conditional_abduction
   (is (derived "<<robin --> [flying]> ==> <robin --> bird>>."
                "<(&&,<robin --> swimmer>,<robin --> [flying]>) ==> <robin --> bird>>."
-               [" <robin --> swimmer>. %1.00;0.45%"])))
+               ["<robin --> swimmer>. %1.00;0.45%"])))
 
 (deftest conditional_abduction2
   (is (derived "<(&&,<robin --> [withWings]>,<robin --> [chirping]>) ==> <robin --> bird>>."
                "<(&&,<robin --> [flying]>,<robin --> [withWings]>,<robin --> [chirping]>) ==> <robin --> bird>>."
-               [" <robin --> [flying]>. %1.00;0.45%"])))
+               ["<robin --> [flying]>. %1.00;0.45%"])))
 
 (deftest conditional_abduction3
   (is (derived "<(&&,<robin --> [flying]>,<robin --> [withWings]>) ==> <robin --> [living]>>. %0.9;0.9%"
@@ -608,8 +612,8 @@
 (deftest second_level_variable_unification2
   (is (derived "<<$1 --> lock> ==> (&&,<#2 --> key>,<$1 --> (/,open,#2,_)>)>. %1.00;0.90%"
                "<{key1} --> key>. %1.00;0.90%"
-               ["<<$1 --> lock> ==> <$1 --> (/,open,{key1},_)>>. %1.00;0.42%"
-                ])))
+               ["<<$1 --> lock> ==> <$1 --> (/,open,{key1},_)>>. %1.00;0.42%"])))
+
 (deftest second_level_variable_unification2_clean
   (is (derived "<<$1 --> x> ==> (&&,<#2 --> y>,<$1 --> (/,open,#2,_)>)>. %1.00;0.90%"
                "<{z} --> y>. %1.00;0.90%"
@@ -641,5 +645,7 @@
                ["<<(*,tim,is,$b) --> sentence> ==> <tim --> $b>>. %1.00;0.81%"])))
 
 ;NAL7 testcases:
+
+
 
 ;NAL8 testcases:
