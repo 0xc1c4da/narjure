@@ -117,13 +117,13 @@
                ["<bird --> swan>. %0.1;0.73%"])))
 
 (deftest nal2-inheritance-to-similarity3
-  (is (derived "<swan --> bird>. %0.9;0.9%"
-               "<bird <-> swan>."
+  (is (derived "<bird <-> swan>?"
+               "<swan --> bird>. %0.9;0.9%"
                ["<bird --> swan>. %0.9;0.45%"])))
 
 (deftest nal2-inheritance-to-similarity4
-  (is (derived "<bird <-> swan>. %0.9;0.9%"
-               "<swan --> bird>."
+  (is (derived "<swan --> bird>?"
+               "<bird <-> swan>. %0.9;0.9%"
                ["<swan --> bird>. %0.9;0.81%"])))
 
 (deftest setDefinition
@@ -149,18 +149,18 @@
                 "<[bright] --> [smart]>. %1.0;0.9%"])))
 
 (deftest structureTransformation
-  (is (derived "<Birdie <-> Tweety>. %0.9;0,9%";
-               "Birdie."
+  (is (derived "<{Birdie} <-> {Tweety}>?"
+               "<Birdie <-> Tweety>. %0.9;0,9%"
       ["<{Birdie} <-> {Tweety}>. %0.9;0.9%"])))
 
 (deftest structureTransformation2
-  (is (derived "<bright <-> smart>. %0.9;0,9%"
-               "bright."
+  (is (derived "<[bright] --> [smart]>?"
+               "<bright <-> smart>. %0.9;0,9%"
                ["<[bright] --> [smart]>. %0.9;0.9%"])))
 
 (deftest structureTransformation3
-  (is (derived "<bright <-> smart>. %0.9;0,9%"
-               "bright."
+  (is (derived "<{bright} --> {smart}>?"
+               "<bright <-> smart>. %0.9;0,9%"
       ["<{bright} --> {smart}>. %0.9;0.9%"])))
 
 (deftest backwardInference
@@ -228,35 +228,43 @@
                 "<{Mars,Venus} --> planetX>. %0.90;0.81%"])))
 
 (deftest composition_on_both_sides_of_a_statement
-  (is (derived "<bird --> animal>. %0.9;0.9%"
+  (is (derived "<(&,bird,swimmer) --> (&,animal,swimmer)>?"
+               "<bird --> animal>. %0.9;0.9%"
                ["<(&,bird,swimmer) --> (&,animal,swimmer)>. %0.90;0.73%"])))
 
 (deftest composition_on_both_sides_of_a_statement_2
-  (is (derived "<bird --> animal>. %0.9;0.9%"
+  (is (derived "<(|,bird,swimmer) --> (|,animal,swimmer)>?"
+               "<bird --> animal>. %0.9;0.9%"
                ["<(|,bird,swimmer) --> (|,animal,swimmer)>. %0.90;0.73%"])))
 
 (deftest composition_on_both_sides_of_a_statement2
-  (is (derived "<bird --> animal>. %0.9;0.9%"
+  (is (derived "<(-,swimmer,animal) --> (-,swimmer,bird)>?"
+               "<bird --> animal>. %0.9;0.9%"
                ["<(-,swimmer,animal) --> (-,swimmer,bird)>. %0.90;0.73%"])))
 
 (deftest composition_on_both_sides_of_a_statement2_2
-  (is (derived "<bird --> animal>. %0.9;0.9%"
+  (is (derived "<(~,swimmer,animal) --> (~,swimmer,bird)>?"
+               "<bird --> animal>. %0.9;0.9%"
                ["<(~,swimmer,animal) --> (~,swimmer,bird)>. %0.90;0.73%"])))
 
 (deftest compound_composition_one_premise
-  (is (derived "<swan --> bird>. %0.9;0.9%"
+  (is (derived "<swan --> (|,bird,swimmer)>?"
+               "<swan --> bird>. %0.9;0.9%"
                ["<swan --> (|,bird,swimmer)>. %0.90;0.73%"])))
 
 (deftest compound_composition_one_premise2
-  (is (derived "<swan --> bird>. %0.9;0.9%"
+  (is (derived "<(&,swan,swimmer) --> bird>?"
+               "<swan --> bird>. %0.9;0.9%"
                ["<(&,swan,swimmer) --> bird>. %0.90;0.73%"])))
 
 (deftest compound_composition_one_premise3
-  (is (derived "<swan --> bird>. %0.9;0.9%"
+  (is (derived "<swan --> (-,swimmer,bird)>?"
+               "<swan --> bird>. %0.9;0.9%"
                ["<swan --> (-,swimmer,bird)>. %0.10;0.73%"])))
 
 (deftest compound_composition_one_premise4
-  (is (derived "<swan --> bird>. %0.9;0.9%"
+  (is (derived "<(~,swimmer, swan) --> bird>?"
+               "<swan --> bird>. %0.9;0.9%"
                ["<(~,swimmer, swan) --> bird>. %0.10;0.73%"])))
 
 (deftest compound_decomposition_one_premise
@@ -273,50 +281,69 @@
 
 ;NAL4 testcases:
 
-(deftest structural_transformation
+(deftest structural_transformation1
   (is (derived "<(acid,base) --> reaction>. %1.0;0.9%"
-               ["<acid --> (/,reaction,_,base)>. %1.0;0.9%"
-                "<base --> (/,reaction,acid,_)>. %1.0;0.9%"])))
+               "acid."
+               ["<acid --> (/,reaction,_,base)>. %1.0;0.9%"])))
+
+(deftest structural_transformation1_2
+  (is (derived "<(acid,base) --> reaction>. %1.0;0.9%"
+               "base."
+               ["<base --> (/,reaction,acid,_)>. %1.0;0.9%"])))
 
 (deftest structural_transformation2
   (is (derived "<acid --> (/,reaction,_,base)>. %1.0;0.9%"
+               "reaction."
                ["<(acid,base) --> reaction>. %1.0;0.9%"])))
 
 (deftest structural_transformation3
   (is (derived "<base --> (/,reaction,acid,_)>. %1.0;0.9%"
+               "reaction."
                ["<(acid,base) --> reaction>. %1.0;0.9%"])))
 
 (deftest structural_transformation4
   (is (derived "<neutralization --> (acid,base)>. %1.0;0.9%"
-               ["<(\\,neutralization,_,base) --> acid>. %1.0;0.9%"
-                "<(\\,neutralization,acid,_) --> base>. %1.0;0.9%"])))
+               "acid."
+               ["<(\\,neutralization,_,base) --> acid>. %1.0;0.9%"])))
+
+(deftest structural_transformation4_2
+  (is (derived "<neutralization --> (acid,base)>. %1.0;0.9%"
+               "base."
+               ["<(\\,neutralization,acid,_) --> base>. %1.0;0.9%"])))
 
 (deftest structural_transformation5
   (is (derived "<(\\,neutralization,_,base) --> acid>. %1.0;0.9%"
+               "neutralization."
                ["<neutralization --> (acid,base)>. %1.0;0.9%"])))
 
 (deftest structural_transformation6
   (is (derived "<(\\,neutralization,acid,_) --> base>. %1.0;0.9%"
+               "neutralization."
                ["<neutralization --> (acid,base)>. %1.0;0.9%"])))
 
 (deftest composition_on_both_sides_of_a_statement
-  (is (derived "<bird --> animal>. %1.0;0.9%"
+  (is (derived "<(bird,plant) --> ?x>?"
+               "<bird --> animal>. %1.0;0.9%"
                ["<(bird,plant) --> (animal,plant)>. %1.0;0.81%"])))
 
 (deftest composition_on_both_sides_of_a_statement_2
-  (is (derived "<bird --> animal>. %1.0;0.9%"
+  (is (derived "<(*,bird,plant) --> (*,animal,plant)>?"
+               "<bird --> animal>. %1.0;0.9%"
                ["<(*,bird,plant) --> (*,animal,plant)>. %1.0;0.81%"])))
 
 (deftest composition_on_both_sides_of_a_statement2
-  (is (derived "<neutralization --> reaction>. %1.0;0.9%"
+  (is (derived "<(\\,neutralization,acid,_) --> ?x>"
+               "<neutralization --> reaction>. %1.0;0.9%"
                ["<(\\,neutralization,acid,_) --> (\\,reaction,acid,_)>. %1.0;0.81%"])))
 
 (deftest composition_on_both_sides_of_a_statement2_2
-  (is (derived "<neutralization --> reaction>. %1.0;0.9%"
+  (is (derived "<(\\,neutralization,acid,_) --> (\\,reaction,acid,_)>?"
+               "<neutralization --> reaction>. %1.0;0.9%"
                ["<(\\,neutralization,acid,_) --> (\\,reaction,acid,_)>. %1.0;0.81%"])))
 
 (deftest composition_on_both_sides_of_a_statement3
-  (is (derived "<soda --> base>. %1.0;0.9%"
+  (is (derived "<(/,neutralization,_,base) --> ?x>?"
+               "<soda --> base>. %1.0;0.9%"
                ["<(/,neutralization,_,base) --> (/,neutralization,_,soda)>. %1.0;0.81%"])))
 
 ;NAL5 testcases:
@@ -416,7 +443,8 @@
                ["<robin --> [flying]>. %1.00;0.81%"])))
 
 (deftest compound_composition_one_premises
-  (is (derived "<robin --> [flying]>."
+  (is (derived "(||,<robin --> [flying]>,<robin --> swimmer>)?"
+               "<robin --> [flying]>."
                ["(||,<robin --> swimmer>,<robin --> [flying]>). %1.00;0.81%"])))
 
 (deftest compound_decomposition_one_premises
@@ -429,11 +457,13 @@
                ["<robin --> [flying]>. %0.90;0.90%"])))
 
 (deftest negation2
-  (is (derived "<robin --> [flying]>. %0.9;0.9%"
+  (is (derived "(--,<robin --> [flying]>)?"
+               "<robin --> [flying]>. %0.9;0.9%"
                ["(--,<robin --> [flying]>). %0.10;0.90%"])))
 
 (deftest contraposition
-  (is (derived "<(--,<robin --> bird>) ==> <robin --> [flying]>>. %0.1;0.9%"
+  (is (derived "<(--,<robin --> [flying]>) ==> <robin --> bird>>?"
+               "<(--,<robin --> bird>) ==> <robin --> [flying]>>. %0.1;0.9%"
                ["<(--,<robin --> [flying]>) ==> <robin --> bird>>. %0.00;0.45%"])))
 
 (deftest conditional_deduction
