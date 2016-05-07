@@ -452,12 +452,19 @@
 
 (deftest compound_decomposition_one_premises
   (is (derived "(&&,<robin --> swimmer>,<robin --> [flying]>). %0.9;0.9%"
+               "<robin --> swimmer>."                       ;it is termlink term only not a real premise!!
                ["<robin --> swimmer>. %0.9;0.73%"
                 "<robin --> [flying]>. %0.9;0.73%"])))
 
+(deftest compound_decomposition_one_premises_2
+  (is (derived "(&&,<robin --> swimmer>,<robin --> [flying]>). %0.9;0.9%"
+               "<robin --> [flying]>."                       ;it is termlink term only not a real premise!!
+               ["<robin --> [flying]>. %0.9;0.73%"])))
+
 (deftest negation
   (is (derived "(--,<robin --> [flying]>). %0.1;0.9%"
-               ["<robin --> [flying]>. %0.90;0.90%"])))
+               "<robin --> [flying]>."                      ;TODO this cant be testes this way
+               ["<robin --> [flying]>. %0.90;0.90%"])))     ;we want a termlink term only not a premise..
 
 (deftest negation2
   (is (derived "(--,<robin --> [flying]>)?"
