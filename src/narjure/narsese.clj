@@ -15,28 +15,28 @@
    "{--"  'instance
    "--]"  'property
    "{-]"  'instance-property
-   "==>"  'implication
+   "==>"  '==>
    "=/>"  'predictive-implication
    "=|>"  'concurrent-implication
    "=\\>" 'retrospective-implication
-   "<=>"  'equivalence
+   "<=>"  '<=>
    "</>"  'predictive-equivalence
    "<|>"  'concurrent-equivalence})
 
 (def compound-terms
   {"{"  'ext-set
    "["  'int-set
-   "&"  'ext-intersection
-   "|"  'int-intersection
+   "&"  'ext-inter
+   "|"  'int-inter
    "-"  'ext-difference
    "~"  'int-difference
    "*"  'product
    "("  'product
    "/"  'ext-image
    "\\" 'int-image
-   "--" 'negation
-   "||" 'disjunction
-   "&&" 'conjunction
+   "--" '--
+   "||" '||
+   "&&" '&&
    "&/" 'sequential-events
    "&|" 'parallel-events})
 
