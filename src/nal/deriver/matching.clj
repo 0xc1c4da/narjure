@@ -48,17 +48,20 @@
         (vec :el)))
 
 (defn form-conclusion
-  "Formation of cocnlusion in terms of task and truth/desire functions"
+  "Formation of conclusion in terms of task and truth/desire functions"
   [{:keys [t1 t2 task-type]}
    {c  :statement tf :t-function pj :p/belief df :d-function
-    sc :shift-conditions}]
+    sc :shift-conditions swap-truth :swap-truth}]
   (let [conclusion-type (if pj :belief task-type)
         conclusion {:statement  c
                     :task-type  conclusion-type
                     :occurrence :t-occurrence}
+        get-func (fn [f] (if swap-truth
+                         (list f t2 t1)
+                         (list f t1 t2)))
         conclusion (case conclusion-type
-                     :belief (assoc conclusion :truth (list tf t1 t2))
-                     :goal (assoc conclusion :desire (list df t1 t2))
+                     :belief (assoc conclusion :truth (get-func tf))
+                     :goal (assoc conclusion :desire (get-func df))
                      conclusion)]
     (if sc
       (conclusion-transformation sc conclusion)
@@ -222,12 +225,9 @@
                :shift-occurrence-forward}
               (first %))) preconditions)))
 
-(defn consider-truth-swap [func post]
-  (if (and (not= func nil)
-           (some #{:truth-swapped} post))
-    (fn [a b]
-      (func a b))
-    func))
+(defn arg-count [f]
+  {:pre [(instance? clojure.lang.AFunction f)]}
+  (-> f class .getDeclaredMethods first .getParameterTypes alength))
 
   (defn premises-pattern
     "Creates map with preconditions and conclusions regarding to the main pattern
@@ -272,8 +272,9 @@
                     :shift-conditions (replace-symbols
                                         (find-shift-precondition preconditions)
                                         sym-map)
-                    :t-function       (consider-truth-swap (t/tvtypes (get-truth-fn post)) post)
-                    :d-function       (consider-truth-swap (t/tvtypes (get-desire-fn post)) post)
+                    :t-function       (t/tvtypes (get-truth-fn post))
+                    :d-function       (t/dvtypes (get-desire-fn post))
+                    :swap-truth       (some #{:truth-swapped} post)
                     :p/belief         (some #{:p/belief} post)}
        :conditions (remove nil?
                            (walk (concat (check-conditions sym-map) pre)
