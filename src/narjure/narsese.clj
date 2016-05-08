@@ -11,7 +11,7 @@
 
 (def copulas
   {"-->"  '-->
-   "<->"  'similarity
+   "<->"  '<->
    "{--"  'instance
    "--]"  'property
    "{-]"  'instance-property

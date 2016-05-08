@@ -91,12 +91,12 @@
 (deftest nal2-comparison
   (is (derived "<swan --> swimmer>. %0.9;0.9%"
                "<swan --> bird>."
-               ["<bird <-> swimmer>. %0.9;0.45%"])))
+               ["<swimmer <-> bird>. %0.9;0.45%"])))
 
 (deftest nal2-comparison2
   (is (derived "<sport --> competition>."
                "<chess --> competition>. %0.9;0.9%"
-               ["<chess <-> sport>. %0.9;0.45%"])))
+               ["<sport <-> chess>. %0.9;0.45%"])))
 
 (deftest nal2-analogy
   (is (derived "<swan --> swimmer>."
