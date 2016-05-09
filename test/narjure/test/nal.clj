@@ -117,7 +117,7 @@
 (deftest nal2-inheritance-to-similarity
   (is (derived "<swan --> bird>."
                "<bird --> swan>. %0.1;0.9%"
-               ["<bird <-> swan>. %0.1;0.81%"])))
+               ["<swan <-> bird>. %0.1;0.81%"])))
 
 (deftest nal2-inheritance-to-similarity2
   (is (derived "<swan --> bird>."
@@ -186,14 +186,14 @@
 (deftest compound_composition_two_premises
   (is (derived "<swan --> swimmer>. %0.9;0.9%"
                "<swan --> bird>. %0.8;0.9%"
-               ["<swan --> (|,bird,swimmer)>. %0.98;0.81%"
-                "<swan --> (&,bird,swimmer)>. %0.72;0.81%"])))
+               ["<swan --> (|,swimmer,bird)>. %0.98;0.81%"
+                "<swan --> (&,swimmer,bird)>. %0.72;0.81%"])))
 
 (deftest compound_composition_two_premises2
   (is (derived "<sport --> competition>. %0.9;0.9%"
                "<chess --> competition>. %0.8;0.9%"
-               ["<(|,chess,sport) --> competition>. %0.72;0.81%"
-                "<(&,chess,sport) --> competition>. %0.98;0.81%"])))
+               ["<(|,sport,chess) --> competition>. %0.72;0.81%"
+                "<(&,sport,chess) --> competition>. %0.98;0.81%"])))
 
 (deftest compound_decomposition_two_premises
   (is (derived "<robin --> (|,bird,swimmer)>. %1.0;0.9%"

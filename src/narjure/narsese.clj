@@ -27,9 +27,9 @@
   {"{"  'ext-set
    "["  'int-set
    "&"  'ext-inter
-   "|"  'int-inter
-   "-"  'ext-difference
-   "~"  'int-difference
+   "|"  '|
+   "-"  '-
+   "~"  'int-dif
    "*"  'product
    "("  'product
    "/"  'ext-image
