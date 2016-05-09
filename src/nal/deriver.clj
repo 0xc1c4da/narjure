@@ -3,7 +3,9 @@
     [nal.deriver.utils :refer [walk]]
     [nal.deriver.key-path :refer [mall-paths all-paths mpath-invariants
                                   path-with-max-level]]
-    [nal.deriver.rules :refer [rule]]))
+    [nal.deriver.rules :refer [rule]]
+    [nal.deriver.normalization :refer [commutative-ops]]
+    [clojure.set :as set]))
 
 (defn get-matcher [rules p1 p2]
   (let [matchers (->> (mall-paths p1 p2)
@@ -18,17 +20,13 @@
 (def mpath (memoize path-with-max-level))
 
 (defn generate-conclusions-no-commutativity
+  "generate conclusions not taking commutative subterms of premises into account"
   [rules {p1 :statement :as t1} {p2 :statement :as t2}]
   (let [matcher (mget-matcher rules (mpath p1) (mpath p2))]
     (matcher t1 t2)))
 
 ;USE COUNTER (global seed, for making testcased deterministic
 (def use-counter (ref 0))
-
-(defn use-counter-increment []
-  (do
-    (dosync (ref-set use-counter (inc (deref use-counter))))
-    @use-counter))
 
 (defn use-counter-reset []
   (do
@@ -41,22 +39,24 @@
 (defn shuffle-random
   "Return a random permutation of coll with a seed"
   [coll]
-  (do
-    (use-counter-increment)
-    (let [seed (deref use-counter)
-         al (java.util.ArrayList. coll)
-         rnd (java.util.Random. seed)]
-     (java.util.Collections/shuffle al rnd)
-     (clojure.lang.RT/vector (.toArray al)))))
+  (dosync (commute use-counter inc)
+          (let [seed (deref use-counter)
+                al (java.util.ArrayList. coll)
+                rnd (java.util.Random. (* seed 50000))]
+            (java.util.Collections/shuffle al rnd)
+            (clojure.lang.RT/vector (.toArray al)))))
 
 (defn shuffle-term-one-layer [t]                            ;TODO put into term utils once merged with master
   (concat (list (first t)) (shuffle-random (rest t))))
 
 (defn shuffle-term [A]                                      ;TODO put into term utils once merged with master
-  (let [shuffled (if (coll? A)
+  "Shuffle a term recursively (all commutative subterms like (A <-> B)"
+  (let [shuffle? (fn [A] (and (coll? A)
+                              (some #(= (first A) %) commutative-ops)))
+        shuffled (if (shuffle? A)
                    (shuffle-term-one-layer A)
                    A)]
-    (if (coll? A)
+    (if (shuffle? A)
       (for [x shuffled]
         (shuffle-term x))
       A)))
@@ -64,7 +64,7 @@
 (defn generate-conclusions
   [rules {p1 :statement :as t1} {p2 :statement :as t2}]
   ;assign statement
-  (set (for [x (range 10)]
-     (generate-conclusions-no-commutativity rules (assoc t1 :statement (shuffle-term p1)) (assoc t2 :statement (shuffle-term p2)))))
-
-  )
+  (apply set/union (for [x (range 10)]
+     (generate-conclusions-no-commutativity rules
+                                            (assoc t1 :statement (shuffle-term p1))
+                                            (assoc t2 :statement (shuffle-term p2))))))

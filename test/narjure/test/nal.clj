@@ -34,13 +34,15 @@
   ([p1 clist]
   (derived p1 "<unrelated --> UNRELATED>."))
   ([p1 p2 clist]
-  (let [parsed-p1 (parse p1)]
-    (every? (fn [c] (let [parsed-c (parse c)]
-                     (some #(and (= (:statement %) (:statement parsed-c))
-                                 (or (= (:action parsed-p1) :question)
-                                     (= (:action parsed-p1) :quest)
-                                     (truth-equal? % parsed-c)))
-                           (conclusions p1 p2)))) clist))))
+   (dosync
+     (use-counter-reset)                                    ;making sure each testcases starts with zero seed
+     (let [parsed-p1 (parse p1)]
+       (every? (fn [c] (let [parsed-c (parse c)]
+                         (some #(and (= (:statement %) (:statement parsed-c))
+                                     (or (= (:action parsed-p1) :question)
+                                         (= (:action parsed-p1) :quest)
+                                         (truth-equal? % parsed-c)))
+                               (conclusions p1 p2)))) clist)))))
 
 ;NAL1 testcases:
 
