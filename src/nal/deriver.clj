@@ -16,7 +16,55 @@
 
 (def mget-matcher (memoize get-matcher))
 (def mpath (memoize path-with-max-level))
-(defn generate-conclusions
+
+(defn generate-conclusions-no-commutativity
   [rules {p1 :statement :as t1} {p2 :statement :as t2}]
   (let [matcher (mget-matcher rules (mpath p1) (mpath p2))]
     (matcher t1 t2)))
+
+;USE COUNTER (global seed, for making testcased deterministic
+(def use-counter (ref 0))
+
+(defn use-counter-increment []
+  (do
+    (dosync (ref-set use-counter (inc (deref use-counter))))
+    @use-counter))
+
+(defn use-counter-reset []
+  (do
+    (dosync (ref-set use-counter 0))
+    @use-counter))
+
+;Adjusted shuffle given a seed, "shuffle-with-seed", from sloth:
+;http://stackoverflow.com/questions/24553212/how-to-take-n-random-items-from-a-collection-in-clojure
+;(since we don't want non-deterministic testcases)
+(defn shuffle-random
+  "Return a random permutation of coll with a seed"
+  [coll]
+  (do
+    (use-counter-increment)
+    (let [seed (deref use-counter)
+         al (java.util.ArrayList. coll)
+         rnd (java.util.Random. seed)]
+     (java.util.Collections/shuffle al rnd)
+     (clojure.lang.RT/vector (.toArray al)))))
+
+(defn shuffle-term-one-layer [t]                            ;TODO put into term utils once merged with master
+  (concat (list (first t)) (shuffle-random (rest t))))
+
+(defn shuffle-term [A]                                      ;TODO put into term utils once merged with master
+  (let [shuffled (if (coll? A)
+                   (shuffle-term-one-layer A)
+                   A)]
+    (if (coll? A)
+      (for [x shuffled]
+        (shuffle-term x))
+      A)))
+
+(defn generate-conclusions
+  [rules {p1 :statement :as t1} {p2 :statement :as t2}]
+  ;assign statement
+  (set (for [x (range 10)]
+     (generate-conclusions-no-commutativity rules (assoc t1 :statement (shuffle-term p1)) (assoc t2 :statement (shuffle-term p2)))))
+
+  )

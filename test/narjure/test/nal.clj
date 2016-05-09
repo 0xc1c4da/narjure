@@ -42,7 +42,6 @@
                                      (truth-equal? % parsed-c)))
                            (conclusions p1 p2)))) clist))))
 
-
 ;NAL1 testcases:
 
 (deftest nal1-deduction
