@@ -208,13 +208,13 @@
 (deftest set_operations
   (is (derived "<planetX --> {Mars,Pluto,Venus}>. %0.9;0.9%"
                "<planetX --> {Pluto,Saturn}>. %0.7;0.9%"
-               ["<planetX --> {Mars,Pluto,Saturn,Venus}>. %0.97;0.81%"
+               ["<planetX --> {Saturn,Mars,Venus,Pluto}>. %0.97;0.81%"
                 "<planetX --> {Pluto}>. %0.63;0.81%"])))
 
 (deftest set_operations2
   (is (derived "<planetX --> {Mars,Pluto,Venus}>. %0.9;0.9%"
                "<planetX --> {Pluto,Saturn}>. %0.1;0.9%"
-               ["<planetX --> {Mars,Pluto,Saturn,Venus}>. %0.91;0.81%"
+               ["<planetX --> {Saturn,Mars,Venus,Pluto}>. %0.91;0.81%"
                 "<planetX --> {Mars,Venus}>. %0.81;0.81%"])))
 
 (deftest set_operations3
@@ -232,7 +232,7 @@
 (deftest set_operations5
   (is (derived "<{Mars,Pluto,Venus} --> planetX>. %1.0;0.9%"
                "<{Pluto,Saturn} --> planetX>. %0.1;0.9%"
-               ["<{Mars,Pluto,Saturn,Venus} --> planetX>. %0.1;0.81%"
+               ["<{Saturn,Mars,Venus,Pluto} --> planetX>. %0.1;0.81%"
                 "<{Mars,Venus} --> planetX>. %0.90;0.81%"])))
 
 (deftest composition_on_both_sides_of_a_statement
@@ -359,10 +359,11 @@
 
 ;NAL5 testcases:
 
-(deftest revision
-  (is (derived "<<robin --> [flying]> ==> <robin --> bird>>."
-               "<<robin --> [flying]> ==> <robin --> bird>>. %0.00;0.60%"
-               ["<<robin --> [flying]> ==> <robin --> bird>>. %0.86;0.91%"])))
+;this one is local inference!!
+;(deftest revision
+;  (is (derived "<<robin --> [flying]> ==> <robin --> bird>>."
+;               "<<robin --> [flying]> ==> <robin --> bird>>. %0.00;0.60%"
+;               ["<<robin --> [flying]> ==> <robin --> bird>>. %0.86;0.91%"])))
 
 (deftest deduction
   (is (derived "<<robin --> bird> ==> <robin --> animal>>."
@@ -372,7 +373,7 @@
 (deftest exemplification
   (is (derived "<<robin --> [flying]> ==> <robin --> bird>>."
                "<<robin --> bird> ==> <robin --> animal>>."
-               ["<<robin --> animal> ==> <robin --> [flying]>>.. %1.00;0.45%"])))
+               ["<<robin --> animal> ==> <robin --> [flying]>>. %1.00;0.45%"])))
 
 (deftest induction
   (is (derived "<<robin --> bird> ==> <robin --> animal>>."
@@ -421,11 +422,13 @@
                "<<robin --> bird> <=> <robin --> [flying]>>. %0.9;0.9%"
                [" <<robin --> animal> <=> <robin --> [flying]>>. %0.90;0.81%"])))
 
+;derives nothing currently TODO lookat
 (deftest conversions_between_Implication_and_Equivalence
   (is (derived "<<robin --> [flying]> ==> <robin --> bird>>. %0.9;0.9%"
                "<<robin --> bird> ==> <robin --> [flying]>>. %0.9;0.9%"
                [" <<robin --> bird> <=> <robin --> [flying]>>. %0.81;0.81%"])))
 
+;misses the && case, TODO lookat
 (deftest compound_composition_two_premises
   (is (derived "<<robin --> bird> ==> <robin --> animal>>."
                "<<robin --> bird> ==> <robin --> [flying]>>. %0.9;0.9%"
@@ -443,37 +446,44 @@
                "<<robin --> bird> ==> <robin --> [flying]>>."
                [" <<robin --> bird> ==> <robin --> animal>>. %0.00;0.81%"])))
 
+;structural inference!! (one premise) TODO derived-structural
 (deftest compound_decomposition_two_premises2
   (is (derived "(&&,<robin --> [flying]>,<robin --> swimmer>). %0.0;0.9%"
                "<robin --> [flying]>."
                ["<robin --> swimmer>. %0.00;0.81%"])))
 
+;structural inference!!
 (deftest compound_decomposition_two_premises3
   (is (derived "(||,<robin --> [flying]>,<robin --> swimmer>)."
                "<robin --> swimmer>. %0.0;0.9%"
                ["<robin --> [flying]>. %1.00;0.81%"])))
 
+;structural inference!!
 (deftest compound_composition_one_premises
   (is (derived "(||,<robin --> [flying]>,<robin --> swimmer>)?"
                "<robin --> [flying]>."
                ["(||,<robin --> swimmer>,<robin --> [flying]>). %1.00;0.81%"])))
 
+;structural inference!!
 (deftest compound_decomposition_one_premises
   (is (derived "(&&,<robin --> swimmer>,<robin --> [flying]>). %0.9;0.9%"
                "<robin --> swimmer>."                       ;it is termlink term only not a real premise!!
                ["<robin --> swimmer>. %0.9;0.73%"
                 "<robin --> [flying]>. %0.9;0.73%"])))
 
+;structural inference!!
 (deftest compound_decomposition_one_premises_2
   (is (derived "(&&,<robin --> swimmer>,<robin --> [flying]>). %0.9;0.9%"
                "<robin --> [flying]>."                       ;it is termlink term only not a real premise!!
                ["<robin --> [flying]>. %0.9;0.73%"])))
 
+;structural inference!!
 (deftest negation
   (is (derived "(--,<robin --> [flying]>). %0.1;0.9%"
                "<robin --> [flying]>."                      ;TODO this cant be testes this way
                ["<robin --> [flying]>. %0.90;0.90%"])))     ;we want a termlink term only not a premise..
 
+;structural inference!!
 (deftest negation2
   (is (derived "(--,<robin --> [flying]>)?"
                "<robin --> [flying]>. %0.9;0.9%"
@@ -484,6 +494,17 @@
                "<(--,<robin --> bird>) ==> <robin --> [flying]>>. %0.1;0.9%"
                ["<(--,<robin --> [flying]>) ==> <robin --> bird>>. %0.00;0.45%"])))
 
+;derives a bunch of nonsense: TODO add testcases to not derive this nonsense!
+;(conclusions "<(--,<robin --> [flying]>) ==> <robin --> bird>>?"
+;             "<(--,<robin --> bird>) ==> <robin --> [flying]>>. %0.1;0.9%")
+;=>
+;#{{:statement [-- [--> robin [int-set flying]]], :task-type :question, :occurrence 0}
+;  {:statement [-- [--> robin bird]], :task-type :question, :occurrence 0}
+;  {:statement [--> robin bird], :task-type :question, :occurrence 0}
+;  {:statement [--> robin [int-set flying]], :task-type :question, :occurrence 0}}
+
+
+;TODO lookat
 (deftest conditional_deduction
   (is (derived "<(&&,<robin --> [flying]>,<robin --> [withWings]>) ==> <robin --> bird>>."
                "<robin --> [flying]>."
@@ -494,6 +515,7 @@
                "<robin --> [flying]>."
                ["<(&&,<robin --> [chirping]>,<robin --> [withWings]>) ==> <robin --> bird>>. %1.00;0.81%"])))
 
+;TODO lookat
 (deftest conditional_deduction3
   (is (derived "<(&&,<robin --> bird>,<robin --> [living]>) ==> <robin --> animal>>."
                "<<robin --> [flying]> ==> <robin --> bird>>."
@@ -522,6 +544,7 @@
 
 ;NAL6 testcases:
 
+;no conclusions! var representation different in deriver?
 (deftest variable_unification1
   (is (derived "<<$x --> bird> ==> <$x --> flyer>>."
                "<<$y --> bird> ==> <$y --> flyer>>. %0.00;0.70%"
