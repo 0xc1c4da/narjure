@@ -142,12 +142,12 @@
 (deftest setDefinition
   (is (derived "<{Tweety} --> {Birdie}>."
                "{Tweety}." :term
-               ["<{Birdie} <-> {Tweety}>. %1.0;0.9%"])))    ;n
+               ["<{Birdie} <-> {Tweety}>. %1.0;0.9%"])))    ;y
 
 (deftest setDefinition2
   (is (derived "<[smart] --> [bright]>."
                "[smart]." :term
-               ["<[bright] <-> [smart]>. %1.0;0.9%"])))     ;n
+               ["<[smart] <-> [bright]>. %1.0;0.9%"])))     ;y
 
 (deftest setDefinition3
   (is (derived "<{Birdie} <-> {Tweety}>."
@@ -164,7 +164,7 @@
 (deftest structureTransformation
   (is (derived "<{Birdie} <-> {Tweety}>?"
                "<Birdie <-> Tweety>. %0.9;0.9%"
-      ["<{Birdie} <-> {Tweety}>. %0.9;0.9%"])))             ;n
+      ["<{Birdie} <-> {Tweety}>. %0.9;0.9%"])))             ;y
 
 (deftest structureTransformation2
   (is (derived "<[bright] --> [smart]>?"

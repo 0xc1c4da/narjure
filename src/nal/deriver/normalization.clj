@@ -91,70 +91,63 @@
 (defn reduce-int-inter
   [st]
   (m/match st
-    ['| t] t
-    ['| ['| & l1] ['| & l2]] (union '| l1 l2)
-    ['| ['| & l1] l2] (union '| l1 [l2])
-    ['| l1 ['| & l2]] (union '| [l1] l2)
-    ['| ['int-set & l1] ['int-set & l2]] (union 'int-set l1 l2)
-    ['| ['ext-set & l1] ['ext-set & l2]] (union 'ext-set l1 l2)
-    :else st))
+           ['| t] t
+           ['| ['| & l1] ['| & l2]] (union '| l1 l2)
+           ['| ['| & l1] l2] (union '| l1 [l2])
+           ['| l1 ['| & l2]] (union '| [l1] l2)
+           ['| ['int-set & l1] ['int-set & l2]] (union 'int-set l1 l2)
+           ['| ['ext-set & l1] ['ext-set & l2]] (union 'ext-set l1 l2)
+           :else st))
 
 (defn reduce-int-dif
   [st]
   (m/match st
-    [_ ['int-set & l1] ['int-set & l2]] (diff 'int-set l1 l2)
-    :else st))
+           [_ ['int-set & l1] ['int-set & l2]] (diff 'int-set l1 l2)
+           :else st))
 
 (defn reduce-ext-dif
   [st]
   (m/match st
-    [_ ['ext-set & l1] ['ext-set & l2]] (diff 'ext-set l1 l2)
-    :else st))
-
-(defn reduce-similarity
-  [st]
-  (m/match st
-    ['<-> ['ext-set s] ['ext-set p]] ['<-> s p]
-    ['<-> ['int-set s] ['int-set p]] ['<-> s p]
-    :else st))
+           [_ ['ext-set & l1] ['ext-set & l2]] (diff 'ext-set l1 l2)
+           :else st))
 
 (defn reduce-production
   [st]
   (m/match st
-    ['* ['* & l1] & l2] (vec (conj (concat l1 l2) '*))
-    :else st))
+           ['* ['* & l1] & l2] (vec (conj (concat l1 l2) '*))
+           :else st))
 
 (defn reduce-image
   [st]
   (m/match st
-    [_ ['* t1 t2] t3] (if (and (= t2 t3) (not= t1 t2)) t1 st)
-    :else st))
+           [_ ['* t1 t2] t3] (if (and (= t2 t3) (not= t1 t2)) t1 st)
+           :else st))
 
 (defn reduce-neg
   [st]
   (m/match st
-    ['-- ['-- t]] t
-    :else st))
+           ['-- ['-- t]] t
+           :else st))
 
 (defn reduce-or
   [st]
   (m/match st
-    ['|| t] t
-    ['|| ['|| & l1] ['|| & l2]] (union '|| l1 l2)
-    ['|| ['|| & l1] l2] (union '|| l1 [l2])
-    ['|| l1 ['|| & l2]] (union '|| [l1] l2)
-    ['|| t1 t2] (if (= t1 t2) t1 st)
-    :else st))
+           ['|| t] t
+           ['|| ['|| & l1] ['|| & l2]] (union '|| l1 l2)
+           ['|| ['|| & l1] l2] (union '|| l1 [l2])
+           ['|| l1 ['|| & l2]] (union '|| [l1] l2)
+           ['|| t1 t2] (if (= t1 t2) t1 st)
+           :else st))
 
 (defn reduce-and
   [st]
   (m/match st
-    ['conj t] t
-    ['conj ['conj & l1] ['conj & l2]] (union 'conj l1 l2)
-    ['conj ['conj & l1] l2] (union 'conj l1 [l2])
-    ['conj l1 ['conj & l2]] (union 'conj [l1] l2)
-    ['conj t1 t2] (if (= t1 t2) t1 st)
-    :else st))
+           ['conj t] t
+           ['conj ['conj & l1] ['conj & l2]] (union 'conj l1 l2)
+           ['conj ['conj & l1] l2] (union 'conj l1 [l2])
+           ['conj l1 ['conj & l2]] (union 'conj [l1] l2)
+           ['conj t1 t2] (if (= t1 t2) t1 st)
+           :else st))
 
 (defn reduce-seq-conj
   [st]
@@ -169,7 +162,6 @@
    '|         `reduce-int-inter
    '-         `reduce-ext-dif
    'int-dif   `reduce-int-dif
-   '<->       `reduce-similarity
    '*         `reduce-production
    'int-image `reduce-image
    'ext-image `reduce-image
@@ -185,7 +177,6 @@
       | (reduce-int-inter st)
       - (reduce-ext-dif st)
       int-dif (reduce-int-dif st)
-      <-> (reduce-similarity st)
       * (reduce-production st)
       int-image (reduce-image st)
       ext-image (reduce-image st)
