@@ -221,8 +221,8 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[((| :list/A) --> M) M |- (:from/A --> M) :post (:t/structural-deduction)]
          #R[(M --> (& :list/A)) M |- (M --> :from/A) :post (:t/structural-deduction)]
 
-         #R[((B - G) --> S) S |- (B --> S) :post (:t/structural-deduction)]
-         #R[(R --> (B ~ S)) R |- (R --> B) :post (:t/structural-deduction)]
+         #R[((B ~ G) --> S) S |- (B --> S) :post (:t/structural-deduction)]
+         #R[(R --> (B - S)) R |- (R --> B) :post (:t/structural-deduction)]
 
          ; Set element takeout:
          #R[(C --> {:list/A}) C |- (C --> {:from/A}) :post (:t/structural-deduction)]

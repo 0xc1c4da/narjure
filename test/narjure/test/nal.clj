@@ -282,7 +282,7 @@
 
 (deftest compound_decomposition_one_premise
   (is (derived "<robin --> (-,bird,swimmer)>. %0.9;0.9%"
-               "robin." :term
+               "robin?" :term                               ;TODO just use question for single premise as second
                ["<robin --> bird>. %0.90;0.73%"])))         ;n
 
 (deftest compound_decomposition_one_premise2
