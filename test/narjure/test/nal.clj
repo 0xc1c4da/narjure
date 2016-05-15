@@ -204,14 +204,14 @@
                 "<(&,chess,sport) --> competition>. %0.98;0.81%"]))) ;y
 
 (deftest compound_decomposition_two_premises
-  (is (derived "<robin --> (|,bird,swimmer)>. %1.0;0.9%"
-               "<robin --> swimmer>. %0.0;0.9%"
+  (is (derived "<robin --> swimmer>. %0.0;0.9%"
+               "<robin --> (|,swimmer,bird)>. %1.0;0.9%"
                ["<robin --> bird>. %1.0;0.81%"])))          ;n
 
 (deftest compound_decomposition_two_premises2
   (is (derived "<robin --> swimmer>. %0.0;0.9%"
                "<robin --> (-,mammal,swimmer)>. %0.0;0.9%"
-               ["<robin --> mammal>. %0.0;0.81%"])))        ;n
+               ["<robin --> mammal>. %0.0;0.81%"])))        ;y
 
 (deftest set_operations
   (is (derived "<planetX --> {Mars,Pluto,Venus}>. %0.9;0.9%"
@@ -286,17 +286,17 @@
 (deftest compound_decomposition_one_premise
   (is (derived "<robin --> (-,bird,swimmer)>. %0.9;0.9%"
                "robin?"                              ;TODO just use question for single premise as second
-               ["<robin --> bird>. %0.90;0.73%"])))         ;n
+               ["<robin --> bird>. %0.90;0.73%"])))         ;y
 
 (deftest compound_decomposition_one_premise2
   (is (derived "<(|, boy, girl) --> youth>. %0.9;0.9%"
                "youth."
-               ["<boy --> youth>. %0.90;0.73%"])))          ;n
+               ["<boy --> youth>. %0.90;0.73%"])))          ;y
 
 (deftest compound_decomposition_one_premise3
   (is (derived "<(~, boy, girl) --> [strong]>. %0.9;0.9%"
                "[strong]."
-               ["<boy --> [strong]>. %0.90;0.73%"])))       ;n
+               ["<boy --> [strong]>. %0.90;0.73%"])))       ;y
 
 ;NAL4 testcases:
 

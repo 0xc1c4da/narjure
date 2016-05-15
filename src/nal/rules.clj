@@ -177,13 +177,13 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          ; if (S --> M) is the case and ((| S :list/A) --> M) is not the case then ((| :list/A) --> M) is not the case hence :t/decompose-pnn
          #R[(S --> M) ((| S :list/A) --> M) |- ((| :list/A) --> M) :post (:t/decompose-pnn)]
          #R[(S --> M) ((& S :list/A) --> M) |- ((& :list/A) --> M) :post (:t/decompose-npp)]
-         #R[(S --> M) ((S - P) --> M) |- (P --> M) :post (:t/decompose-pnp)]
-         #R[(S --> M) ((P - S) --> M) |- (P --> M) :post (:t/decompose-nnn)]
+         #R[(S --> M) ((S ~ P) --> M) |- (P --> M) :post (:t/decompose-pnp)]
+         #R[(S --> M) ((P ~ S) --> M) |- (P --> M) :post (:t/decompose-nnn)]
 
          #R[(M --> S) (M --> (& S :list/A)) |- (M --> (& :list/A)) :post (:t/decompose-pnn)]
          #R[(M --> S) (M --> (| S :list/A)) |- (M --> (| :list/A)) :post (:t/decompose-npp)]
-         #R[(M --> S) (M --> (S ~ P)) |- (M --> P) :post (:t/decompose-pnp)]
-         #R[(M --> S) (M --> (P ~ S)) |- (M --> P) :post (:t/decompose-nnn)]
+         #R[(M --> S) (M --> (S - P)) |- (M --> P) :post (:t/decompose-pnp)]
+         #R[(M --> S) (M --> (P - S)) |- (M --> P) :post (:t/decompose-nnn)]
          )
 
 (defrules nal3-set-related-rules
