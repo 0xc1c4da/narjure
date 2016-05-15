@@ -555,8 +555,8 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[B (A ==> C) |- C :post (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward ==>))]
          #R[B (C ==> A) |- C :post (:t/abduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward C ==>))]
 
-         #R[B (A <=> C) |- C :post (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward <=>))]
-         #R[B (C <=> A) |- C :post (:t/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward <=>))]
+         #R[B (A <=> C) |- C :post (:t/analogy :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-backward <=>))]
+         #R[B (C <=> A) |- C :post (:t/analogy :order-for-all-same) :pre ((:substitute-if-unifies "$" A B) (:shift-occurrence-forward <=>))]
 
          )
 
