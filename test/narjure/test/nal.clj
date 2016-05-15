@@ -313,12 +313,12 @@
 (deftest structural_transformation2
   (is (derived "<acid --> (/,reaction,_,base)>. %1.0;0.9%"
                "reaction."
-               ["<(acid,base) --> reaction>. %1.0;0.9%"]))) ;n
+               ["<(acid,base) --> reaction>. %1.0;0.9%"]))) ;y
 
 (deftest structural_transformation3
   (is (derived "<base --> (/,reaction,acid,_)>. %1.0;0.9%"
                "reaction."
-               ["<(acid,base) --> reaction>. %1.0;0.9%"]))) ;n
+               ["<(acid,base) --> reaction>. %1.0;0.9%"]))) ;y
 
 (deftest structural_transformation4
   (is (derived "<neutralization --> (acid,base)>. %1.0;0.9%"
@@ -333,12 +333,12 @@
 (deftest structural_transformation5
   (is (derived "<(\\,neutralization,_,base) --> acid>. %1.0;0.9%"
                "neutralization."
-               ["<neutralization --> (acid,base)>. %1.0;0.9%"]))) ;n
+               ["<neutralization --> (acid,base)>. %1.0;0.9%"]))) ;y
 
 (deftest structural_transformation6
   (is (derived "<(\\,neutralization,acid,_) --> base>. %1.0;0.9%"
                "neutralization."
-               ["<neutralization --> (acid,base)>. %1.0;0.9%"]))) ;n
+               ["<neutralization --> (acid,base)>. %1.0;0.9%"]))) ;y
 
 (deftest composition_on_both_sides_of_a_statement
   (is (derived "<(bird,plant) --> ?x>?"
@@ -646,7 +646,7 @@
 (deftest multiple_variable_elimination4
   (is (derived "(&&,<#1 --> (/,open,#2,_)>,<#1 --> lock>,<#2 --> key>)."
                "<{lock1} --> lock>."
-               ["(&&,<#1 --> key>,<{lock1} --> (/,open,#1,_)>). %1.00;0.42%"]))) ;n
+               ["(&&,<#2 --> key>,<{lock1} --> (/,open,#2,_)>). %1.00;0.42%"]))) ;n
 
 (deftest variable_introduction
   (is (derived "<swan --> bird>."

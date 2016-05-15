@@ -252,10 +252,10 @@ So these rules are for bringing NAL-statements into a different, implied and mor
             :pre ((:substitute-from-list Ai _) (:contains? (:list/A) Ai))
             :post (:t/identity :d/identity)]
             #R[(Ai --> (/ M :list/A )) M |- ((* :list/A) --> M)
-               :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
+               :pre ((:substitute-from-list _ Ai))
                :post (:t/identity :d/identity)]
-            #R[((\ M :list/A) --> Ai) M |- (M --> (:list/A))
-            :pre ((:substitute-from-list _ Ai) (:contains? (:list/A) Ai))
+            #R[((\ M :list/A) --> Ai) M |- (M --> (* :list/A))
+            :pre ((:substitute-from-list _ Ai))
             :post (:t/identity :d/identity)]
 )
 
