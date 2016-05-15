@@ -213,7 +213,7 @@
 
 (defn check-reduction [conclusion]
   (walk conclusion
-        (and (coll? :el) (reducible-ops (first :el)) (<= 3 (count :el)))
+        (and (coll? :el) (reducible-ops (first :el)) (<= 2 (count :el)))
         `(~(reducible-ops (first :el)) ~:el)))
 
 (defn find-shift-precondition
