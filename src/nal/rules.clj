@@ -290,6 +290,14 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[(P =\> M) (M =\> S) |- (S =/> P) :post (:t/exemplification :allow-backward) :pre ((:!= S P))]
          #R[(P =|> M) (M =|> S) |- (S =|> P) :post (:t/exemplification :allow-backward) :pre ((:!= S P))]
 
+          ; //// implication to equivalence ////////////////////////////////////////////////////////////////////////////////////
+          ;//If when S happens, P happens, and before P happens, S has happened, then they are truth-related equivalent
+
+          #R[(S ==> P) (P ==> S) |- (S <=> P) :post (:t/intersection :allow-backward) :pre ((:!= S P))]
+          #R[(S =|> P) (P =|> S) |- (S <|> P) :post (:t/intersection :allow-backward) :pre ((:!= S P))]
+          #R[(S =/> P) (P =\> S) |- (S </> P) :post (:t/intersection :allow-backward) :pre ((:!= S P))]
+          #R[(S =\> P) (P =/> S) |- (P </> S) :post (:t/intersection :allow-backward) :pre ((:!= S P))]
+
          ; equivalence-based syllogism
          ; Same as for inheritance again
          #R[(P ==> M) (S ==> M) |- (S <=> P) :pre ((:!= S P)) :post (:t/comparison :allow-backward)]

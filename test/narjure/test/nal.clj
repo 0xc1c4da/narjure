@@ -435,7 +435,7 @@
 (deftest conversions_between_Implication_and_Equivalence
   (is (derived "<<robin --> [flying]> ==> <robin --> bird>>. %0.9;0.9%"
                "<<robin --> bird> ==> <robin --> [flying]>>. %0.9;0.9%"
-               ["<<robin --> bird> <=> <robin --> [flying]>>. %0.81;0.81%"]))) ;n
+               ["<<robin --> bird> <=> <robin --> [flying]>>. %0.81;0.81%"]))) ;y
 
 (deftest compound_composition_two_premises
   (is (derived "<<robin --> bird> ==> <robin --> animal>>."
@@ -470,7 +470,7 @@
 (deftest compound_composition_one_premises
   (is (derived "(||,<robin --> [flying]>,<robin --> swimmer>)?"
                "<robin --> [flying]>."
-               ["(||,<robin --> swimmer>,<robin --> [flying]>). %1.00;0.81%"]))) ;n
+               ["(||,<robin --> swimmer>,<robin --> [flying]>). %1.00;0.81%"]))) ;y
 
 ;structural inference!!
 (deftest compound_decomposition_one_premises
@@ -495,7 +495,7 @@
 (deftest negation2
   (is (derived "(--,<robin --> [flying]>)?"
                "<robin --> [flying]>. %0.9;0.9%"
-               ["(--,<robin --> [flying]>). %0.10;0.90%"]))) ;n
+               ["(--,<robin --> [flying]>). %0.10;0.90%"]))) ;y
 
 (deftest contraposition
   (is (derived "<(--,<robin --> [flying]>) ==> <robin --> bird>>?"
@@ -655,7 +655,7 @@
                ["<<$X --> bird> ==> <$X --> swimmer>>. %0.80;0.45%"
                 "<<$X --> swimmer> ==> <$X --> bird>>. %1.00;0.39%"
                 "<<$X --> bird> <=> <$X --> swimmer>>. %0.80;0.45%"
-                "(&&, <#Y --> bird>, <#Y --> swimmer>). %0.80;0.81%"])))
+                "(&&, <#Y --> bird>, <#Y --> swimmer>). %0.80;0.81%"]))) ;y
 ;fails because
 ;derives :statement [[conj [--> [dep-var Y] bird] [--> [dep-var Y] swimmer]]]
 ;will try to find why tomorrow
@@ -667,66 +667,62 @@
                ["<<gull --> $X> ==> <swan --> $X>>. %0.80;0.45%"
                 "<<swan --> $X> ==> <gull --> $X>>. %1.00;0.39%"
                 "<<swan --> $X> <=> <gull --> $X>>. %0.80;0.45%"
-                "(&&,<gull --> #Y>,<swan --> #Y>). %0.80;0.81%"])))
+                "(&&,<gull --> #Y>,<swan --> #Y>). %0.80;0.81%"]))) ;y
 
 (deftest variables_introduction
   (is (derived "<{key1} --> (/,open,_,{lock1})>."
                "<{key1} --> key>."
-               ["<<$1 --> key> ==> <$1 --> (/,open,_,{lock1})>>. %1.00;0.45%"
-                "(&&,<#1 --> (/,open,_,{lock1})>,<#1 --> key>). %1.00;0.81%"])))
+               ["<<$X --> key> ==> <$X --> (/,open,_,{lock1})>>. %1.00;0.45%"
+                "(&&,<#Y --> key>,<#Y --> (/,open,_,{lock1})>). %1.00;0.81%"]))) ;y
+
+;TODO MAKE SURE VARIABLE INTRODUCTION DOES NOT USE A IN THE TERM USED VARNAME!
 
 (deftest multiple_variables_introduction
-  (is (derived "<<$x --> key> ==> <{lock1} --> (/,open,$x,_)>>."
+  (is (derived "<<$1 --> key> ==> <{lock1} --> (/,open,$1,_)>>."
                "<{lock1} --> lock>."
-               ["(&&,<#1 --> lock>,<<$2 --> key> ==> <#1 --> (/,open,$2,_)>>). %1.00;0.81%"
-                "<(&&,<$1 --> key>,<$2 --> lock>) ==> <$2 --> (/,open,$1,_)>>. %1.00;0.45%"])))
+               ["(&&,<#Y --> lock>,<<$1 --> key> ==> <#Y --> (/,open,$1,_)>>). %1.00;0.81%"
+                "<(&&,<$1 --> key>,<$X --> lock>) ==> <$X --> (/,open,$1,_)>>. %1.00;0.45%"]))) ;y
 
 (deftest multiple_variables_introduction2
   (is (derived "(&&,<#x --> key>,<{lock1} --> (/,open,#x,_)>)."
                "<{lock1} --> lock>."
-               ["(&&,<#1 --> key>,<#2 --> lock>,<#2 --> (/,open,#1,_)>). %1.00;0.81%"
-                "(&&, <#1 --> lock>, <#1 --> (/, open, #2, _)>, <#2 --> key>). %1.00;0.81%"
-                "<<$1 --> lock> ==> (&&,<#2 --> key>,<$1 --> (/,open,#2,_)>)>. %1.00;0.45%"])))
+               ["(&&,<#Y --> (/,open,#x,_)>,<#Y --> lock>,<#x --> key>). %1.00;0.81%"
+                "<<$Y --> lock> ==> (&&,<$Y --> (/,open,#x,_)>,<#x --> key>)>. %1.00;0.45%"]))) ;y
 
 (deftest second_level_variable_unification
   (is (derived "(&&,<#1 --> lock>,<<$2 --> key> ==> <#1 --> (/,open,$2,_)>>). %1.00;0.90%"
                "<{key1} --> key>. %1.00;0.90%"
-               ["(&&,<#1 --> lock>,<#1 --> (/,open,{key1},_)>). %1.00;0.81%"])))
+               ["(&&,<#1 --> lock>,<#1 --> (/,open,{key1},_)>). %1.00;0.81%"]))) ;n
 
 (deftest second_level_variable_unification2
   (is (derived "<<$1 --> lock> ==> (&&,<#2 --> key>,<$1 --> (/,open,#2,_)>)>. %1.00;0.90%"
                "<{key1} --> key>. %1.00;0.90%"
-               ["<<$1 --> lock> ==> <$1 --> (/,open,{key1},_)>>. %1.00;0.42%"])))
-
-(deftest second_level_variable_unification2_clean
-  (is (derived "<<$1 --> x> ==> (&&,<#2 --> y>,<$1 --> (/,open,#2,_)>)>. %1.00;0.90%"
-               "<{z} --> y>. %1.00;0.90%"
-               ["<<$1 --> x> ==> <$1 --> (/,open,{z},_)>>. %1.00;0.42%"])))
+               ["<<$1 --> lock> ==> <$1 --> (/,open,{key1},_)>>. %1.00;0.42%"]))) ;n
 
 (deftest second_variable_introduction_induction
   (is (derived "<<lock1 --> (/,open,$1,_)> ==> <$1 --> key>>."
                "<lock1 --> lock>."
-               ["<(&&,<#1 --> lock>,<#1 --> (/,open,$2,_)>) ==> <$2 --> key>>. %1.00;0.45%"])))
+               ["<(&&,<#1 --> lock>,<#1 --> (/,open,$2,_)>) ==> <$2 --> key>>. %1.00;0.45%"]))) ;n
 
 (deftest variable_elimination_deduction
   (is (derived "<(&&,<#1 --> lock>,<#1 --> (/,open,$2,_)>) ==> <$2 --> key>>. %1.00;0.90%"
                "<lock1 --> lock>. %1.00;0.90%"
-               ["<<lock1 --> (/,open,$1,_)> ==> <$1 --> key>>. %1.00;0.81%"])))
+               ["<<lock1 --> (/,open,$1,_)> ==> <$1 --> key>>. %1.00;0.81%"]))) ;n
 
 (deftest abduction_with_variable_elimination
   (is (derived "<<lock1 --> (/,open,$1,_)> ==> <$1 --> key>>. %1.00;0.90%"
                "<(&&,<#1 --> lock>,<#1 --> (/,open,$2,_)>) ==> <$2 --> key>>. %1.00;0.90%"
-               ["<lock1 --> lock>. %1.00;0.45%"])))
+               ["<lock1 --> lock>. %1.00;0.45%"])))         ;n
 
 (deftest strong_unification
   (is (derived "<<(*,$a,is,$b) --> sentence> ==> <$a --> $b>>. %1.00;0.90%"
                "<(*,bmw,is,car) --> sentence>. %1.00;0.90%"
-               ["<bmw --> car>. %1.00;0.81%"])))
+               ["<bmw --> car>. %1.00;0.81%"])))            ;y
 
 (deftest strong_elimination
   (is (derived "<(&&,<(*,$a,is,cat) --> test>,<(*,$a,is,$b) --> sentence>) ==> <$a --> $b>>."
                "<(*,tim,is,cat) --> test>."
-               ["<<(*,tim,is,$b) --> sentence> ==> <tim --> $b>>. %1.00;0.81%"])))
+               ["<<(*,tim,is,$b) --> sentence> ==> <tim --> $b>>. %1.00;0.81%"]))) ;n
 
 ;NAL7 testcases:
 
