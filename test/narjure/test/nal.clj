@@ -655,10 +655,6 @@
                 "<<$X --> swimmer> ==> <$X --> bird>>. %1.00;0.39%"
                 "<<$X --> bird> <=> <$X --> swimmer>>. %0.80;0.45%"
                 "(&&, <#Y --> bird>, <#Y --> swimmer>). %0.80;0.81%"]))) ;y
-;fails because
-;derives :statement [[conj [--> [dep-var Y] bird] [--> [dep-var Y] swimmer]]]
-;will try to find why tomorrow
-
 
 (deftest variable_introduction2
   (is (derived "<gull --> swimmer>."

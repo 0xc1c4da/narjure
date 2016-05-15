@@ -56,10 +56,6 @@
     '[ext-set 2 4 1] '[- [ext-set 5 6 2 4 1] [ext-set 5 6]]
     '[int-set 2 4 1] '[int-dif [int-set 5 6 2 4 1] [int-set 5 6]]
 
-    '[* 1 2] '[* [* 1] 2]
-    '[* 1 3 2] '[* [* 1 3] 2]
-    '[* 1 3 2 4] '[* [* 1 3] 2 4]
-
     1 '[ext-image [* 1 2] 2]
     '[ext-image [* 1 2] 3] '[ext-image [* 1 2] 3]
     1 '[int-image [* 1 2] 2]

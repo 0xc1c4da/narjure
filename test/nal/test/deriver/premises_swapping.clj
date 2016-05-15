@@ -10,14 +10,6 @@
     :full-path   [(--> :any :any) :and (--> :any :any)]
     :pre         (:question?)})
 
-(def rule-wth-commutative-term
-  '{:p1          (--> P M),
-    :p2          (--> S M),
-    :conclusions [{:conclusion (<-> S P),
-                   :post       (:t/comparison :d/weak :allow-backward)}],
-    :full-path   [(--> :any :any) :and (--> :any :any)],
-    :pre         ((:!= S P))})
-
 (def rule
   '{:p1          (--> M P),
     :p2          (<-> S M),
@@ -28,8 +20,7 @@
 
 (deftest test-allow-swapping?
   (are [r] (false? (allow-swapping? r))
-    question-rule
-    rule-wth-commutative-term)
+    question-rule)
   (is (true? (allow-swapping? rule))))
 
 (deftest test-swap-premises

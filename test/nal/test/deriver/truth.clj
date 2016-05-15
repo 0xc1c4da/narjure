@@ -166,7 +166,7 @@
 (deftest test-structual-deduction
   (both-equal
      [1.0 0.81] (structual-deduction [1 0.9] [1 0.9])
-     [0.4 0.09000000000000001] (structual-deduction [0.4 0.1] [1 0.9])
+     [0.4 0.03600000000000001] (structual-deduction [0.4 0.1] [1 0.9])
      [1.0 0.54] (structual-deduction [1 0.6] [0.4 0.1])))
 
 (deftest test-structual-abduction
@@ -196,14 +196,14 @@
 (deftest test-belief-structural-deduction
   (both-equal
      [1.0 0.81] (belief-structural-deduction [1 0.9] [1 0.9])
-     [0.3 0.81] (belief-structural-deduction [1 0.6] [0.3 0.9])
-     [0.6 0.20700000000000002] (belief-structural-deduction [0.9 0.67] [0.6 0.23])))
+     [0.3 0.24300000000000002] (belief-structural-deduction [1 0.6] [0.3 0.9])
+     [0.6 0.12420000000000002] (belief-structural-deduction [0.9 0.67] [0.6 0.23])))
 
 (deftest test-belief-structural-difference
   (is (nil? (belief-structural-difference [1 0.9] nil)))
   (both-equal
-     [0.5 0.27] (belief-structural-difference [0.9 0.9] [0.5 0.3])
-     [0.09999999999999998 0.81] (belief-structural-difference [0.5 0.3] [0.9 0.9])))
+    [0.5 0.135] (belief-structural-difference [0.9 0.9] [0.5 0.3])
+    [0.09999999999999998 0.7290000000000001] (belief-structural-difference [0.5 0.3] [0.9 0.9])))
 
 (deftest test-belief-negation
   (both-equal

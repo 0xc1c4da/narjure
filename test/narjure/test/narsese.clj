@@ -22,8 +22,8 @@
   (is (= '[[conj [--> [dep-var Y] [int-set red]] [--> [dep-var Y] apple]]]
          (narsese->clj "(&&,<#Y --> [red]>,<#Y --> apple>).")))
   (is (= '[retrospective-implication
-           [--> [product [ind-var x] room_101] enter]
-           [--> [product [ind-var x] door_101] open]]
+           [--> [* [ind-var x] room_101] enter]
+           [--> [* [ind-var x] door_101] open]]
          (narsese->clj "<<( $x, room_101) --> enter> =\\> <( $x, door_101) --> open>>. %0.9;0.1%"))))
 
 (deftest test-numbers-validation

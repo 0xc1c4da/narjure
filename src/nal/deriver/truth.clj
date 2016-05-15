@@ -34,7 +34,9 @@
     [(/ (+ (* w1 f1) (* w2 f2)) w) (w2c w)]))
 
 (defn deduction [[^double f1 ^double c1] [^double f2 ^double c2]]
-  [(t-and f1 f2) (t-and c1 c2)])
+  (let [f (t-and f1 f2)]
+    [f (t-and f c1 c2)]))
+
 (defn a-deduction [[^double f1 ^double c1] c2] [f1 (t-and f1 c1 c2)])
 
 (defn analogy [[^double f1 ^double c1] [^double f2 ^double c2]]
