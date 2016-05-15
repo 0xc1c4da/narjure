@@ -12,8 +12,7 @@
   "Checks if rule allow swapping of premises."
   [{:keys [pre conclusions]}]
   (let [{:keys [post conclusion]} (first conclusions)]
-    (and (not-any? anti-swapping-keys (flatten (concat pre post)))
-         (not-any? commutative-ops (flatten conclusion)))))
+    (not-any? anti-swapping-keys (flatten (concat pre post)))))
 
 (defn swap-premises
   [{:keys [p1 p2] :as rule}]

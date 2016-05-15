@@ -637,7 +637,7 @@
 (deftest multiple_variable_elimination2
   (is (derived "<<$1 --> lock> ==> (&&,<#2 --> key>,<$1 --> (/,open,#2,_)>)>."
                "<{lock1} --> lock>."
-               ["(&&,<#1 --> key>,<{lock1} --> (/,open,#1,_)>). %1.00;0.81%"]))) ;n
+               ["(&&,<#2 --> key>,<{lock1} --> (/,open,#2,_)>). %1.00;0.81%"]))) ;y
 
 (deftest multiple_variable_elimination3
   (is (derived "(&&,<#1 --> lock>,<<$2 --> key> ==> <#1 --> (/,open,$2,_)>>)."
