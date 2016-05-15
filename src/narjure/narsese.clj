@@ -94,11 +94,12 @@
     `[~(get-compound-term comp-operator)
       ~@(keep-cat element (remove string? data))]))
 
-(def var-prefixes {"#" "d_" "?" "?"})
+(def var-prefixes '{"#" dep-var "?" qu-var "$" ind-var})
 (defmethod element :variable [[_ type [_ v]]]
-  (let [v (symbol (str (var-prefixes type) v))]
+  (let [front (var-prefixes type)
+        v [front v]]
     (swap! *lvars* conj v)
-    v))
+    v))                                                     ;let v (symbol (str (var-prefixes type) v))
 
 (defmethod element :word [[_ word]] (symbol word))
 
