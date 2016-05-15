@@ -111,12 +111,6 @@
            [_ ['ext-set & l1] ['ext-set & l2]] (diff 'ext-set l1 l2)
            :else st))
 
-(defn reduce-production
-  [st]
-  (m/match st
-           ['* ['* & l1] & l2] (vec (conj (concat l1 l2) '*))
-           :else st))
-
 (defn reduce-image
   [st]
   (m/match st
@@ -162,7 +156,6 @@
    '|         `reduce-int-inter
    '-         `reduce-ext-dif
    'int-dif   `reduce-int-dif
-   '*         `reduce-production
    'int-image `reduce-image
    'ext-image `reduce-image
    '--        `reduce-neg
@@ -177,7 +170,6 @@
       | (reduce-int-inter st)
       - (reduce-ext-dif st)
       int-dif (reduce-int-dif st)
-      * (reduce-production st)
       int-image (reduce-image st)
       ext-image (reduce-image st)
       -- (reduce-neg st)

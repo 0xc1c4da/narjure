@@ -323,7 +323,7 @@
 (deftest structural_transformation4
   (is (derived "<neutralization --> (acid,base)>. %1.0;0.9%"
                "acid."
-               ["<(\\,neutralization,_,base) --> acid>. %1.0;0.9%"]))) ;n
+               ["<(\\,neutralization,_,base) --> acid>. %1.0;0.9%"]))) ;y
 
 (deftest structural_transformation4_2
   (is (derived "<neutralization --> (acid,base)>. %1.0;0.9%"
@@ -343,12 +343,12 @@
 (deftest composition_on_both_sides_of_a_statement
   (is (derived "<(bird,plant) --> ?x>?"
                "<bird --> animal>. %1.0;0.9%"
-               ["<(bird,plant) --> (animal,plant)>. %1.0;0.81%"]))) ;n
+               ["<(bird,plant) --> (animal,plant)>. %1.0;0.81%"]))) ;y
 
 (deftest composition_on_both_sides_of_a_statement_2
   (is (derived "<(*,bird,plant) --> (*,animal,plant)>?"
                "<bird --> animal>. %1.0;0.9%"
-               ["<(*,bird,plant) --> (*,animal,plant)>. %1.0;0.81%"]))) ;n
+               ["<(*,bird,plant) --> (*,animal,plant)>. %1.0;0.81%"]))) ;y
 
 (deftest composition_on_both_sides_of_a_statement2
   (is (derived "<(\\,neutralization,acid,_) --> ?x>?"
