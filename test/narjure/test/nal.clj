@@ -206,7 +206,7 @@
 (deftest compound_decomposition_two_premises
   (is (derived "<robin --> swimmer>. %0.0;0.9%"
                "<robin --> (|,swimmer,bird)>. %1.0;0.9%"
-               ["<robin --> bird>. %1.0;0.81%"])))          ;n
+               ["<robin --> bird>. %1.0;0.81%"])))          ;y
 
 (deftest compound_decomposition_two_premises2
   (is (derived "<robin --> swimmer>. %0.0;0.9%"
@@ -457,13 +457,13 @@
 (deftest compound_decomposition_two_premises2
   (is (derived "(&&,<robin --> [flying]>,<robin --> swimmer>). %0.0;0.9%"
                "<robin --> [flying]>."                      ;double premise!!
-               ["<robin --> swimmer>. %0.00;0.81%"])))      ;n
+               ["<robin --> swimmer>. %0.00;0.81%"])))      ;y
 
 ;structural inference!!
 (deftest compound_decomposition_two_premises3
   (is (derived "(||,<robin --> [flying]>,<robin --> swimmer>)."
                "<robin --> swimmer>. %0.0;0.9%"             ;double premise!
-               ["<robin --> [flying]>. %1.00;0.81%"])))     ;n
+               ["<robin --> [flying]>. %1.00;0.81%"])))     ;y
 
 ;question driven forward inference!
 (deftest compound_composition_one_premises
@@ -482,7 +482,7 @@
 (deftest compound_decomposition_one_premises_2
   (is (derived "(&&,<robin --> swimmer>,<robin --> [flying]>). %0.9;0.9%"
                "<robin --> [flying]>?"                      ;single prem;it is termlink term only not a real premise!!
-               ["<robin --> [flying]>. %0.9;0.73%"])))      ;n
+               ["<robin --> [flying]>. %0.9;0.73%"])))      ;y
 
 ;structural inference!!
 (deftest negation
@@ -515,7 +515,7 @@
 (deftest conditional_deduction
   (is (derived "<(&&,<robin --> [flying]>,<robin --> [withWings]>) ==> <robin --> bird>>."
                "<robin --> [flying]>."
-               ["<<robin --> [withWings]> ==> <robin --> bird>>. %1.00;0.81%"]))) ;n
+               ["<<robin --> [withWings]> ==> <robin --> bird>>. %1.00;0.81%"]))) ;y
 
 (deftest conditional_deduction2
   (is (derived "<(&&,<robin --> [chirping]>,<robin --> [flying]>,<robin --> [withWings]>) ==> <robin --> bird>>."
@@ -526,7 +526,7 @@
 (deftest conditional_deduction3
   (is (derived "<(&&,<robin --> bird>,<robin --> [living]>) ==> <robin --> animal>>."
                "<<robin --> [flying]> ==> <robin --> bird>>."
-               ["<(&&,<robin --> [flying]>,<robin --> [living]>) ==> <robin --> animal>>. %1.00;0.81%"]))) ;n
+               ["<(&&,<robin --> [flying]>,<robin --> [living]>) ==> <robin --> animal>>. %1.00;0.81%"]))) ;y
 
 (deftest conditional_abduction
   (is (derived "<<robin --> [flying]> ==> <robin --> bird>>."
@@ -542,7 +542,7 @@
   (is (derived "<(&&,<robin --> [flying]>,<robin --> [withWings]>) ==> <robin --> [living]>>. %0.9;0.9%"
                "<(&&,<robin --> [flying]>,<robin --> bird>) ==> <robin --> [living]>>."
                ["<<robin --> bird> ==> <robin --> [withWings]>>. %1.00;0.42%"
-                "<<robin --> [withWings]> ==> <robin --> bird>>. %0.90;0.45%"]))) ;n
+                "<<robin --> [withWings]> ==> <robin --> bird>>. %0.90;0.45%"]))) ;y
 
 (deftest conditional_induction
   (is (derived "<(&&,<robin --> [chirping]>,<robin --> [flying]>) ==> <robin --> bird>>."
@@ -596,7 +596,7 @@
 (deftest variable_unification7
   (is (derived "<(&&,<$1 --> flyer>,<($1,worms) --> food>) ==> <$1 --> bird>>."
                "<<$1 --> flyer> ==> <$1 --> [withWings]>>."
-               ["<(&&,<$1 --> [withWings]>,<($1,worms) --> food>) ==> <$1 --> bird>>. %1.00;0.45%"]))) ;n
+               ["<(&&,<$1 --> [withWings]>,<($1,worms) --> food>) ==> <$1 --> bird>>. %1.00;0.45%"]))) ;y
 
 (deftest variable_elimination
   (is (derived "<<$1 --> bird> ==> <$1 --> animal>>."
@@ -626,7 +626,7 @@
 (deftest variable_elimination6
   (is (derived "<(&&,<$1 --> flyer>,<$1 --> [chirping]>, <($1, worms) --> food>) ==> <$1 --> bird>>."
                "<{Tweety} --> flyer>."
-               ["<(&&,<{Tweety} --> [chirping]>,<({Tweety},worms) --> food>) ==> <{Tweety} --> bird>>. %1.00;0.81%"]))) ;n
+               ["<(&&,<{Tweety} --> [chirping]>,<({Tweety},worms) --> food>) ==> <{Tweety} --> bird>>. %1.00;0.81%"]))) ;y
 
 (deftest multiple_variable_elimination
   (is (derived "<(&&,<$1 --> key>,<$2 --> lock>) ==> <$2 --> (/,open,$1,_)>>."
@@ -717,7 +717,7 @@
 (deftest strong_elimination
   (is (derived "<(&&,<(*,$a,is,cat) --> test>,<(*,$a,is,$b) --> sentence>) ==> <$a --> $b>>."
                "<(*,tim,is,cat) --> test>."
-               ["<<(*,tim,is,$b) --> sentence> ==> <tim --> $b>>. %1.00;0.81%"]))) ;n
+               ["<<(*,tim,is,$b) --> sentence> ==> <tim --> $b>>. %1.00;0.81%"]))) ;y
 
 ;NAL7 testcases:
 
