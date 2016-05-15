@@ -5,23 +5,29 @@
             [nal.deriver :refer :all]
             [nal.rules :as r]))
 
+(defn parse2 [stmt]
+  (let [parser-workaround (fn [prem, stmt]
+                            (if (and (vector? stmt)
+                                     (vector? (first stmt))
+                                     (= (count stmt) 1))
+                              (assoc prem :statement (first stmt))
+                              prem))
+        time (if (.contains stmt ":|:")
+               0
+               :eternal)
+        parsedstmt (assoc (parse stmt) :occurrence time)]
+    (parser-workaround parsedstmt (:statement parsedstmt))))
+
 (defn conclusions
   "Create all conclusions based on two Narsese premise strings"
-  ([p1 p2 premise-type]                                     ;todo probably parser should probably recognize and set occurrence 0 by default in case of :|:
-   (conclusions p1 p2 :eternal (= premise-type :term)))
-  ([p1 p2]                                                  ;todo probably parser should probably recognize and set occurrence 0 by default in case of :|:
-   (conclusions p1 p2 :eternal false))                             ;after this task creator assigns current time when it becomes a real task
-  ([p1 p2 occurrence single]
-   (let [parsed-p1 (parse p1)
-         parsed-p2 (parse p2)
-         prem2 (assoc parsed-p2 :occurrence occurrence)
+  ([p1 p2]
+   (let [parsed-p1 (parse2 p1)
+         parsed-p2 (parse2 p2)
          punctuation (:action parsed-p1)]
      (set (generate-conclusions
             (r/rules punctuation)
-            (assoc parsed-p1 :occurrence occurrence)
-            (if single
-              (assoc prem2 :statement (first (:statement prem2)))
-              prem2))))))
+            parsed-p1
+            parsed-p2)))))
 
 (def truth-tolerance 0.005)
 
@@ -37,17 +43,15 @@
 (defn derived                                               ;must derive single step (no tick parameter), no control dependency
   "Checks whether a certain expected conclusion is derived"
   ([p1 p2 clist]
-   (derived p1 p2 :double clist))
-  ([p1 p2 premise-type clist]
    (dosync
      (use-counter-reset)                                    ;making sure each testcases starts with zero seed
-     (let [parsed-p1 (parse p1)]
-       (every? (fn [c] (let [parsed-c (parse c)]
+     (let [parsed-p1 (parse2 p1)]
+       (every? (fn [c] (let [parsed-c (parse2 c)]
                          (some #(and (= (:statement %) (:statement parsed-c))
                                      (or (= (:action parsed-p1) :question)
                                          (= (:action parsed-p1) :quest)
                                          (truth-equal? % parsed-c)))
-                               (conclusions p1 p2 premise-type)))) clist)))))
+                               (conclusions p1 p2)))) clist)))))
 
 ;NAL1 testcases:
 
@@ -141,23 +145,23 @@
 
 (deftest setDefinition
   (is (derived "<{Tweety} --> {Birdie}>."
-               "{Tweety}." :term
+               "{Tweety}."
                ["<{Birdie} <-> {Tweety}>. %1.0;0.9%"])))    ;y
 
 (deftest setDefinition2
   (is (derived "<[smart] --> [bright]>."
-               "[smart]." :term
+               "[smart]."
                ["<[smart] <-> [bright]>. %1.0;0.9%"])))     ;y
 
 (deftest setDefinition3
   (is (derived "<{Birdie} <-> {Tweety}>."
-               "{Birdie}." :term
+               "{Birdie}."
                ["<Birdie <-> Tweety>. %1.0;0.9%"
                 "<{Tweety} --> {Birdie}>. %1.0;0.9%"])))    ;y
 
 (deftest setDefinition4
   (is (derived "<[bright] <-> [smart]>."
-               "[bright]." :term
+               "[bright]."
                ["<bright <-> smart>. %1.0;0.9%"
                 "<[bright] --> [smart]>. %1.0;0.9%"])))     ;y
 
@@ -282,59 +286,59 @@
 
 (deftest compound_decomposition_one_premise
   (is (derived "<robin --> (-,bird,swimmer)>. %0.9;0.9%"
-               "robin?" :term                               ;TODO just use question for single premise as second
+               "robin?"                              ;TODO just use question for single premise as second
                ["<robin --> bird>. %0.90;0.73%"])))         ;n
 
 (deftest compound_decomposition_one_premise2
   (is (derived "<(|, boy, girl) --> youth>. %0.9;0.9%"
-               "youth." :term
+               "youth."
                ["<boy --> youth>. %0.90;0.73%"])))          ;n
 
 (deftest compound_decomposition_one_premise3
   (is (derived "<(~, boy, girl) --> [strong]>. %0.9;0.9%"
-               "[strong]." :term
+               "[strong]."
                ["<boy --> [strong]>. %0.90;0.73%"])))       ;n
 
 ;NAL4 testcases:
 
 (deftest structural_transformation1
   (is (derived "<(acid,base) --> reaction>. %1.0;0.9%"
-               "acid." :term
+               "acid."
                ["<acid --> (/,reaction,_,base)>. %1.0;0.9%"]))) ;n
 
 (deftest structural_transformation1_2
   (is (derived "<(acid,base) --> reaction>. %1.0;0.9%"
-               "base." :term
+               "base."
                ["<base --> (/,reaction,acid,_)>. %1.0;0.9%"]))) ;n
 
 (deftest structural_transformation2
   (is (derived "<acid --> (/,reaction,_,base)>. %1.0;0.9%"
-               "reaction." :term
+               "reaction."
                ["<(acid,base) --> reaction>. %1.0;0.9%"]))) ;n
 
 (deftest structural_transformation3
   (is (derived "<base --> (/,reaction,acid,_)>. %1.0;0.9%"
-               "reaction." :term
+               "reaction."
                ["<(acid,base) --> reaction>. %1.0;0.9%"]))) ;n
 
 (deftest structural_transformation4
   (is (derived "<neutralization --> (acid,base)>. %1.0;0.9%"
-               "acid." :term
+               "acid."
                ["<(\\,neutralization,_,base) --> acid>. %1.0;0.9%"]))) ;n
 
 (deftest structural_transformation4_2
   (is (derived "<neutralization --> (acid,base)>. %1.0;0.9%"
-               "base." :term
+               "base."
                ["<(\\,neutralization,acid,_) --> base>. %1.0;0.9%"]))) ;n
 
 (deftest structural_transformation5
   (is (derived "<(\\,neutralization,_,base) --> acid>. %1.0;0.9%"
-               "neutralization." :term
+               "neutralization."
                ["<neutralization --> (acid,base)>. %1.0;0.9%"]))) ;n
 
 (deftest structural_transformation6
   (is (derived "<(\\,neutralization,acid,_) --> base>. %1.0;0.9%"
-               "neutralization." :term
+               "neutralization."
                ["<neutralization --> (acid,base)>. %1.0;0.9%"]))) ;n
 
 (deftest composition_on_both_sides_of_a_statement
@@ -433,18 +437,17 @@
                "<<robin --> bird> ==> <robin --> [flying]>>. %0.9;0.9%"
                ["<<robin --> bird> <=> <robin --> [flying]>>. %0.81;0.81%"]))) ;n
 
-;misses the && case, TODO lookat
 (deftest compound_composition_two_premises
   (is (derived "<<robin --> bird> ==> <robin --> animal>>."
                "<<robin --> bird> ==> <robin --> [flying]>>. %0.9;0.9%"
-               ["<<robin --> bird> ==> (&&,<robin --> [flying]>,<robin --> animal>)>. %0.90;0.81%"
-                "<<robin --> bird> ==> (||,<robin --> [flying]>,<robin --> animal>)>. %1.00;0.81%"]))) ;n
+               ["<<robin --> bird> ==> (&&,<robin --> animal>,<robin --> [flying]>)>. %0.90;0.81%"
+                "<<robin --> bird> ==> (||,<robin --> animal>,<robin --> [flying]>)>. %1.00;0.81%"]))) ;y
 
 (deftest compound_composition_two_premises2
   (is (derived "<<robin --> bird> ==> <robin --> animal>>."
                "<<robin --> [flying]> ==> <robin --> animal>>. %0.9;0.9%"
                ["<(&&,<robin --> bird>, <robin --> [flying]>) ==> <robin --> animal>>. %1.00;0.81%"
-                "<(||,<robin --> bird>, <robin --> [flying]>) ==> <robin --> animal>>. %0.90;0.81%"]))) ;n
+                "<(||,<robin --> bird>, <robin --> [flying]>) ==> <robin --> animal>>. %0.90;0.81%"]))) ;y
 
 (deftest compound_decomposition_two_premises1
   (is (derived "<<robin --> bird> ==> (&&,<robin --> animal>,<robin --> [flying]>)>. %0.0;0.9%"
@@ -454,16 +457,16 @@
 ;structural inference!! (one premise) TODO derived-structural
 (deftest compound_decomposition_two_premises2
   (is (derived "(&&,<robin --> [flying]>,<robin --> swimmer>). %0.0;0.9%"
-               "<robin --> [flying]>."
+               "<robin --> [flying]>."                      ;double premise!!
                ["<robin --> swimmer>. %0.00;0.81%"])))      ;n
 
 ;structural inference!!
 (deftest compound_decomposition_two_premises3
   (is (derived "(||,<robin --> [flying]>,<robin --> swimmer>)."
-               "<robin --> swimmer>. %0.0;0.9%"
+               "<robin --> swimmer>. %0.0;0.9%"             ;double premise!
                ["<robin --> [flying]>. %1.00;0.81%"])))     ;n
 
-;structural inference!!
+;question driven forward inference!
 (deftest compound_composition_one_premises
   (is (derived "(||,<robin --> [flying]>,<robin --> swimmer>)?"
                "<robin --> [flying]>."
@@ -472,14 +475,14 @@
 ;structural inference!!
 (deftest compound_decomposition_one_premises
   (is (derived "(&&,<robin --> swimmer>,<robin --> [flying]>). %0.9;0.9%"
-               "<robin --> swimmer>."                       ;it is termlink term only not a real premise!!
-               ["<robin --> swimmer>. %0.9;0.73%"
+               "<robin --> swimmer>?"                       ;it is termlink term only not a real premise!!
+               ["<robin --> swimmer>. %0.9;0.73%"           ;single premise
                 "<robin --> [flying]>. %0.9;0.73%"])))      ;n
 
 ;structural inference!!
 (deftest compound_decomposition_one_premises_2
   (is (derived "(&&,<robin --> swimmer>,<robin --> [flying]>). %0.9;0.9%"
-               "<robin --> [flying]>."                      ;it is termlink term only not a real premise!!
+               "<robin --> [flying]>?"                      ;single prem;it is termlink term only not a real premise!!
                ["<robin --> [flying]>. %0.9;0.73%"])))      ;n
 
 ;structural inference!!
@@ -534,11 +537,11 @@
 (deftest conditional_abduction2
   (is (derived "<(&&,<robin --> [withWings]>,<robin --> [chirping]>) ==> <robin --> bird>>."
                "<(&&,<robin --> [flying]>,<robin --> [withWings]>,<robin --> [chirping]>) ==> <robin --> bird>>."
-               ["<robin --> [flying]>. %1.00;0.45%"])))     ;n
+               ["<robin --> [flying]>. %1.00;0.45%"])))     ;y
 
 (deftest conditional_abduction3
   (is (derived "<(&&,<robin --> [flying]>,<robin --> [withWings]>) ==> <robin --> [living]>>. %0.9;0.9%"
-               "<(&&,<robin --> [flying]>,<robin --> bird>) ==> <robin --> [living]>>.."
+               "<(&&,<robin --> [flying]>,<robin --> bird>) ==> <robin --> [living]>>."
                ["<<robin --> bird> ==> <robin --> [withWings]>>. %1.00;0.42%"
                 "<<robin --> [withWings]> ==> <robin --> bird>>. %0.90;0.45%"]))) ;n
 
@@ -560,7 +563,7 @@
   (is (derived "<<$1 --> bird> ==> <$1 --> animal>>."
                "<<$1 --> robin> ==> <$1 --> bird>>."
                ["<<$1 --> robin> ==> <$1 --> animal>>. %1.00;0.81%"
-                "<<$1 --> animal> ==> <$1 --> robin>>. %1.00;0.45%"])))
+                "<<$1 --> animal> ==> <$1 --> robin>>. %1.00;0.45%"]))) ;y
 
 (deftest variable_unification3
   (is (derived "<<$1 --> swan> ==> <$1 --> bird>>. %1.00;0.80%"
@@ -569,7 +572,7 @@
                 "<<$1 --> swan> ==> (&&,<$1 --> bird>,<$1 --> swimmer>)>. %0.80;0.72%"
                 "<<$1 --> swimmer> ==> <$1 --> bird>>. %1.00;0.37%"
                 "<<$1 --> bird> ==> <$1 --> swimmer>>. %0.80;0.42%"
-                "<<$1 --> bird> <=> <$1 --> swimmer>>. %0.80;0.42%"])))
+                "<<$1 --> bird> <=> <$1 --> swimmer>>. %0.80;0.42%"]))) ;y
 
 (deftest variable_unification4
   (is (derived "<<bird --> $1> ==> <robin --> $1>>."
@@ -578,23 +581,23 @@
                 "<(||,<bird --> $1>,<swimmer --> $1>) ==> <robin --> $1>>. %0.70;0.81%"
                 "<<bird --> $1> ==> <swimmer --> $1>>. %1.00;0.36%"
                 "<<swimmer --> $1> ==> <bird --> $1>>. %0.70;0.45%"
-                "<<bird --> $1> <=> <swimmer --> $1>>. %0.70;0.45%"])))
+                "<<swimmer --> $1> <=> <bird --> $1>>. %0.70;0.45%"]))) ;y
 
 (deftest variable_unification5
   (is (derived "<(&&,<$1 --> flyer>,<$1 --> [chirping]>) ==> <$1 --> bird>>."
                "<<$1 --> [withWings]> ==> <$1 --> flyer>>."
-               ["<(&&,<$1 --> [chirping]>,<$1 --> [withWings]>) ==> <$1 --> bird>>. %1.00;0.81%"])))
+               ["<(&&,<$1 --> [chirping]>,<$1 --> [withWings]>) ==> <$1 --> bird>>. %1.00;0.81%"]))) ;n
 
 (deftest variable_unification6
   (is (derived "<(&&,<$1 --> flyer>,<$1 --> [chirping]>, <($1, worms) --> food>) ==> <$1 --> bird>>."
                "<(&&,<$1 --> [chirping]>,<$1 --> [withWings]>) ==> <$1 --> bird>>."
                ["<(&&,<$1 --> flyer>,<($1,worms) --> food>) ==> <$1 --> [withWings]>>. %1.00;0.45%"
-                "<<$1 --> [withWings]> ==> (&&,<$1 --> flyer>,<($1,worms) --> food>)>. %1.00;0.45%"])))
+                "<<$1 --> [withWings]> ==> (&&,<$1 --> flyer>,<($1,worms) --> food>)>. %1.00;0.45%"]))) ;n
 
 (deftest variable_unification7
   (is (derived "<(&&,<$1 --> flyer>,<($1,worms) --> food>) ==> <$1 --> bird>>."
                "<<$1 --> flyer> ==> <$1 --> [withWings]>>."
-               ["<(&&,<$1 --> [withWings]>,<($1,worms) --> food>) ==> <$1 --> bird>>. %1.00;0.45%"])))
+               ["<(&&,<$1 --> [withWings]>,<($1,worms) --> food>) ==> <$1 --> bird>>. %1.00;0.45%"]))) ;n
 
 (deftest variable_elimination
   (is (derived "<<$1 --> bird> ==> <$1 --> animal>>."
@@ -612,55 +615,59 @@
                ["<robin --> animal>. %1.00;0.81%"])))       ;y
 
 (deftest variable_elimination4
-  (is (derived "(&&,<#x --> bird>,<#x --> swimmer>)."
-               "<swan --> bird>. %0.90;0.9%"
-               ["<swan --> swimmer>. %0.90;0.42%"])))
+  (is (derived "(&&,<#1 --> bird>,<#1 --> swimmer>)."
+               "<swan --> bird>. %0.90;0.90%"
+               ["<swan --> swimmer>. %0.90;0.42%"])))       ;n
 
 (deftest variable_elimination5
   (is (derived "<{Tweety} --> [withWings]>."
                "<(&&,<$1 --> [chirping]>,<$1 --> [withWings]>) ==> <$1 --> bird>>."
-               ["<<{Tweety} --> [chirping]> ==> <{Tweety} --> bird>>. %1.00;0.81%"])))
+               ["<<{Tweety} --> [chirping]> ==> <{Tweety} --> bird>>. %1.00;0.81%"]))) ;n
 
 (deftest variable_elimination6
   (is (derived "<(&&,<$1 --> flyer>,<$1 --> [chirping]>, <($1, worms) --> food>) ==> <$1 --> bird>>."
                "<{Tweety} --> flyer>."
-               ["<(&&,<{Tweety} --> [chirping]>,<({Tweety},worms) --> food>) ==> <{Tweety} --> bird>>. %1.00;0.81%"])))
+               ["<(&&,<{Tweety} --> [chirping]>,<({Tweety},worms) --> food>) ==> <{Tweety} --> bird>>. %1.00;0.81%"]))) ;n
 
 (deftest multiple_variable_elimination
   (is (derived "<(&&,<$1 --> key>,<$2 --> lock>) ==> <$2 --> (/,open,$1,_)>>."
                "<{lock1} --> lock>."
-               ["<<$1 --> key> ==> <{lock1} --> (/,open,$1,_)>>. %1.00;0.81%"])))
+               ["<<$1 --> key> ==> <{lock1} --> (/,open,$1,_)>>. %1.00;0.81%"]))) ;n
 
 (deftest multiple_variable_elimination2
   (is (derived "<<$1 --> lock> ==> (&&,<#2 --> key>,<$1 --> (/,open,#2,_)>)>."
                "<{lock1} --> lock>."
-               ["(&&,<#1 --> key>,<{lock1} --> (/,open,#1,_)>). %1.00;0.81%"])))
+               ["(&&,<#1 --> key>,<{lock1} --> (/,open,#1,_)>). %1.00;0.81%"]))) ;n
 
 (deftest multiple_variable_elimination3
   (is (derived "(&&,<#1 --> lock>,<<$2 --> key> ==> <#1 --> (/,open,$2,_)>>)."
                "<{lock1} --> lock>."
-               ["<<$1 --> key> ==> <{lock1} --> (/,open,$1,_)>>. %1.00;0.42%"])))
+               ["<<$1 --> key> ==> <{lock1} --> (/,open,$1,_)>>. %1.00;0.42%"]))) ;n
 
 (deftest multiple_variable_elimination4
   (is (derived "(&&,<#1 --> (/,open,#2,_)>,<#1 --> lock>,<#2 --> key>)."
                "<{lock1} --> lock>."
-               ["(&&,<#1 --> key>,<{lock1} --> (/,open,#1,_)>). %1.00;0.42%"])))
+               ["(&&,<#1 --> key>,<{lock1} --> (/,open,#1,_)>). %1.00;0.42%"]))) ;n
 
 (deftest variable_introduction
   (is (derived "<swan --> bird>."
                "<swan --> swimmer>. %0.80;0.9%"
-               ["<<$1 --> bird> ==> <$1 --> swimmer>>. %0.80;0.45%"
-                "<<$1 --> swimmer> ==> <$1 --> bird>>. %1.00;0.39%"
-                "<<$1 --> swimmer> <=> <$1 --> bird>>. %0.80;0.45%"
-                "(&&, <#1 --> swimmer>, <#1 --> bird>). %0.80;0.81%"])))
+               ["<<$X --> bird> ==> <$X --> swimmer>>. %0.80;0.45%"
+                "<<$X --> swimmer> ==> <$X --> bird>>. %1.00;0.39%"
+                "<<$X --> bird> <=> <$X --> swimmer>>. %0.80;0.45%"
+                "(&&, <#Y --> bird>, <#Y --> swimmer>). %0.80;0.81%"])))
+;fails because
+;derives :statement [[conj [--> [dep-var Y] bird] [--> [dep-var Y] swimmer]]]
+;will try to find why tomorrow
+
 
 (deftest variable_introduction2
   (is (derived "<gull --> swimmer>."
                "<swan --> swimmer>. %0.80;0.9%"
-               ["<<gull --> $1> ==> <swan --> $1>>. %0.80;0.45%"
-                "<<swan --> $1> ==> <gull --> $1>>. %1.00;0.39%"
-                "<<gull --> $1> <=> <swan --> $1>>. %0.80;0.45%"
-                "(&&,<gull --> #1>,<swan --> #1>). %0.80;0.81%"])))
+               ["<<gull --> $X> ==> <swan --> $X>>. %0.80;0.45%"
+                "<<swan --> $X> ==> <gull --> $X>>. %1.00;0.39%"
+                "<<swan --> $X> <=> <gull --> $X>>. %0.80;0.45%"
+                "(&&,<gull --> #Y>,<swan --> #Y>). %0.80;0.81%"])))
 
 (deftest variables_introduction
   (is (derived "<{key1} --> (/,open,_,{lock1})>."
