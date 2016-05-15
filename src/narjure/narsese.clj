@@ -36,7 +36,7 @@
    "\\" 'int-image
    "--" '--
    "||" '||
-   "&&" '&&
+   "&&" 'conj
    "&/" 'sequential-events
    "&|" 'parallel-events})
 
@@ -97,7 +97,7 @@
 (def var-prefixes '{"#" dep-var "?" qu-var "$" ind-var})
 (defmethod element :variable [[_ type [_ v]]]
   (let [front (var-prefixes type)
-        v [front v]]
+        v [front (symbol v)]]
     (swap! *lvars* conj v)
     v))                                                     ;let v (symbol (str (var-prefixes type) v))
 

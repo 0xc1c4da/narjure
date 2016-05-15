@@ -7,10 +7,10 @@
 
 (defn conclusions
   "Create all conclusions based on two Narsese premise strings"
-  ([p1 p2 premise-type]                                  ;todo probably parser should probably recognize and set occurrence 0 by default in case of :|:
-   (conclusions p1 p2 0 (= premise-type :term)))
+  ([p1 p2 premise-type]                                     ;todo probably parser should probably recognize and set occurrence 0 by default in case of :|:
+   (conclusions p1 p2 :eternal (= premise-type :term)))
   ([p1 p2]                                                  ;todo probably parser should probably recognize and set occurrence 0 by default in case of :|:
-   (conclusions p1 p2 0 false))                                   ;after this task creator assigns current time when it becomes a real task
+   (conclusions p1 p2 :eternal false))                             ;after this task creator assigns current time when it becomes a real task
   ([p1 p2 occurrence single]
    (let [parsed-p1 (parse p1)
          parsed-p2 (parse p2)
@@ -164,7 +164,7 @@
 (deftest structureTransformation
   (is (derived "<{Birdie} <-> {Tweety}>?"
                "<Birdie <-> Tweety>. %0.9;0.9%"
-      ["<{Birdie} <-> {Tweety}>. %0.9;0.9%"])))             ;y
+               ["<{Birdie} <-> {Tweety}>. %0.9;0.9%"])))    ;y
 
 (deftest structureTransformation2
   (is (derived "<[bright] --> [smart]>?"
@@ -174,7 +174,7 @@
 (deftest structureTransformation3
   (is (derived "<{bright} --> {smart}>?"
                "<bright <-> smart>. %0.9;0.9%"
-      ["<{bright} --> {smart}>. %0.9;0.9%"])))              ;y
+               ["<{bright} --> {smart}>. %0.9;0.9%"])))     ;y
 
 (deftest backwardInference
   (is (derived "<{?x} --> swimmer>?"
@@ -479,7 +479,7 @@
 ;structural inference!!
 (deftest compound_decomposition_one_premises_2
   (is (derived "(&&,<robin --> swimmer>,<robin --> [flying]>). %0.9;0.9%"
-               "<robin --> [flying]>."                       ;it is termlink term only not a real premise!!
+               "<robin --> [flying]>."                      ;it is termlink term only not a real premise!!
                ["<robin --> [flying]>. %0.9;0.73%"])))      ;n
 
 ;structural inference!!
@@ -534,7 +534,7 @@
 (deftest conditional_abduction2
   (is (derived "<(&&,<robin --> [withWings]>,<robin --> [chirping]>) ==> <robin --> bird>>."
                "<(&&,<robin --> [flying]>,<robin --> [withWings]>,<robin --> [chirping]>) ==> <robin --> bird>>."
-               ["<robin --> [flying]>. %1.00;0.45%"])))    ;n
+               ["<robin --> [flying]>. %1.00;0.45%"])))     ;n
 
 (deftest conditional_abduction3
   (is (derived "<(&&,<robin --> [flying]>,<robin --> [withWings]>) ==> <robin --> [living]>>. %0.9;0.9%"
@@ -549,21 +549,22 @@
 
 ;NAL6 testcases:
 
-;no conclusions! var representation different in deriver?
-(deftest variable_unification1
-  (is (derived "<<$x --> bird> ==> <$x --> flyer>>."
-               "<<$y --> bird> ==> <$y --> flyer>>. %0.00;0.70%"
-               ["<<$1 --> bird> ==> <$1 --> flyer>>. %0.79;0.92%"])))
+;
+; revision, this is local inference!!
+;(deftest variable_unification1
+;  (is (derived "<<$x --> bird> ==> <$x --> flyer>>."
+;               "<<$x --> bird> ==> <$x --> flyer>>. %0.00;0.70%"
+;              ["<<$x --> bird> ==> <$x --> flyer>>. %0.79;0.92%"])))
 
 (deftest variable_unification2
-  (is (derived "<<$x --> bird> ==> <$x --> animal>>."
-               "<<$y --> robin> ==> <$y --> bird>>."
+  (is (derived "<<$1 --> bird> ==> <$1 --> animal>>."
+               "<<$1 --> robin> ==> <$1 --> bird>>."
                ["<<$1 --> robin> ==> <$1 --> animal>>. %1.00;0.81%"
                 "<<$1 --> animal> ==> <$1 --> robin>>. %1.00;0.45%"])))
 
 (deftest variable_unification3
-  (is (derived "<<$x --> swan> ==> <$x --> bird>>. %1.00;0.80%"
-               "<<$y --> swan> ==> <$y --> swimmer>>. %0.80;0.9%"
+  (is (derived "<<$1 --> swan> ==> <$1 --> bird>>. %1.00;0.80%"
+               "<<$1 --> swan> ==> <$1 --> swimmer>>. %0.80;0.9%"
                ["<<$1 --> swan> ==> (||,<$1 --> bird>,<$1 --> swimmer>)>. %1.00;0.72%"
                 "<<$1 --> swan> ==> (&&,<$1 --> bird>,<$1 --> swimmer>)>. %0.80;0.72%"
                 "<<$1 --> swimmer> ==> <$1 --> bird>>. %1.00;0.37%"
@@ -571,8 +572,8 @@
                 "<<$1 --> bird> <=> <$1 --> swimmer>>. %0.80;0.42%"])))
 
 (deftest variable_unification4
-  (is (derived "<<bird --> $x> ==> <robin --> $x>>."
-               "<<swimmer --> $y> ==> <robin --> $y>>. %0.70;0.90%"
+  (is (derived "<<bird --> $1> ==> <robin --> $1>>."
+               "<<swimmer --> $1> ==> <robin --> $1>>. %0.70;0.90%"
                ["<(&&,<bird --> $1>,<swimmer --> $1>) ==> <robin --> $1>>. %1.00;0.81%"
                 "<(||,<bird --> $1>,<swimmer --> $1>) ==> <robin --> $1>>. %0.70;0.81%"
                 "<<bird --> $1> ==> <swimmer --> $1>>. %1.00;0.36%"
@@ -580,35 +581,35 @@
                 "<<bird --> $1> <=> <swimmer --> $1>>. %0.70;0.45%"])))
 
 (deftest variable_unification5
-  (is (derived "<(&&,<$x --> flyer>,<$x --> [chirping]>) ==> <$x --> bird>>."
-               "<<$y --> [withWings]> ==> <$y --> flyer>>."
+  (is (derived "<(&&,<$1 --> flyer>,<$1 --> [chirping]>) ==> <$1 --> bird>>."
+               "<<$1 --> [withWings]> ==> <$1 --> flyer>>."
                ["<(&&,<$1 --> [chirping]>,<$1 --> [withWings]>) ==> <$1 --> bird>>. %1.00;0.81%"])))
 
 (deftest variable_unification6
-  (is (derived "<(&&,<$x --> flyer>,<$x --> [chirping]>, <($x, worms) --> food>) ==> <$x --> bird>>."
-               "<(&&,<$y --> [chirping]>,<$y --> [withWings]>) ==> <$y --> bird>>."
+  (is (derived "<(&&,<$1 --> flyer>,<$1 --> [chirping]>, <($1, worms) --> food>) ==> <$1 --> bird>>."
+               "<(&&,<$1 --> [chirping]>,<$1 --> [withWings]>) ==> <$1 --> bird>>."
                ["<(&&,<$1 --> flyer>,<($1,worms) --> food>) ==> <$1 --> [withWings]>>. %1.00;0.45%"
                 "<<$1 --> [withWings]> ==> (&&,<$1 --> flyer>,<($1,worms) --> food>)>. %1.00;0.45%"])))
 
 (deftest variable_unification7
-  (is (derived "<(&&,<$x --> flyer>,<($x,worms) --> food>) ==> <$x --> bird>>."
-               "<<$y --> flyer> ==> <$y --> [withWings]>>."
+  (is (derived "<(&&,<$1 --> flyer>,<($1,worms) --> food>) ==> <$1 --> bird>>."
+               "<<$1 --> flyer> ==> <$1 --> [withWings]>>."
                ["<(&&,<$1 --> [withWings]>,<($1,worms) --> food>) ==> <$1 --> bird>>. %1.00;0.45%"])))
 
 (deftest variable_elimination
-  (is (derived "<<$x --> bird> ==> <$x --> animal>>."
+  (is (derived "<<$1 --> bird> ==> <$1 --> animal>>."
                "<robin --> bird>."
-               ["<robin --> animal>. %1.00;0.81%"])))
+               ["<robin --> animal>. %1.00;0.81%"])))       ;y
 
 (deftest variable_elimination2
-  (is (derived "<<$x --> bird> ==> <$x --> animal>>."
+  (is (derived "<<$1 --> bird> ==> <$1 --> animal>>."
                "<tiger --> animal>."
-               ["<tiger --> bird>. %1.00;0.45%"])))
+               ["<tiger --> bird>. %1.00;0.45%"])))         ;y
 
 (deftest variable_elimination3
-  (is (derived "<<$x --> animal> <=> <$x --> bird>>."
+  (is (derived "<<$1 --> animal> <=> <$1 --> bird>>."
                "<robin --> bird>."
-               ["<robin --> animal>. %1.00;0.81%"])))
+               ["<robin --> animal>. %1.00;0.81%"])))       ;y
 
 (deftest variable_elimination4
   (is (derived "(&&,<#x --> bird>,<#x --> swimmer>)."
@@ -617,31 +618,31 @@
 
 (deftest variable_elimination5
   (is (derived "<{Tweety} --> [withWings]>."
-               "<(&&,<$x --> [chirping]>,<$x --> [withWings]>) ==> <$x --> bird>>."
+               "<(&&,<$1 --> [chirping]>,<$1 --> [withWings]>) ==> <$1 --> bird>>."
                ["<<{Tweety} --> [chirping]> ==> <{Tweety} --> bird>>. %1.00;0.81%"])))
 
 (deftest variable_elimination6
-  (is (derived "<(&&,<$x --> flyer>,<$x --> [chirping]>, <($x, worms) --> food>) ==> <$x --> bird>>."
+  (is (derived "<(&&,<$1 --> flyer>,<$1 --> [chirping]>, <($1, worms) --> food>) ==> <$1 --> bird>>."
                "<{Tweety} --> flyer>."
                ["<(&&,<{Tweety} --> [chirping]>,<({Tweety},worms) --> food>) ==> <{Tweety} --> bird>>. %1.00;0.81%"])))
 
 (deftest multiple_variable_elimination
-  (is (derived "<(&&,<$x --> key>,<$y --> lock>) ==> <$y --> (/,open,$x,_)>>."
+  (is (derived "<(&&,<$1 --> key>,<$2 --> lock>) ==> <$2 --> (/,open,$1,_)>>."
                "<{lock1} --> lock>."
                ["<<$1 --> key> ==> <{lock1} --> (/,open,$1,_)>>. %1.00;0.81%"])))
 
 (deftest multiple_variable_elimination2
-  (is (derived "<<$x --> lock> ==> (&&,<#y --> key>,<$x --> (/,open,#y,_)>)>."
+  (is (derived "<<$1 --> lock> ==> (&&,<#2 --> key>,<$1 --> (/,open,#2,_)>)>."
                "<{lock1} --> lock>."
                ["(&&,<#1 --> key>,<{lock1} --> (/,open,#1,_)>). %1.00;0.81%"])))
 
 (deftest multiple_variable_elimination3
-  (is (derived "(&&,<#x --> lock>,<<$y --> key> ==> <#x --> (/,open,$y,_)>>)."
+  (is (derived "(&&,<#1 --> lock>,<<$2 --> key> ==> <#1 --> (/,open,$2,_)>>)."
                "<{lock1} --> lock>."
                ["<<$1 --> key> ==> <{lock1} --> (/,open,$1,_)>>. %1.00;0.42%"])))
 
 (deftest multiple_variable_elimination4
-  (is (derived "(&&,<#x --> (/,open,#y,_)>,<#x --> lock>,<#y --> key>)."
+  (is (derived "(&&,<#1 --> (/,open,#2,_)>,<#1 --> lock>,<#2 --> key>)."
                "<{lock1} --> lock>."
                ["(&&,<#1 --> key>,<{lock1} --> (/,open,#1,_)>). %1.00;0.42%"])))
 
