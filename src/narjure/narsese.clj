@@ -30,8 +30,8 @@
    "|"  '|
    "-"  '-
    "~"  'int-dif
-   "*"  'product
-   "("  'product
+   "*"  '*
+   "("  '*
    "/"  'ext-image
    "\\" 'int-image
    "--" '--

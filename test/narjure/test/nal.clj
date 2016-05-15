@@ -8,7 +8,6 @@
 (defn parse2 [stmt]
   (let [parser-workaround (fn [prem, stmt]
                             (if (and (vector? stmt)
-                                     (vector? (first stmt))
                                      (= (count stmt) 1))
                               (assoc prem :statement (first stmt))
                               prem))
@@ -304,12 +303,12 @@
 (deftest structural_transformation1
   (is (derived "<(acid,base) --> reaction>. %1.0;0.9%"
                "acid."
-               ["<acid --> (/,reaction,_,base)>. %1.0;0.9%"]))) ;n
+               ["<acid --> (/,reaction,_,base)>. %1.0;0.9%"]))) ;y
 
 (deftest structural_transformation1_2
   (is (derived "<(acid,base) --> reaction>. %1.0;0.9%"
                "base."
-               ["<base --> (/,reaction,acid,_)>. %1.0;0.9%"]))) ;n
+               ["<base --> (/,reaction,acid,_)>. %1.0;0.9%"]))) ;y
 
 (deftest structural_transformation2
   (is (derived "<acid --> (/,reaction,_,base)>. %1.0;0.9%"
@@ -329,7 +328,7 @@
 (deftest structural_transformation4_2
   (is (derived "<neutralization --> (acid,base)>. %1.0;0.9%"
                "base."
-               ["<(\\,neutralization,acid,_) --> base>. %1.0;0.9%"]))) ;n
+               ["<(\\,neutralization,acid,_) --> base>. %1.0;0.9%"]))) ;y
 
 (deftest structural_transformation5
   (is (derived "<(\\,neutralization,_,base) --> acid>. %1.0;0.9%"
@@ -352,19 +351,19 @@
                ["<(*,bird,plant) --> (*,animal,plant)>. %1.0;0.81%"]))) ;n
 
 (deftest composition_on_both_sides_of_a_statement2
-  (is (derived "<(\\,neutralization,acid,_) --> ?x>"
+  (is (derived "<(\\,neutralization,acid,_) --> ?x>?"
                "<neutralization --> reaction>. %1.0;0.9%"
-               ["<(\\,neutralization,acid,_) --> (\\,reaction,acid,_)>. %1.0;0.81%"]))) ;n
+               ["<(\\,neutralization,acid,_) --> (\\,reaction,acid,_)>. %1.0;0.81%"]))) ;y
 
 (deftest composition_on_both_sides_of_a_statement2_2
   (is (derived "<(\\,neutralization,acid,_) --> (\\,reaction,acid,_)>?"
                "<neutralization --> reaction>. %1.0;0.9%"
-               ["<(\\,neutralization,acid,_) --> (\\,reaction,acid,_)>. %1.0;0.81%"]))) ;n
+               ["<(\\,neutralization,acid,_) --> (\\,reaction,acid,_)>. %1.0;0.81%"]))) ;y
 
 (deftest composition_on_both_sides_of_a_statement3
   (is (derived "<(/,neutralization,_,base) --> ?x>?"
                "<soda --> base>. %1.0;0.9%"
-               ["<(/,neutralization,_,base) --> (/,neutralization,_,soda)>. %1.0;0.81%"]))) ;n
+               ["<(/,neutralization,_,base) --> (/,neutralization,_,soda)>. %1.0;0.81%"]))) ;y
 
 ;NAL5 testcases:
 
