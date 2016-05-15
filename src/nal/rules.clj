@@ -81,27 +81,10 @@ So these rules are for bringing NAL-statements into a different, implied and mor
           #R[(--S =\> P) P |- (--P =/> S) :post (:t/contraposition :allow-backward)]
           #R[(--S =\> P) --S |- (--P =/> S) :post (:t/contraposition :allow-backward)]
 
-          ;;Negation
           ; A belief b <f c> is equal to --b <1-f c>  which is the negation rule:
-          #R[(A --> B) A |- --(A --> B) :post (:t/negation :d/negation :allow-backward)]
-          #R[(A --> B) B |- --(A --> B) :post (:t/negation :d/negation :allow-backward)]
-          #R[--(A --> B) A |- (A --> B) :post (:t/negation :d/negation :allow-backward)]
-          #R[--(A --> B) B |- (A --> B) :post (:t/negation :d/negation :allow-backward)]
-
-          #R[(A <-> B) A |- --(A <-> B) :post (:t/negation :d/negation :allow-backward)]
-          #R[(A <-> B) B |- --(A <-> B) :post (:t/negation :d/negation :allow-backward)]
-          #R[--(A <-> B) A |- (A <-> B) :post (:t/negation :d/negation :allow-backward)]
-          #R[--(A <-> B) B |- (A <-> B) :post (:t/negation :d/negation :allow-backward)]
-
-          #R[(A ==> B) A |- --(A ==> B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-          #R[(A ==> B) B |- --(A ==> B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-          #R[--(A ==> B) A |- (A ==> B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-          #R[--(A ==> B) B |- (A ==> B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-
-          #R[(A <=> B) A |- --(A <=> B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-          #R[(A <=> B) B |- --(A <=> B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-          #R[--(A <=> B) A |- (A <=> B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
-          #R[--(A <=> B) B |- (A <=> B) :post (:t/negation :d/negation :allow-backward :order-for-all-same)]
+          ;;Negation (resolve by letting termlink be the term on its own for derivation)
+          #R[--A A |- A :post (:t/negation :d/negation :allow-backward)]
+          #R[A A |- --A :post (:t/negation :d/negation :allow-backward)]
           )
 
 (defrules nal1-nal2-inheritance-related-syllogisms
@@ -427,6 +410,10 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          ; Inference about the pre/postconditions
          #R[Y ((&& X :list/A) ==> B) |- ((&& :list/A) ==> B) :pre ((:substitute-if-unifies "$" X Y)) :post (:t/deduction :order-for-all-same :seq-interval-from-premises)]
          #R[((&& M :list/A) ==> C) ((&& :list/A) ==> C) |- M :post (:t/abduction :order-for-all-same)]
+
+          ;TODO remove when https://github.com/opennars/opennars2/issues/35 is resolved:
+          #R[((&& M U) ==> C) (U ==> C) |- M :post (:t/abduction :order-for-all-same)]
+
 
          ; Can be derived by NAL7 rules so this won't be necessary there (:order-for-all-same left out here)
          ; the first rule does not have :order-for-all-same because it would be invalid see: https://groups.google.com/forum/#!topic/open-nars/r5UJo64Qhrk

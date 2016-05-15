@@ -24,7 +24,7 @@
 
 (defn negation [[^double f ^double c] _] [(- 1 f) c])
 
-(defn contraposition [[^double f ^double c]]
+(defn contraposition [[^double f ^double c]  [^double f2 ^double c2]]
   [0 (w2c (and (- 1 f) c))])
 
 (defn revision [[^double f1 ^double c1] [^double f2 ^double c2]]

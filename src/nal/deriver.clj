@@ -64,7 +64,7 @@
 (defn generate-conclusions
   [rules {p1 :statement :as t1} {p2 :statement :as t2}]
   ;assign statement
-  (apply set/union (for [x (range 10)]
+  (apply set/union (for [x (range 50)]
      (generate-conclusions-no-commutativity rules
                                             (assoc t1 :statement (shuffle-term p1))
                                             (assoc t2 :statement (shuffle-term p2))))))

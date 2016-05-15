@@ -40,9 +40,9 @@
 
 (deftest test-contraposition
   (both-equal
-     [0 0.4736842105263158] (contraposition [1 0.9])
-     [0 0.4736842105263158] (contraposition [0 0.9])
-     [0 0.37499999999999994] (contraposition [0 0.6])))
+     [0 0.4736842105263158] (contraposition [1 0.9] [0 0])
+     [0 0.4736842105263158] (contraposition [0 0.9] [0 0])
+     [0 0.37499999999999994] (contraposition [0 0.6] [0 0])))
 
 (deftest test-revision
   (both-equal
