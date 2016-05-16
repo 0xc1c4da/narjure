@@ -409,9 +409,9 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          ; multi-conditional syllogism
          ; Inference about the pre/postconditions
          #R[Y ((&& X :list/A) ==> B) |- ((&& :list/A) ==> B) :pre ((:substitute-if-unifies "$" X Y)) :post (:t/deduction :order-for-all-same :seq-interval-from-premises)]
-         #R[((&& M :list/A) ==> C) ((&& :list/A) ==> C) |- M :post (:t/abduction :order-for-all-same)]
+         #R[((&& M :list/A) ==> C) ((&& :list/B) ==> C) |- M :pre ((:substitute-if-unifies "$" (&& :list/A) (&& :list/B))) :post (:t/abduction :order-for-all-same)]
          ;degenerate case of this rule:
-         #R[((&& M U) ==> C) (U ==> C) |- M :post (:t/abduction :order-for-all-same)]
+         #R[((&& M U) ==> C) (W ==> C) |- M :pre ((:substitute-if-unifies "$" U W)) :post (:t/abduction :order-for-all-same)]
 
          ; Can be derived by NAL7 rules so this won't be necessary there (:order-for-all-same left out here)
          ; the first rule does not have :order-for-all-same because it would be invalid see: https://groups.google.com/forum/#!topic/open-nars/r5UJo64Qhrk #R[((&& :list/A) ==> C) M |- ((&& M :list/A) ==> C) :pre ((:not-implication-or-equivalence M)) :post (:t/induction)]
@@ -557,6 +557,8 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          ; second level variable handling rules
          ; second level variable elimination (termlink level2 growth needed in order for these rules to work)
          #R[(A --> K) (&& (#X --> L) (($Y --> K) ==> (&& :list/A))) |- (&& (#X --> L) :list/A) :pre ((:substitute $Y A)) :post (:t/deduction)]
+         ;degenerate case of this rule:
+         #R[(A --> K) (&& (#X --> L) (($Y --> K) ==> A)) |- (&& (#X --> L) A) :pre ((:substitute $Y A)) :post (:t/deduction)]
          #R[(A --> K) (($X --> L) ==> (&& (#Y --> K) :list/A)) |- (($X --> L) ==> (&& :list/A)) :pre ((:substitute #Y A)) :post (:t/anonymous-analogy)]
          )
 

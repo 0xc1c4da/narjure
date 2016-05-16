@@ -493,7 +493,7 @@
 (deftest negation
   (is (derived "(--,<robin --> [flying]>). %0.1;0.9%"
                "<robin --> [flying]>?"                      ;
-               ["<robin --> [flying]>. %0.90;0.90%"])))     ;n     ;we want a termlink term only not a premise..
+               ["<robin --> [flying]>. %0.90;0.90%"])))     ;y     ;we want a termlink term only not a premise..
 
 ;structural inference!! while this is backward driven forward inference because the task is a question
 (deftest negation2
@@ -504,7 +504,7 @@
 (deftest contraposition
   (is (derived "<(--,<robin --> bird>) ==> <robin --> [flying]>>. %0.1;0.9%"
                "<robin --> [flying]>."
-               ["<(--,<robin --> [flying]>) ==> <robin --> bird>>. %0.00;0.47%"]))) ;n
+               ["<(--,<robin --> [flying]>) ==> <robin --> bird>>. %0.00;0.47%"]))) ;y
 
 ;derives a bunch of nonsense: TODO add testcases to not derive this nonsense!
 ;(conclusions "<(--,<robin --> [flying]>) ==> <robin --> bird>>?"
@@ -554,7 +554,7 @@
 (deftest conditional_abduction4
   (is (derived "<<robin --> [flying]> ==> <robin --> [withBeak]>>. %0.9;0.9%"
                "<(&&,<robin --> [flying]>,<robin --> [chirping]>) ==> <robin --> bird>>."
-               ["<(&&,<robin --> [withBeak]>,<robin --> [chirping]>) ==> <robin --> bird>>. %0.9;0.45%"]))) ;n
+               ["<(&&,<robin --> [withBeak]>,<robin --> [chirping]>) ==> <robin --> bird>>. %0.9;0.45%"]))) ;y
 
 ;TODO so far only basic conditional reasoning testing, TODO multiconditional syllogism detailed testing rule by rule
 
@@ -594,13 +594,13 @@
 (deftest variable_unification5
   (is (derived "<(&&,<$1 --> flyer>,<$1 --> [chirping]>) ==> <$1 --> bird>>."
                "<<$1 --> [withWings]> ==> <$1 --> flyer>>."
-               ["<(&&,<$1 --> [withWings]>,<$1 --> [chirping]>) ==> <$1 --> bird>>. %1.00;0.81%"]))) ;n
+               ["<(&&,<$1 --> [withWings]>,<$1 --> [chirping]>) ==> <$1 --> bird>>. %1.00;0.81%"]))) ;y
 
 (deftest variable_unification6
   (is (derived "<(&&,<$1 --> flyer>,<$1 --> [chirping]>, <($1, worms) --> food>) ==> <$1 --> bird>>."
                "<(&&,<$1 --> [chirping]>,<$1 --> [withWings]>) ==> <$1 --> bird>>."
-               ["<(&&,<$1 --> flyer>,<($1,worms) --> food>) ==> <$1 --> [withWings]>>. %1.00;0.45%"
-                "<<$1 --> [withWings]> ==> (&&,<$1 --> flyer>,<($1,worms) --> food>)>. %1.00;0.45%"]))) ;n
+               ["<(&&,<$1 --> flyer>,<($1, worms) --> food>) ==> <$1 --> [withWings]>>. %1.00;0.45%"
+                "<<$1 --> [withWings]> ==> (&&,<$1 --> flyer>,<($1, worms) --> food>)>. %1.00;0.45%"]))) ;n
 
 (deftest variable_unification7
   (is (derived "<(&&,<$1 --> flyer>,<($1,worms) --> food>) ==> <$1 --> bird>>."
@@ -656,7 +656,7 @@
 (deftest multiple_variable_elimination4
   (is (derived "<{lock1} --> lock>."
                "(&&,<#1 --> lock>,<#1 --> (/,open,#2,_)>,<#2 --> key>)."
-               ["(&&,<{lock1} --> (/,open,#2,_)>,<#2 --> key>). %1.00;0.43%"]))) ;n
+               ["(&&,<{lock1} --> (/,open,#2,_)>,<#2 --> key>). %1.00;0.43%"]))) ;y
 
 (deftest variable_introduction
   (is (derived "<swan --> bird>."
@@ -694,15 +694,17 @@
                ["(&&,<#Y --> (/,open,#x,_)>,<#Y --> lock>,<#x --> key>). %1.00;0.81%"
                 "<<$Y --> lock> ==> (&&,<$Y --> (/,open,#x,_)>,<#x --> key>)>. %1.00;0.45%"]))) ;y
 
+;(A --> K) (&& (#X --> L) (($Y --> K) ==> A)) |- (&& (#X --> L) A) :pre ((:substitute $Y A)) :post (:t/deduction)
 (deftest second_level_variable_unification
   (is (derived "<{key1} --> key>. %1.00;0.90%"
-               "(&&,<#1 --> lock>,<<$2 --> key> ==> <#1 --> (/,open,$2,_)>>). %1.00;0.90%"
-               ["(&&,<#1 --> lock>,<#1 --> (/,open,{key1},_)>). %1.00;0.81%"]))) ;n
+               "(&&,<#X --> lock>,<<$Y --> key> ==> <#X --> (/,open,$Y,_)>>). %1.00;0.90%"
+               ["(&&,<#X --> lock>,<#X --> (/,open,{key1},_)>). %1.00;0.81%"]))) ;n
 
+;#R[(A --> K) (($X --> L) ==> (&& (#Y --> K) :list/A)) |- (($X --> L) ==> (&& :list/A)) :pre ((:substitute #Y A)) :post (:t/anonymous-analogy)]
 (deftest second_level_variable_unification2
   (is (derived "<{key1} --> key>. %1.00;0.90%"
-               "<<$1 --> lock> ==> (&&,<#2 --> key>,<$1 --> (/,open,#2,_)>)>. %1.00;0.90%"
-               ["<<$1 --> lock> ==> <$1 --> (/,open,{key1},_)>>. %1.00;0.42%"]))) ;n
+               "<<$X --> lock> ==> (&&,<#Y --> key>,<$X --> (/,open,#Y,_)>)>. %1.00;0.90%"
+               ["<<$X --> lock> ==> <$X --> (/,open,{key1},_)>>. %1.00;0.42%"]))) ;n
 
 (deftest second_variable_introduction_induction
   (is (derived "<<lock1 --> (/,open,$1,_)> ==> <$1 --> key>>."
@@ -712,12 +714,12 @@
 (deftest variable_elimination_deduction
   (is (derived "<lock1 --> lock>. %1.00;0.90%"
                "<(&&,<#1 --> lock>,<#1 --> (/,open,$2,_)>) ==> <$2 --> key>>. %1.00;0.90%"
-               ["<<lock1 --> (/,open,$2,_)> ==> <$2 --> key>>. %1.00;0.81%"]))) ;n
+               ["<<lock1 --> (/,open,$2,_)> ==> <$2 --> key>>. %1.00;0.81%"]))) ;y
 
 (deftest abduction_with_variable_elimination
   (is (derived "<<lock1 --> (/,open,$1,_)> ==> <$1 --> key>>. %1.00;0.90%"
-               "<(&&,<#1 --> lock>,<#1 --> (/,open,$2,_)>) ==> <$2 --> key>>. %1.00;0.90%"
-               ["<lock1 --> lock>. %1.00;0.45%"])))         ;n
+               "<(&&,<#2 --> lock>,<#2 --> (/,open,$1,_)>) ==> <$1 --> key>>. %1.00;0.90%" ;TODO other varname support!! doesnt have to be $1 here!!
+               ["<lock1 --> lock>. %1.00;0.45%"])))         ;y
 
 (deftest strong_unification
   (is (derived "<<(*,$a,is,$b) --> sentence> ==> <$a --> $b>>. %1.00;0.90%"
