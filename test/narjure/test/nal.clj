@@ -594,7 +594,7 @@
 (deftest variable_unification5
   (is (derived "<(&&,<$1 --> flyer>,<$1 --> [chirping]>) ==> <$1 --> bird>>."
                "<<$1 --> [withWings]> ==> <$1 --> flyer>>."
-               ["<(&&,<$1 --> [chirping]>,<$1 --> [withWings]>) ==> <$1 --> bird>>. %1.00;0.81%"]))) ;n
+               ["<(&&,<$1 --> [withWings]>,<$1 --> [chirping]>) ==> <$1 --> bird>>. %1.00;0.81%"]))) ;n
 
 (deftest variable_unification6
   (is (derived "<(&&,<$1 --> flyer>,<$1 --> [chirping]>, <($1, worms) --> food>) ==> <$1 --> bird>>."
@@ -652,10 +652,11 @@
                "(&&,<#1 --> lock>,<<$2 --> key> ==> <#1 --> (/,open,$2,_)>>)."
                ["<<$2 --> key> ==> <{lock1} --> (/,open,$2,_)>>. %1.00;0.43%"]))) ;y
 
+;B (&& A :list/A) |- (&& :list/A) :pre (:belief? (:substitute-if-unifies "#" A B)) :post (:t/anonymous-analogy :d/strong :order-for-all-same :seq-interval-from-premises)]
 (deftest multiple_variable_elimination4
   (is (derived "<{lock1} --> lock>."
                "(&&,<#1 --> lock>,<#1 --> (/,open,#2,_)>,<#2 --> key>)."
-               ["(&&,<#2 --> key>,<{lock1} --> (/,open,#2,_)>). %1.00;0.42%"]))) ;n
+               ["(&&,<{lock1} --> (/,open,#2,_)>,<#2 --> key>). %1.00;0.43%"]))) ;n
 
 (deftest variable_introduction
   (is (derived "<swan --> bird>."
@@ -711,7 +712,7 @@
 (deftest variable_elimination_deduction
   (is (derived "<lock1 --> lock>. %1.00;0.90%"
                "<(&&,<#1 --> lock>,<#1 --> (/,open,$2,_)>) ==> <$2 --> key>>. %1.00;0.90%"
-               ["<<lock1 --> (/,open,$1,_)> ==> <$1 --> key>>. %1.00;0.81%"]))) ;n
+               ["<<lock1 --> (/,open,$2,_)> ==> <$2 --> key>>. %1.00;0.81%"]))) ;n
 
 (deftest abduction_with_variable_elimination
   (is (derived "<<lock1 --> (/,open,$1,_)> ==> <$1 --> key>>. %1.00;0.90%"

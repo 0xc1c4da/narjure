@@ -385,7 +385,6 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[(&& :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
          #R[(&/ :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
          #R[(&| :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
-
          #R[(&/ B :list/A) B |- (&/ :list/A) :pre (:goal?) :post (:t/deduction :d/strong :seq-interval-from-premises)]
 
          ; propositional decomposition
@@ -413,7 +412,6 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[((&& M :list/A) ==> C) ((&& :list/A) ==> C) |- M :post (:t/abduction :order-for-all-same)]
          ;degenerate case of this rule:
          #R[((&& M U) ==> C) (U ==> C) |- M :post (:t/abduction :order-for-all-same)]
-
 
          ; Can be derived by NAL7 rules so this won't be necessary there (:order-for-all-same left out here)
          ; the first rule does not have :order-for-all-same because it would be invalid see: https://groups.google.com/forum/#!topic/open-nars/r5UJo64Qhrk #R[((&& :list/A) ==> C) M |- ((&& M :list/A) ==> C) :pre ((:not-implication-or-equivalence M)) :post (:t/induction)]

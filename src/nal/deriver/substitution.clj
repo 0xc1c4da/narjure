@@ -13,10 +13,10 @@
 (defn unification-map
   "Returns map of inified elements from both collections."
   [var-symbol p2 p3]
-  (let [var-type (if (= var-symbol "$")
-                   'ind-var
-                   'dep-var)]
-    ((u/make-occurs-unify-fn #(and (coll? %) (= var-type (first %)))) p2 p3)))
+  (let [check-var-type (if (= var-symbol "$")                ;in this cases also dependent var
+                         #(or (= % 'ind-var) (= % 'dep-var)) ;elimination is fine!
+                         #(= % 'dep-var))]
+    ((u/make-occurs-unify-fn #(and (coll? %) (check-var-type (first %)))) p2 p3)))
 
 (def munification-map (memoize unification-map))
 
