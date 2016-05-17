@@ -733,6 +733,27 @@
 
 ;NAL7 testcases:
 
+(deftest temporal_explification
+  (is (derived "<<($x, room) --> enter> =\\> <($x, door) --> open>>. %0.9;0.9%"
+               "<<($x, door) --> open> =\\> <($x, key) --> hold>>. %0.8;0.9%"
+               ["<<(*,$x,key) --> hold> =/> <(*,$x,room) --> enter>>. %1.00;0.37%"])))
+
+(deftest temporal_deduction
+  (is (derived "<<($x, room) --> enter> =\\> <($x, door) --> open>>. %0.9;0.9%"
+               "<<($x, door) --> open> =\\> <($x, key) --> hold>>. %0.8;0.9%"
+               ["<<(*,$x,room) --> enter> =\\> <(*,$x,key) --> hold>>. %0.72;0.58%"])))
+
+(deftest temporal_induction_comparison
+  (is (derived "<<(*, $x, door) --> open> =/> <(*, $x, room) --> enter>>. %0.9;0.9%"
+               "<<(*, $x, door) --> open> =\\> <(*, $x, key) --> hold>>. %0.8;0.9%"
+               ["<<(*,$x,key) --> hold> =/> <(*,$x,room) --> enter>>. %0.9;0.39%"
+                "<<(*,$x,room) --> enter> =\\> <(*,$x,key) --> hold>>. %0.8;0.42%"
+                "<<(*,$x,key) --> hold> </> <(*,$x,room) --> enter>>. %0.73;0.44%"])))
+
+(deftest temporal_analogy
+  (is (derived "<<(*, $x, door) --> open> =/> <(*, $x, room) --> enter>>. %0.95;0.9%"
+               "<<(*, $x, room) --> enter> <|> <(*, $x, corridor_100) --> leave>>. %1.0;0.9%"
+               ["<<(*, $x, door) --> open> =/> <(*, $x, corridor_100) --> leave>>. %0.95;0.81%"])))
 
 
 ;NAL8 testcases:

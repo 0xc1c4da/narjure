@@ -16,12 +16,12 @@
    "--]"  'property
    "{-]"  'instance-property
    "==>"  '==>
-   "=/>"  'predictive-implication
+   "=/>"  'pred-impl
    "=|>"  'concurrent-implication
-   "=\\>" 'retrospective-implication
+   "=\\>" 'retro-impl
    "<=>"  '<=>
-   "</>"  'predictive-equivalence
-   "<|>"  'concurrent-equivalence})
+   "</>"  '</>
+   "<|>"  '<|>})
 
 (def compound-terms
   {"{"  'ext-set
