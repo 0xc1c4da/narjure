@@ -5,17 +5,36 @@
             [nal.deriver :refer :all]
             [nal.rules :as r]))
 
+(defn interval-atom-to-interval [t]
+  (let [pot-ival (name t)
+        num (apply str (rest pot-ival))]
+    (if (and (= \i (first pot-ival))
+             (= (count (filter #(Character/isDigit %) num))
+                (count num)))
+      [:interval (Integer/parseInt num)]
+      t)))
+
+(defn parse-intervals [t]
+  (if (coll? t)
+    (for [x t]
+      (transform-to-interval x))
+    (interval-atom-to-interval t)))
+
 (defn parse2 [stmt]
+  "workaround in order to have (&&,a) as [conj a] rather than [[conj a]],
+  also in order to support :|: as 0 occurring versus :eternal
+  and also in order to support recognizing i50 as [interval 50],
+  so everything needed to workaround the parser issues"            ;TODO fix paser accordingly when there is time!
   (let [parser-workaround (fn [prem, stmt]
                             (if (and (vector? stmt)
                                      (= (count stmt) 1))
                               (assoc prem :statement (first stmt))
-                              prem))
+                              (assoc prem :statement stmt)))
         time (if (.contains stmt ":|:")
                0
                :eternal)
         parsedstmt (assoc (parse stmt) :occurrence time)]
-    (parser-workaround parsedstmt (:statement parsedstmt))))
+    (parser-workaround parsedstmt (parse-intervals (:statement parsedstmt)))))
 
 (defn conclusions
   "Create all conclusions based on two Narsese premise strings"
@@ -733,7 +752,7 @@
 
 ;NAL7 testcases:
 
-(deftest temporal_explification
+(deftest temporal_exemplification
   (is (derived "<<($x, room) --> enter> =\\> <($x, door) --> open>>. %0.9;0.9%"
                "<<($x, door) --> open> =\\> <($x, key) --> hold>>. %0.8;0.9%"
                ["<<(*,$x,key) --> hold> =/> <(*,$x,room) --> enter>>. %1.00;0.37%"])))
@@ -754,6 +773,12 @@
   (is (derived "<<(*, $x, door) --> open> =/> <(*, $x, room) --> enter>>. %0.95;0.9%"
                "<<(*, $x, room) --> enter> <|> <(*, $x, corridor_100) --> leave>>. %1.0;0.9%"
                ["<<(*, $x, door) --> open> =/> <(*, $x, corridor_100) --> leave>>. %0.95;0.81%"])))
+
+
+(deftest inference_on_tense
+  (is (derived "<(&/,<($x, key) --> hold>,i50) =/> <($x, room) --> enter>>."
+               "<(John, key) --> hold>. :|:"
+               ["<(John,room) --> enter>."])))
 
 
 ;NAL8 testcases:
