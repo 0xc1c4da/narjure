@@ -20,10 +20,12 @@
    exceeds the specified limit a :concept-limit-msg is posted
    to :forgettable-concept-collator"
   [term c-map]
-  (let [concept-ref (spawn (concept))]
+  (let [concept-ref (spawn (concept term))]
+    (info (str "c-map in create-concept before swap!: " (keys @c-map)))
     (swap! c-map assoc term concept-ref)
+    (info (str "c-map in create-concept after swap!: " (keys @c-map)))
     (set-state! (update @state :concept-count inc))
-    (cast! concept-ref [:set-content-msg term]))
+    )
   (if (> (:concept-count @state) max-concepts)
     (cast! (:forgettable-concept-collator @state) [:concept-limit-msg]))
   #_(debug aname (str "Created concept: " term)))
@@ -35,8 +37,13 @@
    are keys, whilst term keys are terms, which can be numbers"
   [from [_ {:keys [statement occurrence]  :as task} c-map]]
   (doseq [term (conj (:terms statement) (keyword (str occurrence)))]
-    (when-not (@c-map term)
-      (create-concept term c-map)))
+    ;(info (str "c-map before create-concept: " (keys @c-map)))
+    (when-not (contains? @c-map term)
+      ;(info (str "c-map term: " term " = " (@c-map term)))
+      ;(info (str "Creating concept: " term))
+      (create-concept term c-map)
+      ; (info (str "c-map after create-concept: " (keys @c-map)))
+      ))
   (cast! from [:task-msg task])
   #_(debug aname "concept-creator - process-task"))
 

@@ -36,23 +36,13 @@
 (defn set-concept-state-handler
   "set concept state to value passed in message"
   [from [_ new-state]]
-  (assoc new-state :general-inferencer (whereis :general-inferencer)
-                    :forgettable-concept-collator (whereis :forgettable-concept-collator))
-  (set-state! new-state))
+  (set-state! (merge @state new-state)))
 
 (defn task-budget-update-handler
   ""
   [from message]
   ;todo
   )
-
-(defn set-content-handler
-  "Initilise the cocnept state with the term that is the content.
-   This is sent from concept-creator on creation"
-  [from [msg content]]
-  ; update actor refs to new references
-  (set-state! (assoc @state :name content))
-  #_(debug (str "set-content-msg: " content)))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
@@ -62,8 +52,8 @@
 
 (defn initialise
   "Initialises actor: registers actor and sets actor state"
-  []
-  (set-state! {:name :name
+  [name]
+  (set-state! {:name name
                :budget [0.0 0.0]
                :satisfaction [0.0 0.0]
                :tasks {}
@@ -83,12 +73,12 @@
     :concept-state-request-msg (concept-state-handler from message)
     :set-concept-state-msg (set-concept-state-handler from message)
     :task-budget-update-msg (task-budget-update-handler from message)
-    :set-content-msg (set-content-handler from message)
     :shutdown (shutdown-handler from message)
     (debug (str "unhandled msg: " type))))
 
-(defn concept []  (gen-server
-                    (reify Server
-                      (init [_] (initialise))
-                      (terminate [_ cause] #_(info (str aname " terminated.")))
-                      (handle-cast [_ from id message] (msg-handler from message)))))
+(defn concept [name]
+  (gen-server
+    (reify Server
+      (init [_] (initialise name))
+      (terminate [_ cause] #_(info (str aname " terminated.")))
+      (handle-cast [_ from id message] (msg-handler from message)))))

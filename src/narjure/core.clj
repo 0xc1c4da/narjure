@@ -5,10 +5,9 @@
      [actors :refer :all]]
     [immutant.scheduling :refer :all]
     [narjure.memory-management
-     [concept-creator :refer [concept-creator]]
-     [forgettable-concept-collator :refer [forgettable-concept-collator]]
-     [persistence-manager :refer [persistence-manager]]
-     [task-dispatcher :refer [task-dispatcher c-map]]]
+     [concept-manager :refer [concept-manager]]
+     [event-buffer :refer [event-buffer]]
+     [task-dispatcher :refer [task-dispatcher c-bag]]]
     [narjure.general-inference
      [active-concept-collator :refer [active-concept-collator]]
      [general-inferencer :refer [general-inferencer]]]
@@ -19,36 +18,35 @@
     [taoensso.timbre :refer [info set-level!]])
   (:refer-clojure :exclude [promise await])
   (:import (ch.qos.logback.classic Level)
-           (org.slf4j LoggerFactory))
+           (org.slf4j LoggerFactory)
+           (java.util.concurrent TimeUnit))
   (:gen-class))
 
 ;co.paralleluniverse.actors.JMXActorMonitor
 (def actors-names
   #{:active-concept-collator
-    :concept-creator
-    :forgettable-concept-collator
+    :concept-manager
     :general-inferencer
     :operator-executor
-    :persistence-manager
     :sentence-parser
     :task-creator
-    :task-dispatcher})
+    :task-dispatcher
+    :event-buffer})
 
 (defn create-system-actors
   "Spawns all actors which self register!"
   []
   (spawn active-concept-collator)
-  (spawn (concept-creator))
-  (spawn forgettable-concept-collator)
+  (spawn event-buffer)
+  (spawn concept-manager)
   (spawn general-inferencer)
   (spawn operator-executor)
-  (spawn persistence-manager :state)
   (spawn sentence-parser)
   (spawn task-creator)
   (spawn task-dispatcher))
 
 (defn check-actor [actor-name]
-  (info (if (whereis actor-name) "\t[OK]" "\t[FAILED]") (str actor-name)))
+  (info (if (whereis actor-name 10 TimeUnit/MILLISECONDS) "\t[OK]" "\t[FAILED]") (str actor-name)))
 
 (defn check-actors-registered []
   (info "Checking all services are registered...")
@@ -105,8 +103,8 @@
   (info "NARS initialised.")
 
   ;(cast! (whereis :persistence-manager) [:restore-concept-state-msg "d:/clojure/snapshot1.nar"])
-  (Thread/sleep  1000)
-  (info (str "Concept count: " (count @c-map)))
+  ;(Thread/sleep  1000)
+  ;(info (str "Concept count: " (count @c-bag)))
 
   ; *** Test code
   (comment
@@ -123,17 +121,6 @@
               (when (== (mod n 10) 0)
                 (info (format "processed [%s] messages" n))))
             (recur (inc n)))))))
-(comment
-  (do
-    (info "Beginning test...")
-    (time
-      (loop [n 0]
-        (when (< n 10)
-          (cast! (whereis :sentence-parser) [:narsese-string-msg (format "<a --> %d>." n)])
-          (when (== (mod n 1) 0)
-            (info (format "processed [%s] messages" n)))
-          (recur (inc n))))))
-  )
 
   (do
     (info "Beginning test...")
@@ -157,9 +144,9 @@
   ; *** End test code
 
   ; test persistence
-  (info "Test persistence")
-  (info (str "c-map count: " (count @c-map)))
-  (cast! (whereis :persistence-manager) [:persist-concept-state-msg "d:/clojure/snapshot1.nar"])
+  ;(info "Test persistence")
+  ;(info (str "c-map count: " (count @c-bag)))
+  ;(cast! (whereis :persistence-manager) [:persist-concept-state-msg "d:/clojure/snapshot1.nar"])
 
   (print "Processing ")
   (dotimes [n 5]

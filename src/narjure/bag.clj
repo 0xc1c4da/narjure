@@ -20,7 +20,10 @@
   (update-element
     ; Replaces entrie with the same id.
     [_ element])
-  (count-elements [_]))
+  (count-elements [_])
+  (exists?
+    ; Returns true if bag contains element with id.
+    [_ id]))
 
 (defn el [id priority]
   {:id       id
@@ -80,7 +83,9 @@
                                   (conj (el id priority')))]
           (->DefaultBag priority-index' elements-map' capacity)))))
 
-  (count-elements [_] (count priority-index)))
+  (count-elements [_] (count priority-index))
+
+  (exists? [_ id] (contains? elements-map id)))
 
 (defn compare-elements
   "Compares elements. If priority of elements is equal, compares the hashes of
@@ -95,3 +100,4 @@
   ([] (default-bag 50))
   ([capacity]
    (->DefaultBag (avl/sorted-set-by compare-elements) {} capacity)))
+
