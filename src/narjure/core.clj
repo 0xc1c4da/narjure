@@ -5,17 +5,19 @@
      [actors :refer :all]]
     [immutant.scheduling :refer :all]
     [narjure.memory-management
-     [concept-manager :refer [concept-manager]]
+     [concept-manager :refer [concept-manager c-bag]]
      [event-buffer :refer [event-buffer]]
-     [task-dispatcher :refer [task-dispatcher c-bag]]]
+     [task-dispatcher :refer [task-dispatcher]]]
     [narjure.general-inference
-     [active-concept-collator :refer [active-concept-collator]]
+     [concept-selector :refer [concept-selector]]
+     [event-selector :refer [event-selector]]
      [general-inferencer :refer [general-inferencer]]]
     [narjure.perception-action
      [operator-executor :refer [operator-executor]]
      [sentence-parser :refer [sentence-parser]]
      [task-creator :refer [task-creator]]]
-    [taoensso.timbre :refer [info set-level!]])
+    [taoensso.timbre :refer [info set-level!]]
+    [narjure.bag :as b])
   (:refer-clojure :exclude [promise await])
   (:import (ch.qos.logback.classic Level)
            (org.slf4j LoggerFactory)
@@ -24,7 +26,8 @@
 
 ;co.paralleluniverse.actors.JMXActorMonitor
 (def actors-names
-  #{:active-concept-collator
+  #{:concept-selector
+    :event-selector
     :concept-manager
     :general-inferencer
     :operator-executor
@@ -36,7 +39,8 @@
 (defn create-system-actors
   "Spawns all actors which self register!"
   []
-  (spawn active-concept-collator)
+  (spawn concept-selector)
+  (spawn event-selector)
   (spawn event-buffer)
   (spawn concept-manager)
   (spawn general-inferencer)
@@ -46,7 +50,7 @@
   (spawn task-dispatcher))
 
 (defn check-actor [actor-name]
-  (info (if (whereis actor-name 10 TimeUnit/MILLISECONDS) "\t[OK]" "\t[FAILED]") (str actor-name)))
+  (info (if (whereis actor-name) "\t[OK]" "\t[FAILED]") (str actor-name)))
 
 (defn check-actors-registered []
   (info "Checking all services are registered...")
@@ -58,7 +62,8 @@
 (def system-tick-interval 1000)
 
 (defn inference-tick []
-  (cast! (whereis :active-concept-collator) [:inference-tick-msg]))
+  (cast! (whereis :concept-selector) [:inference-tick-msg])
+  (cast! (whereis :event-selector) [:inference-tick-msg]))
 
 (defn system-tick []
   (cast! (whereis :task-creator) [:system-time-tick-msg]))
@@ -124,13 +129,15 @@
 
   (do
     (info "Beginning test...")
-    (time
-      (loop [n 0]
-        (when (< n 10)
-          (cast! (whereis :sentence-parser) [:narsese-string-msg (format "<a --> %d>." n)])
-          (when (== (mod n 1) 0)
-            (info (format "processed [%s] messages" n)))
-          (recur (inc n))))))
+    (let [sentence-parser (whereis :sentence-parser)]
+      (time
+        (loop [n 0]
+          (when (< n 10000)
+            (cast! sentence-parser [:narsese-string-msg (format "<a --> %d>." n)])
+            (when (== (mod n 1000) 0)
+              (info (format "processed [%s] messages" n)))
+            (recur (inc n))))))
+      )
 
   ; allow delay for all actors to process their queues
   (print "Processing ")
@@ -145,7 +152,7 @@
 
   ; test persistence
   ;(info "Test persistence")
-  ;(info (str "c-map count: " (count @c-bag)))
+  (info (str "c-bag count: " (b/count-elements @c-bag)))
   ;(cast! (whereis :persistence-manager) [:persist-concept-state-msg "d:/clojure/snapshot1.nar"])
 
   (print "Processing ")
@@ -164,7 +171,7 @@
 
   ; shutdown all actors so they terminate cleanly
   (doseq [actor-name actors-names]
-    (shutdown! (whereis actor-name)))
+    (shutdown! (whereis actor-name 10 TimeUnit/MILLISECONDS)))
 
   ;;wait for concepts to shutdown
   (Thread/sleep 5000)

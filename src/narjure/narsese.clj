@@ -145,7 +145,7 @@
 
 (defmethod element :default [_])
 
-;TODO check for variables in statemnts, ignore subterm if it contains variable
+;TODO check for variables in statements, ignore subterm if it contains variable
 (defn terms
   "Fetch terms from task."
   [statement]

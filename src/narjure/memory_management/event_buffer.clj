@@ -4,7 +4,7 @@
      :refer [! spawn gen-server register! cast! Server self
              shutdown! unregister! set-state! state whereis]]
     [narjure.memory-management.concept :refer [concept]]
-    [narjure.memory-management.task-dispatcher :refer [c-bag]]
+    [narjure.memory-management.concept-manager :refer [c-bag]]
     [narjure.actor.utils :refer [defactor]]
     [narjure.bag :as b]
     [taoensso.timbre :refer [debug info]])
@@ -39,7 +39,7 @@
     :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
-(defn event-buffer []
+(def event-buffer
   (gen-server
     (reify Server
       (init [_] (initialise aname @self))

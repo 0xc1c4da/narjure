@@ -4,7 +4,6 @@
      :refer [! spawn gen-server register! cast! Server self
              shutdown! unregister! set-state! state whereis]]
     [narjure.memory-management.concept :refer [concept]]
-    [narjure.memory-management.task-dispatcher :refer [c-bag]]
     [narjure.actor.utils :refer [defactor]]
     [narjure.bag :as b]
     [taoensso.timbre :refer [debug info]])
@@ -12,13 +11,15 @@
 
 (def aname :concept-manager)
 (def c-priority 0.5)
+(def max-concepts 1000)
+(def c-bag (atom (b/default-bag max-concepts)))
 
 (defn make-general-concept
   "Create a concept, for the supplied term, and add to
    the concept bag"
   [term]
   (let [concept-ref (spawn (concept term))]
-    (swap! c-bag (b/add-element @c-bag {:priority c-priority :id term :ref concept-ref})))
+    (swap! c-bag b/add-element {:priority c-priority :id term :ref concept-ref}))
   #_(debug aname (str "Created concept: " term)))
 
 (defn create-concept-handler
@@ -35,18 +36,21 @@
   ""
   [from message]
   ;todo
+  (info (str "in persist-state-handler"))
   )
 
 (defn load-state-handler
   ""
   [from message]
   ;todo
+  (info (str "in load-state-handler"))
   )
 
 (defn budget-update-handler
   ""
   [from message]
   ;todo
+  (info (str "in budget-update-handler"))
   )
 
 (defn shutdown-handler
@@ -58,14 +62,17 @@
 (defn initialise
   "Initialises actor: registers actor and sets actor state"
   [aname actor-ref]
+  (info (str "In initialise"))
   (register! aname actor-ref)
   (set-state! {}))
 
 (defn clean-up
   "Send :exit message to all concepts"
   []
-  (doseq [actor-ref (vals @c-bag)]
-    (shutdown! actor-ref)))
+  ;todo
+  (comment (doseq [{{actor-ref :ref} sym} (:elements-map @c-bag)]
+             (info (str "actor-ref" actor-ref))
+             (shutdown! actor-ref))))
 
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
@@ -79,9 +86,10 @@
     :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
-(defn concept-manager []
+(def concept-manager
   (gen-server
     (reify Server
       (init [_] (initialise aname @self))
       (terminate [_ cause] (clean-up))
       (handle-cast [_ from id message] (msg-handler from message)))))
+

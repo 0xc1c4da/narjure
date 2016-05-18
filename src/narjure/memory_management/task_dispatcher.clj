@@ -2,13 +2,11 @@
   (:require
     [co.paralleluniverse.pulsar.actors :refer [self ! whereis cast! Server gen-server register! shutdown! unregister! state set-state!]]
     [narjure.actor.utils :refer [defactor]]
+    [narjure.memory-management.concept-manager :refer [c-bag]]
     [narjure.bag :as b]
     [taoensso.timbre :refer [debug info]])
   (:refer-clojure :exclude [promise await])
   (:import (java.util.concurrent TimeUnit)))
-
-(def max-concepts 1000)
-(def c-bag (b/default-bag max-concepts))
 
 (def aname :task-dispatcher)
 
@@ -17,16 +15,22 @@
   [{:keys [occurrence]}]
   (not= occurrence :eternal))
 
+(defn term-exists?
+  ""
+  [term]
+  (b/exists? @c-bag term))
+
 (defn task-handler
   "If concept, or any sub concepts, do not exist post task to concept-creator,
    otherwise, dispatch task to respective concepts. Also, if task is an event
    dispatch task to event buffer actor."
   [from [_ task]]
   (let [terms (get-in task [:statement :terms])]
-    (if (not-any? #(b/exists? @c-bag %) terms)
-      (cast! (:concept-creator @state) [:create-concept-msg task])
+    (if (not-any? term-exists? terms)
+      (do
+        (cast! (:concept-manager @state) [:create-concept-msg task]))
       (doseq [term terms]
-        (when-let [c-ref ((:elements-map @c-bag) term)]
+        (when-let [{c-ref :ref} ((:elements-map @c-bag) term)]
           (cast! c-ref [:task-msg task])))))
   (if (event? task)
     (cast! (:event-buffer @state) [:event-msg task]))
@@ -45,8 +49,8 @@
   [aname actor-ref]
   (do
     (register! aname actor-ref)
-    (set-state! {:concept-manager (whereis :concept-manager 10 TimeUnit/MILLISECONDS)
-                 :event-buffer    (whereis :event-buffer 10 TimeUnit/MILLISECONDS)})))
+    (set-state! {:concept-manager (whereis :concept-manager)
+                 :event-buffer    (whereis :event-buffer)})))
 
 (defn msg-handler
   "Identifies message type and selects the correct message handler.

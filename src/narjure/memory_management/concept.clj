@@ -59,8 +59,7 @@
                :tasks {}
                :termlinks {}
                :active-concept-collator (whereis :active-concept-collator)
-               :general-inferencer (whereis :general-inferencer)
-               :forgettable-concept-collator (whereis :forgettable-concept-collator)}))
+               :general-inferencer (whereis :general-inferencer)}))
 
 (defn msg-handler
   "Identifies message type and selects the correct message handler.

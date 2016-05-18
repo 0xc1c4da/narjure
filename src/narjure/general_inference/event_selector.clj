@@ -1,29 +1,18 @@
-(ns narjure.general-inference.active-concept-collator
+(ns narjure.general-inference.event-selector
   (:require
     [co.paralleluniverse.pulsar.actors :refer [self ! whereis cast! Server gen-server register! shutdown! unregister! set-state! state]]
     [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :refer [debug info]])
   (:refer-clojure :exclude [promise await]))
 
-(def aname :active-concept-collator)
-
-(defn active-concept [_ _]
-  (debug aname "process-active-concept"))
-
-(defn active-concept-handler
-  "Processes :active-cocnept-msg:
-    Add concept to concepts bags: general or temporal respectively"
-  [from [msg concept]]
-  (debug aname "process-active-concept-msg"))
+(def aname :event-selector)
 
 (defn inference-tick-handler
-  "Processes :inference-tick-msg:
-    Executes concept selection process for general inference.
-    Both temporal and general concept are selected"
+  "Select n events from event buffer for inference
+   and post do-inference-msg to general inferencer"
   [from [msg]]
-  ()
+  ;todo
   #_(debug aname "process-inference-tick-msg"))
-
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
@@ -43,13 +32,12 @@
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
   (case type
-    :active-concept-msg (active-concept-handler from message)
     :inference-tick-msg (inference-tick-handler from message)
     :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
-(def active-concept-collator (gen-server
-                          (reify Server
-                            (init [_] (initialise aname @self))
-                            (terminate [_ cause] #_(info (str aname " terminated.")))
-                            (handle-cast [_ from id message] (msg-handler from message)))))
+(def event-selector (gen-server
+                        (reify Server
+                          (init [_] (initialise aname @self))
+                          (terminate [_ cause] #_(info (str aname " terminated.")))
+                          (handle-cast [_ from id message] (msg-handler from message)))))

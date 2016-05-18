@@ -2,7 +2,10 @@
   (:require
     [co.paralleluniverse.pulsar.actors :refer [! spawn gen-server register! cast! Server self whereis state set-state! shutdown! unregister!]]
     [narjure.actor.utils :refer [defactor]]
-    [taoensso.timbre :refer [debug info]])
+    [taoensso.timbre :refer [debug info]]
+    [clojure.set :as set]
+    [narjure.defaults :refer :all]
+    [narjure.term_utils :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :task-creator)
@@ -38,25 +41,48 @@
   "create a new task with the provided sentence and default values
    convert tense to occurrence time if applicable"
   [sentence time id]
-  {:creation time
-   :occurrence time
-   :source :input
-   :id id
-   :evidence '(id)
-   :solution nil
-   :statement sentence})
+  (let [future-past-offset 1000                             ;n steps offset for now
+        toc (case (:tense sentence)                         ;TODO: grammar extension :/k: :\h: ?
+              :eternal :eternal
+              :present time
+              :past (- time future-past-offset)
+              :future (+ time future-past-offset))
+        content (:content sentence)
+        task-type (:punctuation sentence)]
+    {:truth (:truth sentence)
+     :desire (:desire sentence)
+     :budget (:belief budgets)
+     ;:budget (task-type budgets)
+     :creation time
+     :occurrence toc
+     :source :input
+     :id id
+     :evidence '(id)
+     :sc (syntactic-complexity content)
+     :terms (termlink-subterms content)
+     :solution nil
+     :task-type task-type
+     :content content
+     }))
 
 (defn create-derived-task
   "Create a derived task with the provided sentence, budget and occurence time
    and default values for the remaining parameters"
-  [sentence budget occurrence time id]
-  {:creation time
-   :occurrence occurrence
-   :source :derived
-   :id id
-   :evidence '(id)
-   :solution nil
-   :statement sentence})
+  [sentence budget occurrence time id evidence]
+  (let [content (:content sentence)]
+    {:truth      (:truth sentence)
+     :desire     (:desire sentence)
+     :budget     budget
+     :creation   time
+     :occurrence occurrence
+     :source     :derived
+     :id         id
+     :evidence   evidence
+     :sc         (syntactic-complexity content)
+     :terms      (termlink-subterms content)
+     :solution   nil
+     :task-type  (:punctuation sentence)
+     :content    content}))
 
 (defn sentence-handler
   "Processes a :sentence-msg"
@@ -65,8 +91,8 @@
 
 (defn derived-sentence-handler
   "processes a :derived-sentence-msg"
-  [from [msg sentence budget occurrence]]
-  (cast! (:task-dispatcher @state) [:task-msg (create-derived-task sentence budget occurrence (:time @state) (get-id))]))
+  [from [msg sentence budget occurrence evidence]]
+  (cast! (:task-dispatcher @state) [:task-msg (create-derived-task sentence budget occurrence (:time @state) (get-id) evidence)]))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
