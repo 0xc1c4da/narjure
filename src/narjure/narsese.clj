@@ -37,8 +37,8 @@
    "--" '--
    "||" '||
    "&&" 'conj
-   "&/" 'sequential-events
-   "&|" 'parallel-events})
+   "&/" 'seq-conj
+   "&|" '&|})
 
 (defn get-compound-term [[_ operator-srt]]
   (compound-terms operator-srt))

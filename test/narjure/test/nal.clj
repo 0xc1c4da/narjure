@@ -16,8 +16,9 @@
 
 (defn parse-intervals [t]
   (if (coll? t)
-    (for [x t]
-      (parse-intervals x))
+    (apply vector
+           (for [x t]
+             (parse-intervals x)))
     (interval-atom-to-interval t)))
 
 (defn parse2 [stmt]
