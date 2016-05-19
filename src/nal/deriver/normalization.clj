@@ -144,9 +144,9 @@
            :else st))
 
 (defn reduce-seq-conj
+  "Not in use currently, may change"
   [st]
-  (m/match st
-           ['seq-conj t] t))
+  st)
 
 (def reducible-ops
   {'ext-inter `reduce-ext-inter

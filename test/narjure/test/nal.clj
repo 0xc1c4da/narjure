@@ -11,15 +11,44 @@
   ;These are:
   ;''Forward Interval'':
   ;< (&/, i10) ==> b> = <i10 ==> b> = b. :/10:
+  ;(&/,i10,a,b) = (&/,a,b). :/10:
   ;''Backward Interval'':
-  ;(&/, a_1, ..., a_n, /10) = (&/, a_1, ..., a_n) . :/10:
+  ;<a ==> (&/, i10)> = <a ==> i10> = a. :\10:
+  ;(&/, a_1, ..., a_n, /10) = (&/, a_1, ..., a_n) . :\10:
   ;this term is only derived as a A detachment from A =/> B this is why this treatment is valid.
   ;Also note that these are mandatory reductions, as else if i10 is treated as normal terms,
   ;semantical nonsense could be derived if an interval alone is the subject or predicate of an implication
-  ;or an event itself, since exactly speaking an interval itself does not encode an event semantically
-  ;but the distance between them!
-
-  s)
+  ;or an event itself, since strictly speaking an interval itself does not encode an event semantically
+  ;but only measures the distance between them!
+  (let [is-impl (fn [st] (and (coll? st)
+                              (or (= (first st) 'pred-impl)
+                                  (= (first st) 'impl)
+                                  (= (first st) '&|))))
+        ival-seq (fn [st] (when (and (coll? st)
+                                     (= (first st) 'seq-conj)
+                                     (= (count st) 2)
+                                     (coll? (second st))
+                                     (= (first (second st)) :interval))
+                            (second (second st))))
+        ival-reducer
+        (fn [st]
+          (if (is-impl st)
+            (let [subject (second st)
+                  predicate (nth st 2)
+                  ivalseq-s (ival-seq subject)
+                  ivalseq-p (ival-seq predicate)]
+              (if ivalseq-s
+                [predicate ivalseq-s]                       ;<(&/, i10) ==> b> = <i10 ==> b> = b. :/10:
+                (if ivalseq-p
+                  [subject (- ivalseq-p)]
+                  [st 0])))                                 ;<a ==> (&/, i10)> = <a ==> i10> = a. :\10:
+            [st 0]))]                                       ;TODO (&/ case) !!!!!
+    (let [occurence (:occurrence s)
+          [st shift] (ival-reducer (:statement s))]
+      (assoc (assoc s :statement st) :occurrence
+                                     (if (= :eternal occurence)
+                                       :eternal
+                                       (+ occurence shift))))))
 
 (defn interval-atom-to-interval [t]
   (let [pot-ival (name t)
@@ -797,7 +826,7 @@
 (deftest inference_on_tense
   (is (derived "<(&/,<($x, key) --> hold>,i50) =/> <($x, room) --> enter>>."
                "<(John, key) --> hold>. :|:"
-               ["<(John,room) --> enter>."])))
+               ["<(John,room) --> enter>. %1.0;0.81%"])))
 
 
 ;NAL8 testcases:
