@@ -576,12 +576,6 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          predicate <b> measure_time(I)</b> is introduced which is true if and only if the the time difference between
          both event premises is <b> I </b>. In the language, the time difference is encoded in the sequence, for
          example <b> ((&/,a,/10) =/> b) </b> encodes that <b> b </b> happens <b> 10  </b>  steps after <b> a </b>."
-         ;; NAL7 specific inference
-         ; Reasoning about temporal statements. those are using the ==> relation because relation in time is a relation of the truth between statements.
-         #R[X ((&/ K (:interval I)) ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" K X) (:shift-occurrence-forward I ==>))]
-         #_#R[X (XI ==> B) |- B  :post (:t/deduction :d/induction :order-for-all-same) :pre ((:substitute-if-unifies "$" XI (&/ X :interval)) (:shift-occurrence-forward XI ==>))]
-         #_#R[X (BI ==> Y) |- BI :post (:t/abduction :d/deduction :order-for-all-same) :pre ((:substitute-if-unifies "$" Y X) (:shift-occurrence-backward BI ==>))]
-
          ; Temporal induction:
          ; When P and then S happened according to an observation by induction (weak) it may be that alyways after P usually S happens.
          #R[P S |- (((&/ S I) =/> P) :post (:t/induction :linkage-temporal)
