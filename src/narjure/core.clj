@@ -6,7 +6,7 @@
     [immutant.scheduling :refer :all]
     [narjure.memory-management
      [concept-manager :refer [concept-manager c-bag]]
-     [event-buffer :refer [event-buffer]]
+     [event-buffer :refer [event-buffer e-bag]]
      [task-dispatcher :refer [task-dispatcher]]]
     [narjure.general-inference
      [concept-selector :refer [concept-selector]]
@@ -153,6 +153,7 @@
   ; test persistence
   ;(info "Test persistence")
   (info (str "c-bag count: " (b/count-elements @c-bag)))
+  (info (str "e-bag count: " (b/count-elements @e-bag)))
   ;(cast! (whereis :persistence-manager) [:persist-concept-state-msg "d:/clojure/snapshot1.nar"])
 
   (print "Processing ")

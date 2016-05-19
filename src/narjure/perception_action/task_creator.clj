@@ -51,6 +51,7 @@
         task-type (:punctuation sentence)]
     {:truth (:truth sentence)
      :desire (:desire sentence)
+     ;todo
      :budget (:belief budgets)
      ;:budget (task-type budgets)
      :creation time

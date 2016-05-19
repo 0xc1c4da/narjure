@@ -11,11 +11,14 @@
   (:refer-clojure :exclude [promise await]))
 
 (def aname :event-buffer)
+(def max-events 100)
+(def e-bag (atom (b/default-bag max-events)))
 
 (defn event-handler
   ""
-  [from message]
+  [from [_ task]]
   ;todo
+  (swap! e-bag b/add-element {:id (:id task) :priority ((:budget task) 0) :task task})
   #_(debug aname "In create-concepts"))
 
 (defn shutdown-handler
