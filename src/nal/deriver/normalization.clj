@@ -145,11 +145,8 @@
 
 (defn reduce-seq-conj
   [st]
-  (let [cnt (count st)]
-    (cond
-      (= 3 cnt) (second st)
-      (odd? cnt) (vec (butlast st))
-      :else st)))
+  (m/match st
+           ['seq-conj t] t))
 
 (def reducible-ops
   {'ext-inter `reduce-ext-inter

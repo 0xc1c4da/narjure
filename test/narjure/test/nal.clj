@@ -5,6 +5,22 @@
             [nal.deriver :refer :all]
             [nal.rules :as r]))
 
+(defn reduce-sentence [s]
+  ;there are certain equivalence transformations only being valid in ''NAL7i (NAL7+Intervals)
+  ;''and which indicate how intervals have to be treated as occurrence time modulators.
+  ;These are:
+  ;''Forward Interval'':
+  ;< (&/, i10) ==> b> = <i10 ==> b> = b. :/10:
+  ;''Backward Interval'':
+  ;(&/, a_1, ..., a_n, /10) = (&/, a_1, ..., a_n) . :/10:
+  ;this term is only derived as a A detachment from A =/> B this is why this treatment is valid.
+  ;Also note that these are mandatory reductions, as else if i10 is treated as normal terms,
+  ;semantical nonsense could be derived if an interval alone is the subject or predicate of an implication
+  ;or an event itself, since exactly speaking an interval itself does not encode an event semantically
+  ;but the distance between them!
+
+  s)
+
 (defn interval-atom-to-interval [t]
   (let [pot-ival (name t)
         num (apply str (rest pot-ival))]
@@ -25,7 +41,8 @@
   "workaround in order to have (&&,a) as [conj a] rather than [[conj a]],
   also in order to support :|: as 0 occurring versus :eternal
   and also in order to support recognizing i50 as [interval 50],
-  so everything needed to workaround the parser issues"            ;TODO fix paser accordingly when there is time!
+  so everything needed to workaround the parser issues.
+  Also apply sentence reduction here, as also done for derivations."            ;TODO fix paser accordingly when there is time!
   (let [parser-workaround (fn [prem, stmt]
                             (if (and (vector? stmt)
                                      (= (count stmt) 1))
@@ -35,7 +52,7 @@
                0
                :eternal)
         parsedstmt (assoc (parse stmt) :occurrence time)]
-    (parser-workaround parsedstmt (parse-intervals (:statement parsedstmt)))))
+    (reduce-sentence (parser-workaround parsedstmt (parse-intervals (:statement parsedstmt))))))
 
 (defn conclusions
   "Create all conclusions based on two Narsese premise strings"
@@ -43,10 +60,11 @@
    (let [parsed-p1 (parse2 p1)
          parsed-p2 (parse2 p2)
          punctuation (:action parsed-p1)]
-     (set (generate-conclusions
-            (r/rules punctuation)
-            parsed-p1
-            parsed-p2)))))
+     (set (map reduce-sentence
+               (generate-conclusions
+                 (r/rules punctuation)
+                 parsed-p1
+                 parsed-p2))))))
 
 (def truth-tolerance 0.005)
 
