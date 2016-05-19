@@ -220,7 +220,8 @@
   [preconditions]
   (first
     (filter
-      #(and (coll? %)
+      #(and false                                           ;disabled due to new handling!!
+            (coll? %)                                       ;TODO remove if successful
             (#{:shift-occurrence-backward
                :shift-occurrence-forward}
               (first %))) preconditions)))

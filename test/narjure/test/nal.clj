@@ -828,5 +828,15 @@
                "<(John, key) --> hold>. :|:"
                ["<(John,room) --> enter>. %1.0;0.81%"])))
 
+(deftest inference_on_tense_nonvar
+  (is (derived "<(&/,<(John, key) --> hold>,i50) =/> <(John, room) --> enter>>."
+               "<(John, key) --> hold>. :|:"
+               ["<(John,room) --> enter>. %1.0;0.81%"])))
+
+(deftest inference_on_tense_2
+  (is (derived "<(&/,<($x, key) --> hold>,i60) =/> <($x, room) --> enter>>."
+               "<(John,room) --> enter>. :|:"
+               ["<(John, key) --> hold>. %1.0;0.45%"])))
+
 
 ;NAL8 testcases:
