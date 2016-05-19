@@ -24,25 +24,46 @@
                               (or (= (first st) 'pred-impl)
                                   (= (first st) 'impl)
                                   (= (first st) '&|))))
-        ival-seq (fn [st] (when (and (coll? st)
-                                     (= (first st) 'seq-conj)
-                                     (= (count st) 2)
-                                     (coll? (second st))
-                                     (= (first (second st)) :interval))
+        ival-only-seq (fn [st] (when (and (coll? st)
+                                          (= (first st) 'seq-conj)
+                                          (= (count st) 2)
+                                          (coll? (second st))
+                                          (= (first (second st)) :interval))
                             (second (second st))))
+        ival (fn [f st] (when (and (coll? st)
+                                         (= (first st) 'seq-conj)
+                                         (coll? (f st))
+                                         (= (first (f st)) :interval))
+                                (second (f st))))
+        reduce-seq (fn [st]
+                     (if (and (coll? st)
+                              (= (count st) 2)
+                              (= (first st) 'seq-conj))
+                       (second st)
+                       st))
         ival-reducer
         (fn [st]
           (if (is-impl st)
             (let [subject (second st)
                   predicate (nth st 2)
-                  ivalseq-s (ival-seq subject)
-                  ivalseq-p (ival-seq predicate)]
+                  ivalseq-s (ival-only-seq subject)
+                  ivalseq-p (ival-only-seq predicate)]
               (if ivalseq-s
                 [predicate ivalseq-s]                       ;<(&/, i10) ==> b> = <i10 ==> b> = b. :/10:
                 (if ivalseq-p
                   [subject (- ivalseq-p)]
                   [st 0])))                                 ;<a ==> (&/, i10)> = <a ==> i10> = a. :\10:
-            [st 0]))]                                       ;TODO (&/ case) !!!!!
+            (if (and
+                  (coll? st)
+                  (= 'seq-conj (first st)))
+              (let [ival-l (ival second st)
+                    ival-r (ival last st)]
+                (if ival-l
+                  [(reduce-seq (apply vector (rest st))) ival-l]
+                 (if ival-r
+                   [(reduce-seq (apply vector (drop-last st))) ival-r]
+                   [st 0])))
+              [st 0])))]                                       ;TODO (&/ case) !!!!!
     (let [occurence (:occurrence s)
           [st shift] (ival-reducer (:statement s))]
       (assoc (assoc s :statement st) :occurrence
