@@ -5,13 +5,46 @@
             [nal.deriver :refer :all]
             [nal.rules :as r]))
 
-(defn reduce-sentence [s]
+(defn reduce-seq [st]                                       ;TODO move to term utils!!
+  "(&/,a) => a"
+  (if (and (coll? st)
+           (= (count st) 2)
+           (= (first st) 'seq-conj))
+    (second st)
+    st))
+
+(defn interval-only-seq [st]                                ;TODO move to term utils!!
+  "checks whether st is of form (&/,[:interval n]),
+  if yes, return n"
+  (when (and (coll? st)
+             (= (first st) 'seq-conj)
+             (= (count st) 2)
+             (coll? (second st))
+             (= (first (second st)) :interval))
+    (second (second st))))
+
+(defn is-implication [st]                                   ;TODO move to term utils!!
+  "checks whether the statement st is an implication"
+  (and (coll? st)
+       (or (= (first st) 'pred-impl)
+           (= (first st) 'impl)
+           (= (first st) 'concurrent-implication))))
+
+(defn interval-at [f st]                                    ;TODO move to term utils!!
+  "Returns the f=first/last etc. interval of a sequence st"
+  (when (and (coll? st)
+                      (= (first st) 'seq-conj)
+                      (coll? (f st))
+                      (= (first (f st)) :interval))
+             (second (f st))))
+
+(defn reduce-sentence [s]                                   ;TODO move to sentence utils?
   ;there are certain equivalence transformations only being valid in ''NAL7i (NAL7+Intervals)
   ;''and which indicate how intervals have to be treated as occurrence time modulators.
   ;These are:
   ;''Forward Interval'':
   ;< (&/, i10) ==> b> = <i10 ==> b> = b. :/10:
-  ;(&/,i10,a,b) = (&/,a,b). :/10:
+  ;(&/,i10,a_1, ..., a_n) = (&/,a_1, ..., a_n). :/10:
   ;''Backward Interval'':
   ;<a ==> (&/, i10)> = <a ==> i10> = a. :\10:
   ;(&/, a_1, ..., a_n, /10) = (&/, a_1, ..., a_n) . :\10:
@@ -20,48 +53,26 @@
   ;semantical nonsense could be derived if an interval alone is the subject or predicate of an implication
   ;or an event itself, since strictly speaking an interval itself does not encode an event semantically
   ;but only measures the distance between them!
-  (let [is-impl (fn [st] (and (coll? st)
-                              (or (= (first st) 'pred-impl)
-                                  (= (first st) 'impl)
-                                  (= (first st) '&|))))
-        ival-only-seq (fn [st] (when (and (coll? st)
-                                          (= (first st) 'seq-conj)
-                                          (= (count st) 2)
-                                          (coll? (second st))
-                                          (= (first (second st)) :interval))
-                            (second (second st))))
-        ival (fn [f st] (when (and (coll? st)
-                                         (= (first st) 'seq-conj)
-                                         (coll? (f st))
-                                         (= (first (f st)) :interval))
-                                (second (f st))))
-        reduce-seq (fn [st]
-                     (if (and (coll? st)
-                              (= (count st) 2)
-                              (= (first st) 'seq-conj))
-                       (second st)
-                       st))
-        ival-reducer
+  (let [ival-reducer
         (fn [st]
-          (if (is-impl st)
+          (if (is-implication st)
             (let [subject (second st)
                   predicate (nth st 2)
-                  ivalseq-s (ival-only-seq subject)
-                  ivalseq-p (ival-only-seq predicate)]
+                  ivalseq-s (interval-only-seq subject)
+                  ivalseq-p (interval-only-seq predicate)]
               (if ivalseq-s
                 [predicate ivalseq-s]                       ;<(&/, i10) ==> b> = <i10 ==> b> = b. :/10:
                 (if ivalseq-p
                   [subject (- ivalseq-p)]
                   [st 0])))                                 ;<a ==> (&/, i10)> = <a ==> i10> = a. :\10:
-            (if (and
-                  (coll? st)
-                  (= 'seq-conj (first st)))
-              (let [ival-l (ival second st)
-                    ival-r (ival last st)]
+            (if (and (coll? st)
+                     (= 'seq-conj (first st)))
+              (let [ival-l (interval-at second st)
+                    ival-r (interval-at last st)]
                 (if ival-l
-                  [(reduce-seq (apply vector (rest st))) ival-l]
+                  [(reduce-seq (apply vector (rest st))) ival-l] ;(&/,i10,a_1, ..., a_n) = (&/,a_1, ..., a_n). :/10:
                  (if ival-r
-                   [(reduce-seq (apply vector (drop-last st))) ival-r]
+                   [(reduce-seq (apply vector (drop-last st))) (- ival-r)] ;(&/, a_1, ..., a_n, /10) = (&/, a_1, ..., a_n) . :\10:
                    [st 0])))
               [st 0])))]                                       ;TODO (&/ case) !!!!!
     (let [occurence (:occurrence s)
