@@ -838,38 +838,45 @@
 
 ;NAL7 testcases:
 
-(deftest temporal_exemplification
+;1. see if the bootstrap of the lower level works as it should:
+(deftest temporal_nal5_exemplification_with_var
   (is (derived "<<($x, room) --> enter> =\\> <($x, door) --> open>>. %0.9;0.9%"
                "<<($x, door) --> open> =\\> <($x, key) --> hold>>. %0.8;0.9%"
                ["<<(*,$x,key) --> hold> =/> <(*,$x,room) --> enter>>. %1.00;0.37%"])))
 
-(deftest temporal_deduction
+(deftest temporal_nal5_deduction_with_var
   (is (derived "<<($x, room) --> enter> =\\> <($x, door) --> open>>. %0.9;0.9%"
                "<<($x, door) --> open> =\\> <($x, key) --> hold>>. %0.8;0.9%"
                ["<<(*,$x,room) --> enter> =\\> <(*,$x,key) --> hold>>. %0.72;0.58%"])))
 
-(deftest temporal_induction_comparison
+(deftest temporal_nal5_induction_comparison_with_var
   (is (derived "<<(*, $x, door) --> open> =/> <(*, $x, room) --> enter>>. %0.9;0.9%"
                "<<(*, $x, door) --> open> =\\> <(*, $x, key) --> hold>>. %0.8;0.9%"
                ["<<(*,$x,key) --> hold> =/> <(*,$x,room) --> enter>>. %0.9;0.39%"
                 "<<(*,$x,room) --> enter> =\\> <(*,$x,key) --> hold>>. %0.8;0.42%"
                 "<<(*,$x,key) --> hold> </> <(*,$x,room) --> enter>>. %0.73;0.44%"])))
 
-(deftest temporal_analogy
+(deftest temporal_nal5_analogy_with_var
   (is (derived "<<(*, $x, door) --> open> =/> <(*, $x, room) --> enter>>. %0.95;0.9%"
                "<<(*, $x, room) --> enter> <|> <(*, $x, corridor_100) --> leave>>. %1.0;0.9%"
                ["<<(*, $x, door) --> open> =/> <(*, $x, corridor_100) --> leave>>. %0.95;0.81%"])))
 
 
-
-(deftest inference_on_tense_2_nonvar
+;2. NAL7-only inference, taking intervals and occurrence times into account
+(deftest temporal_induction_concurrent
   (is (derived "<(John,door) --> open>. :|:"
                "<(John,room) --> enter>. :|:"
                ["(&|,<(John,room) --> enter>,<(John,door) --> open>). %1.00;0.81%"
                 "<<(John,room) --> enter> =|> <(John,door) --> open>>. %1.00;0.45%"
                 "<<(John,room) --> enter> <|> <(John,door) --> open>>. %1.00;0.45%"
-                "<<(John,door) --> open> =|> <(John,room) --> enter>>. %1.00;0.45%"
-                ])))
+                "<<(John,door) --> open> =|> <(John,room) --> enter>>. %1.00;0.45%"])))
+
+(deftest temporal_induction_after
+  (is (derived "<(John,door) --> open>. :|:"
+               "<(John,room) --> enter>. :|50|:"
+               ["(&/,<(John,door) --> open>,i50,<(John,room) --> enter>). %1.00;0.81%"
+                "<(&/,<(John,door),i50) --> open> =/> <(John,room) --> enter>>. %1.00;0.45%"
+                "<(&/,<(John,door),i50) --> open> </> <(John,room) --> enter>>. %1.00;0.45%"])))
 
 (deftest inference_on_tense
   (is (derived "<(&/,<($x, key) --> hold>,i50) =/> <($x, room) --> enter>>. :|:"
@@ -887,6 +894,10 @@
                "<(John,room) --> enter>. :|:"
                ["<(John, key) --> hold>. :|-60|: %1.0;0.45%"])))
 
+;if there is a temporal difference then it is encoded in an interval, so =/> always comes with interval
+;=|> occurs if both events are inside the cognitive duration
+; TOOD taking into account that a sequence event can have a custom duration for refinement.
+
 (deftest inference_on_tense_2_nonvar
   (is (derived "<<(John,key) --> hold> =/> <(John,room) --> enter>>."
                "<(John,room) --> enter>. :|:"
@@ -897,6 +908,17 @@
                "<(John,key) --> hold>. :|:"
                ["<(*,John,room) --> enter>. %1.0;0.81%"])))
 
+
+(deftest temporal_var_introduction_concurrent
+  (is (derived "<John --> (/,open,_,door)>. :|:"
+               "<John --> (/,enter,_,room)>. :|:"
+               ["<<$X --> (/,open,_,door)> =|> <$X --> (/,enter,_,room)>>. :|:"])))
+
+
+(deftest temporal_var_introduction_after
+  (is (derived "<John --> (/,open,_,door)>. :|:"
+               "<John --> (/,enter,_,room)>. :|50|:"
+               ["<(&/,<$X --> (/,open,_,door)>,i50) =/> <$X --> (/,enter,_,room)>>. :|:"])))
 
 
 ;NAL8 testcases:
