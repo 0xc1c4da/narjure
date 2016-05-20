@@ -968,7 +968,7 @@
 
 (deftest interval_preserve_shift_occurrence_2
   (is (derived "<s --> S>. :|:"
-               "(&/,<s --> S>,/50,<z --> Z>). :|:"
-               ["<z --> Z>. :|50|: %1.0;0.45%"])))
+               "(&/,<s --> S>,i64,<z --> Z>). :|:"
+               ["<z --> Z>. :|64|: %1.0;0.43%"])))
 
 ;NAL8 testcases:
