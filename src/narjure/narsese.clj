@@ -17,7 +17,7 @@
    "{-]"  'instance-property
    "==>"  '==>
    "=/>"  'pred-impl
-   "=|>"  'concurrent-implication
+   "=|>"  '=|>
    "=\\>" 'retro-impl
    "<=>"  '<=>
    "</>"  '</>

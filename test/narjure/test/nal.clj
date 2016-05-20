@@ -3,9 +3,10 @@
             [narjure.narsese :refer :all]
             [instaparse.core :refer [failure?]]
             [nal.deriver :refer :all]
-            [nal.rules :as r]))
+            [nal.rules :as r]
+            [clojure.string :as str]))
 
-(defn reduce-seq [st]                                       ;TODO move to term utils!!
+(defn reduce-sequence [st]                                       ;TODO move to term utils!!
   "(&/,a) => a"
   (if (and (coll? st)
            (= (count st) 2)
@@ -13,7 +14,7 @@
     (second st)
     st))
 
-(defn interval-only-seq [st]                                ;TODO move to term utils!!
+(defn interval-only-sequence [st]                                ;TODO move to term utils!!
   "checks whether st is of form (&/,[:interval n]),
   if yes, return n"
   (when (and (coll? st)
@@ -28,7 +29,7 @@
   (and (coll? st)
        (or (= (first st) 'pred-impl)
            (= (first st) 'impl)
-           (= (first st) 'concurrent-implication))))
+           (= (first st) '=|>))))
 
 (defn interval-at [f st]                                    ;TODO move to term utils!!
   "Returns the f=first/last etc. interval of a sequence st"
@@ -38,7 +39,7 @@
                       (= (first (f st)) :interval))
              (second (f st))))
 
-(defn reduce-sentence [s]                                   ;TODO move to sentence utils?
+(defn interval-reduction [s]                                   ;TODO move to sentence utils?
   ;there are certain equivalence transformations only being valid in ''NAL7i (NAL7+Intervals)
   ;''and which indicate how intervals have to be treated as occurrence time modulators.
   ;These are:
@@ -58,8 +59,8 @@
           (if (is-implication st)
             (let [subject (second st)
                   predicate (nth st 2)
-                  ivalseq-s (interval-only-seq subject)
-                  ivalseq-p (interval-only-seq predicate)]
+                  ivalseq-s (interval-only-sequence subject)
+                  ivalseq-p (interval-only-sequence predicate)]
               (if ivalseq-s
                 [predicate ivalseq-s]                       ;<(&/, i10) ==> b> = <i10 ==> b> = b. :/10:
                 (if ivalseq-p
@@ -70,9 +71,9 @@
               (let [ival-l (interval-at second st)
                     ival-r (interval-at last st)]
                 (if ival-l
-                  [(reduce-seq (apply vector (rest st))) ival-l] ;(&/,i10,a_1, ..., a_n) = (&/,a_1, ..., a_n). :/10:
+                  [(reduce-sequence (apply vector (rest st))) ival-l] ;(&/,i10,a_1, ..., a_n) = (&/,a_1, ..., a_n). :/10:
                  (if ival-r
-                   [(reduce-seq (apply vector (drop-last st))) (- ival-r)] ;(&/, a_1, ..., a_n, /10) = (&/, a_1, ..., a_n) . :\10:
+                   [(reduce-sequence (apply vector (drop-last st))) (- ival-r)] ;(&/, a_1, ..., a_n, /10) = (&/, a_1, ..., a_n) . :\10:
                    [st 0])))
               [st 0])))]                                       ;TODO (&/ case) !!!!!
     (let [occurence (:occurrence s)
@@ -111,9 +112,13 @@
                               (assoc prem :statement stmt)))
         time (if (.contains stmt ":|:")
                0
-               :eternal)
-        parsedstmt (assoc (parse stmt) :occurrence time)]
-    (reduce-sentence (parser-workaround parsedstmt (parse-intervals (:statement parsedstmt))))))
+               (if (and (.contains stmt ":|")
+                        (.contains stmt "|:"))
+                 (read-string (first (str/split (second (str/split stmt #"\:\|")) #"\|\:")))
+                 :eternal))
+        parsedstmt (assoc (parse (str (first (str/split stmt #"\:\|"))
+                                      (second (str/split stmt #"\|\:")))) :occurrence time)]
+    (interval-reduction (parser-workaround parsedstmt (parse-intervals (:statement parsedstmt))))))
 
 (defn conclusions
   "Create all conclusions based on two Narsese premise strings"
@@ -121,7 +126,7 @@
    (let [parsed-p1 (parse2 p1)
          parsed-p2 (parse2 p2)
          punctuation (:action parsed-p1)]
-     (set (map reduce-sentence
+     (set (map interval-reduction
                (generate-conclusions
                  (r/rules punctuation)
                  parsed-p1
@@ -146,6 +151,7 @@
      (let [parsed-p1 (parse2 p1)]
        (every? (fn [c] (let [parsed-c (parse2 c)]
                          (some #(and (= (:statement %) (:statement parsed-c))
+                                     (= (:occurrence %) (:occurrence parsed-c))
                                      (or (= (:action parsed-p1) :question)
                                          (= (:action parsed-p1) :quest)
                                          (truth-equal? % parsed-c)))
@@ -855,20 +861,42 @@
                ["<<(*, $x, door) --> open> =/> <(*, $x, corridor_100) --> leave>>. %0.95;0.81%"])))
 
 
+
+(deftest inference_on_tense_2_nonvar
+  (is (derived "<(John,door) --> open>. :|:"
+               "<(John,room) --> enter>. :|:"
+               ["(&|,<(John,room) --> enter>,<(John,door) --> open>). %1.00;0.81%"
+                "<<(John,room) --> enter> =|> <(John,door) --> open>>. %1.00;0.45%"
+                "<<(John,room) --> enter> <|> <(John,door) --> open>>. %1.00;0.45%"
+                "<<(John,door) --> open> =|> <(John,room) --> enter>>. %1.00;0.45%"
+                ])))
+
 (deftest inference_on_tense
-  (is (derived "<(&/,<($x, key) --> hold>,i50) =/> <($x, room) --> enter>>."
+  (is (derived "<(&/,<($x, key) --> hold>,i50) =/> <($x, room) --> enter>>. :|:"
                "<(John, key) --> hold>. :|:"
-               ["<(John,room) --> enter>. %1.0;0.81%"])))
+               ["<(John,room) --> enter>. :|50|: %1.0;0.81% "])))
 
 (deftest inference_on_tense_nonvar
-  (is (derived "<(&/,<(John, key) --> hold>,i50) =/> <(John, room) --> enter>>."
+  (is (derived "<(&/,<(John, key) --> hold>,i50) =/> <(John, room) --> enter>>. :|:"
                "<(John, key) --> hold>. :|:"
-               ["<(John,room) --> enter>. %1.0;0.81%"])))
+               ["<(John,room) --> enter>. :|50|: %1.0;0.81%"])))
+
 
 (deftest inference_on_tense_2
-  (is (derived "<(&/,<($x, key) --> hold>,i60) =/> <($x, room) --> enter>>."
+  (is (derived "<(&/,<($x, key) --> hold>,i60) =/> <($x, room) --> enter>>. :|:"
                "<(John,room) --> enter>. :|:"
-               ["<(John, key) --> hold>. %1.0;0.45%"])))
+               ["<(John, key) --> hold>. :|-60|: %1.0;0.45%"])))
+
+(deftest inference_on_tense_2_nonvar
+  (is (derived "<<(John,key) --> hold> =/> <(John,room) --> enter>>."
+               "<(John,room) --> enter>. :|:"
+               ["<(John,key) --> hold>. %1.00;0.45%"])))
+
+(deftest inference_on_tense_2_nonvar_2
+  (is (derived "<<(John,key) --> hold> =/> <(John,room) --> enter>>."
+               "<(John,key) --> hold>. :|:"
+               ["<(*,John,room) --> enter>. %1.0;0.81%"])))
+
 
 
 ;NAL8 testcases:
