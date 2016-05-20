@@ -71,7 +71,7 @@
               (let [ival-l (interval-at second st)
                     ival-r (interval-at last st)]
                 (if ival-l
-                  [(reduce-sequence (apply vector (rest st))) ival-l] ;(&/,i10,a_1, ..., a_n) = (&/,a_1, ..., a_n). :/10:
+                  [(reduce-sequence (apply vector (first st) (rest (rest st)))) ival-l] ;(&/,i10,a_1, ..., a_n) = (&/,a_1, ..., a_n). :/10:
                  (if ival-r
                    [(reduce-sequence (apply vector (drop-last st))) (- ival-r)] ;(&/, a_1, ..., a_n, /10) = (&/, a_1, ..., a_n) . :\10:
                    [(reduce-sequence st) 0])))
@@ -962,8 +962,8 @@
 
 (deftest interval_preserve_shift_occurrence
   (is (derived "<s --> S>. :|10|:"
-               "(&/,<s --> S>,i50,<y --> Y>,i3,<z --> Z>)."
-               ["(&/, <y --> Y>, i3, <z --> Z>). :|60|: %1.0;0.43%"])))
+               "(&/,<s --> S>,i64,<y --> Y>,i8,<z --> Z>)."
+               ["(&/, <y --> Y>, i8, <z --> Z>). :|74|: %1.0;0.43%"])))
 
 
 (deftest interval_preserve_shift_occurrence_2
