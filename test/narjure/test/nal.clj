@@ -65,7 +65,7 @@
                 [predicate ivalseq-s]                       ;<(&/, i10) ==> b> = <i10 ==> b> = b. :/10:
                 (if ivalseq-p
                   [subject (- ivalseq-p)]
-                  [st 0])))                                 ;<a ==> (&/, i10)> = <a ==> i10> = a. :\10:
+                  [(reduce-sequence st) 0])))                                 ;<a ==> (&/, i10)> = <a ==> i10> = a. :\10:
             (if (and (coll? st)
                      (= 'seq-conj (first st)))
               (let [ival-l (interval-at second st)
@@ -74,8 +74,8 @@
                   [(reduce-sequence (apply vector (rest st))) ival-l] ;(&/,i10,a_1, ..., a_n) = (&/,a_1, ..., a_n). :/10:
                  (if ival-r
                    [(reduce-sequence (apply vector (drop-last st))) (- ival-r)] ;(&/, a_1, ..., a_n, /10) = (&/, a_1, ..., a_n) . :\10:
-                   [st 0])))
-              [st 0])))]                                       ;TODO (&/ case) !!!!!
+                   [(reduce-sequence st) 0])))
+              [(reduce-sequence st) 0])))]                                       ;TODO (&/ case) !!!!!
     (let [occurence (:occurrence s)
           [st shift] (ival-reducer (:statement s))]
       (assoc (assoc s :statement st) :occurrence
@@ -866,17 +866,18 @@
 (deftest temporal_induction_concurrent
   (is (derived "<(John,door) --> open>. :|:"
                "<(John,room) --> enter>. :|:"
-               ["(&|,<(John,room) --> enter>,<(John,door) --> open>). %1.00;0.81%"
-                "<<(John,room) --> enter> =|> <(John,door) --> open>>. %1.00;0.45%"
-                "<<(John,room) --> enter> <|> <(John,door) --> open>>. %1.00;0.45%"
-                "<<(John,door) --> open> =|> <(John,room) --> enter>>. %1.00;0.45%"])))
+               ["(&|,<(John,room) --> enter>,<(John,door) --> open>). :|: %1.00;0.81%"
+                "<<(John,room) --> enter> =|> <(John,door) --> open>>. :|: %1.00;0.45%"
+                "<<(John,room) --> enter> <|> <(John,door) --> open>>. :|: %1.00;0.45%"
+                "<<(John,door) --> open> =|> <(John,room) --> enter>>. :|: %1.00;0.45%"])))
+
 
 (deftest temporal_induction_after
   (is (derived "<(John,door) --> open>. :|:"
                "<(John,room) --> enter>. :|50|:"
-               ["(&/,<(John,door) --> open>,i50,<(John,room) --> enter>). %1.00;0.81%"
-                "<(&/,<(John,door),i50) --> open> =/> <(John,room) --> enter>>. %1.00;0.45%"
-                "<(&/,<(John,door),i50) --> open> </> <(John,room) --> enter>>. %1.00;0.45%"])))
+               ["(&/,<(John,door) --> open>,i50,<(John,room) --> enter>). :|: %1.00;0.81%"
+                "<(&/,<(John,door),i50) --> open> =/> <(John,room) --> enter>>. :|: %1.00;0.45%"
+                "<(&/,<(John,door),i50) --> open> </> <(John,room) --> enter>>. :|: %1.00;0.45%"])))
 
 (deftest inference_on_tense
   (is (derived "<(&/,<($x, key) --> hold>,i50) =/> <($x, room) --> enter>>. :|:"
@@ -912,13 +913,37 @@
 (deftest temporal_var_introduction_concurrent
   (is (derived "<John --> (/,open,_,door)>. :|:"
                "<John --> (/,enter,_,room)>. :|:"
-               ["<<$X --> (/,open,_,door)> =|> <$X --> (/,enter,_,room)>>. :|:"])))
+               ["<<$X --> (/,open,_,door)> =|> <$X --> (/,enter,_,room)>>. :|: %1.0;0.45%"])))
 
 
 (deftest temporal_var_introduction_after
   (is (derived "<John --> (/,open,_,door)>. :|:"
                "<John --> (/,enter,_,room)>. :|50|:"
-               ["<(&/,<$X --> (/,open,_,door)>,i50) =/> <$X --> (/,enter,_,room)>>. :|:"])))
+               ["<(&/,<$X --> (/,open,_,door)>,i50) =/> <$X --> (/,enter,_,room)>>. :|: %1.0;0.45%"])))
 
+(deftest temporal_var_elimination_on_events
+  (is (derived "(&|,<(*,{t002},#2) --> on>,<(*,SELF,#2) --> at>). :|:"
+               "<(&|,<(*,$1,#2) --> on>,<(*,SELF,#2) --> at>) =|> <(*,SELF,$1) --> reachable>>. :|:"
+               ["<(*,SELF,{t002}) --> reachable>. :|: %1.0;0.81%"])))
+
+
+
+
+(deftest temporal_order
+  (is (derived "<<m --> M> =/> <p --> P>>."
+               "<<s --> S> <|> <m --> M>>. %0.9;0.9%"
+               ["<<s --> S> =/> <p --> P>>. %0.9;0.73%"])))
+
+
+(deftest interval_preserve_shift_occurrence
+  (is (derived "<s --> S>. :|10|:"
+               "(&/,<s --> S>,i50,<y --> Y>,i3,<z --> Z>)."
+               ["(&/, <y --> Y>, i3, <z --> Z>). :|60|: %1.0;0.43%"])))
+
+
+(deftest interval_preserve_shift_occurrence_2
+  (is (derived "<s --> S>. :|:"
+               "(&/,<s --> S>,/50,<z --> Z>). :|:"
+               ["<z --> Z>. :|50|: %1.0;0.45%"])))
 
 ;NAL8 testcases:
