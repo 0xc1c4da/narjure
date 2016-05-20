@@ -83,21 +83,44 @@
                                        :eternal
                                        (+ occurence shift))))))
 
+(defn next-interval-point [n]                               ;term-utils
+  "for establishing tolerance in temporal distance,
+  by rounding to the next power of 2"
+  (let [pot-2 (for [i (range 25)]
+                (int (Math/pow 2 i)))]
+    (first (for [x (filter #(> % n) pot-2)]
+             (if (< (Math/abs (- x n))
+                    (Math/abs (- (/ x 2) n)))
+               x
+               (/ x 2))))))
+
 (defn interval-atom-to-interval [t]
   (let [pot-ival (name t)
         num (apply str (rest pot-ival))]
     (if (and (= \i (first pot-ival))
              (= (count (filter #(Character/isDigit %) num))
                 (count num)))
-      [:interval (Integer/parseInt num)]
+      [:interval (next-interval-point (Integer/parseInt num))]
       t)))
 
 (defn parse-intervals [t]
+  "all occurrences of i50 in the term are transformed to [:interval 50]"
   (if (coll? t)
     (apply vector
            (for [x t]
              (parse-intervals x)))
     (interval-atom-to-interval t)))
+
+(defn apply-interval-precision [t]
+  "all intervals are changed to the next interval precision point
+  in this magnitude"
+  (if (coll? t)
+    (if (= (first t) :interval)
+      [:interval (next-interval-point (second t))]
+      (apply vector
+            (for [x t]
+              (apply-interval-precision x))))
+    t))
 
 (defn parse2 [stmt]
   "workaround in order to have (&&,a) as [conj a] rather than [[conj a]],
@@ -126,11 +149,13 @@
    (let [parsed-p1 (parse2 p1)
          parsed-p2 (parse2 p2)
          punctuation (:action parsed-p1)]
-     (set (map interval-reduction
-               (generate-conclusions
-                 (r/rules punctuation)
-                 parsed-p1
-                 parsed-p2))))))
+     (set (map #(assoc % :statement
+                         (apply-interval-precision (:statement %)))
+               (map interval-reduction
+                    (generate-conclusions
+                      (r/rules punctuation)
+                      parsed-p1
+                      parsed-p2)))))))
 
 (def truth-tolerance 0.005)
 
@@ -873,27 +898,27 @@
 
 
 (deftest temporal_induction_after
-  (is (derived "<(John,door) --> open>. :|:"
-               "<(John,room) --> enter>. :|50|:"
-               ["(&/,<(John,door) --> open>,i50,<(John,room) --> enter>). :|: %1.00;0.81%"
-                "<(&/,<(John,door),i50) --> open> =/> <(John,room) --> enter>>. :|: %1.00;0.45%"
-                "<(&/,<(John,door),i50) --> open> </> <(John,room) --> enter>>. :|: %1.00;0.45%"])))
+  (is (derived "<(John,room) --> enter>. :|64|:"
+               "<(John,door) --> open>. :|:"
+               ["(&/,<(John,door) --> open>,i64,<(John,room) --> enter>). :|64|: %1.00;0.81%"
+                "<(&/,<(John,door) --> open>,i64) =/> <(John,room) --> enter>>. :|64|: %1.00;0.45%"
+                "<(&/,<(John,door) --> open>,i64) </> <(John,room) --> enter>>. :|64|: %1.00;0.45%"])))
 
 (deftest inference_on_tense
-  (is (derived "<(&/,<($x, key) --> hold>,i50) =/> <($x, room) --> enter>>. :|:"
+  (is (derived "<(&/,<($x, key) --> hold>,i64) =/> <($x, room) --> enter>>. :|:"
                "<(John, key) --> hold>. :|:"
-               ["<(John,room) --> enter>. :|50|: %1.0;0.81% "])))
+               ["<(John,room) --> enter>. :|64|: %1.0;0.81% "])))
 
 (deftest inference_on_tense_nonvar
-  (is (derived "<(&/,<(John, key) --> hold>,i50) =/> <(John, room) --> enter>>. :|:"
+  (is (derived "<(&/,<(John, key) --> hold>,i64) =/> <(John, room) --> enter>>. :|:"
                "<(John, key) --> hold>. :|:"
-               ["<(John,room) --> enter>. :|50|: %1.0;0.81%"])))
+               ["<(John,room) --> enter>. :|64|: %1.0;0.81%"])))
 
 
 (deftest inference_on_tense_2
-  (is (derived "<(&/,<($x, key) --> hold>,i60) =/> <($x, room) --> enter>>. :|:"
+  (is (derived "<(&/,<($x, key) --> hold>,i64) =/> <($x, room) --> enter>>. :|:"
                "<(John,room) --> enter>. :|:"
-               ["<(John, key) --> hold>. :|-60|: %1.0;0.45%"])))
+               ["<(John, key) --> hold>. :|-64|: %1.0;0.45%"])))
 
 ;if there is a temporal difference then it is encoded in an interval, so =/> always comes with interval
 ;=|> occurs if both events are inside the cognitive duration
