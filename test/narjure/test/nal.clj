@@ -917,9 +917,9 @@
 
 
 (deftest temporal_var_introduction_after
-  (is (derived "<John --> (/,open,_,door)>. :|:"
-               "<John --> (/,enter,_,room)>. :|50|:"
-               ["<(&/,<$X --> (/,open,_,door)>,i50) =/> <$X --> (/,enter,_,room)>>. :|: %1.0;0.45%"])))
+  (is (derived "<John --> (/,enter,_,room)>. :|50|:"
+               "<John --> (/,open,_,door)>. :|:"
+               ["<(&/,<$X --> (/,open,_,door)>,i50) =/> <$X --> (/,enter,_,room)>>. :|50|: %1.0;0.45%"])))
 
 (deftest temporal_var_elimination_on_events
   (is (derived "(&|,<(*,{t002},#2) --> on>,<(*,SELF,#2) --> at>). :|:"

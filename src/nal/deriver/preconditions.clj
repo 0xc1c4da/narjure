@@ -88,6 +88,7 @@
   [_]
   [`(not= :eternal :t-occurrence)
    `(not= :eternal :b-occurrence)
+   `(< :b-occurrence :t-occurrence)
    `(<= ~temporal-window-duration (abs (- :t-occurrence :b-occurrence)))])
 
 (defmethod compound-precondition :concurrent
