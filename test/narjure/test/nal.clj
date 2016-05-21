@@ -6,13 +6,23 @@
             [nal.rules :as r]
             [clojure.string :as str]))
 
-(defn reduce-sequence [st]                                       ;TODO move to term utils!!
-  "(&/,a) => a"
-  (if (and (coll? st)
-           (= (count st) 2)
-           (= (first st) 'seq-conj))
-    (second st)
-    st))
+(defn is-singular-sequence [st]
+  "Checks whether the sequence is of (&/,a) form"
+  (and (coll? st)
+       (= (count st) 2)
+       (= (first st) 'seq-conj)))
+
+(defn reduce-sequence [st]                                  ;TODO move to term utils!!
+  "Replaces (&/,a) => a recursively"
+  (if (coll? st)
+    (if (is-singular-sequence st)
+      (second st)
+      (apply vector (for [x st]
+                      (reduce-sequence x))))
+    (if (is-singular-sequence st)
+      (second st)
+      st))
+  )
 
 (defn interval-only-sequence [st]                                ;TODO move to term utils!!
   "checks whether st is of form (&/,[:interval n]),
@@ -126,9 +136,10 @@
     t))
 
 (defn no-truth-for-questions-and-quests [st]         ;sentence util
-  (if (or (= (:task-type st) :quest)                           ;avoids nil in truth
-          (= (:task-type st) :question))                       ;calculations
-    (dissoc st :truth)                                                      ;(assoc st :truth (list 0.1 0.1)) ;(dissoc st :truth)
+  "makes absolutely sure that goals and beliefs have no truth and desire value for now"
+  (if (or (= (:task-type st) :quest)
+          (= (:task-type st) :question))
+    (dissoc st :truth)
     st))
 
 (defn parse2 [stmt]
@@ -1015,9 +1026,31 @@ to illustrate: (max-var-term '[conj [disj [dep-var 2]] [ind-var 1]]) => 2"
                "(&/,<s --> S>,i64,<z --> Z>). :|:"
                ["<z --> Z>. :|64|: %1.0;0.43%"])))
 
+(deftest sub_condition_detachment
+  (is (derived "<(&/,<(SELF,{t002}) --> reachable>,<({t002}) --> op_pick>) =/> <(SELF,{t002}) --> hold>>."
+               "<(SELF,{t002}) --> reachable>. :|:"
+               ;just to simulate single prem termlink selection
+               ["<<({t002}) --> op_pick> =/> <(SELF, {t002}) --> hold>>. %1.0;0.81%"])))
+
 ;NAL8 testcases:
 
-(deftest subgoal-deduction
+(deftest subgoal-deduction_1
   (is (derived "(&/,<(SELF,{t002}) --> hold>, <(SELF,{t001}) --> at>, <({t001}) --> op_open>)! :|:"
                "<(SELF,{t002}) --> hold>?"                  ;just to simulate single prem termlink selection
                ["<(SELF,{t002}) --> hold>! :|: %1.0;0.81%"])))
+
+(deftest subgoal-deduction_2
+  (is (derived "(&/,<(SELF,{t002}) --> reachable>, i16, <({t002}) --> op_pick>)! :|:"
+               "<(SELF,{t002}) --> reachable>. :|:"
+               ["<({t002}) --> op_pick>! :|16|: %1.0;0.81%"])))
+
+(deftest subgoal-deduction_3
+  (is (derived "(&/, <(SELF,{t002}) --> hold>, i16, <(SELF,{t001}) --> at>, <({t001}) --> op_open>)! :|:"
+               "<(SELF,{t002}) --> hold>. :|:"
+               ["(&/,<(SELF,{t001}) --> at>,<({t001}) --> op_open>)! :|16|: %1.0;0.81%"])))
+
+(deftest goal-deduction-var
+  (is (derived "<(SELF,{t001}) --> at>!"
+               "<<($1) --> op_goto> =/> <(SELF,$1) --> at>>."
+               ["<({t001}) --> op_goto>! :|16|: %1.0;0.81%"])))
+
