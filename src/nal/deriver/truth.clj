@@ -100,7 +100,7 @@
 
 (defn structual-deduction [p1 _] (deduction p1 [1 d/belief-confidence]))
 
-(defn structual-abduction [p1 _] (abduction p1 [1 d/belief-confidence]))
+(defn structual-abduction [_ p2] (abduction p2 [1 d/belief-confidence]))
 
 (defn reduce-conjunction [p1 p2]
   (-> (negation p1 p2)
@@ -112,7 +112,7 @@
 
 (defn d-identity [p1 _] p1)
 
-(defn belief-identity [p1 p2] (when p2 p1))
+(defn belief-identity [_ p2] p2)
 
 (defn belief-structural-deduction [_ p2]
   (when p2 (deduction p2 [1 d/belief-confidence])))

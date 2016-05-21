@@ -382,9 +382,9 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          #R[M (M <=> S) |- S :post (:t/analogy :d/strong :order-for-all-same) :pre ((:shift-occurrence-forward ==>))]
 
          ; conjunction decompose
-         #R[(&& :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
-         #R[(&/ :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
-         #R[(&| :list/A) Ai |- Ai :pre (:contains? (:list/A) Ai) :post (:t/structural-deduction :d/structural-strong)]
+         #R[(&& S :list/A) S |- S :post (:t/structural-deduction :d/structural-strong)]
+         #R[(&/ S :list/A) S |- S :post (:t/structural-deduction :d/structural-strong)]
+         #R[(&| S :list/A) S |- S :post (:t/structural-deduction :d/structural-strong)]
          #R[(&/ B :list/A) B |- (&/ :list/A) :pre (:goal?) :post (:t/deduction :d/strong :seq-interval-from-premises)]
 
          ; propositional decomposition

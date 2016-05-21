@@ -56,12 +56,16 @@
         conclusion {:statement  c
                     :task-type  conclusion-type
                     :occurrence :t-occurrence}
-        get-func (fn [f] (if swap-truth
-                         (list f t2 t1)
-                         (list f t1 t2)))
+        get-func (fn [f] (let [secure (fn [func t1 t2]
+                                        (try
+                                          (func t1 t2)
+                                          (catch Exception e [0 0])))]
+                           (if swap-truth
+                             (list secure f t2 t1)
+                             (list secure f t1 t2))))
         conclusion (case conclusion-type
                      :belief (assoc conclusion :truth (get-func tf))
-                     :goal (assoc conclusion :desire (get-func df))
+                     :goal (assoc conclusion :truth (get-func df))
                      conclusion)]
     (if sc
       (conclusion-transformation sc conclusion)
@@ -104,7 +108,7 @@
   [rules pattern task-type]
   (let [t1 (gensym) t2 (gensym)
         task (gensym) belief (gensym)
-        truth-kw (if (= :goal task-type) :desire :truth)]
+        truth-kw :truth]
     (replace-occurrences
       `(fn [{p1# :statement ~t1 ~truth-kw :t-occurrence :occurrence :as ~task}
             {p2# :statement ~t2 :truth :b-occurrence :occurrence :as ~belief}]

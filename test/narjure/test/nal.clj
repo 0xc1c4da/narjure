@@ -125,6 +125,12 @@
               (apply-interval-precision x))))
     t))
 
+(defn no-truth-for-questions-and-quests [st]         ;sentence util
+  (if (or (= (:task-type st) :quest)                           ;avoids nil in truth
+          (= (:task-type st) :question))                       ;calculations
+    (dissoc st :truth)                                                      ;(assoc st :truth (list 0.1 0.1)) ;(dissoc st :truth)
+    st))
+
 (defn parse2 [stmt]
   "workaround in order to have (&&,a) as [conj a] rather than [[conj a]],
   also in order to support :|: as 0 occurring versus :eternal
@@ -144,7 +150,8 @@
                  :eternal))
         parsedstmt (assoc (parse (str (first (str/split stmt #"\:\|"))
                                       (second (str/split stmt #"\|\:")))) :occurrence time)]
-    (interval-reduction (parser-workaround parsedstmt (parse-intervals (:statement parsedstmt))))))
+    (let [parsed (interval-reduction (parser-workaround parsedstmt (parse-intervals (:statement parsedstmt))))]
+      (no-truth-for-questions-and-quests parsed))))
 
 (defn max-var-term
 "get the so far max. used variable number
@@ -181,17 +188,25 @@ to illustrate: (max-var-term '[conj [disj [dep-var 2]] [ind-var 1]]) => 2"
                          (normalize-variables x m)))))
      st)))
 
+(def truth-tolerance 0.005)
+
 ;this is the inference function we should use
 (defn inference
   "Inference between two premises"
   [parsed-p1 parsed-p2]
   (set (map #(assoc % :statement
                       (apply-interval-precision (normalize-variables (:statement %))))
-            (map interval-reduction
-                 (generate-conclusions
-                   (r/rules (:action parsed-p1))
-                   parsed-p1
-                   parsed-p2)))))
+            (filter (fn [st] (or (= (:task-type st) :question)
+                                 (= (:task-type st) :quest)
+                                 (and (contains? st :truth)
+                                      (coll? (:truth st))
+                                      (> (second (:truth st)) 0))))
+                    (map no-truth-for-questions-and-quests
+                         (map interval-reduction
+                              (generate-conclusions
+                                (r/rules (:task-type parsed-p1))
+                                parsed-p1
+                                parsed-p2)))))))
 
 (defn conclusions
   "Create all conclusions based on two Narsese premise strings"
@@ -199,8 +214,6 @@ to illustrate: (max-var-term '[conj [disj [dep-var 2]] [ind-var 1]]) => 2"
    (let [parsed-p1 (parse2 p1)
          parsed-p2 (parse2 p2)]
      (inference parsed-p1 parsed-p2))))
-
-(def truth-tolerance 0.005)
 
 (defn truth-equal?
   ([s1 s2]
@@ -220,8 +233,8 @@ to illustrate: (max-var-term '[conj [disj [dep-var 2]] [ind-var 1]]) => 2"
        (every? (fn [c] (let [parsed-c (parse2 c)]
                          (some #(and (= (:statement %) (:statement parsed-c))
                                      (= (:occurrence %) (:occurrence parsed-c))
-                                     (or (= (:action parsed-p1) :question)
-                                         (= (:action parsed-p1) :quest)
+                                     (or (= (:task-type parsed-p1) :question)
+                                         (= (:task-type parsed-p1) :quest)
                                          (truth-equal? % parsed-c)))
                                (conclusions p1 p2)))) clist)))))
 
@@ -1003,3 +1016,8 @@ to illustrate: (max-var-term '[conj [disj [dep-var 2]] [ind-var 1]]) => 2"
                ["<z --> Z>. :|64|: %1.0;0.43%"])))
 
 ;NAL8 testcases:
+
+(deftest subgoal-deduction
+  (is (derived "(&/,<(SELF,{t002}) --> hold>, <(SELF,{t001}) --> at>, <({t001}) --> op_open>)! :|:"
+               "<(SELF,{t002}) --> hold>?"                  ;just to simulate single prem termlink selection
+               ["<(SELF,{t002}) --> hold>! :|: %1.0;0.81%"])))

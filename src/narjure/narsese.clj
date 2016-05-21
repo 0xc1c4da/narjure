@@ -157,7 +157,7 @@
                 *budget* (atom [])]
         (let [statement (element data)
               act @*action*]
-          {:action    act
+          {:task-type act
            :lvars     @*lvars*
            :truth     (check-truth-value @*truth*)
            :budget    (check-budget @*budget* act)
