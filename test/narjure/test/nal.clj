@@ -94,12 +94,15 @@
                x
                (/ x 2))))))
 
+(defn str-is-integer [s]
+  (= (count (filter #(Character/isDigit %) s))
+     (count s)))
+
 (defn interval-atom-to-interval [t]
   (let [pot-ival (name t)
         num (apply str (rest pot-ival))]
     (if (and (= \i (first pot-ival))
-             (= (count (filter #(Character/isDigit %) num))
-                (count num)))
+             (str-is-integer num))
       [:interval (next-interval-point (Integer/parseInt num))]
       t)))
 
@@ -143,19 +146,59 @@
                                       (second (str/split stmt #"\|\:")))) :occurrence time)]
     (interval-reduction (parser-workaround parsedstmt (parse-intervals (:statement parsedstmt))))))
 
+(defn max-var-term
+"get the so far max. used variable number
+to illustrate: (max-var-term '[conj [disj [dep-var 2]] [ind-var 1]]) => 2"
+  ([st]
+    (max-var-term st 0))
+  ([st m]
+    (if (coll? st)
+      (if (and (or (= (first st) 'ind-var)
+                   (= (first st) 'dep-var))
+               (str-is-integer (str (second st))))
+        (read-string (str (second st)))                     ;dangerous? ^^
+        (apply max (for [x st]
+                     (max-var-term x))))
+      m)))
+
+(defn normalize-variables
+  "inference rules introduce one #X or $X, #Y or $Y variable,
+  we use the maximum so far existing variable number and add one,
+  in order for new introduced variables to
+  have a unique variable name when the old variables
+  were of the form $i #k. Should be fine for most purposes for now."
+  ([st]
+   (normalize-variables st (inc (max-var-term st))))
+  ([st m]
+   (if (coll? st)
+     (if (or (= st '[dep-var X])
+             (= st '[dep-var Y]))
+       ['dep-var (symbol (str m))]
+       (if (or (= st '[ind-var X])
+               (= st '[ind-var Y]))
+         ['ind-var (symbol (str m))]                        ;why do we have symbols in derivations?
+         (apply vector (for [x st]
+                         (normalize-variables x m)))))
+     st)))
+
+;this is the inference function we should use
+(defn inference
+  "Inference between two premises"
+  [parsed-p1 parsed-p2]
+  (set (map #(assoc % :statement
+                      (apply-interval-precision (normalize-variables (:statement %))))
+            (map interval-reduction
+                 (generate-conclusions
+                   (r/rules (:action parsed-p1))
+                   parsed-p1
+                   parsed-p2)))))
+
 (defn conclusions
   "Create all conclusions based on two Narsese premise strings"
   ([p1 p2]
    (let [parsed-p1 (parse2 p1)
-         parsed-p2 (parse2 p2)
-         punctuation (:action parsed-p1)]
-     (set (map #(assoc % :statement
-                         (apply-interval-precision (:statement %)))
-               (map interval-reduction
-                    (generate-conclusions
-                      (r/rules punctuation)
-                      parsed-p1
-                      parsed-p2)))))))
+         parsed-p2 (parse2 p2)]
+     (inference parsed-p1 parsed-p2))))
 
 (def truth-tolerance 0.005)
 
@@ -791,44 +834,42 @@
 (deftest variable_introduction
   (is (derived "<swan --> bird>."
                "<swan --> swimmer>. %0.80;0.9%"
-               ["<<$X --> bird> ==> <$X --> swimmer>>. %0.80;0.45%"
-                "<<$X --> swimmer> ==> <$X --> bird>>. %1.00;0.39%"
-                "<<$X --> bird> <=> <$X --> swimmer>>. %0.80;0.45%"
-                "(&&, <#Y --> bird>, <#Y --> swimmer>). %0.80;0.81%"]))) ;y
+               ["<<$1 --> bird> ==> <$1 --> swimmer>>. %0.80;0.45%"
+                "<<$1 --> swimmer> ==> <$1 --> bird>>. %1.00;0.39%"
+                "<<$1 --> bird> <=> <$1 --> swimmer>>. %0.80;0.45%"
+                "(&&, <#1 --> bird>, <#1 --> swimmer>). %0.80;0.81%"]))) ;y
 
 (deftest variable_introduction2
   (is (derived "<gull --> swimmer>."
                "<swan --> swimmer>. %0.80;0.9%"
-               ["<<gull --> $X> ==> <swan --> $X>>. %0.80;0.45%"
-                "<<swan --> $X> ==> <gull --> $X>>. %1.00;0.39%"
-                "<<swan --> $X> <=> <gull --> $X>>. %0.80;0.45%"
-                "(&&,<gull --> #Y>,<swan --> #Y>). %0.80;0.81%"]))) ;y
+               ["<<gull --> $1> ==> <swan --> $1>>. %0.80;0.45%"
+                "<<swan --> $1> ==> <gull --> $1>>. %1.00;0.39%"
+                "<<swan --> $1> <=> <gull --> $1>>. %0.80;0.45%"
+                "(&&,<gull --> #1>,<swan --> #1>). %0.80;0.81%"]))) ;y
 
 (deftest variables_introduction
   (is (derived "<{key1} --> (/,open,_,{lock1})>."
                "<{key1} --> key>."
-               ["<<$X --> key> ==> <$X --> (/,open,_,{lock1})>>. %1.00;0.45%"
-                "(&&,<#Y --> key>,<#Y --> (/,open,_,{lock1})>). %1.00;0.81%"]))) ;y
-
-;TODO MAKE SURE VARIABLE INTRODUCTION DOES NOT USE A IN THE TERM USED VARNAME!
+               ["<<$1 --> key> ==> <$1 --> (/,open,_,{lock1})>>. %1.00;0.45%"
+                "(&&,<#1 --> key>,<#1 --> (/,open,_,{lock1})>). %1.00;0.81%"]))) ;y
 
 (deftest multiple_variables_introduction
   (is (derived "<<$1 --> key> ==> <{lock1} --> (/,open,$1,_)>>."
                "<{lock1} --> lock>."
-               ["(&&,<#Y --> lock>,<<$1 --> key> ==> <#Y --> (/,open,$1,_)>>). %1.00;0.81%"
-                "<(&&,<$1 --> key>,<$X --> lock>) ==> <$X --> (/,open,$1,_)>>. %1.00;0.45%"]))) ;y
+               ["(&&,<#2 --> lock>,<<$1 --> key> ==> <#2 --> (/,open,$1,_)>>). %1.00;0.81%"
+                "<(&&,<$1 --> key>,<$2 --> lock>) ==> <$2 --> (/,open,$1,_)>>. %1.00;0.45%"]))) ;y
 
 (deftest multiple_variables_introduction2
-  (is (derived "(&&,<#x --> key>,<{lock1} --> (/,open,#x,_)>)."
+  (is (derived "(&&,<#1 --> key>,<{lock1} --> (/,open,#1,_)>)."
                "<{lock1} --> lock>."
-               ["(&&,<#Y --> (/,open,#x,_)>,<#Y --> lock>,<#x --> key>). %1.00;0.81%"
-                "<<$Y --> lock> ==> (&&,<$Y --> (/,open,#x,_)>,<#x --> key>)>. %1.00;0.45%"]))) ;y
+               ["(&&,<#2 --> lock>,<#1 --> key>,<#2 --> (/,open,#1,_)>). %1.00;0.81%"
+                "<<$2 --> lock> ==> (&&,<$2 --> (/,open,#1,_)>,<#1 --> key>)>. %1.00;0.45%"]))) ;y
 
 ;(A --> K) (&& (#X --> L) (($Y --> K) ==> A)) |- (&& (#X --> L) A) :pre ((:substitute $Y A)) :post (:t/deduction)
 (deftest second_level_variable_unification
   (is (derived "<{key1} --> key>. %1.00;0.90%"
-               "(&&,<#X --> lock>,<<$Y --> key> ==> <#X --> (/,open,$Y,_)>>). %1.00;0.90%"
-               ["(&&,<#X --> lock>,<#X --> (/,open,{key1},_)>). %1.00;0.81%"]))) ;n
+               "(&&,<#1 --> lock>,<<$2 --> key> ==> <#1 --> (/,open,$2,_)>>). %1.00;0.90%"
+               ["(&&,<#1 --> lock>,<#1 --> (/,open,{key1},_)>). %1.00;0.81%"]))) ;n
 
 ;#R[(A --> K) (($X --> L) ==> (&& (#Y --> K) :list/A)) |- (($X --> L) ==> (&& :list/A)) :pre ((:substitute #Y A)) :post (:t/anonymous-analogy)]
 (deftest second_level_variable_unification2
@@ -839,7 +880,7 @@
 (deftest second_variable_introduction_induction
   (is (derived "<<lock1 --> (/,open,$1,_)> ==> <$1 --> key>>."
                "<lock1 --> lock>."
-               ["<(&&,<#X --> lock>,<#X --> (/,open,$1,_)>) ==> <$1 --> key>>. %1.00;0.45%"]))) ;y
+               ["<(&&,<#2 --> lock>,<#2 --> (/,open,$1,_)>) ==> <$1 --> key>>. %1.00;0.45%"]))) ;y
 
 (deftest variable_elimination_deduction
   (is (derived "<lock1 --> lock>. %1.00;0.90%"
@@ -861,9 +902,8 @@
                "<(*,tim,is,cat) --> test>."
                ["<<(*,tim,is,$b) --> sentence> ==> <tim --> $b>>. %1.00;0.81%"]))) ;y
 
-;NAL7 testcases:
+;NAL7 testcases: ;1. see if the bootstrap of the lower level works as it should:
 
-;1. see if the bootstrap of the lower level works as it should:
 (deftest temporal_nal5_exemplification_with_var
   (is (derived "<<($x, room) --> enter> =\\> <($x, door) --> open>>. %0.9;0.9%"
                "<<($x, door) --> open> =\\> <($x, key) --> hold>>. %0.8;0.9%"
@@ -886,7 +926,6 @@
                "<<(*, $x, room) --> enter> <|> <(*, $x, corridor_100) --> leave>>. %1.0;0.9%"
                ["<<(*, $x, door) --> open> =/> <(*, $x, corridor_100) --> leave>>. %0.95;0.81%"])))
 
-
 ;2. NAL7-only inference, taking intervals and occurrence times into account
 (deftest temporal_induction_concurrent
   (is (derived "<(John,door) --> open>. :|:"
@@ -895,7 +934,6 @@
                 "<<(John,room) --> enter> =|> <(John,door) --> open>>. :|: %1.00;0.45%"
                 "<<(John,room) --> enter> <|> <(John,door) --> open>>. :|: %1.00;0.45%"
                 "<<(John,door) --> open> =|> <(John,room) --> enter>>. :|: %1.00;0.45%"])))
-
 
 (deftest temporal_induction_after
   (is (derived "<(John,room) --> enter>. :|64|:"
@@ -934,37 +972,30 @@
                "<(John,key) --> hold>. :|:"
                ["<(*,John,room) --> enter>. %1.0;0.81%"])))
 
-
 (deftest temporal_var_introduction_concurrent
   (is (derived "<John --> (/,open,_,door)>. :|:"
                "<John --> (/,enter,_,room)>. :|:"
-               ["<<$X --> (/,open,_,door)> =|> <$X --> (/,enter,_,room)>>. :|: %1.0;0.45%"])))
-
+               ["<<$1 --> (/,open,_,door)> =|> <$1 --> (/,enter,_,room)>>. :|: %1.0;0.45%"])))
 
 (deftest temporal_var_introduction_after
   (is (derived "<John --> (/,enter,_,room)>. :|50|:"
                "<John --> (/,open,_,door)>. :|:"
-               ["<(&/,<$X --> (/,open,_,door)>,i50) =/> <$X --> (/,enter,_,room)>>. :|50|: %1.0;0.45%"])))
+               ["<(&/,<$1 --> (/,open,_,door)>,i50) =/> <$1 --> (/,enter,_,room)>>. :|50|: %1.0;0.45%"])))
 
 (deftest temporal_var_elimination_on_events
   (is (derived "(&|,<(*,{t002},#2) --> on>,<(*,SELF,#2) --> at>). :|:"
                "<(&|,<(*,$1,#2) --> on>,<(*,SELF,#2) --> at>) =|> <(*,SELF,$1) --> reachable>>. :|:"
                ["<(*,SELF,{t002}) --> reachable>. :|: %1.0;0.81%"])))
 
-
-
-
 (deftest temporal_order
   (is (derived "<<m --> M> =/> <p --> P>>."
                "<<s --> S> <|> <m --> M>>. %0.9;0.9%"
                ["<<s --> S> =/> <p --> P>>. %0.9;0.73%"])))
 
-
 (deftest interval_preserve_shift_occurrence
   (is (derived "<s --> S>. :|10|:"
                "(&/,<s --> S>,i64,<y --> Y>,i8,<z --> Z>)."
                ["(&/, <y --> Y>, i8, <z --> Z>). :|74|: %1.0;0.43%"])))
-
 
 (deftest interval_preserve_shift_occurrence_2
   (is (derived "<s --> S>. :|:"
