@@ -122,7 +122,7 @@
             (let [n1 (if (< (rand) 0.01) n (rand-int (/ n 10)))]
 
               ;;(cast! (whereis :task-dispatcher) [:task-msg {:term  (format "a --> %d" n1) :other "other"}])
-              (cast! (whereis :sentence-parser) [:narsese-string-msg (format "<a --> %d>." n1)])
+              (cast! (whereis :sentence-parser) [:narsese-string-msg (format "<a --> t%d>." n1)])
               (when (== (mod n 10) 0)
                 (info (format "processed [%s] messages" n))))
             (recur (inc n)))))))
@@ -133,7 +133,7 @@
       (time
         (loop [n 0]
           (when (< n 10000)
-            (cast! sentence-parser [:narsese-string-msg (format "<a --> %d>." n)])
+            (cast! sentence-parser [:narsese-string-msg (format "<a --> term%d>." n)])
             (when (== (mod n 1000) 0)
               (info (format "processed [%s] messages" n)))
             (recur (inc n))))))

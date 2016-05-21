@@ -47,7 +47,7 @@
               :present time
               :past (- time future-past-offset)
               :future (+ time future-past-offset))
-        content (:content sentence)
+        content (:statement sentence)
         task-type (:punctuation sentence)]
     {:truth (:truth sentence)
      :desire (:desire sentence)
@@ -70,7 +70,7 @@
   "Create a derived task with the provided sentence, budget and occurence time
    and default values for the remaining parameters"
   [sentence budget occurrence time id evidence]
-  (let [content (:content sentence)]
+  (let [content (:statement sentence)]
     {:truth      (:truth sentence)
      :desire     (:desire sentence)
      :budget     budget

@@ -2,10 +2,19 @@
   (:require
     [co.paralleluniverse.pulsar.actors :refer [self ! whereis cast! Server gen-server register! shutdown! unregister! set-state! state]]
     [narjure.actor.utils :refer [defactor]]
+    [narjure.memory-management.concept-manager :refer [c-bag]]
+    [narjure.bag :as b]
+    [clojure.math.numeric-tower :as math]
     [taoensso.timbre :refer [debug info]])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :concept-selector)
+(def inference-pairs 200)
+(def selection-parameter 3)
+(defn selection-fn
+  ""
+  []
+  (* (math/expt (rand) selection-parameter) (b/count-elements @c-bag)))
 
 (defn inference-tick-handler
   "Select n concepts for inference and post
@@ -13,6 +22,8 @@
    concept"
   [from [msg]]
   ;todo
+  (dotimes [n (min (b/count-elements @c-bag) 1)]
+    (info (str "Concept selected: " (b/get-by-index @c-bag (selection-fn)))))
   #_(debug aname "process-inference-tick-msg"))
 
 (defn shutdown-handler

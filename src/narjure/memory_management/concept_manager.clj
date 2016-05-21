@@ -19,7 +19,7 @@
    the concept bag"
   [term]
   (let [concept-ref (spawn (concept term))]
-    (swap! c-bag b/add-element {:priority c-priority :id term :ref concept-ref}))
+    (swap! c-bag b/add-element {:id term :priority c-priority :ref concept-ref}))
   #_(debug aname (str "Created concept: " term)))
 
 (defn create-concept-handler
@@ -62,7 +62,7 @@
 (defn initialise
   "Initialises actor: registers actor and sets actor state"
   [aname actor-ref]
-  (info (str "In initialise"))
+  ;(info (str "In initialise"))
   (register! aname actor-ref)
   (set-state! {}))
 
