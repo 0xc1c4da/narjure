@@ -23,8 +23,9 @@
     (assoc premise-swapped
       :conclusions
       (for [c (:conclusions premise-swapped)]
-        (assoc c
-          :post
-          (conj (:post c) :truth-swapped))))))
+        (assoc (assoc c                                    
+                 :post
+                 (conj (:post c) :truth-swapped))           ;since the second premise is a belief always,
+          :pre (conj (:pre c) :belief?))))))                ;the task after swapping is a belief always too
 
 (defn swap [rule] [rule (swap-premises rule)])

@@ -1052,5 +1052,24 @@ to illustrate: (max-var-term '[conj [disj [dep-var 2]] [ind-var 1]]) => 2"
 (deftest goal-deduction-var
   (is (derived "<(SELF,{t001}) --> at>!"
                "<<($1) --> op_goto> =/> <(SELF,$1) --> at>>."
-               ["<({t001}) --> op_goto>! :|16|: %1.0;0.81%"])))
+               ["<({t001}) --> op_goto>! %1.0;0.81%"])))
 
+(deftest goal-deduction-non-var
+  (is (derived "<(SELF,{t001}) --> at>!"
+               "<<({t001}) --> op_goto> =/> <(SELF,{t001}) --> at>>."
+               ["<({t001}) --> op_goto>! %1.0;0.81%"])))
+
+(deftest goal-deduction-var
+  (is (derived "<(SELF,{t001}) --> at>!"
+               "<<($1) --> op_goto> =/> <(SELF,$1) --> at>>."
+               ["<({t001}) --> op_goto>! %1.0;0.81%"])))
+
+(deftest goal-abduction-var
+  (is (derived "<({t001}) --> op_goto>!"
+               "<<($1) --> op_goto> =/> <(SELF,$1) --> at>>."
+               ["<(SELF,{t001}) --> at>! %1.0;0.45%"])))
+
+(deftest goal-abduction-non-var
+  (is (derived "<({t001}) --> op_goto>!"
+               "<<({t001}) --> op_goto> =/> <(SELF,{t001}) --> at>>."
+               ["<(SELF,{t001}) --> at>! %1.0;0.45%"])))

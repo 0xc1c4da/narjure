@@ -55,26 +55,24 @@
 (defn question?
   "Return true if rule allows only question as task."
   [{:keys [pre]}]
-  (some #{:question?} pre))
+  true)                                                     ;all rules can be used for question generation
 
 (defn quest?
   "Return true if rule allows only quest as task."
   [{:keys [pre] [{post :post}] :conclusions}]
-  (and (some #{:question?} pre)
-       (every? #(not (#{:p/belief} %)) post)))
+  true)                                                     ;all rules can be used for quests and goals
 
 (defn goal?
   "Return true if rule allows only goal as task."
   [{pre :pre [{post :post}] :conclusions}]
-  (or (some #{:goal?} pre)
-      (some (fn [el] (and (keyword? el)
-                          (s/starts-with? (str el) ":d/")))
-            post)))
+  (and (not (some #{:belief?} pre))                         ;these which don't want a question or belief
+       (not (some #{:question?} pre))))                     ;can also be used for goal tasks
 
 (defn belief?
   "Return true if rule allows only belief as task."
   [{:keys [pre] :as rule}]
-  (not (or (question? rule) (some #{:goal} pre))))
+  (and (not (some #{:goal?} pre))                          ;these which don't want a question or goal
+       (not (some #{:question?} pre))))                    ;can also be used for belief tasks
 
 (defn add-possible-paths
   "Selects all rules that will match the same path as current rule and adds
