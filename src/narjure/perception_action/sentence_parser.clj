@@ -11,7 +11,7 @@
 (defn narsese-string-handler
   "Parses a narsese string and posts a :sentence-msg to task-creator"
   [from [msg string]]
-  (let [sentence (parse string)]
+  (let [sentence (parse2 string)]
     #_(info (str sentence))
     (cast! (:task-creator @state)  [:sentence-msg sentence])))
 

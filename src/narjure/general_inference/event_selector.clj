@@ -17,6 +17,15 @@
   []
   (* (math/expt (rand) selection-parameter) (b/count-elements @e-bag)))
 
+(defn pairs-to-get
+  ""
+  [n, bag]
+  ;if n >= count bag / 2
+  ; get n pairs
+  ;else
+  ;count bag /2 round down
+  )
+
 (defn inference-tick-handler
   "Select n pairs of events events from event buffer for inference
    and post do-inference-msg to general inferencer"

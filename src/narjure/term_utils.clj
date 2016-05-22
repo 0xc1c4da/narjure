@@ -20,6 +20,10 @@
     (reduce + (map syntactic-complexity content))
     1))
 
+;todo -  temp function below should be in nal.clj - Patham9 to resolve
+(def logic-ops
+  #{'--> '<-> 'instance 'property 'instance-property '==> 'pred-impl '=|> 'retro-impl '<=> '</> '<|> 'ext-set 'int-set 'ext-inter '| '- 'int-dif '* 'ext-image 'int-image '-- '|| 'conj 'seq-conj '&|})
+
 (defn termlink-subterms
   "Extract the termlink relevant subterms of the term up to 3 levels as demanded by the NAL rules"
   ([level content]
