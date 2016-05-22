@@ -10,7 +10,13 @@
                  [org.clojure/tools.nrepl "0.2.12"]
                  [org.clojure/data.priority-map "0.0.7"]
                  [org.clojure/core.match "0.3.0-alpha4"]
-                 [org.clojure/core.unify "0.5.5"]]
+                 [org.clojure/core.unify "0.5.5"]
+                 [co.paralleluniverse/pulsar "0.7.4"]
+                 [org.immutant/immutant "2.1.2"]
+                 [clj-time "0.11.0"]
+                 [com.taoensso/timbre "4.3.1"]
+                 [avl.clj "0.0.9"]]
+  :java-agents [[co.paralleluniverse/quasar-core "0.7.4"]]
   :main ^:skip-aot narjure.core
   :plugins [[lein-cloverage "1.0.6"]
             [jonase/eastwood "0.2.3"]
@@ -22,4 +28,6 @@
   :repl-options {:init-ns          narjure.repl
                  :nrepl-middleware [narjure.repl/narsese-handler]}
   :profiles {:uberjar {:aot :all}}
-  :marginalia { :javascript ["http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"]})
+  :marginalia { :javascript ["http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"]}
+  :jvm-opts ["-Dco.paralleluniverse.fibers.detectRunawayFibers=false -Dco.paralleluniverse.fibers.verifyInstrumentation"])
+
