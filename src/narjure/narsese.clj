@@ -1,7 +1,9 @@
 (ns narjure.narsese
   (:require [instaparse.core :as i]
             [clojure.java.io :as io]
-            [narjure.defaults :refer :all]))
+            [narjure.defaults :refer :all]
+            [narjure.term_utils :refer :all]
+            [clojure.string :as str]))
 
 (def bnf-file "narsese.bnf")
 
@@ -164,3 +166,25 @@
            :statement statement
            :terms     (terms statement)}))
       data)))
+
+(defn parse2 [stmt]
+  "workaround in order to have (&&,a) as [conj a] rather than [[conj a]],
+  also in order to support :|: as 0 occurring versus :eternal
+  and also in order to support recognizing i50 as [interval 50],
+  so everything needed to workaround the parser issues.
+  Also apply sentence reduction here, as also done for derivations."            ;TODO fix paser accordingly when there is time!
+  (let [parser-workaround (fn [prem, stmt]
+                            (if (and (vector? stmt)
+                                     (= (count stmt) 1))
+                              (assoc prem :statement (first stmt))
+                              (assoc prem :statement stmt)))
+        time (if (.contains stmt ":|:")
+               0
+               (if (and (.contains stmt ":|")
+                        (.contains stmt "|:"))
+                 (read-string (first (str/split (second (str/split stmt #"\:\|")) #"\|\:")))
+                 :eternal))
+        parsedstmt (assoc (parse (str (first (str/split stmt #"\:\|"))
+                                      (second (str/split stmt #"\|\:")))) :occurrence time)]
+    (let [parsed (interval-reduction (parser-workaround parsedstmt (parse-intervals (:statement parsedstmt))))]
+      (no-truth-for-questions-and-quests parsed))))

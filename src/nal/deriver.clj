@@ -5,7 +5,9 @@
                                   path-with-max-level]]
     [nal.deriver.rules :refer [rule]]
     [nal.deriver.normalization :refer [commutative-ops]]
-    [clojure.set :as set]))
+    [clojure.set :as set]
+    [narjure.term_utils :refer :all]
+    [nal.rules :as r]))
 
 (defn get-matcher [rules p1 p2]
   (let [matchers (->> (mall-paths p1 p2)
@@ -68,3 +70,21 @@
      (generate-conclusions-no-commutativity rules
                                             (assoc t1 :statement (shuffle-term p1))
                                             (assoc t2 :statement (shuffle-term p2))))))
+
+;this is the inference function we should use
+(defn inference
+  "Inference between two premises"
+  [parsed-p1 parsed-p2]
+  (set (map #(assoc % :statement
+                      (apply-interval-precision (normalize-variables (:statement %))))
+            (filter (fn [st] (or (= (:task-type st) :question)
+                                 (= (:task-type st) :quest)
+                                 (and (contains? st :truth)
+                                      (coll? (:truth st))
+                                      (> (second (:truth st)) 0))))
+                    (map no-truth-for-questions-and-quests
+                         (map interval-reduction
+                              (generate-conclusions
+                                (r/rules (:task-type parsed-p1))
+                                parsed-p1
+                                parsed-p2)))))))
