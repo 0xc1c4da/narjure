@@ -5,7 +5,7 @@
     [taoensso.timbre :refer [debug info]]
     [clojure.set :as set]
     [narjure.defaults :refer :all]
-    [narjure.term_utils :refer :all])
+    [nal.term_utils :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :task-creator)
@@ -41,12 +41,10 @@
   "create a new task with the provided sentence and default values
    convert tense to occurrence time if applicable"
   [sentence time id]
-  (let [future-past-offset 1000                             ;n steps offset for now
-        toc (case (:tense sentence)                         ;TODO: grammar extension :/k: :\h: ?
+  (let [occurrence (:occurrence sentence)
+        toc (case occurrence
               :eternal :eternal
-              :present time
-              :past (- time future-past-offset)
-              :future (+ time future-past-offset))
+              (+ occurrence time))
         content (:statement sentence)
         task-type (:punctuation sentence)]
     {:truth (:truth sentence)
@@ -63,8 +61,7 @@
      :terms (termlink-subterms content)
      :solution nil
      :task-type task-type
-     :content content
-     }))
+     :content content}))
 
 (defn create-derived-task
   "Create a derived task with the provided sentence, budget and occurence time
