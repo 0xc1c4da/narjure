@@ -1,4 +1,4 @@
-(ns narjure.term_utils
+(ns nal.term_utils
   (:require [clojure.set :as set]
             [narjure.defaults :refer :all]))
 

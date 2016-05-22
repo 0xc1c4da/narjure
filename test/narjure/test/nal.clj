@@ -1,6 +1,6 @@
 (ns narjure.test.nal
   (:require [clojure.test :refer :all]
-            [narjure.test_utils :refer :all]))
+            [nal.test_utils :refer :all]))
 
 ;NAL1 testcases:
 
@@ -546,6 +546,7 @@
                "<<$1 --> [withWings]> ==> <$1 --> flyer>>."
                ["<(&&,<$1 --> [withWings]>,<$1 --> [chirping]>) ==> <$1 --> bird>>. %1.00;0.81%"]))) ;y
 
+;TODO analyze this case:
 (deftest variable_unification6
   (is (derived "<(&&,<$1 --> flyer>,<$1 --> [chirping]>, <($1, worms) --> food>) ==> <$1 --> bird>>."
                "<(&&,<$1 --> [chirping]>,<$1 --> [withWings]>) ==> <$1 --> bird>>."
@@ -642,12 +643,14 @@
                ["(&&,<#2 --> lock>,<#1 --> key>,<#2 --> (/,open,#1,_)>). %1.00;0.81%"
                 "<<$2 --> lock> ==> (&&,<$2 --> (/,open,#1,_)>,<#1 --> key>)>. %1.00;0.45%"]))) ;y
 
+;this one is not so important, will find a solution for it when there is time
 ;(A --> K) (&& (#X --> L) (($Y --> K) ==> A)) |- (&& (#X --> L) A) :pre ((:substitute $Y A)) :post (:t/deduction)
 (deftest second_level_variable_unification
   (is (derived "<{key1} --> key>. %1.00;0.90%"
                "(&&,<#1 --> lock>,<<$2 --> key> ==> <#1 --> (/,open,$2,_)>>). %1.00;0.90%"
                ["(&&,<#1 --> lock>,<#1 --> (/,open,{key1},_)>). %1.00;0.81%"]))) ;n
 
+;this one is not so important, will find a solution for it when there is time
 ;#R[(A --> K) (($X --> L) ==> (&& (#Y --> K) :list/A)) |- (($X --> L) ==> (&& :list/A)) :pre ((:substitute #Y A)) :post (:t/anonymous-analogy)]
 (deftest second_level_variable_unification2
   (is (derived "<{key1} --> key>. %1.00;0.90%"

@@ -1,7 +1,7 @@
-(ns narjure.test_utils
+(ns nal.test_utils
   (:require [clojure.set :as set]
             [narjure.defaults :refer :all]
-            [narjure.term_utils :refer :all]
+            [nal.term_utils :refer :all]
             [narjure.narsese :refer :all]
             [nal.deriver :refer :all]))
 

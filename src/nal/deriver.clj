@@ -6,7 +6,7 @@
     [nal.deriver.rules :refer [rule]]
     [nal.deriver.normalization :refer [commutative-ops]]
     [clojure.set :as set]
-    [narjure.term_utils :refer :all]
+    [nal.term_utils :refer :all]
     [nal.rules :as r]))
 
 (defn get-matcher [rules p1 p2]

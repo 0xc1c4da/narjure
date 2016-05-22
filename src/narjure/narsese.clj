@@ -2,7 +2,7 @@
   (:require [instaparse.core :as i]
             [clojure.java.io :as io]
             [narjure.defaults :refer :all]
-            [narjure.term_utils :refer :all]
+            [nal.term_utils :refer :all]
             [clojure.string :as str]))
 
 (def bnf-file "narsese.bnf")
