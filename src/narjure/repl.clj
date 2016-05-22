@@ -1,9 +1,12 @@
 (ns narjure.repl
-  (:require [narjure.narsese :refer [parse]]
+  (:require [clojure.string :as s]
+            [narjure.narsese :refer [parse]]
             [instaparse.core :as i]
+            [nal.core :as c]
+            [clojure.core.logic :as l]
             [clojure.string :refer [trim]]
-            [clojure.tools.nrepl.middleware :refer [set-descriptor!]]
-            [narjure.cycle :as cycle]))
+            [clojure.pprint :as p]
+            [clojure.tools.nrepl.middleware :refer [set-descriptor!]]))
 
 (defonce narsese-repl-mode (atom false))
 
@@ -15,13 +18,13 @@
   (reset! narsese-repl-mode false)
   (println "Narsese repl was stopped."))
 
-(defonce db (atom (cycle/default-memory)))
+(defonce db (atom {}))
 
-(defn clear-db! [] (reset! db (cycle/default-memory)))
+(defn clear-db! [] (reset! db {}))
 
 (defn collect!
   [{:keys [statement truth] :as task}]
-  (swap! db cycle/task->buffer task)
+  #_(swap! db cycle/task->buffer task)
   [statement truth])
 
 (defn- parse-int [s]
@@ -31,14 +34,14 @@
   (str "(narjure.repl/handle-narsese \"" code "\")"))
 
 (defn run [n]
-  (swap! db cycle/do-cycles n)
-  (cycle/print-results! @db)
+  #_(swap! db cycle/do-cycles n)
+  #_(cycle/print-results! @db)
   (swap! db dissoc :forward-inf-results :local-inf-results :answers)
   nil)
 
 (defn- get-result [code]
   (let [result (parse code)]
-    (if-not (i/failure? result)
+    (if (and (not (i/failure? result)))
       (collect! result)
       result)))
 
@@ -58,7 +61,7 @@
                      (cons args tail)))))
 
 (set-descriptor! #'narsese-handler
-  {:expects #{"eval"}
-   :handles {"stdin"
-             {:doc      "Parses Narsese"
-              :requires #{"code" "Code."}}}})
+                 {:expects #{"eval"}
+                  :handles {"stdin"
+                            {:doc      "Parses Narsese"
+                             :requires #{"code" "Code."}}}})
