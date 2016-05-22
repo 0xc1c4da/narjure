@@ -22,20 +22,14 @@
 (def question-budget
   [belief-priority belief-durability belief-quality])
 
-(def quest-budget question-budget)
-
 (def goal-confidence 0.9)
 (def goal-priority 0.5)
 (def goal-durability 0.8)
-(def goal-quality 0.9)
-
-(def goal-budget [goal-priority goal-durability goal-quality])
 
 (def budgets
   {:belief belief-budget
-   :question question-budget
-   :goal goal-budget
-   :quest quest-budget})
+   :question question-budget})
 
-(def logic-ops '#{==> =|> =/> =\> --> <-> <=> <|> </>
-              seq-conj conj})
+(def ^{:type double} horizon 1)
+
+(def temporal-window-duration 10)

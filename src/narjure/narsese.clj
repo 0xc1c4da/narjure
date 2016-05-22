@@ -10,53 +10,48 @@
   (i/parser (io/resource bnf-file) :auto-whitespace :standard))
 
 (def copulas
-  {"-->"  'inheritance
-   "<->"  'similarity
+  {"-->"  '-->
+   "<->"  '<->
    "{--"  'instance
    "--]"  'property
    "{-]"  'instance-property
-   "==>"  'implication
-   "=/>"  'predictive-implication
-   "=|>"  'concurrent-implication
-   "=\\>" 'retrospective-implication
-   "<=>"  'equivalence
-   "</>"  'predictive-equivalence
-   "<|>"  'concurrent-equivalence})
+   "==>"  '==>
+   "=/>"  'pred-impl
+   "=|>"  '=|>
+   "=\\>" 'retro-impl
+   "<=>"  '<=>
+   "</>"  '</>
+   "<|>"  '<|>})
 
 (def compound-terms
   {"{"  'ext-set
    "["  'int-set
-   "&"  'ext-intersection
-   "|"  'int-intersection
-   "-"  'ext-difference
-   "~"  'int-difference
-   "*"  'product
-   "("  'product
+   "&"  'ext-inter
+   "|"  '|
+   "-"  '-
+   "~"  'int-dif
+   "*"  '*
+   "("  '*
    "/"  'ext-image
    "\\" 'int-image
-   "--" 'negation
-   "||" 'disjunction
-   "&&" 'conjunction
-   "&/" 'sequential-events
-   "&|" 'parallel-events})
-
-(def tenses
-  {":|:"  :present
-   ":/:"  :future
-   ":\\:" :past})
+   "--" '--
+   "||" '||
+   "&&" 'conj
+   "&/" 'seq-conj
+   "&|" '&|})
 
 (defn get-compound-term [[_ operator-srt]]
   (compound-terms operator-srt))
 
-(def task-types {"." :judgement
-                 "?" :question})
+(def actions {"." :belief
+              "?" :question
+              "@" :quest
+              "!" :goal})
 
-(def ^:dynamic *task-type* (atom nil))
+(def ^:dynamic *action* (atom nil))
 (def ^:dynamic *lvars* (atom []))
 (def ^:dynamic *truth* (atom []))
 (def ^:dynamic *budget* (atom []))
-(def ^:dynamic *tense* (atom :present))
-(def ^:dynamic *syntactic-complexity* nil)
 
 (defn keep-cat [fun col]
   (into [] (comp (mapcat fun) (filter (complement nil?))) col))
@@ -71,20 +66,16 @@
 
 (defmethod element :sentence [[_ & data]]
   (let [filtered (group-by string? data)]
-    (reset! *task-type* (task-types (first (filtered true))))
+    (reset! *action* (actions (first (filtered true))))
     (let [cols (filtered false)
           last-el (last cols)]
       (when (= :truth (first last-el))
         (element last-el))
-      (when-let [tense (some #(when (= :tense (first %)) %) data)]
-        (element tense))
       (element (first cols)))))
 
 (defmethod element :statement [[_ & data]]
   (if-let [copula (get-copula data)]
-    (do
-      (swap! *syntactic-complexity* inc)
-      `[~copula ~@(keep-cat element data)])
+    `[~copula ~@(keep-cat element data)]
     (keep-cat element data)))
 
 (defmethod element :task [[_ & data]]
@@ -103,11 +94,12 @@
     `[~(get-compound-term comp-operator)
       ~@(keep-cat element (remove string? data))]))
 
-(def var-prefixes {"#" "d_" "?" "?"})
+(def var-prefixes '{"#" dep-var "?" qu-var "$" ind-var})
 (defmethod element :variable [[_ type [_ v]]]
-  (let [v (symbol (str (var-prefixes type) v))]
+  (let [front (var-prefixes type)
+        v [front (symbol v)]]
     (swap! *lvars* conj v)
-    v))
+    v))                                                     ;let v (symbol (str (var-prefixes type) v))
 
 (defmethod element :word [[_ word]] (symbol word))
 
@@ -131,21 +123,17 @@
 (double-element :quality *budget*)
 
 (defmethod element :task [[_ & data]]
-  (when (= :budget (first (first data)))
+  (when (= :budget (ffirst data))
     (element (first data)))
   (element (last data)))
 
 (defmethod element :term [[_ & data]]
-  (swap! *syntactic-complexity* inc)
   (when (seq? data)
     (keep element data)))
 
-(defmethod element :tense [[_ key]]
-  (reset! *tense* (tenses key)))
-
 (defmethod element :default [_])
 
-;TODO check for variables in statements, ignore subterm if it contains variable
+;TODO check for variables in statemnts, ignore subterm if it contains variable
 (defn terms
   "Fetch terms from task."
   [statement]
@@ -163,20 +151,16 @@
   [narsese-str]
   (let [data (parser narsese-str)]
     (if-not (i/failure? data)
-      (binding [*task-type* (atom nil)
+      (binding [*action* (atom nil)
                 *lvars* (atom [])
                 *truth* (atom [])
-                *budget* (atom [])
-                *tense* (atom :present)
-                *syntactic-complexity* (atom 0)]
+                *budget* (atom [])]
         (let [statement (element data)
-              act @*task-type*]
-          {:task-type            act
-           :lvars                @*lvars*
-           :truth                (check-truth-value @*truth*)
-           :budget               (check-budget @*budget* act)
-           :statement            statement
-           :tense                @*tense*
-           :syntactic-complexity @*syntactic-complexity*
-           :terms                (terms statement)}))
+              act @*action*]
+          {:task-type act
+           :lvars     @*lvars*
+           :truth     (check-truth-value @*truth*)
+           :budget    (check-budget @*budget* act)
+           :statement statement
+           :terms     (terms statement)}))
       data)))

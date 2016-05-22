@@ -1,6 +1,5 @@
 (ns narjure.actor.utils
   (:require
-    [clojure.java.io :as io]
     [co.paralleluniverse.pulsar
      [core :refer [defsfn]]
      [actors :refer [set-state! state receive ! self register!]]]

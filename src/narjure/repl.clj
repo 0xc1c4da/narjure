@@ -61,7 +61,7 @@
                      (cons args tail)))))
 
 (set-descriptor! #'narsese-handler
-  {:expects #{"eval"}
-   :handles {"stdin"
-             {:doc      "Parses Narsese"
-              :requires #{"code" "Code."}}}})
+                 {:expects #{"eval"}
+                  :handles {"stdin"
+                            {:doc      "Parses Narsese"
+                             :requires #{"code" "Code."}}}})

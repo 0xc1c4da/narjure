@@ -2,7 +2,7 @@
 
              task ::= [budget] sentence                       (* task to be processed *)
 
-         sentence ::= statement"." [tense] [truth]            (* judgement to be remembered *)
+         sentence ::= statement"." [tense] [truth]            (* belief to be remembered *)
                     | statement"?" [tense] [truth]            (* question to be answered, tense added in OpenNARS 1.7 *)
                     | statement"@" [tense] [truth]            (* question on desire value to be answered, tense added in OpenNARS 1.7 *)
                     | statement"!" [tense] [desire]           (* goal to be realized, tense added in OpenNARS 1.7 *)
