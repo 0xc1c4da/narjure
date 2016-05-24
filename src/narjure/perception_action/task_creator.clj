@@ -46,12 +46,10 @@
               :eternal :eternal
               (+ occurrence time))
         content (:statement sentence)
-        task-type (:punctuation sentence)]
+        task-type (:task-type sentence)]
     {:truth (:truth sentence)
      :desire (:desire sentence)
-     ;todo
-     :budget (:belief budgets)
-     ;:budget (task-type budgets)
+     :budget (task-type budgets)
      :creation time
      :occurrence toc
      :source :input
@@ -61,7 +59,7 @@
      :terms (termlink-subterms content)
      :solution nil
      :task-type task-type
-     :content content}))
+     :statement content}))
 
 (defn create-derived-task
   "Create a derived task with the provided sentence, budget and occurence time
@@ -79,8 +77,8 @@
      :sc         (syntactic-complexity content)
      :terms      (termlink-subterms content)
      :solution   nil
-     :task-type  (:punctuation sentence)
-     :content    content}))
+     :task-type  (:task-type sentence)
+     :statement    content}))
 
 (defn sentence-handler
   "Processes a :sentence-msg"

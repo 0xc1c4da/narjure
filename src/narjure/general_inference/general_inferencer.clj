@@ -2,6 +2,7 @@
   (:require
     [co.paralleluniverse.pulsar.actors :refer [self ! whereis cast! Server gen-server register! shutdown! unregister! set-state! state]]
     [narjure.actor.utils :refer [defactor]]
+    [nal.deriver :refer [inference]]
     [taoensso.timbre :refer [debug info]])
   (:refer-clojure :exclude [promise await]))
 
@@ -12,7 +13,8 @@
     generated derived results, budget and occurrence time for derived tasks.
     Posts derived sentences to task creator"
   [from [msg task belief]]
-  ;todo
+  (let [derived (inference task belief)]
+    (info (str "results: " derived)))
   #_(debug aname "process-do-inference-msg"))
 
 (defn shutdown-handler

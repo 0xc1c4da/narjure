@@ -28,11 +28,13 @@
   (let [terms (get-in task [:statement :terms])]
     (if (not-any? term-exists? terms)
       (do
+        #_(info (str "to cm: " task))
         (cast! (:concept-manager @state) [:create-concept-msg task]))
       (doseq [term terms]
         (when-let [{c-ref :ref} ((:elements-map @c-bag) term)]
           (cast! c-ref [:task-msg task])))))
-  (if (event? task)
+  (when (event? task)
+    #_(info (str "posting event"))
     (cast! (:event-buffer @state) [:event-msg task]))
   #_(debug aname (str "process-task" task)))
 

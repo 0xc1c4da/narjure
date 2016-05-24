@@ -32,14 +32,10 @@
   [from [msg]]
   ;todo
   (when (> (b/count-elements @e-bag) 1)
-    (let [i (min event-pairs (b/count-elements @e-bag) )]
-      (dotimes [n i]
-        (let [result1 (b/get-by-index @e-bag (selection-fn))]
-          (let [result2 (b/get-by-index (second result1) (selection-fn))]
-            #_(info (str "event selected: " (first result1)))
-            #_(info (str "event selected: " (first result2)))
-            (reset! e-bag (second result2))
-            (cast! (:general-inferencer @state) [:do-inference-msg [(first result1) (first result2)]]))))))
+    (let [result1 (b/get-by-index @e-bag (selection-fn))
+          result2 (b/get-by-index (second result1) (selection-fn))]
+      (reset! e-bag (second result2))
+      (cast! (:general-inferencer @state) [:do-inference-msg [(first result1) (first result2)]])))
   #_(debug aname "process-inference-tick-msg"))
 
 (defn shutdown-handler
