@@ -82,7 +82,7 @@
     :create-concept-msg (create-concept-handler from message)
     :persist-state-msg (persist-state-handler from message)
     :load-state-msg (load-state-handler from message)
-    :budget-upload-msg (budget-update-handler from message)
+    :budget-update-msg (budget-update-handler from message)
     :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 

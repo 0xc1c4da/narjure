@@ -41,16 +41,16 @@
   [from [_ new-state]]
   (set-state! (merge @state new-state)))
 
-
 (defn update-concept-budget []
   "Update the concept budget"
   (let [concept-state @state
         budget (:budget concept-state)
         tasks (:tasks concept-state)
         priority-sum (reduce (fn [a,b] (+ (first (:budget a)) (first (:budget b)))) tasks)
-        new-state (assoc concept-state :budget (assoc budget :priority priority-sum))]
-    (set-state! (merge concept-state new-state)))
-  )
+        state-update (assoc concept-state :budget (assoc budget :priority priority-sum))]
+    (set-state! (merge concept-state state-update))
+    (let [concept-state-new @state]
+      (cast! (:concept-manager concept-state-new) [:budget-update-msg concept-state-new]))))
 
 (defn task-budget-update-handler
   ""
@@ -72,7 +72,7 @@
                :budget {:priority 0 :quality 0}
                :tasks (b/default-bag max-tasks)
                :termlinks {}
-               :active-concept-collator (whereis :active-concept-collator)
+               :concept-manager (whereis :concept-manager)
                :general-inferencer (whereis :general-inferencer)}))
 
 (defn msg-handler
