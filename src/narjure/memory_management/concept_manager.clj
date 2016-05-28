@@ -47,11 +47,10 @@
   )
 
 (defn budget-update-handler
-  ""
+  "all we have to do is re-adding the new item"
   [from message]
-  ;todo
-  (info (str "in budget-update-handler"))
-  )
+  (info (str "in budget-update-handler"))                   ;use add-element and not update here for the case that
+  (swap! c-bag b/add-element message))                      ;it doesnt exist anymore
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"

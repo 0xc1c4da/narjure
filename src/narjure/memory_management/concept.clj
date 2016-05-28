@@ -50,7 +50,10 @@
         state-update (assoc concept-state :budget (assoc budget :priority priority-sum))]
     (set-state! (merge concept-state state-update))
     (let [concept-state-new @state]
-      (cast! (:concept-manager concept-state-new) [:budget-update-msg concept-state-new]))))
+      (cast! (:concept-manager concept-state-new) [:budget-update-msg
+                                                   {:id (:id concept-state-new)
+                                                    :priority (:priority (:budget concept-state-new))
+                                                    :ref @self}]))))
 
 (defn task-budget-update-handler
   ""
@@ -68,7 +71,7 @@
 (defn initialise
   "Initialises actor: registers actor and sets actor state"
   [name]
-  (set-state! {:name name
+  (set-state! {:id name
                :budget {:priority 0 :quality 0}
                :tasks (b/default-bag max-tasks)
                :termlinks {}
