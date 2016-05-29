@@ -3,7 +3,8 @@
     [co.paralleluniverse.pulsar.actors :refer [self ! whereis cast! Server gen-server register! shutdown! unregister! set-state! state]]
     [narjure.actor.utils :refer [defactor]]
     [nal.deriver :refer [inference]]
-    [taoensso.timbre :refer [debug info]])
+    [taoensso.timbre :refer [debug info]]
+    [narjure.debug-util :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :general-inferencer)
@@ -30,10 +31,12 @@
   (register! aname actor-ref)
   (set-state! {:state 0}))
 
+(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
+  (debuglogger display message)
   (case type
     :do-inference-msg (do-inference-handler from message)
     :shutdown (shutdown-handler from message)

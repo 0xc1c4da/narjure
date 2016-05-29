@@ -7,6 +7,8 @@
     [taoensso.timbre :as t])
   (:refer-clojure :exclude [promise await]))
 
+(def max-tasks 100)
+
 (defn debug [msg] (t/debug :concept msg))
 
 (defn task-handler
@@ -24,7 +26,8 @@
 (defn inference-request-handler
   ""
   [from message]
-  ;todo
+  (let [concept-state @state]
+    )
   )
 
 (defn concept-state-handler
@@ -38,10 +41,25 @@
   [from [_ new-state]]
   (set-state! (merge @state new-state)))
 
+(defn update-concept-budget []
+  "Update the concept budget"
+  (let [concept-state @state
+        budget (:budget concept-state)
+        tasks (:tasks concept-state)
+        priority-sum (reduce (fn [a,b] (+ (first (:budget a)) (first (:budget b)))) tasks)
+        state-update (assoc concept-state :budget (assoc budget :priority priority-sum))]
+    (set-state! (merge concept-state state-update))
+    (let [concept-state-new @state]
+      (cast! (:concept-manager concept-state-new) [:budget-update-msg
+                                                   {:id (:id concept-state-new)
+                                                    :priority (:priority (:budget concept-state-new))
+                                                    :ref @self}]))))
+
 (defn task-budget-update-handler
   ""
   [from message]
   ;todo
+  (update-concept-budget)
   )
 
 (defn shutdown-handler
@@ -53,12 +71,11 @@
 (defn initialise
   "Initialises actor: registers actor and sets actor state"
   [name]
-  (set-state! {:name name
-               :budget [0.0 0.0]
-               :satisfaction [0.0 0.0]
-               :tasks {}
+  (set-state! {:id name
+               :budget {:priority 0 :quality 0}
+               :tasks (b/default-bag max-tasks)
                :termlinks {}
-               :active-concept-collator (whereis :active-concept-collator)
+               :concept-manager (whereis :concept-manager)
                :general-inferencer (whereis :general-inferencer)}))
 
 (defn msg-handler

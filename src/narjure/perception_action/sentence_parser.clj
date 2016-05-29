@@ -3,7 +3,8 @@
     [co.paralleluniverse.pulsar.actors :refer [! spawn gen-server register! cast! Server self whereis shutdown! unregister! set-state! state]]
     [narjure.narsese :refer [parse2]]
     [narjure.actor.utils :refer [defactor]]
-    [taoensso.timbre :refer [debug info]])
+    [taoensso.timbre :refer [debug info]]
+    [narjure.debug-util :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :sentence-parser)
@@ -28,10 +29,12 @@
   (register! aname actor-ref)
   (set-state! {:task-creator (whereis :task-creator)}))
 
+(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
+  (debuglogger display message)
   (case type
     :narsese-string-msg (narsese-string-handler from message)
     :shutdown (shutdown-handler from message)

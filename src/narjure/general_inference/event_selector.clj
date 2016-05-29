@@ -5,7 +5,8 @@
     [narjure.memory-management.event-buffer :refer [e-bag]]
     [narjure.bag :as b]
     [clojure.math.numeric-tower :as math]
-    [taoensso.timbre :refer [debug info]])
+    [taoensso.timbre :refer [debug info]]
+    [narjure.debug-util :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :event-selector)
@@ -51,10 +52,12 @@
   (register! aname actor-ref)
   (set-state! {:general-inferencer (whereis :general-inferencer)}))
 
+(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
+  (debuglogger display message)
   (case type
     :inference-tick-msg (inference-tick-handler from message)
     :shutdown (shutdown-handler from message)

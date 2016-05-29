@@ -6,7 +6,8 @@
     [narjure.memory-management.concept :refer [concept]]
     [narjure.actor.utils :refer [defactor]]
     [narjure.bag :as b]
-    [taoensso.timbre :refer [debug info]])
+    [taoensso.timbre :refer [debug info]]
+    [narjure.debug-util :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :concept-manager)
@@ -47,11 +48,10 @@
   )
 
 (defn budget-update-handler
-  ""
+  "all we have to do is re-adding the new item"
   [from message]
-  ;todo
-  (info (str "in budget-update-handler"))
-  )
+  (info (str "in budget-update-handler"))                   ;use add-element and not update here for the case that
+  (swap! c-bag b/add-element message))                      ;it doesnt exist anymore
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
@@ -74,15 +74,18 @@
              (info (str "actor-ref" actor-ref))
              (shutdown! actor-ref))))
 
+
+(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
+  (debuglogger display message)
   (case type
     :create-concept-msg (create-concept-handler from message)
     :persist-state-msg (persist-state-handler from message)
     :load-state-msg (load-state-handler from message)
-    :budget-upload-msg (budget-update-handler from message)
+    :budget-update-msg (budget-update-handler from message)
     :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
