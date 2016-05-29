@@ -1,12 +1,12 @@
-(ns narjure.core
+(ns narjure.core2
   (:require
     [co.paralleluniverse.pulsar
      [core :refer :all]
      [actors :refer :all]]
     [immutant.scheduling :refer :all]
     [narjure.memory-management
-     [concept-manager :refer [concept-manager c-bag max-concepts]]
-     [event-buffer :refer [event-buffer e-bag max-events]]
+     [concept-manager :refer [concept-manager c-bag]]
+     [event-buffer :refer [event-buffer e-bag]]
      [task-dispatcher :refer [task-dispatcher]]]
     [narjure.general-inference
      [concept-selector :refer [concept-selector]]
@@ -104,47 +104,80 @@
   (check-actors-registered)
   (start-timers)
 
-  ; reset global bags
-  (reset! c-bag (b/default-bag max-concepts))
-  (reset! e-bag (b/default-bag max-events))
-
   ; update user with status
-  (info "NARS initialised."))
+  (info "NARS initialised.")
 
-(defn shutdown-nars [& _]
+  ;(cast! (whereis :persistence-manager) [:restore-concept-state-msg "d:/clojure/snapshot1.nar"])
+  ;(Thread/sleep  1000)
+  ;(info (str "Concept count: " (count @c-bag)))
+
+  ; *** Test code
+  (comment
+    (do
+      (info "Beginning test...")
+      (time
+        (loop [n 0]
+          (when (< n 100)
+            ; select approximately 90% from existing concepts
+            (let [n1 (if (< (rand) 0.01) n (rand-int (/ n 10)))]
+
+              ;;(cast! (whereis :task-dispatcher) [:task-msg {:term  (format "a --> %d" n1) :other "other"}])
+              (cast! (whereis :sentence-parser) [:narsese-string-msg (format "<a --> t%d>. :|100|:" n1)])
+              (when (== (mod n 10) 0)
+                (info (format "processed [%s] messages" n))))
+            (recur (inc n)))))))
+
+  (do
+    (info "Beginning test...")
+    (let [sentence-parser (whereis :sentence-parser)]
+      (time
+        (loop [n 0]
+          (when (< n 10000)
+            (cast! sentence-parser [:narsese-string-msg (format "<a --> term%d>. :|100|:" n)])
+            (when (== (mod n 1000) 0)
+              (info (format "processed [%s] messages" n)))
+            (recur (inc n)))))))
+
+  ; allow delay for all actors to process their queues
+  (print "Processing ")
+  (dotimes [n 5]
+    (print ".")
+    (flush)
+    (Thread/sleep 1000))
+  (println "")
+
+  (info "Test complete.")
+  ; *** End test code
+
+  ; test persistence
+  ;(info "Test persistence")
+  (info (str "c-bag count: " (b/count-elements @c-bag)))
+  (info (str "e-bag count: " (b/count-elements @e-bag)))
+  ;(cast! (whereis :persistence-manager) [:persist-concept-state-msg "d:/clojure/snapshot1.nar"])
+
+  (print "Processing ")
+  (dotimes [n 5]
+    (print ".")
+    (flush)
+    (Thread/sleep 1000))
+  (println "")
+  (info "Test complete.")
+
+
   (info "Shutting down actors...")
 
   ; cancel schedulers
   (stop)
 
-  ; shutdown all concepts
-  (doseq [id-item (:elements-map @c-bag)]
-    (let [item (vals id-item)
-          actor-ref (:ref item)] (shutdown! actor-ref)))
-
   ; shutdown all actors so they terminate cleanly
   (doseq [actor-name actors-names]
-    (let [ref (whereis actor-name 100 TimeUnit/MILLISECONDS)]
-      (when (not= nil ref)
-        (unregister! ref)
-        (shutdown! ref))))
-
+    (shutdown! (whereis actor-name 10 TimeUnit/MILLISECONDS)))
 
   ;;wait for concepts to shutdown
   (Thread/sleep 5000)
-  (info "System shutdown complete."))
-
-(defn run []
-  (start-nars))
-
-(defn shutdown []
-  (shutdown-nars))
-
-(defn reset []
-  (info (str "reseting Actors System..."))
-  (shutdown)
-  (sleep 5 :sec)
-  (run))
-
+  (info "System shutdown complete.")
+  )
 ; call main function
+(defn run []
+  (future (start-nars)))
 (run)

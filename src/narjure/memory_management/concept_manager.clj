@@ -93,6 +93,6 @@
   (gen-server
     (reify Server
       (init [_] (initialise aname @self))
-      (terminate [_ cause] (clean-up))
+      (terminate [_ cause] #_ (info (str "cleaning up")))
       (handle-cast [_ from id message] (msg-handler from message)))))
 
