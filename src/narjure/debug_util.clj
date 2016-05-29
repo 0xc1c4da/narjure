@@ -1,8 +1,8 @@
 (ns narjure.debug-util)
 
-(def debug 1000)
+(def debug-messages 100)
 (defn debuglogger [display message]
-  (if (> debug 0)
-    (swap! display (fn [L] (if (< (count @display) debug)
+  (if (> debug-messages 0)
+    (swap! display (fn [L] (if (< (count @display) debug-messages)
                             (conj @display message)
                             (conj (drop-last @display) message))))))

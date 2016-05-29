@@ -26,6 +26,7 @@
                    :operator-executor operator-executor/display
                    :sentence-parser sentence-parser/display
                    :task-creator task-creator/display})
+
 (def debugmessage :empty)
 
 (def graphs [[graph-actors] [graph-gui]])
