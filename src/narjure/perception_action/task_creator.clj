@@ -78,7 +78,7 @@
      :terms      (termlink-subterms content)
      :solution   nil
      :task-type  (:task-type sentence)
-     :statement    content}))
+     :statement  content}))
 
 (defn sentence-handler
   "Processes a :sentence-msg"

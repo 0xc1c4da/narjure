@@ -13,6 +13,7 @@
     executes operation with optionally supplied parameters
     if feedback msg required posts :sentence-msg to task creator"
   [from [msg operator & params]]
+  ;todo
   (debug aname "process-operator-execution-request-msg"))
 
 (defn shutdown-handler
