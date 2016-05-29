@@ -2,59 +2,81 @@
   (:require [quil.core :as q]
             [quil.middleware :as m]))
 
-(def min-r 10)
 (def width 800)
 (def height 800)
 
-;;Hnav:
-(defn MouseToWorldCoordX [x zoom difx]
+;HNAV API:
+(defn mouse-to-world-coord-x [x zoom difx]
   (* (/ 1.0 zoom) (- (- x difx) (/ width 2.0))))
-(defn MouseToWorldCoordY [y zoom dify]
+
+(defn mouse-to-world-coord-y [y zoom dify]
   (* (/ 1.0 zoom) (- (- y dify) (/ height 2.0))))
 
-
-
-
+(defn hnav-transform [{:keys [difx dify zoom]}]
+  (q/translate (+ difx (* 0.5 width))
+               (+ dify (* 0.5 height)))
+  (q/scale zoom zoom))
+;END HNAV
 
 (defn setup []
   ; initial state
-  {:x 0 :y 0 :r min-r})
+  {:x 0.0 :y 0.0 :r 10
+   :difx (/ width 2.0)
+   :dify (/ height 2.0)
+   :savepx 0.0
+   :savepy 0.0
+   :md false
+   :zoom 1.0})
 
 (defn update [state]
-  ; increase radius of the circle by 1 on each frame
-  (update-in state [:r] inc))
+  state)
 
-(def scale 0.5)
-
-(defn draw-actor [text px py]
-  (q/reset-matrix)
-  (q/scale scale)
+(defn draw-actor [state {:keys [name px py]}]
   (apply q/fill [0 0 0 0])
   (q/rect px py 200 100)
   (apply q/fill [53 108 237])
-  (q/text text (+ px 50) (+ py 50)))
+  (q/text name (+ px 50) (+ py 50)))
+
+(def actors [{:name "Concept Manager" :px 0 :py 0}
+             {:name "Task Dispatcher" :px 350 :py 50}])
 
 (defn draw [state]
+  (q/reset-matrix)
+  (hnav-transform state)
   (q/background 255)
-  (draw-actor "Concept Manager" 50 50)
-  (draw-actor "Task Dispatcher" 250 50)
-  (q/ellipse (:x state) (:y state) (:r state) (:r state)))
+  (doseq [a actors]
+    (draw-actor state a))
+  (q/ellipse (mouse-to-world-coord-x (:x state) (:zoom state) (:difx state))
+             (mouse-to-world-coord-y (:y state) (:zoom state) (:dify state)) (:r state) (:r state)))
 
-; decrease radius by 1 but keeping it not less than min-r
-(defn shrink [r]
-  (max min-r (dec r)))
+;HNAV implementation
+(defn mouse-pressed [state event]
+  (assoc state :savepx (:x event) :savepy (:y event) :md true))
 
-(defn mouse-moved [state event]
+(defn mouse-dragged [state event]
   (-> state
-      ; set circle position to mouse position
-      (assoc :x (/ (:x event) scale) :y (/ (:y event) scale))
-      ; decrease radius
-      (update-in [:r] shrink)))
+        (assoc :difx (+ (:difx state) (- (:x event) (:savepx state)))
+               :dify (+ (:dify state) (- (:y event) (:savepy state)))
+               :savepx (:x event)
+               :savepy (:y event))))
+
+(def scrollcamspeed 1.1)
+(defn mouse-wheel [state mouse-scroll]
+  (let [zoom-before (:zoom state)
+        state2 (if (> mouse-scroll 0)
+                 (assoc state :zoom (/ (:zoom state) scrollcamspeed))
+                 (assoc state :zoom (* (:zoom state) scrollcamspeed)))]
+    (-> state2
+        (assoc :difx (* (:difx state2) (/ (:zoom state2) zoom-before)))
+        (assoc :dify (* (:dify state2) (/ (:zoom state2) zoom-before))))))
+;END HNAV
 
 (q/defsketch example
              :size [width height]
              :setup setup
              :draw draw
              :update update
-             :mouse-moved mouse-moved
+             :mouse-pressed mouse-pressed
+             :mouse-dragged mouse-dragged
+             :mouse-wheel mouse-wheel
              :middleware [m/fun-mode])
