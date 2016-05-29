@@ -31,21 +31,16 @@
    :zoom   1.0
    :input-string ""})
 
-(defn update [state]
-  state)
+(defn update [state] state)
 
 (defn nameof [a]
-  (if (string? a)
-    a
-    (name a)))
+  (if (string? a) a (name a)))
 
 (defn draw-actor [{:keys [name px py color]} node-width node-height]
   (apply q/fill (if (= color nil) [255 255 255] color))
   (q/rect px py node-width node-height)
   (apply q/fill [53 108 237])
   (q/text (nameof name) (+ px 5) (+ py 10)))
-
-
 
 (def concept-size 15)
 (def concept-graph [[{:name "<a --> b>" :px 30 :py 370}
@@ -66,20 +61,30 @@
       (doseq [a nodes]
         (draw-actor a node-width node-height)))))
 
+(def graphs [[graph-actors] [concept-graph] [graph-gui]])
 (defn draw [state]
   (q/background 255)
   (q/reset-matrix)
   (hnav-transform state)
-  (draw-graph graph-actors)
-  (draw-graph concept-graph)
-  (draw-graph graph-gui)
+  (doseq [[g] graphs]
+    (draw-graph g))
   (q/text (:input-string state) 400 -280)
   ; (q/ellipse (mouse-to-world-coord-x (:x state) (:zoom state) (:difx state))
   ;           (mouse-to-world-coord-y (:y state) (:zoom state) (:dify state)) (:r state) (:r state))
   )
 
 ;HNAV implementation
-(defn mouse-pressed [state event]
+(defn mouse-pressed [state event]                           ;also HGUI click check here
+  (doseq [g graphs]
+    (doseq [[V E w h] g]
+      (doseq [v V]
+        (let [px (:px v)
+              py (:py v)
+              mousex (mouse-to-world-coord-x (:x event) (:zoom state) (:difx state))
+              mousey (mouse-to-world-coord-y (:y event) (:zoom state) (:dify state))]
+          (if (and (not (= (:onclick v) nil)) (> mousex px) (> mousey py)
+                   (< mousex (+ px w)) (< mousey (+ py h)))
+            ((:onclick v)))))))
   (assoc state :savepx (:x event) :savepy (:y event) :md true))
 
 (defn mouse-dragged [state event]
