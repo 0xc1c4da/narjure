@@ -4,8 +4,8 @@
      :refer [! spawn gen-server register! cast! Server self
              shutdown! unregister! set-state! state whereis]]
     [narjure.actor.utils :refer [defactor]]
-
-    [taoensso.timbre :as t])
+    [taoensso.timbre :as t]
+    [narjure.bag :as b])
   (:refer-clojure :exclude [promise await]))
 
 (def max-tasks 100)
