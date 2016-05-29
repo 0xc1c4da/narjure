@@ -1,6 +1,5 @@
 (ns gui.actors
-  (:require [seesaw.core :refer :all]
-            [gui.globals :refer :all]))
+  (:require [seesaw.core :refer :all]))
 
 (def actor-level-width 175)
 (def actor-level-height 100)
@@ -8,10 +7,7 @@
 (def nodes [{:name :concept-manager :px 0 :py 0}
             {:name :concepts :px 0 :py 300}
             {:name :task-dispatcher :px 200 :py 0}
-            {:name    :sentence-parser :px 400 :py -300
-             :onclick (fn [state] (swap! input-string
-                                         (fn [st] (str (input "Add Narsese"
-                                                          :to-string :name) "\n"))))}
+            {:name :sentence-parser :px 400 :py -300}
             {:name :task-creator :px 400 :py -150}
             {:name :operator-executor :px -350 :py -150}
             {:name :event-buffer :px 200 :py 150}
