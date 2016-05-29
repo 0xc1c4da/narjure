@@ -5,7 +5,7 @@
             [gui.gui :refer [graph-gui]]
             [gui.hnav :as hnav]
             [seesaw.core :refer :all]
-            [gui.globals :refer :all]))
+            [gui.globals :refer :all]
             [narjure.core :as nar]
             [narjure.general-inference.concept-selector :as concept-selector]
             [narjure.general-inference.event-selector :as event-selector]
@@ -25,7 +25,7 @@
                    :task-dispatcher task-dispatcher/display
                    :operator-executor operator-executor/display
                    :sentence-parser sentence-parser/display
-                   :task-creator task-creator/display}
+                   :task-creator task-creator/display})
 (def debugmessage :empty)
 
 (def graphs [[graph-actors] [graph-gui]])
