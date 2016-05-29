@@ -27,8 +27,6 @@
                    :sentence-parser sentence-parser/display
                    :task-creator task-creator/display})
 
-(def debugmessage :empty)
-
 (def graphs [[graph-actors] [graph-gui]])
 
 (defn setup []
@@ -45,7 +43,12 @@
   (apply q/fill (if (= backcolor nil) [255 255 255] backcolor))
   (q/rect px py node-width node-height)
   (apply q/fill (if (= frontcolor nil) [0 0 0] frontcolor))
-  (q/text (str (nameof name) "\n" (name debugmessage)) (+ px 5) (+ py 10)))
+  (q/text-size 10.0)
+  (q/text (nameof name) (+ px 5) (+ py 10))
+  (q/text-size 1.0)
+  (when (contains? debugmessage name)
+    (q/text (clojure.string/replace (str (deref (debugmessage name))) #"§" "\n")
+            (+ px 5) (+ py 20))))
 
 (defn draw-graph [[nodes vertices node-width node-height]]
   (doseq [c vertices]
@@ -64,6 +67,7 @@
   (hnav/transform state)
   (doseq [[g] graphs]
     (draw-graph g))
+  (q/text-size 10.0)
   (q/text @input-string 400 -350))
 
 (defn key-pressed [state event]
