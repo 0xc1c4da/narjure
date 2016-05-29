@@ -1,18 +1,28 @@
 (ns gui.hnav
   (:require [quil.core :as q]))
 
-(def width 800)
-(def height 800)
+(def init-size 800)
+(defn width []
+  (try (if (or (= nil q/width) (= nil (q/width)))
+         init-size
+         (q/width))
+       (catch Exception e init-size)))
+
+(defn height []
+  (try (if (or (= nil q/height) (= nil (q/height)))
+         init-size
+         (q/height))
+       (catch Exception e init-size)))
 
 (defn mouse-to-world-coord-x [x zoom difx]
-  (* (/ 1.0 zoom) (+ x (- difx) (- (/ width 2.0)))))
+  (* (/ 1.0 zoom) (+ x (- difx) (- (/ (width) 2.0)))))
 
 (defn mouse-to-world-coord-y [y zoom dify]
-  (* (/ 1.0 zoom) (+ y (- dify) (- (/ height 2.0)))))
+  (* (/ 1.0 zoom) (+ y (- dify) (- (/ (height) 2.0)))))
 
 (defn transform [{:keys [difx dify zoom]}]
-  (q/translate (+ difx (* 0.5 width))
-               (+ dify (* 0.5 height)))
+  (q/translate (+ difx (* 0.5 (width)))
+               (+ dify (* 0.5 (height))))
   (q/scale zoom zoom))
 
 ;HNAV implementation
@@ -46,8 +56,8 @@
         (assoc :difx (* (:difx state2) (/ (:zoom state2) zoom-before)))
         (assoc :dify (* (:dify state2) (/ (:zoom state2) zoom-before))))))
 
-(def states {:difx   (- (/ width 2))
-             :dify   (- (/ height 2))
+(def states {:difx   (- (/ (width) 2))
+             :dify   (- (/ (height) 2))
              :savepx 0.0
              :savepy 0.0
              :zoom   1.0})

@@ -29,6 +29,7 @@
 (def graphs [[graph-actors] [graph-gui]])
 
 (defn setup []
+  (q/frame-rate 30)
   ;(nar/run)
   (merge hnav/states {:input-string ""}))
 
@@ -73,7 +74,7 @@
                                       "")))))
 
 (q/defsketch example
-             :size [hnav/width hnav/height]
+             :size [(hnav/width) (hnav/height)]
              :setup setup
              :draw draw
              :update update
@@ -82,4 +83,5 @@
              :mouse-wheel hnav/mouse-wheel
              :key-pressed key-pressed
              :middleware [m/fun-mode]
+             :features [ :resizable ]
              :title "OpenNARS 2.0.0: Lense")
