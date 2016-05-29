@@ -4,10 +4,32 @@
             [gui.actors :refer [graph-actors]]
             [gui.gui :refer [graph-gui]]
             [gui.hnav :as hnav]))
+            "[narjure.core :as nar]
+            [narjure.general-inference.concept-selector :as concept-selector]
+            [narjure.general-inference.event-selector :as event-selector]
+            [narjure.general-inference.general-inferencer :as general-inferencer]
+            [narjure.memory-management.concept-manager :as concept-manager]
+            [narjure.memory-management.event-buffer :as event-buffer]
+            [narjure.memory-management.task-dispatcher :as task-dispatcher]
+            [narjure.perception-action.operator-executor :as operator-executor]
+            [narjure.perception-action.sentence-parser :as sentence-parser]
+            [narjure.perception-action.task-creator :as task-creator]))"
+
+"(def debugmessage {:concept-selector concept-selector/display
+                   :event-selector event-selector/display
+                   :general-inferencer general-inferencer/display
+                   :concept-manager concept-manager/display
+                   :event-buffer event-buffer/display
+                   :task-dispatcher task-dispatcher/display
+                   :operator-executor operator-executor/display
+                   :sentence-parser sentence-parser/display
+                   :task-creator task-creator/display}"
+(def debugmessage :empty)
 
 (def graphs [[graph-actors] [graph-gui]])
 
 (defn setup []
+  ;(nar/run)
   (merge hnav/states {:input-string ""}))
 
 (defn update [state] state)
@@ -19,7 +41,7 @@
   (apply q/fill (if (= backcolor nil) [255 255 255] backcolor))
   (q/rect px py node-width node-height)
   (apply q/fill (if (= frontcolor nil) [0 0 0] frontcolor))
-  (q/text (nameof name) (+ px 5) (+ py 10)))
+  (q/text (str (nameof name) "\n" (name debugmessage)) (+ px 5) (+ py 10)))
 
 (defn draw-graph [[nodes vertices node-width node-height]]
   (doseq [c vertices]
