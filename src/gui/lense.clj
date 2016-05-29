@@ -6,7 +6,7 @@
             [gui.hnav :as hnav]
             [seesaw.core :refer :all]
             [gui.globals :refer :all]))
-            "[narjure.core :as nar]
+            [narjure.core :as nar]
             [narjure.general-inference.concept-selector :as concept-selector]
             [narjure.general-inference.event-selector :as event-selector]
             [narjure.general-inference.general-inferencer :as general-inferencer]
@@ -15,9 +15,9 @@
             [narjure.memory-management.task-dispatcher :as task-dispatcher]
             [narjure.perception-action.operator-executor :as operator-executor]
             [narjure.perception-action.sentence-parser :as sentence-parser]
-            [narjure.perception-action.task-creator :as task-creator]))"
+            [narjure.perception-action.task-creator :as task-creator]))
 
-"(def debugmessage {:concept-selector concept-selector/display
+(def debugmessage {:concept-selector concept-selector/display
                    :event-selector event-selector/display
                    :general-inferencer general-inferencer/display
                    :concept-manager concept-manager/display
@@ -25,7 +25,7 @@
                    :task-dispatcher task-dispatcher/display
                    :operator-executor operator-executor/display
                    :sentence-parser sentence-parser/display
-                   :task-creator task-creator/display}"
+                   :task-creator task-creator/display}
 (def debugmessage :empty)
 
 (def graphs [[graph-actors] [graph-gui]])
