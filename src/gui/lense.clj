@@ -53,9 +53,9 @@
           pxtransform (fn [x] (+ (:px x) (/ node-width 2.0)))
           pytransform (fn [y] (+ (:py y) (/ node-height 2.0)))]
       (q/line (pxtransform left) (pytransform left)
-              (pxtransform right) (pytransform right))
-      (doseq [a nodes]
-        (draw-actor a node-width node-height)))))
+              (pxtransform right) (pytransform right))))
+  (doseq [a nodes]
+    (draw-actor a node-width node-height)))
 
 (defn draw [state]
   (q/background 255)
@@ -63,7 +63,7 @@
   (hnav/transform state)
   (doseq [[g] graphs]
     (draw-graph g))
-  (q/text @input-string 400 -280))
+  (q/text @input-string 400 -350))
 
 (defn key-pressed [state event]
   (let [name (name (:key event))
