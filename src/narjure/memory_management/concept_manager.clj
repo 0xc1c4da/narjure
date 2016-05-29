@@ -6,7 +6,8 @@
     [narjure.memory-management.concept :refer [concept]]
     [narjure.actor.utils :refer [defactor]]
     [narjure.bag :as b]
-    [taoensso.timbre :refer [debug info]])
+    [taoensso.timbre :refer [debug info]]
+    [narjure.debug-util :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :concept-manager)
@@ -73,10 +74,13 @@
              (info (str "actor-ref" actor-ref))
              (shutdown! actor-ref))))
 
+
+(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
+  (debuglogger display message)
   (case type
     :create-concept-msg (create-concept-handler from message)
     :persist-state-msg (persist-state-handler from message)

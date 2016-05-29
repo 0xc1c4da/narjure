@@ -5,7 +5,8 @@
     [taoensso.timbre :refer [debug info]]
     [clojure.set :as set]
     [narjure.defaults :refer :all]
-    [nal.term_utils :refer :all])
+    [nal.term_utils :refer :all]
+    [narjure.debug-util :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :task-creator)
@@ -96,10 +97,12 @@
   (unregister!)
   (shutdown!))
 
+(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
+  (debuglogger display message)
   (case type
     :sentence-msg (sentence-handler from message)
     :derived-sentence-msg (derived-sentence-handler from message)

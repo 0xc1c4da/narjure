@@ -32,11 +32,16 @@
 (defn update [state]
   state)
 
+(defn nameof [a]
+  (if (string? a)
+    a
+    (name a)))
+
 (defn draw-actor [{:keys [name px py]} node-width node-height]
   (apply q/fill [255 255 255])
   (q/rect px py node-width node-height)
   (apply q/fill [53 108 237])
-  (q/text name (+ px 5) (+ py 10)))
+  (q/text (nameof name) (+ px 5) (+ py 10)))
 
 (def actor-level-width 175)
 (def actor-level-height 100)
@@ -45,28 +50,28 @@
 (def gui-height 20)
 (def gui [{:name ""}])
 
-(def nodes [{:name "Concept Manager" :px 0 :py 0}
-            {:name "Concepts" :px 0 :py 300}
-            {:name "Task Dispatcher" :px 200 :py 0}
-            {:name "Sentence Parser" :px 400 :py -300}
-            {:name "Task Creator" :px 400 :py -150}
-            {:name "Operator Executor" :px -350 :py -150}
-            {:name "Event Buffer" :px 200 :py 150}
-            {:name "General Inferencer" :px 400 :py 300}
-            {:name "Event Selector" :px 600 :py 150}
-            {:name "Concept Selector" :px 600 :py 450}])
+(def nodes [{:name :concept-manager :px 0 :py 0}
+            {:name :concepts :px 0 :py 300}
+            {:name :task-dispatcher :px 200 :py 0}
+            {:name :sentence-parser :px 400 :py -300}
+            {:name :task-creator :px 400 :py -150}
+            {:name :operator-executor :px -350 :py -150}
+            {:name :event-buffer :px 200 :py 150}
+            {:name :general-inferencer :px 400 :py 300}
+            {:name :event-selector :px 600 :py 150}
+            {:name :concept-selector :px 600 :py 450}])
 
-(def vertices [{:from "Concept Manager" :to "Task Dispatcher"}
-               {:from "Concepts" :to "Concept Manager"}
-               {:from "Task Dispatcher" :to "Event Buffer"}
-               {:from "Concepts" :to "General Inferencer"}
-               {:from "Concepts" :to "Operator Executor"}
-               {:from "Operator Executor" :to "Task Creator"}
-               {:from "Event Selector" :to "General Inferencer"}
-               {:from "Concept Selector" :to "General Inferencer"}
-               {:from "Sentence Parser" :to "Task Creator"}
-               {:from "General Inferencer" :to "Task Creator"}
-               {:from "Task Creator" :to "Task Dispatcher"}])
+(def vertices [{:from :concept-manager :to :task-dispatcher}
+               {:from :concepts :to :concept-manager}
+               {:from :task-dispatcher :to :event-buffer}
+               {:from :concepts :to :general-inferencer}
+               {:from :concepts :to :operator-executor}
+               {:from :operator-executor :to :task-creator}
+               {:from :event-selector :to :general-inferencer}
+               {:from :concept-selector :to :general-inferencer}
+               {:from :sentence-parser :to :task-creator}
+               {:from :general-inferencer :to :task-creator}
+               {:from :task-creator :to :task-dispatcher}])
 
 (def graph-actors [nodes vertices actor-level-width actor-level-height])
 
@@ -97,7 +102,7 @@
   (draw-graph concept-graph)
   (q/text (:input-string state) 400 -280)
   ;(draw-graph concept-graph)                                ;TODO just draw elements recursively
-                                        ;adding the position of the parent, this is easy
+  ;adding the position of the parent, this is easy
 
   ; (q/ellipse (mouse-to-world-coord-x (:x state) (:zoom state) (:difx state))
   ;           (mouse-to-world-coord-y (:y state) (:zoom state) (:dify state)) (:r state) (:r state))
@@ -109,10 +114,10 @@
 
 (defn mouse-dragged [state event]
   (-> state
-        (assoc :difx (+ (:difx state) (- (:x event) (:savepx state)))
-               :dify (+ (:dify state) (- (:y event) (:savepy state)))
-               :savepx (:x event)
-               :savepy (:y event))))
+      (assoc :difx (+ (:difx state) (- (:x event) (:savepx state)))
+             :dify (+ (:dify state) (- (:y event) (:savepy state)))
+             :savepx (:x event)
+             :savepy (:y event))))
 
 (def scrollcamspeed 1.1)
 (defn mouse-wheel [state mouse-scroll]

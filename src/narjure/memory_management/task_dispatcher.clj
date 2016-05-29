@@ -4,7 +4,8 @@
     [narjure.actor.utils :refer [defactor]]
     [narjure.memory-management.concept-manager :refer [c-bag]]
     [narjure.bag :as b]
-    [taoensso.timbre :refer [debug info]])
+    [taoensso.timbre :refer [debug info]]
+    [narjure.debug-util :refer :all])
   (:refer-clojure :exclude [promise await])
   (:import (java.util.concurrent TimeUnit)))
 
@@ -54,10 +55,12 @@
     (set-state! {:concept-manager (whereis :concept-manager)
                  :event-buffer    (whereis :event-buffer)})))
 
+(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
+  (debuglogger display message)
   (case type
     :task-msg (task-handler from message)
     :shutdown (shutdown-handler from message)
