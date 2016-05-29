@@ -20,13 +20,13 @@
 
 (defn setup []
   ; initial state
-  {:x 0.0 :y 0.0 :r 10
-   :difx (/ width 2.0)
-   :dify (/ height 2.0)
+  {:x      0.0 :y 0.0 :r 10
+   :difx   (- (/ width 2))
+   :dify   (- (/ height 2))
    :savepx 0.0
    :savepy 0.0
-   :md false
-   :zoom 1.0})
+   :md     false
+   :zoom   1.0})
 
 (defn update [state]
   state)
