@@ -3,7 +3,9 @@
             [quil.middleware :as m]
             [gui.actors :refer [graph-actors]]
             [gui.gui :refer [graph-gui]]
-            [gui.hnav :as hnav]))
+            [gui.hnav :as hnav]
+            [seesaw.core :refer :all]
+            [gui.globals :refer :all]))
             "[narjure.core :as nar]
             [narjure.general-inference.concept-selector :as concept-selector]
             [narjure.general-inference.event-selector :as event-selector]
@@ -31,7 +33,7 @@
 (defn setup []
   (q/frame-rate 30)
   ;(nar/run)
-  (merge hnav/states {:input-string ""}))
+  (merge hnav/states {}))
 
 (defn update [state] state)
 
@@ -61,17 +63,17 @@
   (hnav/transform state)
   (doseq [[g] graphs]
     (draw-graph g))
-  (q/text (:input-string state) 400 -280))
+  (q/text @input-string 400 -280))
 
 (defn key-pressed [state event]
   (let [name (name (:key event))
         code (:key-code event)]
-    (assoc state :input-string (str (if (not (= code 8))
-                                      (:input-string state) "")
-                                    (if (not (= name "shift"))
-                                      (if (not (= code 8))
-                                        name "")
-                                      "")))))
+    (swap! input-string (fn [inputstr] (str (if (not (= code 8))
+                                              inputstr "")
+                                     (if (not (= name "shift"))
+                                       (if (not (= code 8))
+                                         name "") ""))))
+    state))
 
 (q/defsketch example
              :size [(hnav/width) (hnav/height)]

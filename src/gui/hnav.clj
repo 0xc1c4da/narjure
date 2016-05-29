@@ -1,7 +1,8 @@
 (ns gui.hnav
-  (:require [quil.core :as q]))
+  (:require [quil.core :as q]
+            [gui.globals :refer :all]))
 
-(def init-size 800)
+
 (defn width []
   (try (if (or (= nil q/width) (= nil (q/width)))
          init-size
@@ -36,7 +37,7 @@
               mousey (mouse-to-world-coord-y (:y event) (:zoom state) (:dify state))]
           (if (and (not (= (:onclick v) nil)) (> mousex px) (> mousey py)
                    (< mousex (+ px w)) (< mousey (+ py h)))
-            ((:onclick v)))))))
+            ((:onclick v) state))))))
   (assoc state :savepx (:x event) :savepy (:y event) :md true))
 
 (defn mouse-dragged [state event]

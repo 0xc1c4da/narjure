@@ -17,7 +17,8 @@
                  [com.taoensso/timbre "4.3.1"]
                  [avl.clj "0.0.9"]
                  [org.clojure/math.numeric-tower "0.0.4"]
-                 [quil "2.4.0"]]
+                 [quil "2.4.0"]
+                 [seesaw "1.4.5"]]
   :java-agents [[co.paralleluniverse/quasar-core "0.7.4"]]
   :main ^:skip-aot narjure.core
   :plugins [[lein-cloverage "1.0.6"]
