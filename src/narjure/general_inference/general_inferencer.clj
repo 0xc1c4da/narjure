@@ -15,8 +15,11 @@
     generated derived results, budget and occurrence time for derived tasks.
     Posts derived sentences to task creator"
   [from [msg [task belief]]]
-  (try (let [derived (inference task belief)]
-     (info (str "results: " derived)))
+  (try (let [derived (inference task belief)
+             task-creator (whereis :task-creator)]
+         (doseq [der derived]
+           (cast! task-creator [:derived-sentence-msg der]))
+     #_(info (str "results: " derived)))
        (catch Exception e (debuglogger display (str "inference error " (.toString e)))))
   #_(debug aname "process-do-inference-msg"))
 
