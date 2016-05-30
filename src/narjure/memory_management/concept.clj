@@ -10,13 +10,20 @@
   (:refer-clojure :exclude [promise await]))
 
 (def max-tasks 100)
+(def display (atom '()))
 
 (defn debug [msg] (t/debug :concept msg))
 
 (defn task-handler
   ""
-  [from message]
-  ;todo
+  [from [_ task]]
+  ;add task to bag
+  (try
+    (let [concept-state @state
+          task-bag (:tasks concept-state)
+          newbag (b/add-element task-bag {:id task :priority (first (:budget task)) :task task})]
+      (set-state! (merge concept-state {:tasks newbag})))
+    (catch Exception e (debuglogger display (str "task add error " (.toString e)))))
   )
 
 (defn belief-request-handler
@@ -80,7 +87,6 @@
                :concept-manager (whereis :concept-manager)
                :general-inferencer (whereis :general-inferencer)}))
 
-(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
