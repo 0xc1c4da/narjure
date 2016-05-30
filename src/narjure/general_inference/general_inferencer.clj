@@ -18,7 +18,7 @@
   (try (let [derived (inference task belief)
              task-creator (whereis :task-creator)]
          (doseq [der derived]
-           (cast! task-creator [:derived-sentence-msg der]))
+           (cast! task-creator [:derived-sentence-msg der [0.5 0.5 0.0] []]))
      #_(info (str "results: " derived)))
        (catch Exception e (debuglogger display (str "inference error " (.toString e)))))
   #_(debug aname "process-do-inference-msg"))

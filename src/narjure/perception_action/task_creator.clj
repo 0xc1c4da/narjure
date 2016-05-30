@@ -65,13 +65,13 @@
 (defn create-derived-task
   "Create a derived task with the provided sentence, budget and occurence time
    and default values for the remaining parameters"
-  [sentence budget occurrence time id evidence]
+  [sentence budget time id evidence]
   (let [content (:statement sentence)]
     {:truth      (:truth sentence)
      :desire     (:desire sentence)
      :budget     budget
      :creation   time
-     :occurrence occurrence
+     :occurrence (:occurence sentence)
      :source     :derived
      :id         id
      :evidence   evidence
@@ -88,8 +88,8 @@
 
 (defn derived-sentence-handler
   "processes a :derived-sentence-msg"
-  [from [msg sentence budget occurrence evidence]]
-  (cast! (:task-dispatcher @state) [:task-msg (create-derived-task sentence budget occurrence (:time @state) (get-id) evidence)]))
+  [from [msg sentence budget evidence]]
+  (cast! (:task-dispatcher @state) [:task-msg (create-derived-task sentence budget (:time @state) (get-id) evidence)]))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
