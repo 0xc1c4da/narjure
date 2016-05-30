@@ -27,6 +27,10 @@
   ;count bag /2 round down
   )
 
+(defn forget-element [el]                                   ;TODO put in control-utils
+  (let [budget (:budget (:task el))]
+    (assoc el :priority (* (:priority el) (second budget)))))
+
 (def display (atom '()))
 (defn inference-tick-handler
   "Select n pairs of events events from event buffer for inference
@@ -35,11 +39,13 @@
   ;todo
   (try
     (when (> (b/count-elements @e-bag) 1)
-     (let [result1 (b/get-by-index @e-bag (selection-fn))
-           result2 (b/get-by-index (second result1) (selection-fn))]
-       (reset! e-bag (second result2))
-       (debuglogger display ["selected events:" (first result1) "§" (first result2) "§§"])
-       (cast! (:general-inferencer @state) [:do-inference-msg [(first result1) (first result2)]])))
+     (let [[result1 bag1] (b/get-by-index @e-bag (selection-fn))
+           [result2 bag2] (b/get-by-index bag1 (selection-fn))
+           bag3 (b/add-element bag2 (forget-element result1))
+           bag4 (b/add-element bag3 (forget-element result2))]
+       (reset! e-bag bag4)
+       (debuglogger display ["selected events:" result1 "§" result2 "§§"])
+       (cast! (:general-inferencer @state) [:do-inference-msg [result1 result2]])))
     (catch Exception e (debuglogger display (str "event select error " (.toString e)))))
   #_(debug aname "process-inference-tick-msg"))
 
