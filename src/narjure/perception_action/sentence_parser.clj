@@ -2,12 +2,13 @@
   (:require
     [co.paralleluniverse.pulsar.actors :refer [! spawn gen-server register! cast! Server self whereis shutdown! unregister! set-state! state]]
     [narjure.narsese :refer [parse2]]
-    [narjure.actor.utils :refer [defactor]]
+    ;[narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :refer [debug info]]
     [narjure.debug-util :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :sentence-parser)
+(def display (atom '()))
 
 (defn narsese-string-handler
   "Parses a narsese string and posts a :sentence-msg to task-creator"
