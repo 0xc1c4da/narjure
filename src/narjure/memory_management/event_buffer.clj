@@ -14,6 +14,7 @@
 (def aname :event-buffer)
 (def max-events 100)
 (def e-bag (atom (b/default-bag max-events)))
+(def display (atom '()))
 
 (defn event-handler
   ""
@@ -36,7 +37,6 @@
   (register! aname actor-ref)
   (set-state! {}))
 
-(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
