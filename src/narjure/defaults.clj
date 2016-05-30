@@ -28,7 +28,9 @@
 
 (def budgets
   {:belief belief-budget
-   :question question-budget})
+   :question question-budget
+   :goal belief-budget
+   :quest question-budget})
 
 (def ^{:type double} horizon 1)
 
