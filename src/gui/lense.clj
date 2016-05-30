@@ -15,7 +15,10 @@
             [narjure.memory-management.task-dispatcher :as task-dispatcher]
             [narjure.perception-action.operator-executor :as operator-executor]
             [narjure.perception-action.sentence-parser :as sentence-parser]
-            [narjure.perception-action.task-creator :as task-creator]))
+            [narjure.perception-action.task-creator :as task-creator]
+            [narjure.memory-management.concept :as concepts]
+            [narjure.memory-management.concept-manager :refer [c-bag]]
+            [narjure.memory-management.event-buffer :refer [e-bag]]))
 
 (def debugmessage {:concept-selector concept-selector/display
                    :event-selector event-selector/display
@@ -25,9 +28,8 @@
                    :task-dispatcher task-dispatcher/display
                    :operator-executor operator-executor/display
                    :sentence-parser sentence-parser/display
-                   :task-creator task-creator/display})
-
-(def debugmessage :empty)
+                   :task-creator task-creator/display
+                   :concepts concepts/display})
 
 (def graphs [[graph-actors] [graph-gui]])
 
@@ -45,7 +47,12 @@
   (apply q/fill (if (= backcolor nil) [255 255 255] backcolor))
   (q/rect px py node-width node-height)
   (apply q/fill (if (= frontcolor nil) [0 0 0] frontcolor))
-  (q/text (str (nameof name) "\n" (name debugmessage)) (+ px 5) (+ py 10)))
+  (q/text-size 10.0)
+  (q/text (nameof name) (+ px 5) (+ py 10))
+  (q/text-size 1.0)
+  (when (contains? debugmessage name)
+    (q/text (clojure.string/replace (str (deref (debugmessage name))) #"§" "\n")
+            (+ px 5) (+ py 20))))
 
 (defn draw-graph [[nodes vertices node-width node-height]]
   (doseq [c vertices]
@@ -64,7 +71,11 @@
   (hnav/transform state)
   (doseq [[g] graphs]
     (draw-graph g))
-  (q/text @input-string 400 -350))
+  (q/text-size 10.0)
+  (q/text @input-string 400 -390)
+  (q/text-size 5.0)
+  (q/text (clojure.string/replace (str (:priority-index @c-bag)) "}" "}\n") 775 460)
+  (q/text (clojure.string/replace (str (:priority-index @e-bag)) "}" "}\n") 775 160))
 
 (defn key-pressed [state event]
   (let [name (name (:key event))

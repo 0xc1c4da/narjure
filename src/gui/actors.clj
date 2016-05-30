@@ -7,13 +7,16 @@
 (def nodes [{:name :concept-manager :px 0 :py 0}
             {:name :concepts :px 0 :py 300}
             {:name :task-dispatcher :px 200 :py 0}
+            {:name "" :px 400 :py -400}
             {:name :sentence-parser :px 400 :py -300}
             {:name :task-creator :px 400 :py -150}
             {:name :operator-executor :px -350 :py -150}
             {:name :event-buffer :px 200 :py 150}
             {:name :general-inferencer :px 400 :py 300}
             {:name :event-selector :px 600 :py 150}
-            {:name :concept-selector :px 600 :py 450}])
+            {:name "" :px 775 :py 150}
+            {:name :concept-selector :px 600 :py 450}
+            {:name "" :px 775 :py 450}])
 
 (def vertices [{:from :concept-manager :to :task-dispatcher}
                {:from :concepts :to :concept-manager}

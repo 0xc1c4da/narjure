@@ -19,6 +19,7 @@
   "Create a concept, for the supplied term, and add to
    the concept bag"
   [term]
+  (println "make general ")
   (let [concept-ref (spawn (concept term))]
     (swap! c-bag b/add-element {:id term :priority c-priority :ref concept-ref}))
   #_(debug aname (str "Created concept: " term)))
@@ -27,7 +28,7 @@
   "Create a concept for each term in statement, if they dont
    exist. Then post the task back to task-dispatcher."
   [from [_ {:keys [statement]  :as task}]]
-  (doseq [term (:terms statement)]
+  (doseq [term (:terms task)]
     (when-not (b/exists? @c-bag term)
       (make-general-concept term)))
   (cast! from [:task-msg task])

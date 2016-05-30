@@ -126,6 +126,7 @@
   (doseq [actor-name actors-names]
     (let [ref (whereis actor-name 100 TimeUnit/MILLISECONDS)]
       (when (not= nil ref)
+        (println (str "shutdown " actor-name))
         (unregister! ref)
         (shutdown! ref))))
 

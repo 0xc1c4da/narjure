@@ -19,7 +19,7 @@
   ""
   [from [_ task]]
   ;todo
-  (swap! e-bag b/add-element {:id (:id task) :priority ((:budget task) 0) :task task})
+  (swap! e-bag b/add-element {:id task :priority ((:budget task) 0) :task task})
   #_(debug aname "In create-concepts"))
 
 (defn shutdown-handler

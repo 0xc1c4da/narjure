@@ -26,14 +26,15 @@
    otherwise, dispatch task to respective concepts. Also, if task is an event
    dispatch task to event buffer actor."
   [from [_ task]]
-  (let [terms (get-in task [:statement :terms])]
-    (if (not-any? term-exists? terms)
-      (do
-        #_(info (str "to cm: " task))
-        (cast! (:concept-manager @state) [:create-concept-msg task]))
-      (doseq [term terms]
-        (when-let [{c-ref :ref} ((:elements-map @c-bag) term)]
-          (cast! c-ref [:task-msg task])))))
+  (let [terms (:terms task)
+        statement (:statement task)]
+      (if (not-any? term-exists? terms)
+       (do
+         #_(info (str "to cm: " task))
+         (cast! (:concept-manager @state) [:create-concept-msg task]))
+       (doseq [term terms]
+         (when-let [{c-ref :ref} ((:elements-map @c-bag) term)]
+           (cast! c-ref [:task-msg task])))))
   (when (event? task)
     #_(info (str "posting event"))
     (cast! (:event-buffer @state) [:event-msg task]))
