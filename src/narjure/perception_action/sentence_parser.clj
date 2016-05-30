@@ -12,9 +12,9 @@
 (defn narsese-string-handler
   "Parses a narsese string and posts a :sentence-msg to task-creator"
   [from [msg string]]
-  (let [sentence (parse2 string)]
-    #_(info (str sentence))
-    (cast! (:task-creator @state)  [:sentence-msg sentence])))
+  (try (let [sentence (parse2 string)]
+         (cast! (:task-creator @state) [:sentence-msg sentence]))
+       (catch Exception e (debuglogger display (str "parsing error " (.toString e))))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
