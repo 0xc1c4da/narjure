@@ -33,12 +33,14 @@
    and post do-inference-msg to general inferencer"
   [from [msg]]
   ;todo
-  (when (> (b/count-elements @e-bag) 1)
-    (let [result1 (b/get-by-index @e-bag (selection-fn))
-          result2 (b/get-by-index @e-bag (selection-fn))]
-      (reset! e-bag (second result2))
-      (debuglogger display ["selected events:" result1 "§" result2 "§§"])
-      (cast! (:general-inferencer @state) [:do-inference-msg [(first result1) (first result2)]])))
+  (try
+    (when (> (b/count-elements @e-bag) 1)
+     (let [result1 (b/get-by-index @e-bag (selection-fn))
+           result2 (b/get-by-index (second result1) (selection-fn))]
+       (reset! e-bag (second result2))
+       (debuglogger display ["selected events:" (first result1) "§" (first result2) "§§"])
+       (cast! (:general-inferencer @state) [:do-inference-msg [(first result1) (first result2)]])))
+    (catch Exception e (debuglogger display (str "event select error " (.toString e)))))
   #_(debug aname "process-inference-tick-msg"))
 
 (defn shutdown-handler
