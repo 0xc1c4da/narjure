@@ -18,7 +18,7 @@
 
 (defn event-handler
   ""
-  [from [task _]]
+  [from [_ task]]
   ;todo
   (try
     (swap! e-bag b/add-element {:id task :priority ((:budget task) 0) :task task})
