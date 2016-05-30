@@ -20,16 +20,22 @@
             [narjure.memory-management.concept-manager :refer [c-bag]]
             [narjure.memory-management.event-buffer :refer [e-bag]]))
 
-(def debugmessage {:concept-selector concept-selector/display
-                   :event-selector event-selector/display
-                   :general-inferencer general-inferencer/display
-                   :concept-manager concept-manager/display
-                   :event-buffer event-buffer/display
-                   :task-dispatcher task-dispatcher/display
-                   :operator-executor operator-executor/display
-                   :sentence-parser sentence-parser/display
-                   :task-creator task-creator/display
-                   :concepts concepts/display})
+(defn bag-format [st]
+  (clojure.string/replace st "}" "}\n"))
+
+(def debugmessage {:concept-selector   (fn [] (deref concept-selector/display))
+                   :event-selector     (fn [] (deref event-selector/display))
+                   :general-inferencer (fn [] (deref general-inferencer/display))
+                   :concept-manager    (fn [] (deref concept-manager/display))
+                   :event-buffer       (fn [] (deref event-buffer/display))
+                   :task-dispatcher    (fn [] (deref task-dispatcher/display))
+                   :operator-executor  (fn [] (deref operator-executor/display))
+                   :sentence-parser    (fn [] (deref sentence-parser/display))
+                   :task-creator       (fn [] (deref task-creator/display))
+                   :concepts           (fn [] (deref concepts/display))
+                   :concept-bag        (fn [] (bag-format (str (:priority-index (deref c-bag)))))
+                   :event-bag          (fn [] (bag-format (str (:priority-index (deref e-bag)))))
+                   :input              (fn [] (deref input-string))})
 
 (def graphs [[graph-actors] [graph-gui]])
 
@@ -43,15 +49,15 @@
 (defn nameof [a]
   (if (string? a) a (name a)))
 
-(defn draw-actor [{:keys [name px py backcolor frontcolor]} node-width node-height]
+(defn draw-actor [{:keys [name px py backcolor frontcolor displaysize]} node-width node-height]
   (apply q/fill (if (= backcolor nil) [255 255 255] backcolor))
   (q/rect px py node-width node-height)
   (apply q/fill (if (= frontcolor nil) [0 0 0] frontcolor))
   (q/text-size 10.0)
   (q/text (nameof name) (+ px 5) (+ py 10))
-  (q/text-size 1.0)
+  (q/text-size (if (= displaysize nil) 1.0 displaysize))
   (when (contains? debugmessage name)
-    (q/text (clojure.string/replace (str (deref (debugmessage name))) #"§" "\n")
+    (q/text (clojure.string/replace (str ((debugmessage name))) #"§" "\n")
             (+ px 5) (+ py 20))))
 
 (defn draw-graph [[nodes vertices node-width node-height]]
@@ -70,12 +76,7 @@
   (q/reset-matrix)
   (hnav/transform state)
   (doseq [[g] graphs]
-    (draw-graph g))
-  (q/text-size 10.0)
-  (q/text @input-string 400 -390)
-  (q/text-size 5.0)
-  (q/text (clojure.string/replace (str (:priority-index @c-bag)) "}" "}\n") 775 460)
-  (q/text (clojure.string/replace (str (:priority-index @e-bag)) "}" "}\n") 775 160))
+    (draw-graph g)))
 
 (defn key-pressed [state event]
   (let [name (name (:key event))
