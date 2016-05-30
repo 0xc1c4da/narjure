@@ -16,7 +16,9 @@
             [narjure.perception-action.operator-executor :as operator-executor]
             [narjure.perception-action.sentence-parser :as sentence-parser]
             [narjure.perception-action.task-creator :as task-creator]
-            [narjure.memory-management.concept :as concepts]))
+            [narjure.memory-management.concept :as concepts]
+            [narjure.memory-management.concept-manager :refer [c-bag]]
+            [narjure.memory-management.event-buffer :refer [e-bag]]))
 
 (def debugmessage {:concept-selector concept-selector/display
                    :event-selector event-selector/display
@@ -70,7 +72,10 @@
   (doseq [[g] graphs]
     (draw-graph g))
   (q/text-size 10.0)
-  (q/text @input-string 400 -390))
+  (q/text @input-string 400 -390)
+  (q/text-size 5.0)
+  (q/text (clojure.string/replace (str (:priority-index @c-bag)) "}" "}\n") 775 460)
+  (q/text (clojure.string/replace (str (:priority-index @e-bag)) "}" "}\n") 775 160))
 
 (defn key-pressed [state event]
   (let [name (name (:key event))
