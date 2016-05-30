@@ -15,7 +15,8 @@
             [narjure.memory-management.task-dispatcher :as task-dispatcher]
             [narjure.perception-action.operator-executor :as operator-executor]
             [narjure.perception-action.sentence-parser :as sentence-parser]
-            [narjure.perception-action.task-creator :as task-creator]))
+            [narjure.perception-action.task-creator :as task-creator]
+            [narjure.memory-management.concept :as concepts]))
 
 (def debugmessage {:concept-selector concept-selector/display
                    :event-selector event-selector/display
@@ -25,7 +26,8 @@
                    :task-dispatcher task-dispatcher/display
                    :operator-executor operator-executor/display
                    :sentence-parser sentence-parser/display
-                   :task-creator task-creator/display})
+                   :task-creator task-creator/display
+                   :concepts concepts/display})
 
 (def graphs [[graph-actors] [graph-gui]])
 
@@ -68,7 +70,7 @@
   (doseq [[g] graphs]
     (draw-graph g))
   (q/text-size 10.0)
-  (q/text @input-string 400 -350))
+  (q/text @input-string 400 -390))
 
 (defn key-pressed [state event]
   (let [name (name (:key event))

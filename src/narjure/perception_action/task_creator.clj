@@ -102,7 +102,7 @@
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
-  (debuglogger display message)
+  (when (not= type :system-time-tick-msg) (debuglogger display message))
   (case type
     :sentence-msg (sentence-handler from message)
     :derived-sentence-msg (derived-sentence-handler from message)

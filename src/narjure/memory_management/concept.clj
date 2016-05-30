@@ -5,7 +5,8 @@
              shutdown! unregister! set-state! state whereis]]
     [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :as t]
-    [narjure.bag :as b])
+    [narjure.bag :as b]
+    [narjure.debug-util :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def max-tasks 100)
@@ -79,10 +80,12 @@
                :concept-manager (whereis :concept-manager)
                :general-inferencer (whereis :general-inferencer)}))
 
+(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
+  (debuglogger display message)
   (case type
     :task-msg (task-handler from message)
     :belief-request-msg (belief-request-handler from message)

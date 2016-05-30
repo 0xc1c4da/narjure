@@ -8,14 +8,16 @@
   (:refer-clojure :exclude [promise await]))
 
 (def aname :general-inferencer)
+(def display (atom '()))
 
 (defn do-inference-handler
   "Processes :do-inference-msg:
     generated derived results, budget and occurrence time for derived tasks.
     Posts derived sentences to task creator"
   [from [msg task belief]]
-  (let [derived (inference task belief)]
-    (info (str "results: " derived)))
+  (try (let [derived (inference task belief)]
+     (info (str "results: " derived)))
+       (catch Exception e (debuglogger display (str "inference error " (.toString e)))))
   #_(debug aname "process-do-inference-msg"))
 
 (defn shutdown-handler
@@ -31,7 +33,6 @@
   (register! aname actor-ref)
   (set-state! {:state 0}))
 
-(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "

@@ -27,6 +27,7 @@
   ;count bag /2 round down
   )
 
+(def display (atom '()))
 (defn inference-tick-handler
   "Select n pairs of events events from event buffer for inference
    and post do-inference-msg to general inferencer"
@@ -34,8 +35,9 @@
   ;todo
   (when (> (b/count-elements @e-bag) 1)
     (let [result1 (b/get-by-index @e-bag (selection-fn))
-          result2 (b/get-by-index (second result1) (selection-fn))]
+          result2 (b/get-by-index @e-bag (selection-fn))]
       (reset! e-bag (second result2))
+      (debuglogger display ["selected events:" result1 "§" result2 "§§"])
       (cast! (:general-inferencer @state) [:do-inference-msg [(first result1) (first result2)]])))
   #_(debug aname "process-inference-tick-msg"))
 
@@ -52,12 +54,11 @@
   (register! aname actor-ref)
   (set-state! {:general-inferencer (whereis :general-inferencer)}))
 
-(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
-  (debuglogger display message)
+  ;(debuglogger display message) same as in concept_selector
   (case type
     :inference-tick-msg (inference-tick-handler from message)
     :shutdown (shutdown-handler from message)

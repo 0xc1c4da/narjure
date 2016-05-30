@@ -17,14 +17,18 @@
   []
   (* (math/expt (rand) selection-parameter) (b/count-elements @c-bag)))
 
+(def display (atom '()))
 (defn inference-tick-handler
   "Select n concepts for inference and post
    inference-request-message to each selected
    concept"
   [from [msg]]
   ;todo
-  (dotimes [n (min (b/count-elements @c-bag) 1)]
-    (info (str "Concept selected: " (b/get-by-index @c-bag (selection-fn)))))
+  ; (dotimes [n (min (b/count-elements @c-bag) 1)]
+  ;one concept for inference is enough for now ^^
+  (when (> (b/count-elements @c-bag) 0)
+    (let [selected (first (b/get-by-index @c-bag (selection-fn)))]
+     (debuglogger display (str "Concept selected: " [:id (:id selected) :priority (:priority selected)]))))
   #_(debug aname "process-inference-tick-msg"))
 
 (defn shutdown-handler
@@ -40,12 +44,11 @@
   (register! aname actor-ref)
   (set-state! {:state 0}))
 
-(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
-  (debuglogger display message)
+  ;(debuglogger display message) since tick is uninteresting we use what is selected
   (case type
     :inference-tick-msg (inference-tick-handler from message)
     :shutdown (shutdown-handler from message)
