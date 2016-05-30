@@ -24,40 +24,6 @@
            (java.util.concurrent TimeUnit))
   (:gen-class))
 
-;co.paralleluniverse.actors.JMXActorMonitor
-(def actors-names
-  #{:concept-selector
-    :event-selector
-    :concept-manager
-    :general-inferencer
-    :operator-executor
-    :sentence-parser
-    :task-creator
-    :task-dispatcher
-    :event-buffer})
-
-(defn create-system-actors
-  "Spawns all actors which self register!"
-  []
-  (spawn concept-selector)
-  (spawn event-selector)
-  (spawn event-buffer)
-  (spawn concept-manager)
-  (spawn general-inferencer)
-  (spawn operator-executor)
-  (spawn sentence-parser)
-  (spawn task-creator)
-  (spawn task-dispatcher))
-
-(defn check-actor [actor-name]
-  (info (if (whereis actor-name) "\t[OK]" "\t[FAILED]") (str actor-name)))
-
-(defn check-actors-registered []
-  (info "Checking all services are registered...")
-  (doseq [actor-name actors-names]
-    (check-actor actor-name))
-  (info "All services registered."))
-
 (def inference-tick-interval 25)
 (def system-tick-interval 1000)
 
@@ -93,59 +59,45 @@
   (set-level! :debug)
   (disable-third-party-loggers))
 
-(defn start-nars [& _]
+; supervisor test code
+(def child-specs
+  #(list
+    ["1" :permanent 5 5 :sec 100 (concept-selector)]
+    ["2" :permanent 5 5 :sec 100 (event-selector)]
+    ["3" :permanent 5 5 :sec 100 (event-buffer)]
+    ["4" :permanent 5 5 :sec 100 (concept-manager)]
+    ["5" :permanent 5 5 :sec 100 (general-inferencer)]
+    ["6" :permanent 5 5 :sec 100 (operator-executor)]
+    ["7" :permanent 5 5 :sec 100 (sentence-parser)]
+    ["8" :permanent 5 5 :sec 100 (task-creator)]
+    ["9" :permanent 5 5 :sec 100 (task-dispatcher)]))
+
+(def sup (atom '()))
+
+(defn run []
   (setup-logging)
   (info "NARS initialising...")
-
-  ; spawn all actors except concepts
-  (create-system-actors)
-  ; allow delay for all actors to be initialised
-  (sleep 1 :sec)
-  (check-actors-registered)
   (start-timers)
 
   ; reset global bags
   (reset! c-bag (b/default-bag max-concepts))
   (reset! e-bag (b/default-bag max-events))
 
+  (reset! sup (spawn (supervisor :all-for-one child-specs)))
+
   ; update user with status
   (info "NARS initialised."))
 
-(defn shutdown-nars [& _]
+(defn shutdown []
   (info "Shutting down actors...")
 
   ; cancel schedulers
   (stop)
 
-  ; shutdown all concepts
-  (doseq [id-item (:elements-map @c-bag)]
-    (let [item (vals id-item)
-          actor-ref (:ref item)] (shutdown! actor-ref)))
+  (shutdown! @sup)
+  (join @sup)
 
-  ; shutdown all actors so they terminate cleanly
-  (doseq [actor-name actors-names]
-    (let [ref (whereis actor-name 100 TimeUnit/MILLISECONDS)]
-      (when (not= nil ref)
-        (println (str "shutdown " actor-name))
-        (unregister! ref)
-        (shutdown! ref))))
-
-
-  ;;wait for concepts to shutdown
-  (Thread/sleep 5000)
   (info "System shutdown complete."))
-
-(defn run []
-  (start-nars))
-
-(defn shutdown []
-  (shutdown-nars))
-
-(defn reset []
-  (info (str "reseting Actors System..."))
-  (shutdown)
-  (sleep 5 :sec)
-  (run))
 
 ; call main function
 (run)

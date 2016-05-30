@@ -41,8 +41,9 @@
     :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
-(def sentence-parser (gen-server
-                       (reify Server
-                         (init [_] (initialise aname @self))
-                         (terminate [_ cause] (info (str aname " terminated.")))
-                         (handle-cast [_ from id message] (msg-handler from message)))))
+(defn sentence-parser []
+  (gen-server
+    (reify Server
+      (init [_] (initialise aname @self))
+      (terminate [_ cause] #_(info (str aname " terminated.")))
+      (handle-cast [_ from id message] (msg-handler from message)))))

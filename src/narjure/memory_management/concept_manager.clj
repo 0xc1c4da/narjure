@@ -90,10 +90,10 @@
     :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
-(def concept-manager
+(defn concept-manager []
   (gen-server
     (reify Server
       (init [_] (initialise aname @self))
-      (terminate [_ cause] (info (str "cleaning up")))
+      (terminate [_ cause] #_(info (str "cleaning up")))
       (handle-cast [_ from id message] (msg-handler from message)))))
 
