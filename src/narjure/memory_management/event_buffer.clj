@@ -17,9 +17,11 @@
 
 (defn event-handler
   ""
-  [from [_ task]]
+  [from task]
   ;todo
-  (swap! e-bag b/add-element {:id task :priority ((:budget task) 0) :task task})
+  (try
+    (swap! e-bag b/add-element {:id task :priority ((:budget task) 0) :task task})
+    (catch Exception e (debuglogger display (str "event add error " (.toString e)))))
   #_(debug aname "In create-concepts"))
 
 (defn shutdown-handler
