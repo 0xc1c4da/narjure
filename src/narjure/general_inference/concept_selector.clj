@@ -26,9 +26,13 @@
   ;todo
   ; (dotimes [n (min (b/count-elements @c-bag) 1)]
   ;one concept for inference is enough for now ^^
-  (when (> (b/count-elements @c-bag) 0)
-    (let [selected (first (b/get-by-index @c-bag (selection-fn)))]
-     (debuglogger display (str "Concept selected: " [:id (:id selected) :priority (:priority selected)]))))
+  (try (doseq [_ (range selection-parameter)]
+     (when (> (b/count-elements @c-bag) 0)
+       (let [selected (first (b/get-by-index @c-bag (selection-fn)))
+             ref (:ref selected)]
+         (cast! ref [:inference-request-msg (:id selected)])
+         (debuglogger display (str "Concept selected: " [:id (:id selected) :priority (:priority selected)])))))
+       (catch Exception e (debuglogger display (str "concept select error " (.toString e)))))
   #_(debug aname "process-inference-tick-msg"))
 
 (defn shutdown-handler

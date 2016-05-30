@@ -28,6 +28,7 @@
                {:from :concept-selector :to :general-inferencer}
                {:from :sentence-parser :to :task-creator}
                {:from :general-inferencer :to :task-creator}
-               {:from :task-creator :to :task-dispatcher}])
+               {:from :task-creator :to :task-dispatcher}
+               {:from :concept-selector :to :concepts}])
 
 (def graph-actors [nodes vertices actor-level-width actor-level-height])
