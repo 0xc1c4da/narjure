@@ -25,7 +25,7 @@
   (:gen-class))
 
 (def inference-tick-interval 25)
-(def system-tick-interval 1000)
+(def system-tick-interval 10)
 
 (defn inference-tick []
   (cast! (whereis :concept-selector) [:inference-tick-msg])
