@@ -62,15 +62,16 @@
 ; supervisor test code
 (def child-specs
   #(list
-    ["1" :permanent 5 5 :sec 100 (concept-selector)]
-    ["2" :permanent 5 5 :sec 100 (event-selector)]
-    ["3" :permanent 5 5 :sec 100 (event-buffer)]
-    ["4" :permanent 5 5 :sec 100 (concept-manager)]
-    ["5" :permanent 5 5 :sec 100 (general-inferencer)]
-    ["6" :permanent 5 5 :sec 100 (operator-executor)]
-    ["7" :permanent 5 5 :sec 100 (sentence-parser)]
-    ["8" :permanent 5 5 :sec 100 (task-creator)]
-    ["9" :permanent 5 5 :sec 100 (task-dispatcher)]))
+    ["1" :permanent 5 5 :sec 100 (general-inferencer)]
+    ["2" :permanent 5 5 :sec 100 (concept-selector)]
+    ["3" :permanent 5 5 :sec 100 (event-selector)]
+    ["4" :permanent 5 5 :sec 100 (event-buffer)]
+    ["5" :permanent 5 5 :sec 100 (concept-manager)]
+    ["6" :permanent 5 5 :sec 100 (task-dispatcher)]
+    ["7" :permanent 5 5 :sec 100 (task-creator)]
+    ["8" :permanent 5 5 :sec 100 (operator-executor)]
+    ["9" :permanent 5 5 :sec 100 (sentence-parser)]
+    ))
 
 (def sup (atom '()))
 

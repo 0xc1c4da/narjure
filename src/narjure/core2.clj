@@ -39,15 +39,15 @@
 (defn create-system-actors
   "Spawns all actors which self register!"
   []
+  (spawn general-inferencer)
   (spawn concept-selector)
   (spawn event-selector)
   (spawn event-buffer)
   (spawn concept-manager)
-  (spawn general-inferencer)
-  (spawn operator-executor)
-  (spawn sentence-parser)
+  (spawn task-dispatcher)
   (spawn task-creator)
-  (spawn task-dispatcher))
+  (spawn operator-executor)
+  (spawn sentence-parser))
 
 (defn check-actor [actor-name]
   (info (if (whereis actor-name) "\t[OK]" "\t[FAILED]") (str actor-name)))

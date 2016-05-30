@@ -11,7 +11,7 @@
                  [org.clojure/data.priority-map "0.0.7"]
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [org.clojure/core.unify "0.5.5"]
-                 [co.paralleluniverse/pulsar "0.7.4"]
+                 [co.paralleluniverse/pulsar "0.7.5"]
                  [org.immutant/immutant "2.1.2"]
                  [clj-time "0.11.0"]
                  [com.taoensso/timbre "4.3.1"]
@@ -19,7 +19,7 @@
                  [org.clojure/math.numeric-tower "0.0.4"]
                  [quil "2.4.0"]
                  [seesaw "1.4.5"]]
-  :java-agents [[co.paralleluniverse/quasar-core "0.7.4"]]
+  :java-agents [[co.paralleluniverse/quasar-core "0.7.5"]]
   :main ^:skip-aot narjure.core
   :plugins [[lein-cloverage "1.0.6"]
             [jonase/eastwood "0.2.3"]
