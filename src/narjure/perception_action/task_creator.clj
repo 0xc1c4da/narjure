@@ -41,7 +41,7 @@
 (defn create-new-task
   "create a new task with the provided sentence and default values
    convert tense to occurrence time if applicable"
-  [sentence time id]
+  [sentence time id syntactic-complexity]
   (let [occurrence (:occurrence sentence)
         toc (case occurrence
               :eternal :eternal
@@ -56,7 +56,7 @@
      :source :input
      :id id
      :evidence '(id)
-     :sc (syntactic-complexity content)
+     :sc syntactic-complexity
      :terms (termlink-subterms content)
      :solution nil
      :task-type task-type
@@ -65,7 +65,7 @@
 (defn create-derived-task
   "Create a derived task with the provided sentence, budget and occurence time
    and default values for the remaining parameters"
-  [sentence budget time id evidence]
+  [sentence budget time id evidence syntactic-complexity]
   (let [content (:statement sentence)]
     {:truth      (:truth sentence)
      :desire     (:desire sentence)
@@ -75,7 +75,7 @@
      :source     :derived
      :id         id
      :evidence   evidence
-     :sc         (syntactic-complexity content)
+     :sc         syntactic-complexity
      :terms      (termlink-subterms content)
      :solution   nil
      :task-type  (:task-type sentence)
@@ -84,12 +84,16 @@
 (defn sentence-handler
   "Processes a :sentence-msg"
   [from [_ sentence]]
-  (cast! (:task-dispatcher @state) [:task-msg (create-new-task sentence (:time @state) (get-id))]))
+  (let [syntactic-complexity (syntactic-complexity (:statement sentence))]
+    (when (< syntactic-complexity max-term-complexity)
+      (cast! (:task-dispatcher @state) [:task-msg (create-new-task sentence (:time @state) (get-id) syntactic-complexity)]))))
 
 (defn derived-sentence-handler
   "processes a :derived-sentence-msg"
   [from [msg sentence budget evidence]]
-  (cast! (:task-dispatcher @state) [:task-msg (create-derived-task sentence budget (:time @state) (get-id) evidence)]))
+  (let [syntactic-complexity (syntactic-complexity (:statement sentence))]
+       (when (< syntactic-complexity max-term-complexity)
+         (cast! (:task-dispatcher @state) [:task-msg (create-derived-task sentence budget (:time @state) (get-id) evidence syntactic-complexity)]))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"

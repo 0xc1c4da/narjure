@@ -34,8 +34,8 @@
                    :sentence-parser    (fn [] (deref sentence-parser/display))
                    :task-creator       (fn [] (deref task-creator/display))
                    :concepts           (fn [] (deref concepts/display))
-                   :concept-bag        (fn [] (bag-format (limit-string (str (:priority-index (deref c-bag))) 4000)))
-                   :event-bag          (fn [] (bag-format (limit-string (str (:priority-index (deref e-bag))) 4000)))
+                   :concept-bag        (fn [] (bag-format (limit-string (str (:priority-index (deref c-bag))) 20000)))
+                   :event-bag          (fn [] (bag-format (limit-string (str (:priority-index (deref e-bag))) 20000)))
                    :input              (fn [] (deref input-string))})
 
 (def graphs [[graph-actors] [graph-gui]])

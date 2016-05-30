@@ -35,3 +35,5 @@
 (def ^{:type double} horizon 1)
 
 (def temporal-window-duration 10)
+
+(def max-term-complexity 50)
