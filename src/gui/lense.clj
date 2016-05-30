@@ -18,7 +18,8 @@
             [narjure.perception-action.task-creator :as task-creator]
             [narjure.memory-management.concept :as concepts]
             [narjure.memory-management.concept-manager :refer [c-bag]]
-            [narjure.memory-management.event-buffer :refer [e-bag]]))
+            [narjure.memory-management.event-buffer :refer [e-bag]]
+            [narjure.debug-util :refer :all]))
 
 (defn bag-format [st]
   (clojure.string/replace st "}" "}\n"))
@@ -33,8 +34,8 @@
                    :sentence-parser    (fn [] (deref sentence-parser/display))
                    :task-creator       (fn [] (deref task-creator/display))
                    :concepts           (fn [] (deref concepts/display))
-                   :concept-bag        (fn [] (bag-format (subs (str (:priority-index (deref c-bag))) 0 1000)))
-                   :event-bag          (fn [] (bag-format (subs (str (:priority-index (deref e-bag))) 0 1000)))
+                   :concept-bag        (fn [] (bag-format (limit-string (str (:priority-index (deref c-bag))) 4000)))
+                   :event-bag          (fn [] (bag-format (limit-string (str (:priority-index (deref e-bag))) 4000)))
                    :input              (fn [] (deref input-string))})
 
 (def graphs [[graph-actors] [graph-gui]])
