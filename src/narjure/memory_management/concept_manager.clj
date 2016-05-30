@@ -19,7 +19,6 @@
   "Create a concept, for the supplied term, and add to
    the concept bag"
   [term]
-  (println "make general ")
   (let [concept-ref (spawn (concept term))]
     (swap! c-bag b/add-element {:id term :priority c-priority :ref concept-ref}))
   #_(debug aname (str "Created concept: " term)))

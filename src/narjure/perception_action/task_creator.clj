@@ -71,7 +71,7 @@
      :desire     (:desire sentence)
      :budget     budget
      :creation   time
-     :occurrence (:occurence sentence)
+     :occurrence (:occurrence sentence)
      :source     :derived
      :id         id
      :evidence   evidence
