@@ -77,14 +77,12 @@
       (when (= (:source task) :input)
         (doseq [projected-anticipation (map #(project-to (:occurrence task) %) anticipations)]
           ;revise anticpation and add to tasks
-          (revise projected-anticipation task)))
+          (add-to-tasks (revise projected-anticipation task))))
       (doseq [revisable (filter #(revisable? task %) beliefs)]
         ;revise beliefs and add to tasks
-        (revise revisable task))
-      ;add task to tasks
-      (add-to-tasks task))
+        (add-to-tasks (revise revisable task))))
     ; check to see if revised or task is answer to question
-
+    ;todo
     ;generate neg confirmation for expired anticipations
     ;and add to tasks
     (doseq [anticipation anticipations]
@@ -115,7 +113,7 @@
 (defn task-handler
   ""
   [from [_ task]]
-  (let [tasks (:tasks @state)]
+  (let [tasks (:elements-map (:tasks @state))]
     (case (:task-type task)
       :belief (process-belief task tasks)
       :goal (process-goal task tasks)
