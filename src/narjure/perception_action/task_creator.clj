@@ -85,27 +85,41 @@
   ;todo
   truth)
 
+(defn event? [sentence] (not= :eternal (:occurrence sentence)))
+
 (defn sentence-handler
   "Processes a :sentence-msg"
   [from [_ sentence]]
   (let [syntactic-complexity (syntactic-complexity (:statement sentence))]
     (when (< syntactic-complexity max-term-complexity)
-      (cast! (:task-dispatcher @state) [:task-msg (create-new-task sentence (:time @state) (get-id) syntactic-complexity)])
-      (when (not= :eternal (:occurrence sentence))
-        (let [event-task (create-new-task sentence (:time @state) (get-id) syntactic-complexity)
-              eternal-task (assoc event-task :occurrence :eternal :truth (eternalized-truth (:truth event-task)))]
-          (cast! (:task-dispatcher @state) [:task-msg eternal-task]))))))
+      (let [new-task (create-new-task
+                       sentence
+                       (:time @state)
+                       (get-id)
+                       syntactic-complexity)]
+        (cast! (:task-dispatcher @state) [:task-msg new-task])
+        (when (event? sentence)
+          (cast! (:task-dispatcher @state) [:task-msg (assoc new-task
+                                                        :occurrence :eternal
+                                                        :truth (eternalized-truth (:truth new-task)))]))))))
 
 (defn derived-sentence-handler
   "processes a :derived-sentence-msg"
   [from [msg sentence budget evidence]]
   (let [syntactic-complexity (syntactic-complexity (:statement sentence))]
        (when (< syntactic-complexity max-term-complexity)
-         (cast! (:task-dispatcher @state) [:task-msg (create-derived-task sentence budget (:time @state) (get-id) evidence syntactic-complexity)])
-         (when (not= :eternal (:occurrence sentence))
-           (let [event-task (create-derived-task sentence budget (:time @state) (get-id) evidence syntactic-complexity)
-                 eternal-task (assoc event-task :occurrence :eternal :truth (eternalized-truth (:truth event-task)))]
-             (cast! (:task-dispatcher @state) [:task-msg eternal-task]))))))
+         (let [derived-task (create-derived-task
+                              sentence
+                              budget
+                              (:time @state)
+                              (get-id)
+                              evidence
+                              syntactic-complexity)]
+           (cast! (:task-dispatcher @state) [:task-msg derived-task])
+           (when (event? sentence)
+             (cast! (:task-dispatcher @state) [:task-msg (assoc derived-task
+                                                           :occurrence :eternal
+                                                           :truth (eternalized-truth (:truth derived-task)))]))))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
