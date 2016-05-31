@@ -10,18 +10,28 @@
 (def aname :general-inferencer)
 (def display (atom '()))
 
+(defn non-overlapping-evidence? [e1 e2]
+  #_(info (str "evidence " (list e1) (list e2)))
+  (empty? (clojure.set/intersection (set e1) (set e2))))
+
+(def max-evidence 10)
+
+(defn make-evidence [e1 e2]
+  (take max-evidence (interleave e1 e2)))
+
 (defn do-inference-handler
   "Processes :do-inference-msg:
     generated derived results, budget and occurrence time for derived tasks.
     Posts derived sentences to task creator"
   [from [msg [task belief]]]
-  (try (let [derived (inference task belief)
-             task-creator (whereis :task-creator)]
-         (doseq [der derived]
-           (cast! task-creator [:derived-sentence-msg der [0.5 0.5 0.0] []]))
-     #_(info (str "results: " derived)))
-       (catch Exception e (debuglogger display (str "inference error " (.toString e)))))
-  #_(debug aname "process-do-inference-msg"))
+  (try
+    (when (non-overlapping-evidence? (:evidence task) (:evidence belief))
+      (let [derived (inference task belief)
+            evidence (make-evidence (:evidence task) (:evidence belief))
+            task-creator (whereis :task-creator)]
+        (doseq [der derived]
+          (cast! task-creator [:derived-sentence-msg der [0.5 0.5 0.0] evidence]))))
+    (catch Exception e (debuglogger display (str "inference error " (.toString e))))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"

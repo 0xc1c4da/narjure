@@ -55,7 +55,7 @@
      :occurrence toc
      :source :input
      :id id
-     :evidence '(id)
+     :evidence (list id)
      :sc syntactic-complexity
      :terms (termlink-subterms content)
      :solution nil
