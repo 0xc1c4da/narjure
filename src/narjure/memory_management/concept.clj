@@ -33,8 +33,7 @@
   (empty? (clojure.set/intersection (set (:evidence t1)) (set (:evidence t2)))))
 
 (defn revise [t1 t2]
-  ;todo
-  t1)
+  nal.deriver.truth/revision (:truth t1) (:truth t2))
 
 (defn add-to-tasks [task]
   ;todo
@@ -44,16 +43,14 @@
   (> @nars-time (:expiry anticipation)))
 
 (defn create-negative-confirmation-task [anticipation]
-  ;todo
-  anticipation)
+  (assoc anticipation :task-type :belief :truth (nal.deriver.truth/negation (:truth anticipation) 0)))
 
 (defn confirmable-observable? [task]
-  ;todo
-  true)
+  ;todo check state for observable
+  (not= (:occurrence task) :eternal))
 
 (defn create-anticipation-task [task]
-  ;todo
-  task)
+  (assoc task :task-type :anticipation :expiry (+ (:occurrence task) 100)))
 
 (defn process-belief [task tasks]
   ;group-by :task-type tasks
