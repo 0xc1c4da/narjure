@@ -14,17 +14,25 @@
 (defn sentence [_ _]
   (debug aname "process-sentence"))
 
+(def nars-time (atom 0))
+
 (defn system-time-tick-handler
   "inc :time value in actor state for each system-time-tick-msg"
   []
-  #_(debug aname "process-system-time-tick")
-  (set-state! (update @state :time inc)))
+  (swap! nars-time inc)
+  ;(set-state! (update @state :time inc))
+  )
+
+(def nars-id (atom -1))
 
 (defn get-id
   "inc the task :id in actor state and returns the value"
   []
   (set-state! (update @state :id inc))
   (@state :id))
+
+(defn get-id []
+  (swap! nars-id inc))
 
 (defn get-time
   "return the current time from actor state"
@@ -36,7 +44,7 @@
       registers actor and sets actor state"
   [aname actor-ref]
   (register! aname actor-ref)
-  (set-state! {:time 0 :id -1 :task-dispatcher (whereis :task-dispatcher)}))
+  (set-state! {:task-dispatcher (whereis :task-dispatcher)}))
 
 (defn create-new-task
   "create a new task with the provided sentence and default values
@@ -94,7 +102,7 @@
     (when (< syntactic-complexity max-term-complexity)
       (let [new-task (create-new-task
                        sentence
-                       (:time @state)
+                       @nars-time
                        (get-id)
                        syntactic-complexity)]
         (cast! (:task-dispatcher @state) [:task-msg new-task])
@@ -111,7 +119,7 @@
          (let [derived-task (create-derived-task
                               sentence
                               budget
-                              (:time @state)
+                              @nars-time
                               (get-id)
                               evidence
                               syntactic-complexity)]
