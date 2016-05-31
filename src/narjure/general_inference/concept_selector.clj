@@ -28,8 +28,7 @@
              ref (:ref selected)]
          (cast! ref [:inference-request-msg (:id selected)])
          (debuglogger display (str "Concept selected: " [:id (:id selected) :priority (:priority selected)])))))
-       (catch Exception e (debuglogger display (str "concept select error " (.toString e)))))
-  #_(debug aname "process-inference-tick-msg"))
+       (catch Exception e (debuglogger display (str "concept select error " (.toString e))))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"

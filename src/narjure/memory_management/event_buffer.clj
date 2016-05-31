@@ -22,8 +22,7 @@
   ;todo
   (try
     (swap! e-bag b/add-element {:id task :priority (first (:budget task)) :task task})
-    (catch Exception e (debuglogger display (str "event add error " (.toString e)))))
-  #_(debug aname "In create-concepts"))
+    (catch Exception e (debuglogger display (str "event add error " (.toString e))))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"

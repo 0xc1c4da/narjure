@@ -11,7 +11,6 @@
 (def display (atom '()))
 
 (defn non-overlapping-evidence? [e1 e2]
-  #_(info (str "evidence " (list e1) (list e2)))
   (empty? (clojure.set/intersection (set e1) (set e2))))
 
 (def max-evidence 10)

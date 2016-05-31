@@ -6,8 +6,7 @@
     [narjure.bag :as b]
     [taoensso.timbre :refer [debug info]]
     [narjure.debug-util :refer :all])
-  (:refer-clojure :exclude [promise await])
-  (:import (java.util.concurrent TimeUnit)))
+  (:refer-clojure :exclude [promise await]))
 
 (def aname :task-dispatcher)
 

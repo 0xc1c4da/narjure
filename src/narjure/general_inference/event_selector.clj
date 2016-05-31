@@ -38,8 +38,7 @@
        (reset! e-bag bag4)
        (debuglogger display ["selected events:" result1 "§" result2 "§§"])
        (cast! (:general-inferencer @state) [:do-inference-msg [(:task result1) (:task result2)]])))
-    (catch Exception e (debuglogger display (str "event select error " (.toString e)))))
-  #_(debug aname "process-inference-tick-msg"))
+    (catch Exception e (debuglogger display (str "event select error " (.toString e))))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"

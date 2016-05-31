@@ -21,8 +21,7 @@
    the concept bag"
   [term]
   (let [concept-ref (spawn (concept term))]
-    (swap! c-bag b/add-element {:id term :priority c-priority :ref concept-ref}))
-  #_(debug aname (str "Created concept: " term)))
+    (swap! c-bag b/add-element {:id term :priority c-priority :ref concept-ref})))
 
 (defn create-concept-handler
   "Create a concept for each term in statement, if they dont
@@ -31,8 +30,7 @@
   (doseq [term (:terms task)]
     (when-not (b/exists? @c-bag term)
       (make-general-concept term)))
-  (cast! from [:task-msg task])
-  #_(debug aname "In create-concepts"))
+  (cast! from [:task-msg task]))
 
 (defn persist-state-handler
   ""
@@ -64,7 +62,6 @@
 (defn initialise
   "Initialises actor: registers actor and sets actor state"
   [aname actor-ref]
-  ;(info (str "In initialise"))
   (register! aname actor-ref)
   (set-state! {}))
 
