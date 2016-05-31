@@ -4,7 +4,7 @@
      :refer [! spawn gen-server register! cast! Server self
              shutdown! unregister! set-state! state whereis]]
     [narjure.actor.utils :refer [defactor]]
-    [taoensso.timbre :as t]
+    [taoensso.timbre :refer [debug info]]
     [narjure.bag :as b]
     [narjure.debug-util :refer :all]
     [narjure.control-utils :refer :all]
@@ -15,7 +15,7 @@
 (def max-tasks 100)
 (def display (atom '()))
 
-(defn debug [msg] (t/debug :concept msg))
+;(defn debug [msg] (t/debug :concept msg))
 
 (defn project-to [time task]
   ;todo
@@ -36,7 +36,10 @@
   nal.deriver.truth/revision (:truth t1) (:truth t2))
 
 (defn add-to-tasks [task]
-  ;todo
+  (let [tasks (:tasks @state)]
+    ;(info (str (assoc @state :tasks (b/add-element tasks task))))
+    (set-state! (assoc @state :tasks (b/add-element tasks task)))
+    )
   )
 
 (defn expired? [anticipation]
