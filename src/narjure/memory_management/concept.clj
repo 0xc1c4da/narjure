@@ -7,7 +7,8 @@
     [taoensso.timbre :as t]
     [narjure.bag :as b]
     [narjure.debug-util :refer :all]
-    [narjure.control-utils :refer :all])
+    [narjure.control-utils :refer :all]
+    [nal.deriver.truth :refer [t-or]])
   (:refer-clojure :exclude [promise await]))
 
 (def max-tasks 100)
@@ -39,7 +40,7 @@
   (let [concept-state @state
         budget (:budget concept-state)
         tasks (:priority-index (:tasks concept-state))
-        priority-sum (reduce + (for [x tasks] (:priority x)))
+        priority-sum (reduce t-or (for [x tasks] (:priority x)))
         state-update (assoc concept-state :budget (assoc budget :priority priority-sum))]
     (set-state! (merge concept-state state-update))
     (let [concept-state-new @state]
