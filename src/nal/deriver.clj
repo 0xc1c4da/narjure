@@ -71,6 +71,23 @@
                                             (assoc t1 :statement (shuffle-term p1))
                                             (assoc t2 :statement (shuffle-term p2))))))
 
+
+;from patham9.clj TODO update code. https://github.com/opennars/opennars2/issues/42 5.
+"(defn project-eternalize [t ref curtime]
+  (let [source-time (:occurrence t)
+        target-time (:occurrence ref)
+        get-eternal (fn [x] (if (= x ETERNAL) :eternal :temporal))]
+    (case [(get-eternal target-time) (get-eternal source-time)]
+      [:eternal  :eternal ] t
+      [:temporal :eternal ] t
+      [:eternal  :temporal] (eternalize t)
+      [:temporal :temporal] (let [t-eternal (eternalize t)
+                                  t-project (project t ref curtime)]
+                              (if (> (:confidence t-eternal)
+                                    (:confidence t-project))
+                                t-eternal
+                                t-project)))))"
+
 ;this is the inference function we should use
 (defn inference
   "Inference between two premises"

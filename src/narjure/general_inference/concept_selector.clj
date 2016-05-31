@@ -6,16 +6,12 @@
     [narjure.bag :as b]
     [clojure.math.numeric-tower :as math]
     [taoensso.timbre :refer [debug info]]
-    [narjure.debug-util :refer :all])
+    [narjure.debug-util :refer :all]
+    [narjure.control-utils :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :concept-selector)
 (def inference-pairs 200)
-(def selection-parameter 3)
-(defn selection-fn
-  ""
-  []
-  (* (math/expt (rand) selection-parameter) (b/count-elements @c-bag)))
 
 (def display (atom '()))
 (defn inference-tick-handler
@@ -28,7 +24,7 @@
   ;one concept for inference is enough for now ^^
   (try (doseq [_ (range selection-parameter)]
      (when (> (b/count-elements @c-bag) 0)
-       (let [selected (first (b/get-by-index @c-bag (selection-fn)))
+       (let [selected (first (b/get-by-index @c-bag ((partial selection-fn @c-bag))))
              ref (:ref selected)]
          (cast! ref [:inference-request-msg (:id selected)])
          (debuglogger display (str "Concept selected: " [:id (:id selected) :priority (:priority selected)])))))

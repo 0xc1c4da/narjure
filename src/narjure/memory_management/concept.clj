@@ -6,7 +6,8 @@
     [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :as t]
     [narjure.bag :as b]
-    [narjure.debug-util :refer :all])
+    [narjure.debug-util :refer :all]
+    [narjure.control-utils :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def max-tasks 100)
@@ -32,10 +33,36 @@
   ;todo
   )
 
+
+(defn update-concept-budget []
+  "Update the concept budget"
+  (let [concept-state @state
+        budget (:budget concept-state)
+        tasks (:priority-index (:tasks concept-state))
+        priority-sum (reduce + (for [x tasks] (:priority x)))
+        state-update (assoc concept-state :budget (assoc budget :priority priority-sum))]
+    (set-state! (merge concept-state state-update))
+    (let [concept-state-new @state]
+      (cast! (whereis :concept-manager) [:budget-update-msg
+                                         {:id       (:id concept-state-new)
+                                          :priority priority-sum
+                                          :ref      @self}]))))
+
 (defn inference-request-handler
   ""
   [from message]
-  (let [concept-state @state]
+  (let [concept-state @state
+        task-bag (:tasks concept-state)]
+    ;TODO get termlink and targets, this code so far is for forgetting task
+    ; and sending budget update message to concept mgr
+    (try
+      (when (> (b/count-elements task-bag) 0)
+       (let [[result1 bag1] (b/get-by-index task-bag ((partial selection-fn task-bag)))
+             bag2 (b/add-element bag1 (forget-element result1))]
+         (set-state! (merge concept-state {:tasks bag2}))
+         (update-concept-budget)
+         (debuglogger display ["selected inference task:" result1])))
+      (catch Exception e (debuglogger display (str "inference request error " (.toString e)))))
     )
   )
 
@@ -50,24 +77,10 @@
   [from [_ new-state]]
   (set-state! (merge @state new-state)))
 
-(defn update-concept-budget []
-  "Update the concept budget"
-  (let [concept-state @state
-        budget (:budget concept-state)
-        tasks (:tasks concept-state)
-        priority-sum (reduce (fn [a,b] (+ (first (:budget a)) (first (:budget b)))) tasks)
-        state-update (assoc concept-state :budget (assoc budget :priority priority-sum))]
-    (set-state! (merge concept-state state-update))
-    (let [concept-state-new @state]
-      (cast! (:concept-manager concept-state-new) [:budget-update-msg
-                                                   {:id (:id concept-state-new)
-                                                    :priority (:priority (:budget concept-state-new))
-                                                    :ref @self}]))))
-
 (defn task-budget-update-handler
   ""
   [from message]
-  ;todo
+  ;todo change task bag item priority before
   (update-concept-budget)
   )
 

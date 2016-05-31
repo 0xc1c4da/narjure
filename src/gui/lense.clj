@@ -24,6 +24,12 @@
 (defn bag-format [st]
   (clojure.string/replace st "}" "}\n"))
 
+;preparing printing concept bag completely meaning printing the individual concepts also completely with all tasks!!!
+"(defn concept-bagprint [cbag]
+  (let [items (:priority-index (deref bagresolve))]
+    (for [z items]
+      (assoc z :fullstring ))))"
+
 (def debugmessage {:concept-selector   (fn [] (deref concept-selector/display))
                    :event-selector     (fn [] (deref event-selector/display))
                    :general-inferencer (fn [] (deref general-inferencer/display))
