@@ -47,7 +47,6 @@
   (assoc task :task-type :anticipation :expiry (+ (:occurrence task) 100)))
 
 (defn process-belief [task tasks]
-  (info (str "process-belief"))
   ;group-by :task-type tasks
   (let [goals (filter #(= (:task-type %) :goal) tasks)
         beliefs (filter #(= (:task-type %) :belief) tasks)

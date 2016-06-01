@@ -27,7 +27,6 @@
   (= (:source :input)))
 
 (defn process-quest [task tasks]
-  (info (str "process-question"))
   ;group-by :task-type tasks
   (let [goals (filter #(= (:task-type %) :goal) tasks)]
 

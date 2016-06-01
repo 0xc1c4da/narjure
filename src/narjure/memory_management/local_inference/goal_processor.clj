@@ -43,7 +43,6 @@
   (> (second (:truth task)) decision-threshold))
 
 (defn process-goal [task tasks]
-  (info (str "process-goal"))
   ;group-by :task-type tasks
   (let [goals (filter #(= (:task-type %) :goal) tasks)
         beliefs (filter #(= (:task-type %) :belief) tasks)

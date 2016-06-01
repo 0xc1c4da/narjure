@@ -27,7 +27,6 @@
   (= (:source :input)))
 
 (defn process-question [task tasks]
-  (info (str "process-question"))
   ;group-by :task-type tasks
   (let [beliefs (filter #(= (:task-type %) :belief) tasks)]
 
