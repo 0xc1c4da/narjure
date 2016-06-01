@@ -30,8 +30,8 @@
 (defn revise [t1 t2]
   nal.deriver.truth/revision (:truth t1) (:truth t2))
 
-(defn add-to-tasks [tasks task]
-  (set-state! (assoc @state :tasks (b/add-element tasks task))))
+(defn add-to-tasks [state task]
+  (set-state! (assoc state :tasks (b/add-element (:tasks state) task))))
 
 (defn operation? [task]
   ;todo
@@ -42,7 +42,7 @@
 (defn execute? [task]
   (> (second (:truth task)) decision-threshold))
 
-(defn process-goal [task tasks]
+(defn process-goal [state task tasks]
   ;group-by :task-type tasks
   (let [goals (filter #(= (:task-type %) :goal) tasks)
         beliefs (filter #(= (:task-type %) :belief) tasks)
@@ -65,9 +65,9 @@
       ;revise task with revisable goals
       (doseq [revisable (filter #(revisable? task %) goals)]
         ;revise goals and add to tasks
-        (add-to-tasks tasks (revise revisable task))))
+        (add-to-tasks state (revise revisable task))))
     ;add task to tasks
-    (add-to-tasks tasks task)
+    (add-to-tasks state task)
 
     ; check to see if revised or task is answer to quest
     ;todo

@@ -25,10 +25,10 @@
   (try
     (let [tasks (:elements-map (:tasks @state))]
       (case (:task-type task)
-        :belief (process-belief task tasks)
-        :goal (process-goal task tasks)
-        :question (process-question task tasks)
-        :quest (process-quest task tasks)))
+        :belief (process-belief @state task tasks)
+        :goal (process-goal @state task tasks)
+        :question (process-question @state task tasks)
+        :quest (process-quest @state task tasks)))
     (catch Exception e (debuglogger display (str "local inference error " (.toString e)))))
 
   (comment

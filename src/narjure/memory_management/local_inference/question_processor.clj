@@ -20,13 +20,13 @@
   ;todo
   task)
 
-(defn add-to-tasks [tasks task]
-  (set-state! (assoc @state :tasks (b/add-element tasks task))))
+(defn add-to-tasks [state task]
+  (set-state! (assoc state :tasks (b/add-element (:tasks state) task))))
 
 (defn user? [task]
   (= (:source :input)))
 
-(defn process-question [task tasks]
+(defn process-question [state task tasks]
   ;group-by :task-type tasks
   (let [beliefs (filter #(= (:task-type %) :belief) tasks)]
 
@@ -43,7 +43,7 @@
             ;if answer to user question ouput answer
             (when (user? task)
               (cast! (:message-display @state) [:task-msg task']))
-            (add-to-tasks tasks task')))
+            (add-to-tasks state task')))
         ;otherwise add task to tasks
-        (add-to-tasks tasks task))))
+        (add-to-tasks state task))))
   )

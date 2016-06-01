@@ -30,8 +30,8 @@
 (defn revise [t1 t2]
   nal.deriver.truth/revision (:truth t1) (:truth t2))
 
-(defn add-to-tasks [tasks task]
-  (set-state! (assoc @state :tasks (b/add-element tasks task))))
+(defn add-to-tasks [state task]
+  (set-state! (assoc state :tasks (b/add-element (:tasks state) task))))
 
 (defn expired? [anticipation]
   (> @nars-time (:expiry anticipation)))
@@ -46,7 +46,7 @@
 (defn create-anticipation-task [task]
   (assoc task :task-type :anticipation :expiry (+ (:occurrence task) 100)))
 
-(defn process-belief [task tasks]
+(defn process-belief [state task tasks]
   ;group-by :task-type tasks
   (let [goals (filter #(= (:task-type %) :goal) tasks)
         beliefs (filter #(= (:task-type %) :belief) tasks)
@@ -70,12 +70,14 @@
       (when (= (:source task) :input)
         (doseq [projected-anticipation (map #(project-to (:occurrence task) %) anticipations)]
           ;revise anticpation and add to tasks
-          (add-to-tasks tasks (revise projected-anticipation task))))
+          (add-to-tasks state (revise projected-anticipation task))))
       (doseq [revisable (filter #(revisable? task %) beliefs)]
         ;revise beliefs and add to tasks
-        (add-to-tasks tasks (revise revisable task))))
+        (add-to-tasks state (revise revisable task))))
     ; check to see if revised or task is answer to question
     ;todo
+
+    (add-to-tasks state task)
 
     ;generate neg confirmation for expired anticipations
     ;and add to tasks
@@ -83,11 +85,11 @@
       (when (expired? anticipation)
         (let [neg-confirmation (create-negative-confirmation-task anticipation)]
           ;add to tasks
-          (add-to-tasks tasks neg-confirmation))))
+          (add-to-tasks state neg-confirmation))))
 
     ;when task is confirmable and observabnle
     ;add an anticipation tasks to tasks
     (when (confirmable-observable? task)
       (let [anticipated-task (create-anticipation-task task)]
-        (add-to-tasks tasks anticipated-task))))
+        (add-to-tasks state  anticipated-task))))
   )
