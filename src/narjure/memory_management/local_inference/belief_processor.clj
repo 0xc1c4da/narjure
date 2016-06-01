@@ -30,7 +30,7 @@
 (defn revise [t1 t2]
   nal.deriver.truth/revision (:truth t1) (:truth t2))
 
-(defn add-to-tasks [task]
+(defn add-to-tasks [tasks task]
   (let [tasks (:tasks @state)]
     ;(info (str (assoc @state :tasks (b/add-element tasks task))))
     (set-state! (assoc @state :tasks (b/add-element tasks task)))
@@ -51,6 +51,7 @@
   (assoc task :task-type :anticipation :expiry (+ (:occurrence task) 100)))
 
 (defn process-belief [task tasks]
+  (info (str "process-belief"))
   ;group-by :task-type tasks
   (let [goals (filter #(= (:task-type %) :goal) tasks)
         beliefs (filter #(= (:task-type %) :belief) tasks)
@@ -74,10 +75,10 @@
       (when (= (:source task) :input)
         (doseq [projected-anticipation (map #(project-to (:occurrence task) %) anticipations)]
           ;revise anticpation and add to tasks
-          (add-to-tasks (revise projected-anticipation task))))
+          (add-to-tasks tasks (revise projected-anticipation task))))
       (doseq [revisable (filter #(revisable? task %) beliefs)]
         ;revise beliefs and add to tasks
-        (add-to-tasks (revise revisable task))))
+        (add-to-tasks tasks (revise revisable task))))
     ; check to see if revised or task is answer to question
     ;todo
 
@@ -87,11 +88,11 @@
       (when (expired? anticipation)
         (let [neg-confirmation (create-negative-confirmation-task anticipation)]
           ;add to tasks
-          (add-to-tasks neg-confirmation))))
+          (add-to-tasks tasks neg-confirmation))))
 
     ;when task is confirmable and observabnle
     ;add an anticipation tasks to tasks
     (when (confirmable-observable? task)
       (let [anticipated-task (create-anticipation-task task)]
-        (add-to-tasks anticipated-task))))
+        (add-to-tasks tasks anticipated-task))))
   )
