@@ -91,5 +91,5 @@
     ;add an anticipation tasks to tasks
     (when (confirmable-observable? task)
       (let [anticipated-task (create-anticipation-task task)]
-        (add-to-tasks state  anticipated-task))))
+        (add-to-tasks state anticipated-task))))
   )
