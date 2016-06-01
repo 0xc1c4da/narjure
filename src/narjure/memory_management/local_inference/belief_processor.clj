@@ -9,7 +9,7 @@
     [narjure.debug-util :refer :all]
     [narjure.control-utils :refer :all]
     [narjure.perception-action.task-creator :refer [nars-time]]
-    [nal.deriver.truth :refer [t-or]]
+    [nal.deriver.truth :refer [t-or confidence frequency]]
     [nal.deriver.projection-eternalization :refer [project-eternalize-to]])
   (:refer-clojure :exclude [promise await]))
 
@@ -63,9 +63,9 @@
 
     ;filter beliefs matching concept content
     ;(project-to task time
-    (let [projected-beliefs (map #(project-eternalize (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) beliefs))]
+    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) beliefs))]
       (when (= (:source task) :input)
-        (doseq [projected-anticipation (map #(project-eternalize (:occurrence task) % @nars-time) anticipations)]
+        (doseq [projected-anticipation (map #(project-eternalize-to (:occurrence task) % @nars-time) anticipations)]
           ;revise anticpation and add to tasks
           (add-to-tasks state (revise projected-anticipation task))))
       (doseq [revisable (filter #(revisable? task %) beliefs)]

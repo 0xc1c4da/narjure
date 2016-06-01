@@ -9,7 +9,7 @@
     [narjure.debug-util :refer :all]
     [narjure.control-utils :refer :all]
     [narjure.perception-action.task-creator :refer [nars-time]]
-    [nal.deriver.truth :refer [t-or expectation]]
+    [nal.deriver.truth :refer [t-or frequency confidence expectation]]
     [nal.deriver.projection-eternalization :refer [project-eternalize-to]])
   (:refer-clojure :exclude [promise await]))
 

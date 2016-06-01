@@ -138,10 +138,10 @@
 (defn expectation [t]
   (+ (* (second t) (- (first t) 0.5)) 0.5))
 
-(def confidence [t]
+(defn confidence [t]
   (second (:truth t)))
 
-(def frequency [t]
+(defn frequency [t]
   (first (:truth t)))
 
 (def tvtypes
