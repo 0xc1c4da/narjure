@@ -9,6 +9,7 @@
     [narjure.debug-util :refer :all]
     [narjure.control-utils :refer :all]
     [narjure.perception-action.task-creator :refer [nars-time]]
+    [narjure.memory-management.local-inference.local-inference-utils :refer :all]
     [nal.deriver.truth :refer [t-or frequency confidence expectation]]
     [nal.deriver.projection-eternalization :refer [project-eternalize-to]])
   (:refer-clojure :exclude [promise await]))
@@ -21,14 +22,6 @@
   ;todo
   task)
 
-(defn revisable? [t1 t2]
-  (empty? (clojure.set/intersection (set (:evidence t1)) (set (:evidence t2)))))
-
-(defn revise [t1 t2]
-  nal.deriver.truth/revision (:truth t1) (:truth t2))
-
-(defn add-to-tasks [state task]
-  (set-state! (assoc state :tasks (b/add-element (:tasks state) task))))
 
 (defn operation? [task]
   ;todo
