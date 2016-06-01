@@ -9,12 +9,9 @@
     [narjure.debug-util :refer :all]
     [narjure.control-utils :refer :all]
     [narjure.perception-action.task-creator :refer [nars-time]]
-    [nal.deriver.truth :refer [t-or]])
+    [nal.deriver.truth :refer [t-or]]
+    [nal.deriver.projection-eternalization :refer [project-eternalize-to]])
   (:refer-clojure :exclude [promise await]))
-
-(defn project-to [time task]
-  ;todo
-  task)
 
 (defn decrease-budget [solution task]
   ;todo
@@ -31,9 +28,9 @@
   (let [goals (filter #(= (:task-type %) :goal) tasks)]
 
     ;filter beliefs matching concept content
-    ;project-to task time
+    ;project to task time
     ;select best ranked
-    (let [projected-goals (map #(project-to (:occurrence task) %) (filter #(= (:statement %) (:id @state)) goals))]
+    (let [projected-goals (map #(project-eternalize-to (:occurrence task) %  @nars-time) (filter #(= (:statement %) (:id @state)) goals))]
       (if (not-empty projected-goals)
         ;select best solution
         (let [solution (reduce #(max (second (:truth %))) projected-goals)]

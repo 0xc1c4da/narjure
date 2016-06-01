@@ -10,7 +10,7 @@
     [narjure.control-utils :refer :all]
     [narjure.perception-action.task-creator :refer [nars-time]]
     [nal.deriver.truth :refer [t-or]]
-    [nal.deriver.projection-eternalization :refer [project-eternalize]])
+    [nal.deriver.projection-eternalization :refer [project-eternalize-to]])
   (:refer-clojure :exclude [promise await]))
 
 (defn decrease-budget [task]
