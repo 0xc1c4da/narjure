@@ -31,7 +31,6 @@
         :quest (process-quest @state task tasks)))
     (catch Exception e (debuglogger display (str "local inference error " (.toString e)))))
 
-  (comment
     ;add task to bag
     (try
       (let [concept-state @state
@@ -39,7 +38,6 @@
             newbag (b/add-element task-bag {:id task :priority (first (:budget task)) :task task})]
         (set-state! (merge concept-state {:tasks newbag})))
       (catch Exception e (debuglogger display (str "task add error " (.toString e)))))
-    )
   )
 
 (defn belief-request-handler
