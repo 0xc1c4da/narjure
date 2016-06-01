@@ -31,11 +31,7 @@
   nal.deriver.truth/revision (:truth t1) (:truth t2))
 
 (defn add-to-tasks [tasks task]
-  (let [tasks (:tasks @state)]
-    ;(info (str (assoc @state :tasks (b/add-element tasks task))))
-    (set-state! (assoc @state :tasks (b/add-element tasks task)))
-    )
-  )
+  (set-state! (assoc @state :tasks (b/add-element tasks task))))
 
 (defn operation? [task]
   ;todo
