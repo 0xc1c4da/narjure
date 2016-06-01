@@ -9,12 +9,9 @@
     [narjure.debug-util :refer :all]
     [narjure.control-utils :refer :all]
     [narjure.perception-action.task-creator :refer [nars-time]]
-    [nal.deriver.truth :refer [t-or]])
+    [nal.deriver.truth :refer [t-or expectation]]
+    [nal.deriver.projection-eternalization :refer [project-eternalize]])
   (:refer-clojure :exclude [promise await]))
-
-(defn project-to [time task]
-  ;todo
-  task)
 
 (defn decrease-budget [task]
   ;todo
@@ -40,7 +37,7 @@
 (def decision-threshold 0.5)
 
 (defn execute? [task]
-  (> (second (:truth task)) decision-threshold))
+  (> (expectation (:truth task)) decision-threshold))
 
 (defn process-goal [state task tasks]
   ;group-by :task-type tasks
@@ -49,19 +46,19 @@
         questions (filter #(= (:task-type %) :question ) tasks)]
 
     ;filter beliefs matching concept content
-    ;project-to task time
+    ;project to task time
     ;select best ranked
-    (let [projected-beliefs (map #(project-to (:occurrence task) %) (filter #(= (:statement %) (:id @state)) beliefs))]
+    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) beliefs))]
       (when (not-empty projected-beliefs)
-        (let [belief (reduce #(max (second (:truth %))) projected-beliefs)]
+        (let [belief (reduce #(max (confidence %)) projected-beliefs)]
           ;update budget and tasks
           (decrease-budget task)
           ;update budget and tasks
           (increase-budget belief))))
 
     ;filter beliefs matching concept content
-    ;(project-to task time
-    (let [projected-goals (map #(project-to (:occurrence task) %) (filter #(= (:statement %) (:id @state)) goals))]
+    ;(project to task time
+    (let [projected-goals (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) goals))]
       ;revise task with revisable goals
       (doseq [revisable (filter #(revisable? task %) goals)]
         ;revise goals and add to tasks
@@ -75,7 +72,7 @@
     ;if operation project goal to current time
     ; if above decision threshold then execute
     (when (operation? task)
-      (project-to @nars-time task)
+      (project-eternalize-to @nars-time task @nars-time)
       (when (execute? task)
         (cast! (:operator-executor @state) [:operator-execution-msg task]))))
   )

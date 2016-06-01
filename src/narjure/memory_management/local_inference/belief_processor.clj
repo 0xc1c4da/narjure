@@ -9,12 +9,9 @@
     [narjure.debug-util :refer :all]
     [narjure.control-utils :refer :all]
     [narjure.perception-action.task-creator :refer [nars-time]]
-    [nal.deriver.truth :refer [t-or]])
+    [nal.deriver.truth :refer [t-or]]
+    [nal.deriver.projection-eternalization :refer [project-eternalize]])
   (:refer-clojure :exclude [promise await]))
-
-(defn project-to [time task]
-  ;todo
-  task)
 
 (defn decrease-budget [task]
   ;todo
@@ -56,9 +53,9 @@
     ;filter goals matching concept content
     ;project-to task time
     ;select best ranked
-    (let [projected-goals (map #(project-to (:occurrence task) %) (filter #(= (:statement %) (:id @state)) goals))]
+    (let [projected-goals (map #(project-eternalize-to (:occurrence task) %  @nars-time) (filter #(= (:statement %) (:id @state)) goals))]
       (when (not-empty projected-goals)
-        (let [goal (reduce #(max (second (:truth %))) projected-goals)]
+        (let [goal (reduce #(max (confidence %)) projected-goals)]
           ;update budget and tasks
           (decrease-budget goal)
           ;update budget and tasks
@@ -66,9 +63,9 @@
 
     ;filter beliefs matching concept content
     ;(project-to task time
-    (let [projected-beliefs (map #(project-to (:occurrence task) %) (filter #(= (:statement %) (:id @state)) beliefs))]
+    (let [projected-beliefs (map #(project-eternalize (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) beliefs))]
       (when (= (:source task) :input)
-        (doseq [projected-anticipation (map #(project-to (:occurrence task) %) anticipations)]
+        (doseq [projected-anticipation (map #(project-eternalize (:occurrence task) % @nars-time) anticipations)]
           ;revise anticpation and add to tasks
           (add-to-tasks state (revise projected-anticipation task))))
       (doseq [revisable (filter #(revisable? task %) beliefs)]

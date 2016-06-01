@@ -135,6 +135,15 @@
   [t _]
   (analogy t [1.0 d/belief-confidence]))
 
+(defn expectation [t]
+  (+ (* (second t) (- (first t) 0.5)) 0.5))
+
+(def confidence [t]
+  (second (:truth t)))
+
+(def frequency [t]
+  (first (:truth t)))
+
 (def tvtypes
   {:t/structural-deduction         structual-deduction
    :t/struct-int                   structual-intersection
