@@ -79,11 +79,10 @@
     ; and sending budget update message to concept mgr
     (try
       (when (> (b/count-elements task-bag) 0)
-        ;((partial selection-fn task-bag)) ???
-       (let [[result1 bag1] (b/get-by-index task-bag 0)
+        (let [[result1 bag1] (b/get-by-index task-bag (partial selection-fn task-bag))
              bag2 (b/add-element bag1 (forget-element result1))]
          (set-state! (merge concept-state {:tasks bag2}))
-         ;(update-concept-budget)
+         (update-concept-budget)
          (debuglogger search display ["selected inference task:" result1])))
       (catch Exception e (debuglogger search display (str "inference request error " (.toString e)))))
     )
