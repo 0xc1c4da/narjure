@@ -58,14 +58,13 @@
       (set-state! (merge concept-state state-update))
 
       ;update c-bag directly instead of message passing
-      (b/update-element (:c-bag @state) {:id (:id @state) :priority priority-sum :ref @self})
+      ;(reset! (:c-bag @state) (b/update-element @(:c-bag @state) {:id (:id @state) :priority priority-sum :ref @self}))
 
-      (comment
-        (let [concept-state-new @state]
-          (cast! (whereis :concept-manager) [:budget-update-msg
-                                             {:id       (:id concept-state-new)
-                                              :priority priority-sum
-                                              :ref      @self}]))))
+      (let [concept-state-new @state]
+        (cast! (whereis :concept-manager) [:budget-update-msg
+                                           {:id       (:id concept-state-new)
+                                            :priority priority-sum
+                                            :ref      @self}])))
 
     (catch Exception e (debuglogger search display (str "update-concept-budget error " (.toString e)))))
   )
