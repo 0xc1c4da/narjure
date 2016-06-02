@@ -12,7 +12,7 @@
 
 (def aname :concept-manager)
 (def c-priority 0.5)
-(def max-concepts 1000)
+(def max-concepts 20)
 (def c-bag (atom (b/default-bag max-concepts)))
 (def display (atom '()))
 (def search (atom ""))

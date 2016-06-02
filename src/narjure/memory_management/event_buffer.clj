@@ -12,7 +12,7 @@
   (:refer-clojure :exclude [promise await]))
 
 (def aname :event-buffer)
-(def max-events 100)
+(def max-events 10)
 (def e-bag (atom (b/default-bag max-events)))
 (def display (atom '()))
 (def search (atom ""))

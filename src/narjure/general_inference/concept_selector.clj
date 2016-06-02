@@ -26,9 +26,10 @@
   ;one concept for inference is enough for now ^^
   (try (doseq [_ (range selection-parameter)]
      (when (> (b/count-elements @c-bag) 0)
-       (let [selected (first (b/get-by-index @c-bag ((partial selection-fn @c-bag))))
+       (let [selected (first (b/get-by-index @c-bag (selection-fn @c-bag)))
              ref (:ref selected)]
          (cast! ref [:inference-request-msg (:id selected)])
+         (info (str "Concept selected: " [:id (:id selected) :priority (:priority selected)]))
          (debuglogger search display (str "Concept selected: " [:id (:id selected) :priority (:priority selected)])))))
        (catch Exception e (debuglogger search display (str "concept select error " (.toString e))))))
 
@@ -36,7 +37,7 @@
   "Processes :shutdown-msg and shuts down actor"
   [from msg]
   (unregister!)
-  (shutdown!))
+(shutdown!))
 
 (defn initialise
   "Initialises actor:

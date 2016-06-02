@@ -49,27 +49,57 @@
 
 (defn update-concept-budget []
   "Update the concept budget"
-  (try
-    (let [concept-state @state
-          budget (:budget concept-state)
-          tasks (:priority-index (:tasks concept-state))
-          priority-sum (reduce t-or (for [x tasks] (:priority x)))
-          state-update (assoc concept-state :budget (assoc budget :priority priority-sum))]
-      (set-state! (merge concept-state state-update))
+  (let [concept-state @state
+        budget (:budget concept-state)
+        tasks (:priority-index (:tasks concept-state))
+        priority-sum (reduce t-or (for [x tasks] (:priority x)))
+        state-update (assoc concept-state :budget (assoc budget :priority priority-sum))]
+    (set-state! (merge concept-state state-update))
 
-      ;update c-bag directly instead of message passing
-      ;(reset! (:c-bag @state) (b/update-element @(:c-bag @state) {:id (:id @state) :priority priority-sum :ref @self}))
+    ;update c-bag directly instead of message passing
+    (reset! (:c-bag @state) (b/add-element @(:c-bag @state) {:id (:id @state) :priority priority-sum :ref @self}))
 
-      (let [concept-state-new @state]
-        (cast! (whereis :concept-manager) [:budget-update-msg
-                                           {:id       (:id concept-state-new)
-                                            :priority priority-sum
-                                            :ref      @self}])))
-
-    (catch Exception e (debuglogger search display (str "update-concept-budget error " (.toString e)))))
+    )
   )
 
 (defn inference-request-handler
+  ""
+  [from message]
+  (let [concept-state @state
+        task-bag (:tasks concept-state)]
+    ;TODO get termlink and targets, this code so far is for forgetting task
+    ; and sending budget update message to concept mgr
+    (try
+      (when (> (b/count-elements task-bag) 0)
+        (let [[result1 bag1] (b/get-by-index task-bag (selection-fn task-bag))
+              bag2 (b/add-element bag1 (forget-element result1))]
+          (set-state! (merge concept-state {:tasks bag2}))
+          (update-concept-budget)
+          (debuglogger search display ["selected inference task:" result1])))
+      (catch Exception e (debuglogger search display (str "inference request error " (.toString e)))))
+    )
+  )
+
+(defn update-concept-budget2 []
+  "Update the concept budget"
+  (let [concept-state @state
+        budget (:budget concept-state)
+        tasks (:priority-index (:tasks concept-state))
+        priority-sum (reduce t-or (for [x tasks] (:priority x)))
+        state-update (assoc concept-state :budget (assoc budget :priority priority-sum))]
+    (set-state! (merge concept-state state-update))
+
+    ;update c-bag directly instead of message passing
+    ;(reset! (:c-bag @state) (b/add-element @(:c-bag @state) {:id (:id @state) :priority priority-sum :ref @self}))
+
+    (let [concept-state-new @state]
+      (cast! (whereis :concept-manager) [:budget-update-msg
+                                         {:id       (:id concept-state-new)
+                                          :priority priority-sum
+                                          :ref      @self}])))
+  )
+
+(defn inference-request-handler2
   ""
   [from message]
   (let [concept-state @state
