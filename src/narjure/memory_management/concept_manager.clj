@@ -29,8 +29,7 @@
   [from [_ {:keys [statement]  :as task}]]
   (doseq [term (:terms task)]
     (when-not (b/exists? @c-bag term)
-      (make-general-concept term)
-      ))
+      (make-general-concept term)))
   (cast! from [:task-msg task]))
 
 (defn persist-state-handler

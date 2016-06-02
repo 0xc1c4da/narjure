@@ -127,7 +127,8 @@
            (when (event? sentence)
              (cast! (:task-dispatcher @state) [:task-msg (assoc derived-task
                                                            :occurrence :eternal
-                                                           :truth (eternalized-truth (:truth derived-task)))]))))))
+                                                           :truth (eternalized-truth (:truth derived-task)))]))
+           ))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"

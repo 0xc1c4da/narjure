@@ -36,7 +36,6 @@
 (defn system-tick []
   (cast! (whereis :task-creator) [:system-time-tick-msg]))
 
-(def sentence-count (atom 0))
 (defn sentence-tick []
   (cast! (whereis :sentence-parser) [:narsese-string-msg (format "<%s-->%s>.:|10|:" (rand-nth ["a" "b" "c" "d" "e" "f" "g"]) (rand-nth ["h" "p" "j" "k" "l" "m" "n"]))]))
 
@@ -51,9 +50,9 @@
   (schedule system-tick {:every system-tick-interval})
   (prn-ok :system-timer)
 
-  (schedule sentence-tick {:every sentence-tick-interval})
-  (prn-ok :sentence-timer)
-
+  ;uncomment following two line to auto generate input sentences
+  ;(schedule sentence-tick {:every sentence-tick-interval})
+  ;(prn-ok :sentence-timer)
 
   (info "System timer initialisation complete."))
 
