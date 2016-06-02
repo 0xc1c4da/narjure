@@ -12,7 +12,7 @@
 
 (def aname :concept-manager)
 (def c-priority 0.5)
-(def max-concepts 20)
+(def max-concepts 1000) ;do not make too small (less than 50) as causes cyclic issue between task-dispatcher and concept-manager
 (def c-bag (atom (b/default-bag max-concepts)))
 (def display (atom '()))
 (def search (atom ""))

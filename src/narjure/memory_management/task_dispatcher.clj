@@ -27,12 +27,14 @@
   [from [_ task]]
   (let [terms (:terms task)]
     (if (every? term-exists? terms)
-      (doseq [term terms]
-        (when-let [{c-ref :ref} ((:elements-map @c-bag) term)]
-          (cast! c-ref [:task-msg task])))
+      (do
+        (when (event? task)
+          (cast! (:event-buffer @state) [:event-msg task]))
+        (doseq [term terms]
+          (when-let [{c-ref :ref} ((:elements-map @c-bag) term)]
+            (cast! c-ref [:task-msg task]))))
       (cast! (:concept-manager @state) [:create-concept-msg task])))
-  (when (event? task)
-    (cast! (:event-buffer @state) [:event-msg task])))
+  )
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
