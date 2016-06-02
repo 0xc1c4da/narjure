@@ -29,7 +29,7 @@
        (let [selected (first (b/get-by-index @c-bag (selection-fn @c-bag)))
              ref (:ref selected)]
          (cast! ref [:inference-request-msg (:id selected)])
-         (info (str "Concept selected: " [:id (:id selected) :priority (:priority selected)]))
+         ;(info (str "Concept selected: " [:id (:id selected) :priority (:priority selected)]))
          (debuglogger search display (str "Concept selected: " [:id (:id selected) :priority (:priority selected)])))))
        (catch Exception e (debuglogger search display (str "concept select error " (.toString e))))))
 

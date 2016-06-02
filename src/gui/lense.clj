@@ -36,6 +36,7 @@
   (apply vector (filter (fn [x] (.contains (str x) (deref fil))) bag)))
 
 (def debugmessage {:event-selector     [(fn [] (deref event-selector/display)) event-selector/search]
+                   :concept-selector   [(fn [] (deref concept-selector/display)) concept-selector/search]
                    :general-inferencer [(fn [] (deref general-inferencer/display)) general-inferencer/search]
                    :concept-manager    [(fn [] (deref concept-manager/display)) concept-manager/search]
                    :event-buffer       [(fn [] (deref event-buffer/display)) event-buffer/search]
