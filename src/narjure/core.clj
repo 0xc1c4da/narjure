@@ -4,9 +4,10 @@
      [core :refer :all]
      [actors :refer :all]]
     [immutant.scheduling :refer :all]
+    [narjure.global-atoms :refer :all]
     [narjure.memory-management
-     [concept-manager :refer [concept-manager c-bag max-concepts]]
-     [event-buffer :refer [event-buffer e-bag max-events]]
+     [concept-manager :refer [concept-manager]]
+     [event-buffer :refer [event-buffer]]
      [task-dispatcher :refer [task-dispatcher]]]
     [narjure.general-inference
      [concept-selector :refer [concept-selector]]
@@ -24,8 +25,9 @@
            (java.util.concurrent TimeUnit))
   (:gen-class))
 
-(def inference-tick-interval 500)
-(def system-tick-interval 100)
+(def inference-tick-interval 25)
+(def system-tick-interval 10)
+(def sentence-tick-interval 500)
 
 (defn inference-tick []
   (cast! (whereis :concept-selector) [:inference-tick-msg])
@@ -33,6 +35,10 @@
 
 (defn system-tick []
   (cast! (whereis :task-creator) [:system-time-tick-msg]))
+
+(def sentence-count (atom 0))
+(defn sentence-tick []
+  (cast! (whereis :sentence-parser) [:narsese-string-msg (format "<%s-->%s>.:|10|:" (rand-nth ["a" "b" "c" "d" "e" "f" "g"]) (rand-nth ["h" "p" "j" "k" "l" "m" "n"]))]))
 
 (defn prn-ok [msg] (info (format "\t[OK] %s" msg)))
 
@@ -44,6 +50,10 @@
 
   (schedule system-tick {:every system-tick-interval})
   (prn-ok :system-timer)
+
+  (schedule sentence-tick {:every sentence-tick-interval})
+  (prn-ok :sentence-timer)
+
 
   (info "System timer initialisation complete."))
 

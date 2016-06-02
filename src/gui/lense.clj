@@ -17,8 +17,7 @@
             [narjure.perception-action.sentence-parser :as sentence-parser]
             [narjure.perception-action.task-creator :as task-creator]
             [narjure.memory-management.concept :as concepts]
-            [narjure.memory-management.event-buffer :refer [e-bag]]
-            [narjure.memory-management.concept-manager :refer [c-bag]]
+            [narjure.global-atoms :refer :all]
             [narjure.debug-util :refer :all]))
 
 (defn bag-format [st]

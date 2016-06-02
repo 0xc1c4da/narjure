@@ -3,6 +3,7 @@
     [co.paralleluniverse.pulsar.actors
      :refer [! spawn gen-server register! cast! Server self
              shutdown! unregister! set-state! state whereis]]
+    [narjure.global-atoms :refer [c-bag]]
     [narjure.memory-management.concept :refer [concept]]
     [narjure.actor.utils :refer [defactor]]
     [narjure.bag :as b]
@@ -12,8 +13,6 @@
 
 (def aname :concept-manager)
 (def c-priority 0.5)
-(def max-concepts 1000) ;do not make too small (less than 50) as causes cyclic issue between task-dispatcher and concept-manager
-(def c-bag (atom (b/default-bag max-concepts)))
 (def display (atom '()))
 (def search (atom ""))
 
@@ -21,7 +20,7 @@
   "Create a concept, for the supplied term, and add to
    the concept bag"
   [term]
-  (let [concept-ref (spawn (concept term c-bag))]
+  (let [concept-ref (spawn (concept term))]
     (swap! c-bag b/add-element {:id term :priority c-priority :ref concept-ref})))
 
 (defn create-concept-handler
@@ -30,7 +29,8 @@
   [from [_ {:keys [statement]  :as task}]]
   (doseq [term (:terms task)]
     (when-not (b/exists? @c-bag term)
-      (make-general-concept term)))
+      (make-general-concept term)
+      ))
   (cast! from [:task-msg task]))
 
 (defn persist-state-handler

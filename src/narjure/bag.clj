@@ -1,7 +1,8 @@
 (ns narjure.bag
   (:require [avl.clj :as avl]
             [co.paralleluniverse.pulsar
-             [actors :refer :all]]))
+             [actors :refer [shutdown!]]
+             [core :refer [join]]]))
 
 (defprotocol Bag
   (add-element
@@ -43,6 +44,7 @@
   (add-element [bag {:keys [id priority] :as element}]
     (let [cnt (count priority-index)]
       (if (exists? bag id)
+        ;todo returned bag from update-element not used ????
         (update-element bag element)
         (if (>= cnt capacity)
           (if (<= (:priority (nth priority-index (dec cnt)));if same priority, still prefer the new one.
@@ -76,7 +78,10 @@
               element' (elements-map id)
               elements-map' (dissoc elements-map id)]
           (do
-            (when (not (= ref nil)) (shutdown! ref))
+            ;remove concept here
+            (when (not (= ref nil))
+              (shutdown! ref)
+              (join ref))
             [element' (->DefaultBag priority-index' elements-map' capacity)]))
         [nil bag])))
 

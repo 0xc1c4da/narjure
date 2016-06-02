@@ -2,7 +2,7 @@
   (:require
     [co.paralleluniverse.pulsar.actors :refer [self ! whereis cast! Server gen-server register! shutdown! unregister! state set-state!]]
     [narjure.actor.utils :refer [defactor]]
-    [narjure.memory-management.concept-manager :refer [c-bag]]
+    [narjure.global-atoms :refer [c-bag]]
     [narjure.bag :as b]
     [taoensso.timbre :refer [debug info]]
     [narjure.debug-util :refer :all])

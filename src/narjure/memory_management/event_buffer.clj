@@ -4,16 +4,14 @@
      :refer [! spawn gen-server register! cast! Server self
              shutdown! unregister! set-state! state whereis]]
     [narjure.memory-management.concept :refer [concept]]
-    [narjure.memory-management.concept-manager :refer [c-bag]]
     [narjure.actor.utils :refer [defactor]]
     [narjure.bag :as b]
+    [narjure.global-atoms :refer :all]
     [taoensso.timbre :refer [debug info]]
     [narjure.debug-util :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :event-buffer)
-(def max-events 10)
-(def e-bag (atom (b/default-bag max-events)))
 (def display (atom '()))
 (def search (atom ""))
 
