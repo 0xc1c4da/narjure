@@ -8,7 +8,7 @@
     [narjure.bag :as b]
     [narjure.debug-util :refer :all]
     [narjure.control-utils :refer :all]
-    [narjure.perception-action.task-creator :refer [nars-time]]
+    [narjure.global-atoms :refer :all]
     [narjure.memory-management.local-inference.local-inference-utils :refer [add-to-tasks]]
     [nal.deriver.truth :refer [t-or confidence frequency]]
     [nal.deriver.projection-eternalization :refer [project-eternalize-to]])

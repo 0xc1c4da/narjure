@@ -36,4 +36,4 @@
 
 (def temporal-window-duration 10)
 
-(def max-term-complexity 10)
+(def max-term-complexity 15)

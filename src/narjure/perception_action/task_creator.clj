@@ -4,6 +4,7 @@
     [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :refer [debug info]]
     [clojure.set :as set]
+    [narjure.global-atoms :refer :all]
     [narjure.defaults :refer :all]
     [nal.term_utils :refer :all]
     [narjure.debug-util :refer :all])
@@ -14,16 +15,14 @@
 (defn sentence [_ _]
   (debug aname "process-sentence"))
 
-(def nars-time (atom 0))
+;(def nars-time (atom 0))
 
 (defn system-time-tick-handler
-  "inc :time value in actor state for each system-time-tick-msg"
+  "inc :time value in global atom for each system-time-tick-msg"
   []
-  (swap! nars-time inc)
-  ;(set-state! (update @state :time inc))
-  )
+  (swap! nars-time inc))
 
-(def nars-id (atom -1))
+;(def nars-id (atom -1))
 
 (defn get-id
   "inc the task :id in actor state and returns the value"

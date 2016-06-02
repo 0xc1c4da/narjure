@@ -1,7 +1,6 @@
 (ns narjure.memory-management.task-dispatcher
+  (:use [co.paralleluniverse.pulsar core actors])
   (:require
-    [co.paralleluniverse.pulsar.actors :refer [self ! whereis cast! Server gen-server register! shutdown! unregister! state set-state!]]
-    [narjure.actor.utils :refer [defactor]]
     [narjure.global-atoms :refer [c-bag]]
     [narjure.bag :as b]
     [taoensso.timbre :refer [debug info]]
@@ -29,11 +28,14 @@
     (if (every? term-exists? terms)
       (do
         (when (event? task)
-          (cast! (:event-buffer @state) [:event-msg task]))
+          (cast! (:event-buffer @state) [:event-msg task])
+          )
         (doseq [term terms]
           (when-let [{c-ref :ref} ((:elements-map @c-bag) term)]
-            (cast! c-ref [:task-msg task]))))
-      (cast! (:concept-manager @state) [:create-concept-msg task])))
+            (cast! c-ref [:task-msg task])
+            )))
+      (cast! (:concept-manager @state) [:create-concept-msg task])
+      ))
   )
 
 (defn shutdown-handler
@@ -65,9 +67,10 @@
     :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
+(def s (reify Server
+         (init [_] (initialise aname @self))
+         (terminate [_ cause] #_(info (str aname " terminated.")))
+         (handle-cast [_ from id message] (msg-handler from message))))
+
 (defn task-dispatcher []
-  (gen-server
-    (reify Server
-      (init [_] (initialise aname @self))
-      (terminate [_ cause] #_(info (str aname " terminated.")))
-      (handle-cast [_ from id message] (msg-handler from message)))))
+  (gen-server s))

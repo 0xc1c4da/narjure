@@ -11,7 +11,7 @@
   (:refer-clojure :exclude [promise await]))
 
 (def aname :concept-selector)
-(def inference-pairs 200)
+(def selection-count 50)
 
 (def display (atom '()))
 (def search (atom ""))
@@ -24,7 +24,7 @@
   ;todo
   ; (dotimes [n (min (b/count-elements @c-bag) 1)]
   ;one concept for inference is enough for now ^^
-  (try (doseq [_ (range selection-parameter)]
+  (try (doseq [_ (range selection-count)]
      (when (> (b/count-elements @c-bag) 0)
        (let [selected (first (b/get-by-index @c-bag (selection-fn @c-bag)))
              ref (:ref selected)]

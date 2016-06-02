@@ -5,11 +5,10 @@
              shutdown! unregister! set-state! state whereis]]
     [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :refer [debug info]]
-    [narjure.global-atoms :refer [c-bag]]
+    [narjure.global-atoms :refer :all]
     [narjure.bag :as b]
     [narjure.debug-util :refer :all]
     [narjure.control-utils :refer :all]
-    [narjure.perception-action.task-creator :refer [nars-time]]
     [narjure.memory-management.local-inference.belief-processor :refer [process-belief]]
     [narjure.memory-management.local-inference.goal-processor :refer [process-goal]]
     [narjure.memory-management.local-inference.quest-processor :refer [process-quest]]
@@ -25,7 +24,7 @@
   ""
   [from [_ task]]
   (try
-    (let [tasks (:elements-map (:tasks @state))]
+    (let [tasks (:priority-index (:tasks @state))]
       (case (:task-type task)
         :belief (process-belief @state task tasks)
         :goal (process-goal @state task tasks)
