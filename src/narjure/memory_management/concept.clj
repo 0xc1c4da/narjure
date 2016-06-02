@@ -18,6 +18,7 @@
 
 (def max-tasks 100)
 (def display (atom '()))
+(def search (atom ""))
 
 (defn task-handler
   ""
@@ -29,7 +30,7 @@
         :goal (process-goal @state task tasks)
         :question (process-question @state task tasks)
         :quest (process-quest @state task tasks)))
-    (catch Exception e (debuglogger display (str "local inference error " (.toString e)))))
+    (catch Exception e (debuglogger search display (str "local inference error " (.toString e)))))
 
     ;add task to bag
     (try
@@ -37,7 +38,7 @@
             task-bag (:tasks concept-state)
             newbag (b/add-element task-bag {:id task :priority (first (:budget task)) :task task})]
         (set-state! (merge concept-state {:tasks newbag})))
-      (catch Exception e (debuglogger display (str "task add error " (.toString e)))))
+      (catch Exception e (debuglogger search display (str "task add error " (.toString e)))))
   )
 
 (defn belief-request-handler
@@ -74,8 +75,8 @@
              bag2 (b/add-element bag1 (forget-element result1))]
          (set-state! (merge concept-state {:tasks bag2}))
          (update-concept-budget)
-         (debuglogger display ["selected inference task:" result1])))
-      (catch Exception e (debuglogger display (str "inference request error " (.toString e)))))
+         (debuglogger search display ["selected inference task:" result1])))
+      (catch Exception e (debuglogger search display (str "inference request error " (.toString e)))))
     )
   )
 
@@ -117,7 +118,7 @@
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
-  (debuglogger display message)
+  (debuglogger search display message)
   (case type
     :task-msg (task-handler from message)
     :belief-request-msg (belief-request-handler from message)

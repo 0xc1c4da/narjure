@@ -2,7 +2,7 @@
   (:require [quil.core :as q]
             [quil.middleware :as m]
             [gui.actors :refer [graph-actors]]
-            [gui.gui :refer [graph-gui]]
+            [gui.gui :refer [graph-gui inputstr]]
             [gui.hnav :as hnav]
             [seesaw.core :refer :all]
             [gui.globals :refer :all]
@@ -30,21 +30,25 @@
     (for [z items]
       (assoc z :fullstring ))))"
 
-(def debugmessage {:concept-selector   (fn [] (deref concept-selector/display))
-                   :event-selector     (fn [] (deref event-selector/display))
-                   :general-inferencer (fn [] (deref general-inferencer/display))
-                   :concept-manager    (fn [] (deref concept-manager/display))
-                   :event-buffer       (fn [] (deref event-buffer/display))
-                   :task-dispatcher    (fn [] (deref task-dispatcher/display))
-                   :operator-executor  (fn [] (deref operator-executor/display))
-                   :sentence-parser    (fn [] (deref sentence-parser/display))
-                   :task-creator       (fn [] (deref task-creator/display))
-                   :concepts           (fn [] (deref concepts/display))
-                   :concept-bag        (fn [] (bag-format (limit-string (str (:priority-index (deref c-bag))) 20000)))
-                   :event-bag          (fn [] (bag-format (limit-string (str (:priority-index (deref e-bag))) 20000)))
-                   :input              (fn [] (deref input-string))})
+(def concept-filter (atom ""))
+(def event-filter (atom ""))
+(defn bagfilter [fil bag]
+  (apply vector (filter (fn [x] (.contains (str x) (deref fil))) bag)))
 
-(def graphs [[graph-actors] [graph-gui]])
+(def debugmessage {:event-selector     [(fn [] (deref event-selector/display)) event-selector/search]
+                   :general-inferencer [(fn [] (deref general-inferencer/display)) general-inferencer/search]
+                   :concept-manager    [(fn [] (deref concept-manager/display)) concept-manager/search]
+                   :event-buffer       [(fn [] (deref event-buffer/display)) event-buffer/search]
+                   :task-dispatcher    [(fn [] (deref task-dispatcher/display)) task-dispatcher/search]
+                   :operator-executor  [(fn [] (deref operator-executor/display)) operator-executor/search]
+                   :sentence-parser    [(fn [] (deref sentence-parser/display)) sentence-parser/search]
+                   :task-creator       [(fn [] (deref task-creator/display)) task-creator/search]
+                   :concepts           [(fn [] (deref concepts/display)) concepts/search]
+                   :concept-bag        [(fn [] (bag-format (limit-string (str (bagfilter concept-filter (:priority-index (deref c-bag)))) 20000))) concept-filter]
+                   :event-bag          [(fn [] (bag-format (limit-string (str (bagfilter event-filter (:priority-index (deref e-bag)))) 20000))) event-filter]
+                   :input              [(fn [] "") inputstr]})
+
+(def graphs [graph-actors graph-gui])
 
 (defn setup []
   (q/frame-rate 30)
@@ -64,7 +68,10 @@
   (q/text (nameof name) (+ px 5) (+ py 10))
   (q/text-size (if (= displaysize nil) 2.0 displaysize))
   (when (contains? debugmessage name)
-    (q/text (clojure.string/replace (str ((debugmessage name))) #"§" "\n")
+    (q/text (clojure.string/replace (str (if (> (count (debugmessage name)) 1)
+                                           (str (deref (second (debugmessage name))) "\n")
+                                           "")
+                                         ((first (debugmessage name)))) #"§" "\n")
             (+ px 5) (+ py 20))))
 
 (defn draw-graph [[nodes vertices node-width node-height]]
@@ -82,17 +89,17 @@
   (q/background 255)
   (q/reset-matrix)
   (hnav/transform state)
-  (doseq [[g] graphs]
+  (doseq [g graphs]
     (draw-graph g)))
 
 (defn key-pressed [state event]
   (let [name (name (:key event))
         code (:key-code event)]
-    (swap! input-string (fn [inputstr] (str (if (not (= code 8))
-                                              inputstr "")
-                                     (if (not (= name "shift"))
-                                       (if (not (= code 8))
-                                         name "") ""))))
+    (swap! (deref input-string) (fn [inputstr] (str (if (not (= code 8))
+                                                      inputstr "")
+                                                    (if (not (= name "shift"))
+                                                      (if (not (= code 8))
+                                                        name "") ""))))
     state))
 
 (q/defsketch example
@@ -100,7 +107,7 @@
              :setup setup
              :draw draw
              :update update
-             :mouse-pressed (partial hnav/mouse-pressed graphs)
+             :mouse-pressed (partial hnav/mouse-pressed graphs debugmessage)
              :mouse-dragged hnav/mouse-dragged
              :mouse-wheel hnav/mouse-wheel
              :key-pressed key-pressed

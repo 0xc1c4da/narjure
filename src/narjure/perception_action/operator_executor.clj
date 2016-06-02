@@ -31,11 +31,13 @@
   (set-state! {:task-creator (whereis :task-creator)}))
 
 (def display (atom '()))
+(def search (atom ""))
+
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
-  (debuglogger display message)
+  (debuglogger search display message)
   (case type
     :operator-execution-msg (operator-execution-handler from message)
     :shutdown (shutdown-handler from message)

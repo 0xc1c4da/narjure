@@ -5,14 +5,15 @@
 
 (def gui-width 50)
 (def gui-height 25)
+(def inputstr (atom ""))
 (def nodes [{:name :send :px 500 :py -325 :onclick (fn [state]
-                                                      (println (str "input narsese " @input-string))
-                                                      (cast! (whereis :sentence-parser) [:narsese-string-msg @input-string])
-                                                      (swap! input-string (fn [st] ""))) :backcolor [255 255 255]}
+                                                     (println (str "input narsese " (deref inputstr)))
+                                                     (cast! (whereis :sentence-parser) [:narsese-string-msg (deref inputstr)])
+                                                     (swap! inputstr (fn [st] ""))) :backcolor [255 255 255]}
             {:name :clear :px 400 :py -325 :onclick (fn [state]
-                                                     (swap! input-string (fn [st] ""))) :backcolor [255 255 255]}
-            {:name :input :px 450 :py -325 :onclick (fn [state]
-                                                      (swap! input-string (fn [st]
+                                                     (swap! inputstr (fn [st] ""))) :backcolor [255 255 255]}
+            {:name :putin :px 450 :py -325 :onclick (fn [state]
+                                                      (swap! inputstr (fn [st]
                                                                             (str (input "Add Narsese" :to-string :name) "\n"))))
              :backcolor [255 255 255]}])
 

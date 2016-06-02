@@ -27,17 +27,21 @@
   (q/scale zoom zoom))
 
 ;HNAV implementation
-(defn mouse-pressed [graphs state event]                           ;also HGUI click check here
-  (doseq [g graphs]
-    (doseq [[V E w h] g]
-      (doseq [v V]
-        (let [px (:px v)
-              py (:py v)
-              mousex (mouse-to-world-coord-x (:x event) (:zoom state) (:difx state))
-              mousey (mouse-to-world-coord-y (:y event) (:zoom state) (:dify state))]
-          (if (and (not (= (:onclick v) nil)) (> mousex px) (> mousey py)
+(defn mouse-pressed [graphs debugmessage state event]                           ;also HGUI click check here
+  (doseq [[V E w h] graphs]
+    (doseq [v V]
+      (let [px (:px v)
+            py (:py v)
+            mousex (mouse-to-world-coord-x (:x event) (:zoom state) (:difx state))
+            mousey (mouse-to-world-coord-y (:y event) (:zoom state) (:dify state))]
+        (when (and (> mousex px) (> mousey py)
                    (< mousex (+ px w)) (< mousey (+ py h)))
-            ((:onclick v) state))))))
+          (when (not (= (:onclick v) nil))
+            ((:onclick v) state))
+          (let [debugentry ((:name v) debugmessage)]
+            (when (and (not= nil debugentry)
+                       (> (count debugentry) 1))
+             (reset! input-string (second debugentry))))))))
   (assoc state :savepx (:x event) :savepy (:y event) :md true))
 
 (defn mouse-dragged [state event]

@@ -9,13 +9,14 @@
 
 (def aname :sentence-parser)
 (def display (atom '()))
+(def search (atom ""))
 
 (defn narsese-string-handler
   "Parses a narsese string and posts a :sentence-msg to task-creator"
   [from [msg string]]
   (try (let [sentence (parse2 string)]
          (cast! (:task-creator @state) [:sentence-msg sentence]))
-       (catch Exception e (debuglogger display (str "parsing error " (.toString e))))))
+       (catch Exception e (debuglogger search display (str "parsing error " (.toString e))))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
@@ -35,7 +36,7 @@
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
-  (debuglogger display message)
+  (debuglogger search display message)
   (case type
     :narsese-string-msg (narsese-string-handler from message)
     :shutdown (shutdown-handler from message)

@@ -15,6 +15,7 @@
 (def max-events 100)
 (def e-bag (atom (b/default-bag max-events)))
 (def display (atom '()))
+(def search (atom ""))
 
 (defn event-handler
   ""
@@ -22,7 +23,7 @@
   ;todo
   (try
     (swap! e-bag b/add-element {:id task :priority (first (:budget task)) :task task})
-    (catch Exception e (debuglogger display (str "event add error " (.toString e))))))
+    (catch Exception e (debuglogger search display (str "event add error " (.toString e))))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
@@ -40,7 +41,7 @@
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
-  (debuglogger display message)
+  (debuglogger search display message)
   (case type
     :event-msg (event-handler from message)
     :shutdown (shutdown-handler from message)

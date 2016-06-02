@@ -15,6 +15,7 @@
 (def max-concepts 1000)
 (def c-bag (atom (b/default-bag max-concepts)))
 (def display (atom '()))
+(def search (atom ""))
 
 (defn make-general-concept
   "Create a concept, for the supplied term, and add to
@@ -51,7 +52,7 @@
   [from [_ item]]                                            ;use add-element and not update here for the case that
   (try
     (swap! c-bag b/add-element item)
-       (catch Exception e (debuglogger display (str "budget update error " (.toString e))))))   ;it doesnt exist anymore
+       (catch Exception e (debuglogger search display (str "budget update error " (.toString e))))))   ;it doesnt exist anymore
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
@@ -78,7 +79,7 @@
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
-  (debuglogger display message)
+  (debuglogger search display message)
   (case type
     :create-concept-msg (create-concept-handler from message)
     :persist-state-msg (persist-state-handler from message)

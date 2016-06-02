@@ -14,6 +14,8 @@
 (def inference-pairs 200)
 
 (def display (atom '()))
+(def search (atom ""))
+
 (defn inference-tick-handler
   "Select n concepts for inference and post
    inference-request-message to each selected
@@ -27,8 +29,8 @@
        (let [selected (first (b/get-by-index @c-bag ((partial selection-fn @c-bag))))
              ref (:ref selected)]
          (cast! ref [:inference-request-msg (:id selected)])
-         (debuglogger display (str "Concept selected: " [:id (:id selected) :priority (:priority selected)])))))
-       (catch Exception e (debuglogger display (str "concept select error " (.toString e))))))
+         (debuglogger search display (str "Concept selected: " [:id (:id selected) :priority (:priority selected)])))))
+       (catch Exception e (debuglogger search display (str "concept select error " (.toString e))))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"

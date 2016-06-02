@@ -136,11 +136,13 @@
   (shutdown!))
 
 (def display (atom '()))
+(def search (atom ""))
+
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
-  (when (not= type :system-time-tick-msg) (debuglogger display message))
+  (when (not= type :system-time-tick-msg) (debuglogger search display message))
   (case type
     :sentence-msg (sentence-handler from message)
     :derived-sentence-msg (derived-sentence-handler from message)

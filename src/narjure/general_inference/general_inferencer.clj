@@ -9,6 +9,7 @@
 
 (def aname :general-inferencer)
 (def display (atom '()))
+(def search (atom ""))
 
 (defn non-overlapping-evidence? [e1 e2]
   (empty? (clojure.set/intersection (set e1) (set e2))))
@@ -30,7 +31,7 @@
             task-creator (whereis :task-creator)]
         (doseq [der derived]
           (cast! task-creator [:derived-sentence-msg der [0.5 0.5 0.0] evidence]))))
-    (catch Exception e (debuglogger display (str "inference error " (.toString e))))))
+    (catch Exception e (debuglogger search display (str "inference error " (.toString e))))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
@@ -49,7 +50,7 @@
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
-  (debuglogger display message)
+  (debuglogger search display message)
   (case type
     :do-inference-msg (do-inference-handler from message)
     :shutdown (shutdown-handler from message)
