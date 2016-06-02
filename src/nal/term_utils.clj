@@ -134,8 +134,7 @@
                (/ x 2))))))
 
 (defn str-is-integer [s]
-  (= (count (filter #(Character/isDigit %) s))
-     (count s)))
+  (every? #(Character/isDigit %) s))
 
 (defn interval-atom-to-interval [t]
   (let [pot-ival (name t)
