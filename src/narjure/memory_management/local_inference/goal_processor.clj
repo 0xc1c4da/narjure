@@ -61,8 +61,6 @@
       (doseq [revisable (filter #(revisable? task %) goals)]
         ;revise goals and add to tasks
         (add-to-tasks state (revise revisable task))))
-    ;add task to tasks
-    (add-to-tasks state task)
 
     ; check to see if revised or task is answer to quest
     ;todo

@@ -47,20 +47,28 @@
   ;todo
   )
 
-
 (defn update-concept-budget []
   "Update the concept budget"
-  (let [concept-state @state
-        budget (:budget concept-state)
-        tasks (:priority-index (:tasks concept-state))
-        priority-sum (reduce t-or (for [x tasks] (:priority x)))
-        state-update (assoc concept-state :budget (assoc budget :priority priority-sum))]
-    (set-state! (merge concept-state state-update))
-    (let [concept-state-new @state]
-      (cast! (whereis :concept-manager) [:budget-update-msg
-                                         {:id       (:id concept-state-new)
-                                          :priority priority-sum
-                                          :ref      @self}]))))
+  (try
+    (let [concept-state @state
+          budget (:budget concept-state)
+          tasks (:priority-index (:tasks concept-state))
+          priority-sum (reduce t-or (for [x tasks] (:priority x)))
+          state-update (assoc concept-state :budget (assoc budget :priority priority-sum))]
+      (set-state! (merge concept-state state-update))
+
+      ;update c-bag directly instead of message passing
+      (b/update-element (:c-bag @state) {:id (:id @state) :priority priority-sum :ref @self})
+
+      (comment
+        (let [concept-state-new @state]
+          (cast! (whereis :concept-manager) [:budget-update-msg
+                                             {:id       (:id concept-state-new)
+                                              :priority priority-sum
+                                              :ref      @self}]))))
+
+    (catch Exception e (debuglogger search display (str "update-concept-budget error " (.toString e)))))
+  )
 
 (defn inference-request-handler
   ""
@@ -71,10 +79,11 @@
     ; and sending budget update message to concept mgr
     (try
       (when (> (b/count-elements task-bag) 0)
-       (let [[result1 bag1] (b/get-by-index task-bag ((partial selection-fn task-bag)))
+        ;((partial selection-fn task-bag)) ???
+       (let [[result1 bag1] (b/get-by-index task-bag 0)
              bag2 (b/add-element bag1 (forget-element result1))]
          (set-state! (merge concept-state {:tasks bag2}))
-         (update-concept-budget)
+         ;(update-concept-budget)
          (debuglogger search display ["selected inference task:" result1])))
       (catch Exception e (debuglogger search display (str "inference request error " (.toString e)))))
     )
@@ -106,11 +115,12 @@
 
 (defn initialise
   "Initialises actor: registers actor and sets actor state"
-  [name]
+  [name c-bag]
   (set-state! {:id name
                :budget {:priority 0 :quality 0}
                :tasks (b/default-bag max-tasks)
                :termlinks {}
+               :c-bag c-bag
                :concept-manager (whereis :concept-manager)
                :general-inferencer (whereis :general-inferencer)}))
 
@@ -129,9 +139,9 @@
     :shutdown (shutdown-handler from message)
     (debug (str "unhandled msg: " type))))
 
-(defn concept [name]
+(defn concept [name c-bag]
   (gen-server
     (reify Server
-      (init [_] (initialise name))
+      (init [_] (initialise name c-bag))
       (terminate [_ cause] #_(info (str aname " terminated.")))
       (handle-cast [_ from id message] (msg-handler from message)))))

@@ -63,10 +63,9 @@
       (doseq [revisable (filter #(revisable? task %) beliefs)]
         ;revise beliefs and add to tasks
         (add-to-tasks state (revise revisable task))))
+
     ; check to see if revised or task is answer to question
     ;todo
-
-    (add-to-tasks state task)
 
     ;generate neg confirmation for expired anticipations
     ;and add to tasks

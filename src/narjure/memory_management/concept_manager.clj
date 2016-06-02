@@ -21,7 +21,7 @@
   "Create a concept, for the supplied term, and add to
    the concept bag"
   [term]
-  (let [concept-ref (spawn (concept term))]
+  (let [concept-ref (spawn (concept term c-bag))]
     (swap! c-bag b/add-element {:id term :priority c-priority :ref concept-ref})))
 
 (defn create-concept-handler

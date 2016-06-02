@@ -9,7 +9,7 @@
   (:refer-clojure :exclude [promise await]))
 
 (defn add-to-tasks [state task]
-  (set-state! (assoc state :tasks (b/add-element (:tasks state) {:id task :priority (:priority task) :task task}))))
+  (set-state! (assoc state :tasks (b/add-element (:tasks state) {:id task :priority (first (:budget task)) :task task}))))
 
 (defn revisable? [t1 t2]
   (empty? (clojure.set/intersection (set (:evidence t1)) (set (:evidence t2)))))

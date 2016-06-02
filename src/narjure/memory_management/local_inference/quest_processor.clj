@@ -29,7 +29,7 @@
     ;project to task time
     ;select best ranked
     (let [projected-goals (map #(project-eternalize-to (:occurrence task) %  @nars-time) (filter #(= (:statement %) (:id @state)) goals))]
-      (if (not-empty projected-goals)
+      (when (not-empty projected-goals)
         ;select best solution
         (let [solution (reduce #(max (second (:truth %))) projected-goals)]
           (assoc task :solution solution)
@@ -38,7 +38,5 @@
             ;if answer to user question ouput answer
             (when (user? task)
               (cast! (:message-display @state) [:task-msg task']))
-            (add-to-tasks state task')))
-        ;otherwise add task to tasks
-        (add-to-tasks state task))))
+            (add-to-tasks state task'))))))
   )
