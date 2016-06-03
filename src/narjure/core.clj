@@ -17,6 +17,7 @@
      [operator-executor :refer [operator-executor]]
      [sentence-parser :refer [sentence-parser]]
      [task-creator :refer [task-creator]]]
+    [narjure.narsese :refer [parse2]]
     [taoensso.timbre :refer [info set-level!]]
     [narjure.bag :as b])
   (:refer-clojure :exclude [promise await])
