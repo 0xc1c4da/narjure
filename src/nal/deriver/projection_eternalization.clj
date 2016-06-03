@@ -18,8 +18,12 @@
 
 ;eternalize an event task to a task of eternal occurrence time
 (defn eternalize [t]
-  (assoc t :truth [(frequency t) (w2c (confidence t))]
-             :occurrence :eternal))
+  (when (= (:occurence t) :eternal)
+    (println "error: eternalization on eternal task"))
+  (if (or (= (:task-type t) :belief) (= (:task-type t) :goal))
+    (assoc t :truth [(frequency t) (w2c (confidence t))]
+            :occurrence :eternal)
+    t))
 
 ;temporally projecting/eternalizing a task to ref time
 (defn project-eternalize-to [target-time t cur-time]

@@ -7,7 +7,8 @@
     [narjure.global-atoms :refer :all]
     [narjure.defaults :refer :all]
     [nal.term_utils :refer :all]
-    [narjure.debug-util :refer :all])
+    [narjure.debug-util :refer :all]
+    [nal.deriver.projection-eternalization :refer [eternalize]])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :task-creator)
@@ -106,9 +107,7 @@
                        syntactic-complexity)]
         (cast! (:task-dispatcher @state) [:task-msg new-task])
         (when (event? sentence)
-          (cast! (:task-dispatcher @state) [:task-msg (assoc new-task
-                                                        :occurrence :eternal
-                                                        :truth (eternalized-truth (:truth new-task)))]))))))
+          (cast! (:task-dispatcher @state) [:task-msg (eternalize new-task)]))))))
 
 (defn derived-sentence-handler
   "processes a :derived-sentence-msg"
@@ -124,9 +123,7 @@
                               syntactic-complexity)]
            (cast! (:task-dispatcher @state) [:task-msg derived-task])
            (when (event? sentence)
-             (cast! (:task-dispatcher @state) [:task-msg (assoc derived-task
-                                                           :occurrence :eternal
-                                                           :truth (eternalized-truth (:truth derived-task)))]))
+             (cast! (:task-dispatcher @state) [:task-msg (eternalize new-task)]))
            ))))
 
 (defn shutdown-handler
