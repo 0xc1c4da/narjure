@@ -89,10 +89,6 @@
      :task-type  (:task-type sentence)
      :statement  content}))
 
-(defn eternalized-truth [truth]
-  ;todo
-  truth)
-
 (defn event? [sentence] (not= :eternal (:occurrence sentence)))
 
 (defn sentence-handler
@@ -123,8 +119,7 @@
                               syntactic-complexity)]
            (cast! (:task-dispatcher @state) [:task-msg derived-task])
            (when (event? sentence)
-             (cast! (:task-dispatcher @state) [:task-msg (eternalize new-task)]))
-           ))))
+             (cast! (:task-dispatcher @state) [:task-msg (eternalize derived-task)]))))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
