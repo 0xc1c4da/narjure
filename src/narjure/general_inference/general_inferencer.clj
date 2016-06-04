@@ -28,9 +28,9 @@
     (when (non-overlapping-evidence? (:evidence task) (:evidence belief))
       (let [derived (inference task belief)
             evidence (make-evidence (:evidence task) (:evidence belief))
-            task-creator (whereis :task-creator)]
+            derived-load-reducer (whereis :derived-load-reducer)]
         (doseq [der derived]
-          (cast! task-creator [:derived-sentence-msg der [0.5 0.5 0.0] evidence]))))
+          (cast! derived-load-reducer [:derived-sentence-msg der [0.5 0.5 0.0] evidence]))))
     (catch Exception e (debuglogger search display (str "inference error " (.toString e))))))
 
 (defn shutdown-handler

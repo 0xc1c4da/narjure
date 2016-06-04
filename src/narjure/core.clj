@@ -16,6 +16,7 @@
     [narjure.perception-action
      [operator-executor :refer [operator-executor]]
      [sentence-parser :refer [sentence-parser]]
+     [derived-load-reducer :refer [derived-load-reducer]]
      [task-creator :refer [task-creator]]]
     [taoensso.timbre :refer [info set-level!]]
     [narjure.bag :as b])
@@ -25,7 +26,7 @@
            (java.util.concurrent TimeUnit))
   (:gen-class))
 
-(def inference-tick-interval 20)
+(def inference-tick-interval 25)
 (def system-tick-interval 10)
 (def sentence-tick-interval 500)
 
@@ -34,7 +35,8 @@
   (cast! (whereis :event-selector) [:inference-tick-msg]))
 
 (defn system-tick []
-  (cast! (whereis :task-creator) [:system-time-tick-msg]))
+  (cast! (whereis :task-creator) [:system-time-tick-msg])
+  (cast! (whereis :derived-load-reducer) [:system-time-tick-msg]))
 
 (defn sentence-tick []
   (cast! (whereis :sentence-parser) [:narsese-string-msg (format "<%s-->%s>.:|10|:" (rand-nth ["a" "b" "c" "d" "e" "f" "g"]) (rand-nth ["h" "p" "j" "k" "l" "m" "n"]))]))
@@ -51,8 +53,8 @@
   (prn-ok :system-timer)
 
   ;uncomment following two line to auto generate input sentences
-  ;(schedule sentence-tick {:every sentence-tick-interval})
-  ;(prn-ok :sentence-timer)
+  (schedule sentence-tick {:every sentence-tick-interval})
+  (prn-ok :sentence-timer)
 
   (info "System timer initialisation complete."))
 
@@ -71,15 +73,16 @@
 ; supervisor test code
 (def child-specs
   #(list
-    ["1" :permanent 5 5 :sec 100 (general-inferencer)]
-    ["2" :permanent 5 5 :sec 100 (concept-selector)]
-    ["3" :permanent 5 5 :sec 100 (event-selector)]
-    ["4" :permanent 5 5 :sec 100 (event-buffer)]
-    ["5" :permanent 5 5 :sec 100 (concept-manager)]
-    ["6" :permanent 5 5 :sec 100 (task-dispatcher)]
-    ["7" :permanent 5 5 :sec 100 (task-creator)]
-    ["8" :permanent 5 5 :sec 100 (operator-executor)]
-    ["9" :permanent 5 5 :sec 100 (sentence-parser)]
+    ["1" :permanent 5 5 :sec 100 (derived-load-reducer)]
+    ["2" :permanent 5 5 :sec 100 (general-inferencer)]
+    ["3" :permanent 5 5 :sec 100 (concept-selector)]
+    ["4" :permanent 5 5 :sec 100 (event-selector)]
+    ["5" :permanent 5 5 :sec 100 (event-buffer)]
+    ["6" :permanent 5 5 :sec 100 (concept-manager)]
+    ["7" :permanent 5 5 :sec 100 (task-dispatcher)]
+    ["8" :permanent 5 5 :sec 100 (task-creator)]
+    ["9" :permanent 5 5 :sec 100 (operator-executor)]
+    ["10" :permanent 5 5 :sec 100 (sentence-parser)]
     ))
 
 (def sup (atom '()))
