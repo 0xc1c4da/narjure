@@ -28,7 +28,7 @@
      (when (> (b/count-elements @c-bag) 0)
        (let [[selected bag] (b/get-by-index @c-bag (selection-fn @c-bag))
              ref (:ref selected)]
-         (reset! c-bag bag)
+         ;(reset! c-bag bag)
          (cast! ref [:inference-request-msg (:id selected)])
          ;(info (str "Concept selected: " [:id (:id selected) :priority (:priority selected)]))
          (debuglogger search display (str "Concept selected: " [:id (:id selected) :priority (:priority selected)])))))
