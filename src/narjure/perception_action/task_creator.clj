@@ -107,7 +107,7 @@
 
 (defn derived-sentence-handler
   "processes a :derived-sentence-msg"
-  [from [msg sentence budget evidence]]
+  [from [msg [sentence budget evidence]]]
   (let [syntactic-complexity (syntactic-complexity (:statement sentence))]
        (when (< syntactic-complexity max-term-complexity)
          (let [derived-task (create-derived-task

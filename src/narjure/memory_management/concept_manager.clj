@@ -21,7 +21,9 @@
    the concept bag"
   [term]
   (let [concept-ref (spawn (concept term))]
-    (swap! c-bag b/add-element {:id term :priority c-priority :ref concept-ref})))
+    (swap! c-bag b/add-element {:id term :priority c-priority :ref concept-ref})
+    ;(info (str "concept count: " (b/count-elements @c-bag)))
+    ))
 
 (defn create-concept-handler
   "Create a concept for each term in statement, if they dont

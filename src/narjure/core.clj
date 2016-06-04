@@ -54,8 +54,8 @@
   (prn-ok :system-timer)
 
   ;uncomment following two line to auto generate input sentences
-  (schedule sentence-tick {:every sentence-tick-interval})
-  (prn-ok :sentence-timer)
+  ;(schedule sentence-tick {:every sentence-tick-interval})
+  ;(prn-ok :sentence-timer)
 
   (info "System timer initialisation complete."))
 

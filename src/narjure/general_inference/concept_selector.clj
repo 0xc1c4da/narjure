@@ -26,8 +26,9 @@
   ;one concept for inference is enough for now ^^
   (try (doseq [_ (range selection-count)]
      (when (> (b/count-elements @c-bag) 0)
-       (let [selected (first (b/get-by-index @c-bag (selection-fn @c-bag)))
+       (let [[selected bag] (b/get-by-index @c-bag (selection-fn @c-bag))
              ref (:ref selected)]
+         (reset! c-bag bag)
          (cast! ref [:inference-request-msg (:id selected)])
          ;(info (str "Concept selected: " [:id (:id selected) :priority (:priority selected)]))
          (debuglogger search display (str "Concept selected: " [:id (:id selected) :priority (:priority selected)])))))
