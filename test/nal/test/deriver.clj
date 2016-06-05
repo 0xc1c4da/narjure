@@ -718,9 +718,9 @@
 (deftest temporal_induction_after
   (is (derived "<(John,room) --> enter>. :|64|:"
                "<(John,door) --> open>. :|:"
-               ["(&/,<(John,door) --> open>,i64,<(John,room) --> enter>). :|64|: %1.00;0.81%"
-                "<(&/,<(John,door) --> open>,i64) =/> <(John,room) --> enter>>. :|64|: %1.00;0.45%"
-                "<(&/,<(John,door) --> open>,i64) </> <(John,room) --> enter>>. :|64|: %1.00;0.45%"])))
+               ["(&/,<(John,door) --> open>,i64,<(John,room) --> enter>). :|64|: %1.00;0.43%"
+                "<(&/,<(John,door) --> open>,i64) =/> <(John,room) --> enter>>. :|64|: %1.00;0.30%" ;confidence loss due to projection
+                "<(&/,<(John,door) --> open>,i64) </> <(John,room) --> enter>>. :|64|: %1.00;0.30%"]))) ;in all 3 case
 
 (deftest inference_on_tense
   (is (derived "<(&/,<($x, key) --> hold>,i64) =/> <($x, room) --> enter>>. :|:"
@@ -745,12 +745,12 @@
 (deftest inference_on_tense_2_nonvar
   (is (derived "<<(John,key) --> hold> =/> <(John,room) --> enter>>."
                "<(John,room) --> enter>. :|:"
-               ["<(John,key) --> hold>. %1.00;0.45%"])))
+               ["<(John,key) --> hold>. %1.00;0.30%"])))    ;just 0.30 because of eternalization
 
 (deftest inference_on_tense_2_nonvar_2
   (is (derived "<<(John,key) --> hold> =/> <(John,room) --> enter>>."
                "<(John,key) --> hold>. :|:"
-               ["<(*,John,room) --> enter>. %1.0;0.81%"])))
+               ["<(*,John,room) --> enter>. %1.0;0.43%"]))) ;just 0.43 because of eternalization
 
 (deftest temporal_var_introduction_concurrent
   (is (derived "<John --> (/,open,_,door)>. :|:"
@@ -760,7 +760,7 @@
 (deftest temporal_var_introduction_after
   (is (derived "<John --> (/,enter,_,room)>. :|50|:"
                "<John --> (/,open,_,door)>. :|:"
-               ["<(&/,<$1 --> (/,open,_,door)>,i50) =/> <$1 --> (/,enter,_,room)>>. :|50|: %1.0;0.45%"])))
+               ["<(&/,<$1 --> (/,open,_,door)>,i50) =/> <$1 --> (/,enter,_,room)>>. :|50|: %1.0;0.30%"]))) ;just 0.30 because of projection
 
 (deftest temporal_var_elimination_on_events
   (is (derived "(&|,<(*,{t002},#2) --> on>,<(*,SELF,#2) --> at>). :|:"
@@ -786,7 +786,7 @@
   (is (derived "<(&/,<(SELF,{t002}) --> reachable>,<({t002}) --> op_pick>) =/> <(SELF,{t002}) --> hold>>."
                "<(SELF,{t002}) --> reachable>. :|:"
                ;just to simulate single prem termlink selection
-               ["<<({t002}) --> op_pick> =/> <(SELF, {t002}) --> hold>>. %1.0;0.81%"])))
+               ["<<({t002}) --> op_pick> =/> <(SELF, {t002}) --> hold>>. %1.0;0.43%"]))) ;just 0.43 because of eternalization
 
 ;NAL8 testcases:
 

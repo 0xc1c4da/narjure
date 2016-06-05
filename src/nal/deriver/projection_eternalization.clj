@@ -8,13 +8,15 @@
     (println "ERROR: Project called on eternal task!!"))
   (let [source-time (:occurrence t)
         dist (fn [a b] (Math/abs (- a b)))]
-    (assoc t
-      :truth [(frequency t)
-              (* (confidence t)
-                 (- 1 (/ (dist source-time target-time)
-                         (+ (dist source-time cur-time)
-                            (dist target-time cur-time)))))]
-      :occurrence target-time)))
+    (if (= target-time source-time)
+      t
+      (assoc t
+       :truth [(frequency t)
+               (* (confidence t)
+                  (- 1 (/ (dist source-time target-time)
+                          (+ (dist source-time cur-time)
+                             (dist target-time cur-time)))))]
+       :occurrence target-time))))
 
 ;eternalize an event task to a task of eternal occurrence time
 (defn eternalize [t]

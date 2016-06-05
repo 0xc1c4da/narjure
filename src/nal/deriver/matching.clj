@@ -4,6 +4,7 @@
     [clojure.core.unify :as u]
     [clojure.set :refer [map-invert intersection]]
     [clojure.string :as s]
+    [narjure.global-atoms :refer [nars-time]]               ;because of projection!
     [nal.deriver
      [set-functions :refer [f-map not-empty-diff? not-empty-inter?]]
      [substitution :refer [munification-map substitute]]
@@ -12,7 +13,8 @@
                             preconditions-transformations]]
      [normalization :refer [commutative-ops sort-commutative reducible-ops]
       :as n]
-     [truth :as t]]))
+     [truth :as t]
+     [projection-eternalization :refer [project-eternalize-to]]]))
 
 ;operators/functions that shouldn't be quoted
 (def reserved-operators
@@ -49,20 +51,27 @@
 
 (defn form-conclusion
   "Formation of conclusion in terms of task and truth/desire functions"
-  [{:keys [t1 t2 task-type]}
+  [{:keys [t1 t2 task-type task belief]}
    {c  :statement tf :t-function pj :p/belief df :d-function
-    sc :shift-conditions swap-truth :swap-truth}]
+    sc :shift-conditions swap-truth :swap-truth time-measured :time-measured}]
   (let [conclusion-type (if pj :belief task-type)
         conclusion {:statement  c
                     :task-type  conclusion-type
                     :occurrence :t-occurrence}
-        get-func (fn [f] (let [secure (fn [func t1 t2]
-                                        (try
-                                          (func t1 t2)
-                                          (catch Exception e [0 0])))]
-                           (if swap-truth
-                             (list secure f t2 t1)
-                             (list secure f t1 t2))))
+        get-func (fn [f] (let [secure (fn [func t1 t2 task belief swapped]
+                                        (let [belief-truth (fn [t task belief] ;2. this is why args are necessary here
+                                                             (if (= nil belief) ;as task and belief are not aviable on rule generation
+                                                               t
+                                                               (:truth (project-eternalize-to (:occurrence task)
+                                                                                                belief @nars-time))))]
+                                          (if swapped
+                                            (try
+                                              (func (belief-truth t2 task belief) t1)
+                                              (catch Exception e [0 0]))
+                                            (try
+                                              (func t1 (belief-truth t2 task belief))
+                                              (catch Exception e [0 0])))))]
+                           (list secure f t1 t2 task belief swap-truth))) ;1. at this place the entries are not generated yet!
         conclusion (case conclusion-type
                      :belief (assoc conclusion :truth (get-func tf))
                      :goal (assoc conclusion :truth (get-func df))
@@ -280,6 +289,7 @@
                     :t-function       (t/tvtypes (get-truth-fn post))
                     :d-function       (t/dvtypes (get-desire-fn post))
                     :swap-truth       (some #{:truth-swapped} post)
+                    :time-measured    (some #{:measure-time} pre)
                     :p/belief         (some #{:p/belief} post)}
        :conditions (remove nil?
                            (walk (concat (check-conditions sym-map) pre)
