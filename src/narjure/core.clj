@@ -40,7 +40,10 @@
   (cast! (whereis :derived-load-reducer) [:system-time-tick-msg]))
 
 (defn sentence-tick []
-  (cast! (whereis :sentence-parser) [:narsese-string-msg (format "<%s-->%s>.:|10|:" (rand-nth ["a" "b" "c" "d" "e" "f" "g"]) (rand-nth ["h" "p" "j" "k" "l" "m" "n"]))]))
+  (cast! (whereis :sentence-parser) [:narsese-string-msg
+                                     (format "<%s-->%s>.:|10|:"
+                                             (rand-nth ["a" "b" "c" "d" "e" "f" "g"])
+                                             (rand-nth ["h" "p" "j" "k" "l" "m" "n"]))]))
 
 (defn prn-ok [msg] (info (format "\t[OK] %s" msg)))
 
@@ -93,6 +96,8 @@
   (info "NARS initialising...")
   (start-timers)
 
+  (reset! output-display '())
+
   ; reset global bags
   (reset! c-bag (b/default-bag max-concepts))
   (reset! e-bag (b/default-bag max-events))
@@ -102,11 +107,14 @@
   ; update user with status
   (info "NARS initialised."))
 
+(defn stop-timers []
+  (stop))
+
 (defn shutdown []
   (info "Shutting down actors...")
 
   ; cancel schedulers
-  (stop)
+  (stop-timers)
 
   (shutdown! @sup)
   (join @sup)

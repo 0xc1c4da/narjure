@@ -4,7 +4,7 @@
      :refer [! spawn gen-server register! cast! Server self
              shutdown! unregister! set-state! state whereis]]
     [narjure.global-atoms :refer [c-bag]]
-    [narjure.memory-management.concept :refer [concept]]
+    [narjure.memory-management.concept :as c]
     [narjure.actor.utils :refer [defactor]]
     [narjure.bag :as b]
     [taoensso.timbre :refer [debug info]]
@@ -20,7 +20,7 @@
   "Create a concept, for the supplied term, and add to
    the concept bag"
   [term]
-  (let [concept-ref (spawn (concept term))]
+  (let [concept-ref (spawn (c/concept term))]
     (swap! c-bag b/add-element {:id term :priority c-priority :ref concept-ref})
     ;(info (str "concept count: " (b/count-elements @c-bag)))
     ))
@@ -64,7 +64,9 @@
 (defn initialise
   "Initialises actor: registers actor and sets actor state"
   [aname actor-ref]
-  (register! aname actor-ref)
+  (reset! c/display '())                                    ;we also reset concept display here
+  (reset! display '())                                      ;since concept actor startup is not
+  (register! aname actor-ref)                               ;a place where it can be done
   (set-state! {}))
 
 (defn clean-up

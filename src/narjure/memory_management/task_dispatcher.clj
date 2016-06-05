@@ -45,17 +45,17 @@
     (unregister!)
     (shutdown!)))
 
+(def display (atom '()))
+(def search (atom ""))
+
 (defn initialise
   "Initialises actor:
     registers actor and sets actor state"
   [aname actor-ref]
-  (do
-    (register! aname actor-ref)
-    (set-state! {:concept-manager (whereis :concept-manager)
-                 :event-buffer    (whereis :event-buffer)})))
-
-(def display (atom '()))
-(def search (atom ""))
+  (reset! display '())
+  (register! aname actor-ref)
+  (set-state! {:concept-manager (whereis :concept-manager)
+               :event-buffer    (whereis :event-buffer)}))
 
 (defn msg-handler
   "Identifies message type and selects the correct message handler.

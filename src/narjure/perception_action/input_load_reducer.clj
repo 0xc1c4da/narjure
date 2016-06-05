@@ -28,10 +28,10 @@
   "Initialises actor:
       registers actor and sets actor state"
   [aname actor-ref]
+  (reset! display '())
   (register! aname actor-ref)
   (set-state! {:task-creator (whereis :task-creator)}))
 
-(def display (atom '()))
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "

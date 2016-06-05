@@ -101,16 +101,16 @@
   (try (let [elems (apply vector (:priority-index (deref c-bag)))
          nodes (for [i (range (count elems))]
                  (let [elem (elems i)
-                       ratio (* 18.0 (+ 0.15 (/ i (count elems))))
-                       a 15.0]
+                       ratio (* 30.0 (+ 0.10 (/ i (count elems))))
+                       a 20.0]
                    (when (.contains (str (:id elem)) (deref concept-filter))
                      {:name        (str "\n" (narsese-print (:id elem)))
-                      :px          (+ 1000 (* a ratio (Math/cos ratio)))
-                      :py          (+ -100 (* a ratio (Math/sin ratio)))
+                      :px          (+ 2000 (* a ratio (Math/cos ratio)))
+                      :py          (+ 200 (* a ratio (Math/sin ratio)))
                       :displaysize 1.0
                       :backcolor [(- 255 (* (:priority elem) 255.0)) 255 255]
                       :titlesize   2.0})))]
-     (draw-graph [(filter #(not= % nil) nodes) [] 20 20]))
+     (draw-graph [(filter #(not= % nil) nodes) [] 10 10]))
        (catch Exception e ""))
   )
 

@@ -32,6 +32,7 @@
 (defn initialise
   "Initialises actor: registers actor and sets actor state"
   [aname actor-ref]
+  (reset! display '())
   (register! aname actor-ref)
   (set-state! {}))
 

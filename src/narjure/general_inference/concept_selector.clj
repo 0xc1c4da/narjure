@@ -11,7 +11,7 @@
   (:refer-clojure :exclude [promise await]))
 
 (def aname :concept-selector)
-(def selection-count 50)
+(def selection-count 10) ;don't set higher if not on a sumpercomputer, will cause trouble
 
 (def display (atom '()))
 (def search (atom ""))
@@ -44,6 +44,7 @@
   "Initialises actor:
       registers actor and sets actor state"
   [aname actor-ref]
+  (reset! display '())
   (register! aname actor-ref)
   (set-state! {:state 0}))
 
