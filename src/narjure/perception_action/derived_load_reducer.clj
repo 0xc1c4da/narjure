@@ -22,9 +22,11 @@
   []
   (doseq [n (range (min max-selections (b/count-elements @bag)))]
     ;(info (str "selecting: " (min max-selections (b/count-elements @bag))))
-    (let [[element bag'] (b/get-by-index @bag (selection-fn @bag))]
+    (let [[element bag'] (b/get-by-index @bag (selection-fn @bag))
+          msg [:derived-sentence-msg (:sentence element)]]
       (reset! bag bag')
-      (cast! (whereis :task-creator) [:derived-sentence-msg (:sentence element )])
+      (cast! (whereis :task-creator) msg)
+      (debuglogger search display [:forward msg])
       ;(info (str "selected:" (:sentence element)))
       )))
 
@@ -32,7 +34,9 @@
   "adds sentence to input-bag and selects n senetences on system-time-tick"
   [from [msg sentence budget evidence]]
   ;(info (str "adding: " (b/add-element @bag {:priority (first budget) :sentence [sentence budget evidence]})))
-  (swap! bag b/add-element {:id sentence :priority (first budget) :sentence [sentence budget evidence]}))
+  (let [elem {:id sentence :priority (first budget) :sentence [sentence budget evidence]}]
+    (debuglogger search display [:add elem])
+    (swap! bag b/add-element elem)))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
@@ -52,7 +56,7 @@
   "Identifies message type and selects the correct message handler.
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
-  (debuglogger search display message)
+  ;(debuglogger search display message)
   (case type
     :derived-sentence-msg (derived-sentence-handler from message)
     :system-time-tick-msg (system-time-tick-handler)

@@ -16,6 +16,8 @@
             [narjure.perception-action.operator-executor :as operator-executor]
             [narjure.perception-action.sentence-parser :as sentence-parser]
             [narjure.perception-action.task-creator :as task-creator]
+            [narjure.perception-action.input-load-reducer :as input-load-reducer]
+            [narjure.perception-action.derived-load-reducer :as derived-load-reducer]
             [narjure.memory-management.concept :as concepts]
             [narjure.global-atoms :refer :all]
             [narjure.debug-util :refer :all]))
@@ -34,19 +36,21 @@
 (defn bagfilter [fil bag]
   (apply vector (filter (fn [x] (.contains (str x) (deref fil))) bag)))
 
-(def debugmessage {:event-selector     [(fn [] (deref event-selector/display)) event-selector/search]
-                   :concept-selector   [(fn [] (deref concept-selector/display)) concept-selector/search]
-                   :general-inferencer [(fn [] (deref general-inferencer/display)) general-inferencer/search]
-                   :concept-manager    [(fn [] (deref concept-manager/display)) concept-manager/search]
-                   :event-buffer       [(fn [] (deref event-buffer/display)) event-buffer/search]
-                   :task-dispatcher    [(fn [] (deref task-dispatcher/display)) task-dispatcher/search]
-                   :operator-executor  [(fn [] (deref operator-executor/display)) operator-executor/search]
-                   :sentence-parser    [(fn [] (deref sentence-parser/display)) sentence-parser/search]
-                   :task-creator       [(fn [] (deref task-creator/display)) task-creator/search]
-                   :concepts           [(fn [] (deref concepts/display)) concepts/search]
-                   :concept-bag        [(fn [] (bag-format (limit-string (str (bagfilter concept-filter (:priority-index (deref c-bag)))) 20000))) concept-filter]
-                   :event-bag          [(fn [] (bag-format (limit-string (str (bagfilter event-filter (:priority-index (deref e-bag)))) 20000))) event-filter]
-                   :input              [(fn [] "") inputstr]})
+(def debugmessage {:event-selector       [(fn [] (deref event-selector/display)) event-selector/search]
+                   :concept-selector     [(fn [] (deref concept-selector/display)) concept-selector/search]
+                   :general-inferencer   [(fn [] (deref general-inferencer/display)) general-inferencer/search]
+                   :concept-manager      [(fn [] (deref concept-manager/display)) concept-manager/search]
+                   :event-buffer         [(fn [] (deref event-buffer/display)) event-buffer/search]
+                   :task-dispatcher      [(fn [] (deref task-dispatcher/display)) task-dispatcher/search]
+                   :operator-executor    [(fn [] (deref operator-executor/display)) operator-executor/search]
+                   :sentence-parser      [(fn [] (deref sentence-parser/display)) sentence-parser/search]
+                   :task-creator         [(fn [] (deref task-creator/display)) task-creator/search]
+                   :concepts             [(fn [] (deref concepts/display)) concepts/search]
+                   :concept-bag          [(fn [] (bag-format (limit-string (str (bagfilter concept-filter (:priority-index (deref c-bag)))) 20000))) concept-filter]
+                   :event-bag            [(fn [] (bag-format (limit-string (str (bagfilter event-filter (:priority-index (deref e-bag)))) 20000))) event-filter]
+                   :derived-load-reducer [(fn [] (deref derived-load-reducer/display)) derived-load-reducer/search]
+                   :input-load-reducer   [(fn [] (deref input-load-reducer/display)) input-load-reducer/search]
+                   :input                [(fn [] "") inputstr]})
 
 (def graphs [graph-actors graph-gui])
 

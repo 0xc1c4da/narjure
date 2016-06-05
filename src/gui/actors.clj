@@ -7,12 +7,14 @@
 (def nodes [{:name :concept-manager :px 0 :py 0}
             {:name :concepts :px 0 :py 300}
             {:name :task-dispatcher :px 200 :py 0}
-            {:name :input :px 400 :py -400 :displaysize 10.0}
-            {:name :sentence-parser :px 400 :py -300}
+            {:name :input :px 400 :py -400 :displaysize 10.0} ;-600
+            {:name :sentence-parser :px 400 :py -300}       ;-500
             {:name :task-creator :px 400 :py -150}
+            ;{:name :input-load-reducer :px 400 :py -325}
             {:name :operator-executor :px -350 :py -150}
             {:name :event-buffer :px 200 :py 150}
             {:name :general-inferencer :px 400 :py 300}
+            {:name :derived-load-reducer :px 400 :py 150}
             {:name :event-selector :px 600 :py 150}
             {:name :event-bag :px 775 :py 150}
             {:name :concept-selector :px 600 :py 450}
@@ -27,7 +29,10 @@
                {:from :event-selector :to :general-inferencer}
                {:from :concept-selector :to :general-inferencer}
                {:from :sentence-parser :to :task-creator}
-               {:from :general-inferencer :to :task-creator}
+               ;{:from :sentence-parser :to :input-load-reducer}
+               ;{:from :input-load-reducer :to :task-creator}
+               {:from :general-inferencer :to :derived-load-reducer}
+               {:from :derived-load-reducer :to :task-creator}
                {:from :task-creator :to :task-dispatcher}
                {:from :concept-selector :to :concepts}])
 

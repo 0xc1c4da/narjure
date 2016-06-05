@@ -5,7 +5,7 @@
 
 (def gui-width 50)
 (def gui-height 25)
-(def inputstr (atom ""))
+(def inputstr (atom ""))                                    ;py -525 with input load reducer
 (def nodes [{:name :send :px 500 :py -325 :onclick (fn [state]
                                                      (println (str "input narsese " (deref inputstr)))
                                                      (cast! (whereis :sentence-parser) [:narsese-string-msg (deref inputstr)])

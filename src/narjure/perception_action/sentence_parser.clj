@@ -12,7 +12,7 @@
 (def search (atom ""))
 
 (defn narsese-string-handler
-  "Parses a narsese string and posts a :sentence-msg to task-creator"
+  "Parses a narsese string and posts a :sentence-msg to input-load-reducer"
   [from [msg string]]
   (try (let [sentence (parse2 string)]
          (cast! (:task-creator @state) [:sentence-msg sentence]))
