@@ -108,6 +108,7 @@
                       :px          (+ 1000 (* a ratio (Math/cos ratio)))
                       :py          (+ -100 (* a ratio (Math/sin ratio)))
                       :displaysize 1.0
+                      :backcolor [(- 255 (* (:priority elem) 255.0)) 255 255]
                       :titlesize   2.0})))]
      (draw-graph [(filter #(not= % nil) nodes) [] 20 20]))
        (catch Exception e ""))
