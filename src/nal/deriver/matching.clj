@@ -58,9 +58,10 @@
         conclusion {:statement  c
                     :task-type  conclusion-type
                     :occurrence :t-occurrence}
-        get-func (fn [f] (let [secure (fn [func t1 t2 task belief swapped]
+        get-func (fn [f] (let [secure (fn [func t1 t2 task belief swapped time-measure]
                                         (let [belief-truth (fn [t task belief] ;2. this is why args are necessary here
-                                                             (if (= nil belief) ;as task and belief are not aviable on rule generation
+                                                             (if (or (= nil belief)
+                                                                     time-measure) ;as task and belief are not aviable on rule generation
                                                                t
                                                                (:truth (project-eternalize-to (:occurrence task)
                                                                                                 belief @nars-time))))]
@@ -71,7 +72,7 @@
                                             (try
                                               (func t1 (belief-truth t2 task belief))
                                               (catch Exception e [0 0])))))]
-                           (list secure f t1 t2 task belief swap-truth))) ;1. at this place the entries are not generated yet!
+                           (list secure f t1 t2 task belief swap-truth time-measured))) ;1. at this place the entries are not generated yet!
         conclusion (case conclusion-type
                      :belief (assoc conclusion :truth (get-func tf))
                      :goal (assoc conclusion :truth (get-func df))
@@ -289,7 +290,7 @@
                     :t-function       (t/tvtypes (get-truth-fn post))
                     :d-function       (t/dvtypes (get-desire-fn post))
                     :swap-truth       (some #{:truth-swapped} post)
-                    :time-measured    (some #{:measure-time} pre)
+                    :time-measured    (some #{:measure-time} post)
                     :p/belief         (some #{:p/belief} post)}
        :conditions (remove nil?
                            (walk (concat (check-conditions sym-map) pre)

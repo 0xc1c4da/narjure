@@ -718,9 +718,9 @@
 (deftest temporal_induction_after
   (is (derived "<(John,room) --> enter>. :|64|:"
                "<(John,door) --> open>. :|:"
-               ["(&/,<(John,door) --> open>,i64,<(John,room) --> enter>). :|64|: %1.00;0.43%"
-                "<(&/,<(John,door) --> open>,i64) =/> <(John,room) --> enter>>. :|64|: %1.00;0.30%" ;confidence loss due to projection
-                "<(&/,<(John,door) --> open>,i64) </> <(John,room) --> enter>>. :|64|: %1.00;0.30%"]))) ;in all 3 case
+               ["(&/,<(John,door) --> open>,i64,<(John,room) --> enter>). :|64|: %1.00;0.81%"
+                "<(&/,<(John,door) --> open>,i64) =/> <(John,room) --> enter>>. :|64|: %1.00;0.45%"
+                "<(&/,<(John,door) --> open>,i64) </> <(John,room) --> enter>>. :|64|: %1.00;0.45%"])))
 
 (deftest inference_on_tense
   (is (derived "<(&/,<($x, key) --> hold>,i64) =/> <($x, room) --> enter>>. :|:"
@@ -760,7 +760,7 @@
 (deftest temporal_var_introduction_after
   (is (derived "<John --> (/,enter,_,room)>. :|50|:"
                "<John --> (/,open,_,door)>. :|:"
-               ["<(&/,<$1 --> (/,open,_,door)>,i50) =/> <$1 --> (/,enter,_,room)>>. :|50|: %1.0;0.30%"]))) ;just 0.30 because of projection
+               ["<(&/,<$1 --> (/,open,_,door)>,i50) =/> <$1 --> (/,enter,_,room)>>. :|50|: %1.0;0.45%"])))
 
 (deftest temporal_var_elimination_on_events
   (is (derived "(&|,<(*,{t002},#2) --> on>,<(*,SELF,#2) --> at>). :|:"

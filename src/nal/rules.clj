@@ -455,10 +455,10 @@ So these rules are for bringing NAL-statements into a different, implied and mor
                                     (&& (S --> #Y) (P --> #Y)) :post (:t/intersection))
                                          :pre ((:!= S P))]
 
-         #R[(S --> M) (P --> M) |- (((&/ (P --> $X) I) =/> (S --> $X)) :post (:t/induction :linkage-temporal)
-                                    ((S --> $X) =\> (&/ (P --> $X) I)) :post (:t/abduction :linkage-temporal)
-                                    ((&/ (P --> $X) I) </> (S --> $X)) :post (:t/comparison :linkage-temporal)
-                                    (&/ (P --> #Y) I (S --> #Y)) :post (:t/intersection :linkage-temporal))
+         #R[(S --> M) (P --> M) |- (((&/ (P --> $X) I) =/> (S --> $X)) :post (:t/induction :linkage-temporal :measure-time)
+                                    ((S --> $X) =\> (&/ (P --> $X) I)) :post (:t/abduction :linkage-temporal :measure-time)
+                                    ((&/ (P --> $X) I) </> (S --> $X)) :post (:t/comparison :linkage-temporal :measure-time)
+                                    (&/ (P --> #Y) I (S --> #Y)) :post (:t/intersection :linkage-temporal :measure-time))
                                        :pre ((:!= S P) (:measure-time I))]
 
          #R[(S --> M) (P --> M) |- (((P --> $X) =|> (S --> $X)) :post (:t/abduction :linkage-temporal)
@@ -473,10 +473,10 @@ So these rules are for bringing NAL-statements into a different, implied and mor
                                     (&& (#Y --> S) (#Y --> P)) :post (:t/intersection))
             :pre ((:!= S P)) ]
 
-         #R[(M --> S) (M --> P) |- (((&/ ($X --> P) I) =/> ($X --> S))  :post (:t/induction :linkage-temporal)
-                                    (($X --> S) =\> (&/ ($X --> P) I)) :post (:t/abduction :linkage-temporal)
-                                    ((&/ ($X --> P) I) </> ($X --> S)) :post (:t/comparison :linkage-temporal)
-                                    (&/ (#Y --> P) I (#Y --> S)) :post (:t/intersection :linkage-temporal))
+         #R[(M --> S) (M --> P) |- (((&/ ($X --> P) I) =/> ($X --> S))  :post (:t/induction :linkage-temporal :measure-time)
+                                    (($X --> S) =\> (&/ ($X --> P) I)) :post (:t/abduction :linkage-temporal :measure-time)
+                                    ((&/ ($X --> P) I) </> ($X --> S)) :post (:t/comparison :linkage-temporal :measure-time)
+                                    (&/ (#Y --> P) I (#Y --> S)) :post (:t/intersection :linkage-temporal :measure-time))
             :pre ((:!= S P) (:measure-time I))]
 
          #R[(M --> S) (M --> P) |- ((($X --> S) =|> ($X --> P)) :post (:t/induction :linkage-temporal)
@@ -578,10 +578,10 @@ So these rules are for bringing NAL-statements into a different, implied and mor
          example <b> ((&/,a,/10) =/> b) </b> encodes that <b> b </b> happens <b> 10  </b>  steps after <b> a </b>."
          ; Temporal induction:
          ; When P and then S happened according to an observation by induction (weak) it may be that alyways after P usually S happens.
-         #R[P S |- (((&/ S I) =/> P) :post (:t/induction :linkage-temporal)
-                     (P =\> (&/ S I)) :post (:t/abduction :linkage-temporal)
-                     ((&/ S I) </> P) :post (:t/comparison :linkage-temporal)
-                     (&/ S I P) :post (:t/intersection :linkage-temporal))
+         #R[P S |- (((&/ S I) =/> P) :post (:t/induction :linkage-temporal :measure-time)
+                     (P =\> (&/ S I)) :post (:t/abduction :linkage-temporal :measure-time)
+                     ((&/ S I) </> P) :post (:t/comparison :linkage-temporal :measure-time)
+                     (&/ S I P) :post (:t/intersection :linkage-temporal :measure-time))
             :pre ((:measure-time I))]
          #R[P S |- ((S =|> P) :post (:t/induction :linkage-temporal)
                      (S <|> P) :post (:t/comparison :linkage-temporal)
