@@ -58,7 +58,7 @@
         task-type (:task-type sentence)]
     {:truth (:truth sentence)
      :desire (:desire sentence)
-     :budget (task-type budgets)
+     :budget (:budget sentence)
      :creation time
      :occurrence toc
      :source :input

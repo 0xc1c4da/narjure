@@ -37,6 +37,8 @@
           (let [task' (decrease-budget solution task)]
             ;if answer to user question ouput answer
             (when (user? task)
-              (cast! (:message-display @state) [:task-msg task']))
+              (output-task "" solution)
+              ;(cast! (:message-display @state) [:task-msg task'])
+              )
             (add-to-tasks state task'))))))
   )
