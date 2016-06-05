@@ -18,9 +18,70 @@
                                  (conj (drop-last d) [(limit-string msg 750) "§"]))
                                 d)))))))
 
+(defn narsese-print [st]
+  (if (coll? st)
+    (let [cop (first st)
+          [left right] (case cop
+                         ext-set ["{" "}"]
+                         int-set ["[" "]"]
+                         --> ["<" ">"]
+                         <-> ["<" ">"]
+                         ==> ["<" ">"]
+                         pred-impl ["<" ">"]
+                         =|> ["<" ">"]
+                         retro-impl ["<" ">"]
+                         <=> ["<" ">"]
+                         <|> ["<" ">"]
+                         </> ["<" ">"]
+                         ["(" ")"])
+          syll-cop ['--> '<-> '==> '=|>
+                    'pred-impl 'retro-impl
+                    '<=> '<|> '</>]
+          seperator (if (some #{cop} syll-cop)
+                      " "
+                      ",")
+          infixprint (if (some #{cop} syll-cop)
+                       [(second st) (first st) (nth st 2)]
+                       st)
+          beautify (fn [co]
+                     (case co
+                       pred-impl "=/>"
+                       retro-impl "=\\>"
+                       ext-inter "&"
+                       int-dif "~"
+                       ext-image "/"
+                       int-image "\\"
+                       conj "&&"
+                       seq-conj "&/"
+                       co))
+          var-and-ival (fn [st]
+                         (if (= (first st) :interval)
+                           [(str "i" (second st))]
+                           (if (= (first st) 'dep-var)
+                             [(str "#" (second st))]
+                             (if (= (first st) 'ind-var)
+                               [(str "$" (second st))]
+                               (if (= (first st) 'qu-var)
+                                 [(str "?" (second st))]
+                                 st)))))
+          ivar-val (var-and-ival infixprint)
+          [leftres rightres] (if (= ivar-val infixprint)
+                               [left right]
+                               ["" ""])
+          res (if (or (= (first ivar-val) 'ext-set)
+                      (= (first ivar-val) 'int-set))
+                (rest ivar-val)
+                (concat [(beautify (first ivar-val))] (rest ivar-val)))]
+      (str leftres
+           (apply str (for [x res]
+                        (if (= x (first res))
+                          (narsese-print x)
+                          (str seperator (narsese-print x)))))
+           rightres))
+    (str st)))
+
 (defn output-task [type task]
   (let [type-print (fn [t] "")
-        narsese-print (fn [st] st)                      ;todo make fancy ^^
         punctuation-print (fn [task-type]
                             (case task-type
                               :goal "!"
