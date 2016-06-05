@@ -11,3 +11,6 @@
 (def nars-time (atom 0))
 
 (def nars-id (atom -1))
+
+(def output-display (atom '()))
+(def output-search (atom ""))

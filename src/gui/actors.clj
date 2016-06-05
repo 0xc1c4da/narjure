@@ -18,7 +18,8 @@
             {:name :event-selector :px 600 :py 150}
             {:name :event-bag :px 775 :py 150}
             {:name :concept-selector :px 600 :py 450}
-            {:name :concept-bag :px 775 :py 450}])
+            {:name :concept-bag :px 775 :py 450}
+            {:name :output :px 600 :py -400}])
 
 (def vertices [{:from :concept-manager :to :task-dispatcher}
                {:from :concepts :to :concept-manager}

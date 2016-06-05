@@ -102,6 +102,7 @@
                        (get-id)
                        syntactic-complexity)]
         (cast! (:task-dispatcher @state) [:task-msg new-task])
+        (output-task :input new-task)
         (when (event? sentence)
           (cast! (:task-dispatcher @state) [:task-msg (eternalize new-task)]))))))
 
@@ -118,6 +119,7 @@
                               evidence
                               syntactic-complexity)]
            (cast! (:task-dispatcher @state) [:task-msg derived-task])
+           (output-task :derived derived-task)
            (when (event? sentence)
              (cast! (:task-dispatcher @state) [:task-msg (eternalize derived-task)]))))))
 

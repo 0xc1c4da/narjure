@@ -50,7 +50,8 @@
                    :event-bag            [(fn [] (bag-format (limit-string (str (bagfilter event-filter (:priority-index (deref e-bag)))) 20000))) event-filter]
                    :derived-load-reducer [(fn [] (deref derived-load-reducer/display)) derived-load-reducer/search]
                    :input-load-reducer   [(fn [] (deref input-load-reducer/display)) input-load-reducer/search]
-                   :input                [(fn [] "") inputstr]})
+                   :input                [(fn [] "") inputstr]
+                   :output               [(fn [] (deref output-display)) output-search]})
 
 (def graphs [graph-actors graph-gui])
 
