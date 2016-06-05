@@ -65,22 +65,23 @@
 (defn nameof [a]
   (if (string? a) a (name a)))
 
-(defn draw-actor [{:keys [name px py backcolor frontcolor displaysize]} node-width node-height]
+(defn draw-actor [{:keys [name px py backcolor frontcolor displaysize titlesize]} node-width node-height]
   (apply q/fill (if (= backcolor nil) [255 255 255] backcolor))
   (q/rect px py node-width node-height)
   (apply q/fill (if (= frontcolor nil) [0 0 0] frontcolor))
-  (q/text-size 10.0)
-  (q/text (nameof name) (+ px 5) (+ py 10))
+  (q/text-size (if (= nil titlesize) 10.0 titlesize))
+  (q/text (nameof name) (+ px 5) (+ py (if (= nil titlesize) 10.0 titlesize)))
   (q/text-size (if (= displaysize nil) 2.0 displaysize))
   (when (contains? debugmessage name)
     (q/text (clojure.string/replace (str (if (> (count (debugmessage name)) 1)
-                                           (str (deref (second (debugmessage name))) "\n")
+                                           (if (not= "" (deref (second (debugmessage name))))
+                                             (str (deref (second (debugmessage name))) "\n"))
                                            "")
                                          ((first (debugmessage name)))) #"§" "\n")
             (+ px 5) (+ py 20))))
 
-(defn draw-graph [[nodes vertices node-width node-height]]
-  (doseq [c vertices]
+(defn draw-graph [[nodes edges node-width node-height]]
+  (doseq [c edges]
     (let [left (first (filter #(= (:from c) (:name %)) nodes))
           right (first (filter #(= (:to c) (:name %)) nodes))
           pxtransform (fn [x] (+ (:px x) (/ node-width 2.0)))
@@ -95,7 +96,22 @@
   (q/reset-matrix)
   (hnav/transform state)
   (doseq [g graphs]
-    (draw-graph g)))
+    (draw-graph g))
+  ;concept graph
+  (try (let [elems (apply vector (:priority-index (deref c-bag)))
+         nodes (for [i (range (count elems))]
+                 (let [elem (elems i)
+                       ratio (* 18.0 (+ 0.15 (/ i (count elems))))
+                       a 15.0]
+                   (when (.contains (str (:id elem)) (deref concept-filter))
+                     {:name        (str "\n" (narsese-print (:id elem)))
+                      :px          (+ 1000 (* a ratio (Math/cos ratio)))
+                      :py          (+ -100 (* a ratio (Math/sin ratio)))
+                      :displaysize 1.0
+                      :titlesize   2.0})))]
+     (draw-graph [(filter #(not= % nil) nodes) [] 20 20]))
+       (catch Exception e ""))
+  )
 
 (defn key-pressed [state event]
   (let [name (name (:key event))
