@@ -78,7 +78,7 @@
   "Create an etenrnal task from a non-eternal task, update id, evidence and occurrence"
   [task]
   (let [id (get-id)]
-    (eternalize (assoc task :id id :evidence (list id (:id task))))))
+    (eternalize (assoc task :id id :evidence (list (:id task))))))
 
 (defn create-derived-task
   "Create a derived task with the provided sentence, budget and occurence time
