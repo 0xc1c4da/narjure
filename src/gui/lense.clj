@@ -116,7 +116,7 @@
                        (when (.contains (str id) (deref concept-filter))
                          {:name        (str "\n" (narsese-print id) "\n"
                                             (bag-format
-                                              (limit-string (str (:priority-index (@lense-taskbags id))) 20000)))
+                                              (limit-string (str (:priority-index (@lense-taskbags id))) 20000))) ;"\n" @lense-termlinks
                           :px          (+ 2000 (* a ratio (Math/cos ratio)))
                           :py          (+ 200 (* a ratio (Math/sin ratio)))
                           :displaysize 1.0
