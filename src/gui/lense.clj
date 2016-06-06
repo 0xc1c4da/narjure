@@ -26,12 +26,6 @@
 (defn bag-format [st]
   (clojure.string/replace st "}" "}\n"))
 
-;preparing printing concept bag completely meaning printing the individual concepts also completely with all tasks!!!
-"(defn concept-bagprint [cbag]
-  (let [items (:priority-index (deref bagresolve))]
-    (for [z items]
-      (assoc z :fullstring ))))"
-
 (def concept-filter (atom ""))
 (def event-filter (atom ""))
 (defn bagfilter [fil bag]
@@ -90,10 +84,14 @@
   (doseq [c edges]
     (let [left (first (filter #(= (:from c) (:name %)) nodes))
           right (first (filter #(= (:to c) (:name %)) nodes))
+          middle {:px (/ (+ (:px left) (:px right)) 2.0)
+                  :py (/ (+ (:py left) (:py right)) 2.0)}
           pxtransform (fn [x] (+ (:px x) (/ node-width 2.0)))
-          pytransform (fn [y] (+ (:py y) (/ node-height 2.0)))]
+          pytransform (fn [y] (+ (:py y) (/ node-height 2.0)))
+          target (if (= nil (:unidirectional c))
+                   right middle)]
       (q/line (pxtransform left) (pytransform left)
-              (pxtransform right) (pytransform right))))
+              (pxtransform target) (pytransform target))))
   (doseq [a nodes]
     (draw-actor a node-width node-height)))
 

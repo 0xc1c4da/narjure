@@ -23,6 +23,7 @@
 (defn task-handler
   ""
   [from [_ task]]
+  (debuglogger search display ["task processed:" task])
   (try
     (let [tasks (:priority-index (:tasks @state))]
       (case (:task-type task)
@@ -37,7 +38,12 @@
       (let [concept-state @state
             task-bag (:tasks concept-state)
             newbag (b/add-element task-bag {:id task :priority (first (:budget task)) :task task})]
-        (set-state! (merge concept-state {:tasks newbag})))
+        (let [newtermlinks (merge (apply merge (for [tl (:terms task)] ;prefer existing termlinks strengths
+                                                 {tl [0 0]})) (:termlinks concept-state))]
+          (set-state! (merge concept-state {:tasks     newbag
+                                           :termlinks (select-keys newtermlinks
+                                                        (filter #(b/exists? @c-bag %) (keys newtermlinks))) ;only these keys which exist in concept bag
+                                           }))))
       (catch Exception e (debuglogger search display (str "task add error " (.toString e)))))
   )
 
