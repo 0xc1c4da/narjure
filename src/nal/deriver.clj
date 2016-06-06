@@ -71,22 +71,13 @@
                                             (assoc t1 :statement (shuffle-term p1))
                                             (assoc t2 :statement (shuffle-term p2))))))
 
-
-;from patham9.clj TODO update code. https://github.com/opennars/opennars2/issues/42 5.
-"(defn project-eternalize [t ref curtime]
-  (let [source-time (:occurrence t)
-        target-time (:occurrence ref)
-        get-eternal (fn [x] (if (= x ETERNAL) :eternal :temporal))]
-    (case [(get-eternal target-time) (get-eternal source-time)]
-      [:eternal  :eternal ] t
-      [:temporal :eternal ] t
-      [:eternal  :temporal] (eternalize t)
-      [:temporal :temporal] (let [t-eternal (eternalize t)
-                                  t-project (project t ref curtime)]
-                              (if (> (:confidence t-eternal)
-                                    (:confidence t-project))
-                                t-eternal
-                                t-project)))))"
+(defn valid-statement [term]
+    (not-any? #(and (coll? term)
+                    (= (count term) 3)
+                    (= (first term) %)
+                    (= (second term) (nth term 2)))
+              ['--> '<-> '==> 'pred-impl 'retro-impl
+               '=|> '<=> '</> '<|>]))
 
 ;this is the inference function we should use
 (defn inference
@@ -94,11 +85,12 @@
   [parsed-p1 parsed-p2]
   (set (map #(assoc % :statement
                       (apply-interval-precision (normalize-variables (:statement %))))
-            (filter (fn [st] (or (= (:task-type st) :question)
-                                 (= (:task-type st) :quest)
-                                 (and (contains? st :truth)
-                                      (coll? (:truth st))
-                                      (> (second (:truth st)) 0))))
+            (filter (fn [st] (and (or (= (:task-type st) :question)
+                                      (= (:task-type st) :quest)
+                                      (and (contains? st :truth)
+                                           (coll? (:truth st))
+                                           (> (second (:truth st)) 0)))
+                                  (valid-statement (:statement st))))
                     (map no-truth-for-questions-and-quests
                          (map interval-reduction
                               (generate-conclusions
