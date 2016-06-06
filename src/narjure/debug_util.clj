@@ -81,7 +81,7 @@
      (str (beautify st)))))
 
 (defn output-task [type task]
-  (let [type-print (fn [t] "")
+  (let [type-print (fn [t] t)
         punctuation-print (fn [task-type]
                             (case task-type
                               :goal "!"

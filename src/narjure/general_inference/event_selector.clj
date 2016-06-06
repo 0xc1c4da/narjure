@@ -39,7 +39,7 @@
            bag4 (b/add-element bag3 (forget-element result2))]
        (reset! e-bag bag4)
        (debuglogger search display ["selected events:" result1 "§" result2 "§§"])
-       (cast! (:general-inferencer @state) [:do-inference-msg [(:task result1) (:task result2)]])))
+       (cast! (:general-inferencer @state) [:do-inference-msg [(:id result1) (:id result2)]])))
     (catch Exception e (debuglogger search display (str "event select error " (.toString e))))))
 
 (defn shutdown-handler

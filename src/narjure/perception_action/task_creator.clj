@@ -63,10 +63,10 @@
     {:truth (:truth sentence)
      :desire (:desire sentence)
      :budget (:budget sentence)
-     :creation time
+     ;:creation time
      :occurrence toc
      :source :input
-     :id id
+     ;:id id
      :evidence (list id)
      :sc syntactic-complexity
      :terms (termlink-subterms content)
@@ -78,7 +78,7 @@
   "Create an etenrnal task from a non-eternal task, update id, evidence and occurrence"
   [task]
   (let [id (get-id)]
-    (eternalize (assoc task :id id :evidence (list (:id task))))))
+    (eternalize (assoc task :evidence (list (:id task))))))
 
 (defn create-derived-task
   "Create a derived task with the provided sentence, budget and occurence time
@@ -88,10 +88,10 @@
     {:truth      (:truth sentence)
      :desire     (:desire sentence)
      :budget     budget
-     :creation   time
+     ;:creation   time
      :occurrence (:occurrence sentence)
      :source     :derived
-     :id         id
+     ;:id         id
      :evidence   evidence
      :sc         syntactic-complexity
      :terms      (termlink-subterms content)

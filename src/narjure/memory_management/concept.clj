@@ -27,26 +27,26 @@
   (debuglogger search display ["task processed:" task])
   (try
     (let [tasks (apply vector (for [x (:priority-index (:tasks @state))]
-                   (:id x)))]
+                   (:id x)))
+          old-item {:id task :priority (first (:budget task))}]
       (case (:task-type task)
-        :belief (process-belief @state task tasks)
-        :goal (process-goal @state task tasks)
-        :question (process-question @state task tasks)
-        :quest (process-quest @state task tasks)))
+        :belief (process-belief state task tasks old-item)
+        :goal (process-goal state task tasks old-item)
+        :question (process-question state task tasks old-item)
+        :quest (process-quest state task tasks old-item)))
     (catch Exception e (debuglogger search display (str "local inference error " (.toString e)))))
 
-    ;add task to bag
-    (try
-      (let [concept-state @state
-            task-bag (:tasks concept-state)
-            newbag (b/add-element task-bag {:id task :priority (first (:budget task)) :task task})]
-        (let [newtermlinks (merge (apply merge (for [tl (:terms task)] ;prefer existing termlinks strengths
-                                                 {tl [0.5 0.5]})) (:termlinks concept-state))]
-          (set-state! (merge concept-state {:tasks     newbag
-                                           :termlinks (select-keys newtermlinks
-                                                        (filter #(b/exists? @c-bag %) (keys newtermlinks))) ;only these keys which exist in concept bag
-                                           }))))
-      (catch Exception e (debuglogger search display (str "task add error " (.toString e)))))
+  (try
+    (let [concept-state @state
+          task-bag (:tasks concept-state)
+          newbag (b/add-element task-bag {:id task :priority (first (:budget task))})]
+      (let [newtermlinks (merge (apply merge (for [tl (:terms task)] ;prefer existing termlinks strengths
+                                               {tl [0.5 0.5]})) (:termlinks concept-state))]
+        (set-state! (merge concept-state {                  ;:tasks     newbag
+                                          :termlinks (select-keys newtermlinks
+                                                                  (filter #(b/exists? @c-bag %) (keys newtermlinks))) ;only these keys which exist in concept bag
+                                          }))))
+    (catch Exception e (debuglogger search display (str "task add error " (.toString e)))))
   )
 
 (defn belief-request-handler

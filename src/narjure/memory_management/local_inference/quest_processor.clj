@@ -19,24 +19,24 @@
   task)
 
 (defn user? [task]
-  (= (:source :input)))
+  (= (:source task) :input))
 
-(defn process-quest [state task tasks]
+(defn process-quest [state task tasks old-item]
   ;group-by :task-type tasks
   (let [goals (filter #(= (:task-type %) :goal) tasks)]
 
     ;filter beliefs matching concept content
     ;project to task time
     ;select best ranked
-    (let [projected-goals (map #(project-eternalize-to (:occurrence task) %  @nars-time) (filter #(= (:statement %) (:id state)) goals))]
+    (let [projected-goals (map #(project-eternalize-to (:occurrence task) %  @nars-time) (filter #(= (:statement %) (:id @state)) goals))]
       (when (not-empty projected-goals)
         ;select best solution
-        (let [solution (reduce #(max (second (:desire %1)) (second (:desire %2))) projected-goals)]
-          (assoc task :solution solution)
+        (let [solution (reduce #(max (second (:desire %1)) (second (:desire %2))) projected-goals)
+              task' (assoc task :solution solution)]
           ;update budget and tasks
-          (let [task' (decrease-budget solution task)]
+          (let [task'' (decrease-budget solution task')]
             ;if answer to user question ouput answer
             (when (user? task)
-              (cast! (:message-display state) [:task-msg task']))
-            (add-to-tasks state task'))))))
+              (cast! (:message-display @state) [:task-msg task'']))
+            #_(add-to-tasks state task'' ))))))
   )

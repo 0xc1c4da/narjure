@@ -15,8 +15,15 @@
 (defn make-evidence [e1 e2]
   (take max-evidence (interleave e1 e2)))
 
-(defn add-to-tasks [state task]
-  (set-state! (assoc state :tasks (b/add-element (:tasks state) {:id task :priority (first (:budget task)) :task task}))))
+(defn add-to-tasks [state task old-item]
+  (info (str "old time: " old-item))
+  (when (not= nil old-item)
+    (let [[element bag] (b/get-by-id (:tasks @state) old-item)]
+      (info (str "have element " element))
+      (when (not= nil element)
+        (info (str "in when"))
+        (set-state! (assoc @state :tasks bag)))))
+  (set-state! (assoc @state :tasks (b/add-element (:tasks @state) {:id task :priority (first (:budget task))}))))
 
 (defn revisable? [t1 t2]
   (empty? (clojure.set/intersection (set (:evidence t1)) (set (:evidence t2)))))
@@ -25,7 +32,7 @@
   "create a revised task with the provided sentence, truth and default value"
   [sentence truth evidence]
   ;todo budget should be updated
-  (assoc sentence :truth truth :id (get-id) :creation (get-time) :evidence evidence))
+  (assoc sentence :truth truth :creation (get-time) :evidence evidence))
 
 (defn revise [t1 t2]
   (let [revised-truth (nal.deriver.truth/revision (:truth t1) (:truth t2))

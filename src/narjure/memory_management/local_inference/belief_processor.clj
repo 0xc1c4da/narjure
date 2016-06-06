@@ -35,7 +35,7 @@
 (defn create-anticipation-task [task]
   (assoc task :task-type :anticipation :expiry (+ (:occurrence task) 100)))
 
-(defn process-belief [state task tasks]
+(defn process-belief [state task tasks old-item]
   ;group-by :task-type tasks
   (let [goals (filter #(= (:task-type %) :goal) tasks)
         beliefs (filter #(= (:task-type %) :belief) tasks)
@@ -55,16 +55,17 @@
 
     ;filter beliefs matching concept content
     ;(project-to task time
-    (info (str "beliefs:" (vec beliefs)))
-    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id state)) beliefs))]
-      (info (str "concept: " (:id state) " projected-beliefs: " (vec projected-beliefs)))
+    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) beliefs))]
       (when (= (:source task) :input)
         (doseq [projected-anticipation (map #(project-eternalize-to (:occurrence task) % @nars-time) anticipations)]
           ;revise anticpation and add to tasks
-          (add-to-tasks state (revise projected-anticipation task))))
+          (add-to-tasks state (revise projected-anticipation task) nil)))
       (doseq [revisable (filter #(revisable? task %) projected-beliefs)]
         ;revise beliefs and add to tasks
-        (add-to-tasks state (revise task revisable))))
+        (add-to-tasks state (revise task revisable) nil)))
+
+    ;add task to bag
+    (add-to-tasks state task old-item)
 
     ; check to see if revised or task is answer to question
     ;todo
@@ -75,11 +76,11 @@
       (when (expired? anticipation)
         (let [neg-confirmation (create-negative-confirmation-task anticipation)]
           ;add to tasks
-          (add-to-tasks state neg-confirmation))))
+          (add-to-tasks state neg-confirmation nil))))
 
     ;when task is confirmable and observabnle
     ;add an anticipation tasks to tasks
     (when (confirmable-observable? task)
       (let [anticipated-task (create-anticipation-task task)]
-        (add-to-tasks state anticipated-task))))
+        (add-to-tasks state anticipated-task nil))))
   )

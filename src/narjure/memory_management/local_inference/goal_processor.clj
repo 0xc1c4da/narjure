@@ -37,7 +37,7 @@
 (defn execute? [task]
   (> (expectation (:truth task)) decision-threshold))
 
-(defn process-goal [state task tasks]
+(defn process-goal [state task tasks old-item]
   ;group-by :task-type tasks
   (let [goals (filter #(= (:task-type %) :goal) tasks)
         beliefs (filter #(= (:task-type %) :belief) tasks)
@@ -46,7 +46,7 @@
     ;filter beliefs matching concept content
     ;project to task time
     ;select best ranked
-    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id state)) beliefs))]
+    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) beliefs))]
       (when (not-empty projected-beliefs)
         (let [belief (reduce #(max (confidence %)) projected-beliefs)]
           ;update budget and tasks
@@ -56,11 +56,14 @@
 
     ;filter beliefs matching concept content
     ;(project to task time
-    (let [projected-goals (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id state)) goals))]
+    (let [projected-goals (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) goals))]
       ;revise task with revisable goals
       (doseq [revisable (filter #(revisable? task %) projected-goals)]
         ;revise goals and add to tasks
-        (add-to-tasks state (revise revisable task))))
+        (add-to-tasks state (revise revisable task) nil)))
+
+    ;add task to bag
+    (add-to-tasks state task old-item)
 
     ; check to see if revised or task is answer to quest
     ;todo
@@ -70,5 +73,5 @@
     (when (operation? task)
       (project-eternalize-to @nars-time task @nars-time)
       (when (execute? task)
-        (cast! (:operator-executor state) [:operator-execution-msg task]))))
+        (cast! (:operator-executor @state) [:operator-execution-msg task]))))
   )
