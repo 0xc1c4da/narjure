@@ -81,20 +81,22 @@
             (+ px 5) (+ py 20))))
 
 (defn draw-graph [[nodes edges node-width node-height]]
-  (doseq [c edges]
-    (let [prefer-id (fn [n] (if (= nil (:id n))
-                              (:name n)
-                              (:id n)))
-          left (first (filter #(= (:from c) (prefer-id %)) nodes))
-          right (first (filter #(= (:to c) (prefer-id %)) nodes))
-          middle {:px (/ (+ (:px left) (:px right)) 2.0)
-                  :py (/ (+ (:py left) (:py right)) 2.0)}
-          pxtransform (fn [x] (+ (:px x) (/ node-width 2.0)))
-          pytransform (fn [y] (+ (:py y) (/ node-height 2.0)))
-          target (if (not= true (:unidirectional c))
-                   right middle)]
-      (q/line (pxtransform left) (pytransform left)
-              (pxtransform target) (pytransform target))))
+  (let [prefer-id (fn [n] (if (= nil (:id n))
+                            (:name n)
+                            (:id n)))]
+    (doseq [c edges]
+     (when (and (some #(= (:from c) (prefer-id %)) nodes)
+                (some #(= (:to c) (prefer-id %)) nodes))
+       (let [left (first (filter #(= (:from c) (prefer-id %)) nodes))
+             right (first (filter #(= (:to c) (prefer-id %)) nodes))
+             middle {:px (/ (+ (:px left) (:px right)) 2.0)
+                     :py (/ (+ (:py left) (:py right)) 2.0)}
+             pxtransform (fn [x] (+ (:px x) (/ node-width 2.0)))
+             pytransform (fn [y] (+ (:py y) (/ node-height 2.0)))
+             target (if (not= true (:unidirectional c))
+                      right middle)]
+         (q/line (pxtransform left) (pytransform left)
+                 (pxtransform target) (pytransform target))))))
   (doseq [a nodes]
     (draw-actor a node-width node-height)))
 
