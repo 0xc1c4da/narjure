@@ -2,7 +2,7 @@
   (:require
     [co.paralleluniverse.pulsar.actors :refer [self ! whereis cast! Server gen-server register! shutdown! unregister! set-state! state]]
     [narjure.actor.utils :refer [defactor]]
-    [narjure.global-atoms :refer [c-bag]]
+    [narjure.global-atoms :refer [c-bag lense-taskbags lense-termlinks]]
     [narjure.bag :as b]
     [clojure.math.numeric-tower :as math]
     [taoensso.timbre :refer [debug info]]
@@ -21,7 +21,10 @@
    inference-request-message to each selected
    concept"
   [from [msg]]
-  ;todo
+  (doseq [[k v] @lense-taskbags]                            ;is empty if not in debug so can stay here for now since we
+    (when-not (b/exists? @c-bag k)                          ;don't want mem to get full just because lense isn't running
+      (swap! lense-taskbags (fn [old] (dissoc old k))) ;element doesnt exist anymore
+      (swap! lense-termlinks (fn [old] (dissoc old k)))))
   ; (dotimes [n (min (b/count-elements @c-bag) 1)]
   ;one concept for inference is enough for now ^^
   (try (doseq [_ (range selection-count)]

@@ -16,7 +16,7 @@
     [nal.deriver.truth :refer [t-or]])
   (:refer-clojure :exclude [promise await]))
 
-(def max-tasks 100)
+(def max-tasks 10)
 (def display (atom '()))
 (def search (atom ""))
 
@@ -137,6 +137,13 @@
    if there is no match it generates a log message for the unhandled message "
   [from [type :as message]]
   (debuglogger search display message)
+  (when (> debug-messages 0)
+    (swap! lense-taskbags
+           (fn [dic]
+             (assoc dic (:id @state) (:tasks @state))))
+    (swap! lense-termlinks
+           (fn [dic]
+             (assoc dic (:id @state) (:termlinks @state)))))
   (case type
     :task-msg (task-handler from message)
     :belief-request-msg (belief-request-handler from message)

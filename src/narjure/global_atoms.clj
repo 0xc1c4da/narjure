@@ -14,3 +14,9 @@
 
 (def output-display (atom '()))
 (def output-search (atom ""))
+
+(def lense-taskbags (atom {}))                                     ;mapping concept term to its task bag
+;this variable is purely for visualization/debugging purposes!!
+
+(def lense-termlinks (atom {}))                                     ;mapping concept term to its task bag
+;this variable is purely for visualization/debugging purposes!!

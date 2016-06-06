@@ -20,7 +20,8 @@
             [narjure.perception-action.derived-load-reducer :as derived-load-reducer]
             [narjure.memory-management.concept :as concepts]
             [narjure.global-atoms :refer :all]
-            [narjure.debug-util :refer :all]))
+            [narjure.debug-util :refer :all]
+            [narjure.bag :as b]))
 
 (defn bag-format [st]
   (clojure.string/replace st "}" "}\n"))
@@ -36,6 +37,11 @@
 (defn bagfilter [fil bag]
   (apply vector (filter (fn [x] (.contains (str x) (deref fil))) bag)))
 
+(defn bagshow [bag filteratom]
+  (bag-format (limit-string
+                (str (bagfilter filteratom
+                                (:priority-index bag))) 20000)))
+
 (def debugmessage {:event-selector       [(fn [] (deref event-selector/display)) event-selector/search]
                    :concept-selector     [(fn [] (deref concept-selector/display)) concept-selector/search]
                    :general-inferencer   [(fn [] (deref general-inferencer/display)) general-inferencer/search]
@@ -46,8 +52,8 @@
                    :sentence-parser      [(fn [] (deref sentence-parser/display)) sentence-parser/search]
                    :task-creator         [(fn [] (deref task-creator/display)) task-creator/search]
                    :concepts             [(fn [] (deref concepts/display)) concepts/search]
-                   :concept-bag          [(fn [] (bag-format (limit-string (str (bagfilter concept-filter (:priority-index (deref c-bag)))) 20000))) concept-filter]
-                   :event-bag            [(fn [] (bag-format (limit-string (str (bagfilter event-filter (:priority-index (deref e-bag)))) 20000))) event-filter]
+                   :concept-bag          [(fn [] (bagshow @c-bag concept-filter)) concept-filter]
+                   :event-bag            [(fn [] (bagshow @e-bag event-filter)) event-filter]
                    :derived-load-reducer [(fn [] (deref derived-load-reducer/display)) derived-load-reducer/search]
                    :input-load-reducer   [(fn [] (deref input-load-reducer/display)) input-load-reducer/search]
                    :input                [(fn [] "") inputstr]
@@ -102,16 +108,19 @@
          nodes (for [i (range (count elems))]
                  (let [elem (elems i)
                        ratio (* 30.0 (+ 0.10 (/ i (count elems))))
-                       a 20.0]
-                   (when (.contains (str (:id elem)) (deref concept-filter))
-                     {:name        (str "\n" (narsese-print (:id elem)))
+                       a 20.0
+                       id (:id elem)]
+                   (when (.contains (str id) (deref concept-filter))
+                     {:name        (str "\n" (narsese-print id) "\n"
+                                        (bag-format
+                                          (limit-string (str (:priority-index (@lense-taskbags id))) 20000)))
                       :px          (+ 2000 (* a ratio (Math/cos ratio)))
                       :py          (+ 200 (* a ratio (Math/sin ratio)))
                       :displaysize 1.0
-                      :backcolor [(- 255 (* (:priority elem) 255.0)) 255 255]
+                      :backcolor   [(- 255 (* (:priority elem) 255.0)) 255 255]
                       :titlesize   2.0})))]
      (draw-graph [(filter #(not= % nil) nodes) [] 10 10]))
-       (catch Exception e ""))
+       (catch Exception e (println e)))
   )
 
 (defn key-pressed [state event]
