@@ -41,7 +41,7 @@
         beliefs (filter #(= (:task-type %) :belief) tasks)
         anticipations (filter #(= (:task-type %) :anticipation) tasks)
         questions (filter #(= (:task-type %) :question ) tasks)]
-
+    
     ;filter goals matching concept content
     ;project-to task time
     ;select best ranked

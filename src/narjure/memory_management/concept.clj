@@ -26,7 +26,8 @@
   [from [_ task]]
   (debuglogger search display ["task processed:" task])
   (try
-    (let [tasks (:priority-index (:tasks @state))]
+    (let [tasks (apply vector (for [x (:priority-index (:tasks @state))]
+                   (:id x)))]
       (case (:task-type task)
         :belief (process-belief @state task tasks)
         :goal (process-goal @state task tasks)
@@ -80,7 +81,6 @@
   [from message]
   (let [concept-state @state
         task-bag (:tasks concept-state)]
-    ;TODO get termlink and targets, this code so far is for forgetting task
     ; and sending budget update message to concept mgr
     (try
       (when (> (b/count-elements task-bag) 0)
