@@ -74,6 +74,12 @@
      :task-type task-type
      :statement content}))
 
+(defn create-eternal-task
+  "Create an etenrnal task from a non-eternal task, update id, evidence and occurrence"
+  [task]
+  (let [id (get-id)]
+    (eternalize (assoc task :id id :evidence (list id (:id task))))))
+
 (defn create-derived-task
   "Create a derived task with the provided sentence, budget and occurence time
    and default values for the remaining parameters"
@@ -108,7 +114,7 @@
         (cast! (:task-dispatcher @state) [:task-msg new-task])
         (output-task :input new-task)
         (when (event? sentence)
-          (cast! (:task-dispatcher @state) [:task-msg (eternalize new-task)]))))))
+          (cast! (:task-dispatcher @state) [:task-msg (create-eternal-task new-task)]))))))
 
 (defn derived-sentence-handler
   "processes a :derived-sentence-msg"
@@ -125,7 +131,7 @@
            (cast! (:task-dispatcher @state) [:task-msg derived-task])
            (output-task :derived derived-task)
            (when (event? sentence)
-             (cast! (:task-dispatcher @state) [:task-msg (eternalize derived-task)]))))))
+             (cast! (:task-dispatcher @state) [:task-msg (create-eternal-task derived-task)]))))))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"
