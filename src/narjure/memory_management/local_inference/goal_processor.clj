@@ -46,7 +46,7 @@
     ;filter beliefs matching concept content
     ;project to task time
     ;select best ranked
-    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) beliefs))]
+    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id state)) beliefs))]
       (when (not-empty projected-beliefs)
         (let [belief (reduce #(max (confidence %)) projected-beliefs)]
           ;update budget and tasks
@@ -56,7 +56,7 @@
 
     ;filter beliefs matching concept content
     ;(project to task time
-    (let [projected-goals (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) goals))]
+    (let [projected-goals (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id state)) goals))]
       ;revise task with revisable goals
       (doseq [revisable (filter #(revisable? task %) projected-goals)]
         ;revise goals and add to tasks
@@ -70,5 +70,5 @@
     (when (operation? task)
       (project-eternalize-to @nars-time task @nars-time)
       (when (execute? task)
-        (cast! (:operator-executor @state) [:operator-execution-msg task]))))
+        (cast! (:operator-executor state) [:operator-execution-msg task]))))
   )

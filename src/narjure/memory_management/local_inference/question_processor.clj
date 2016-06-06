@@ -28,10 +28,10 @@
     ;filter beliefs matching concept content
     ;project to task time
     ;select best ranked
-    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) beliefs))]
+    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id state)) beliefs))]
       (when (not-empty projected-beliefs)
         ;select best solution
-        (let [solution (reduce #(max (second (:truth %))) projected-beliefs)]
+        (let [solution (reduce #(max ((second (:truth %1)) (second (:truth %2)))) projected-beliefs)]
           (assoc task :solution solution)
           ;update budget and tasks
           (let [task' (decrease-budget solution task)]
