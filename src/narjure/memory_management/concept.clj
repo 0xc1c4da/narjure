@@ -52,9 +52,10 @@
   ""
   [from [_ task]]
   ;todo get a belief which has highest confidence when projected to task time
-  (try (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time)
-                                (filter #(and (= (:statement %) (:id @state))
-                                              (= (:task-type %) :belief)) (:tasks @state)))]
+  (try (let [tasks (:priority-index (:tasks @state))
+             projected-beliefs (map #(project-eternalize-to (:occurrence task) (:id %) @nars-time)
+                                (filter #(and (= (:statement (:id %)) (:id @state))
+                                              (= (:task-type (:id %)) :belief)) tasks))]
      (when (not-empty projected-beliefs)
        (let [belief (reduce #(max (confidence %)) projected-beliefs)]
          (debuglogger search display ["selected belief:" belief "§"])
@@ -97,7 +98,7 @@
                 [beliefconcept bag1] (b/get-by-index resbag (selection-fn resbag))]
             ;and create a belief request message
             (when-let [{c-ref :ref} ((:elements-map @c-bag) (:id beliefconcept))]
-              (cast! c-ref [:belief-request-msg result1])
+              (cast! c-ref [:belief-request-msg (:id result1)])
               ))))
       (catch Exception e (debuglogger search display (str "inference request error " (.toString e)))))
     )
