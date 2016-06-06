@@ -4,7 +4,8 @@
     [narjure.actor.utils :refer [defactor]]
     [nal.deriver :refer [inference]]
     [taoensso.timbre :refer [debug info]]
-    [narjure.debug-util :refer :all])
+    [narjure.debug-util :refer :all]
+    [nal.term_utils :refer [syntactic-complexity]])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :general-inferencer)
@@ -30,7 +31,7 @@
             evidence (make-evidence (:evidence task) (:evidence belief))
             derived-load-reducer (whereis :derived-load-reducer)]
         (doseq [der derived]
-          (cast! derived-load-reducer [:derived-sentence-msg der [0.5 0.5 0.0] evidence]))))
+          (cast! derived-load-reducer [:derived-sentence-msg der [(/ 1.0 (syntactic-complexity (:statement task))) 0.8 0.0] evidence]))))
     (catch Exception e (debuglogger search display (str "inference error " (.toString e))))))
 
 (defn shutdown-handler
