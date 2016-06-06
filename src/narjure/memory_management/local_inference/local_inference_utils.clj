@@ -32,7 +32,7 @@
   "create a revised task with the provided sentence, truth and default value"
   [sentence truth evidence]
   ;todo budget should be updated
-  (assoc sentence :truth truth :creation (get-time) :evidence evidence))
+  (assoc sentence :truth truth :evidence evidence))
 
 (defn revise [t1 t2]
   (let [revised-truth (nal.deriver.truth/revision (:truth t1) (:truth t2))
