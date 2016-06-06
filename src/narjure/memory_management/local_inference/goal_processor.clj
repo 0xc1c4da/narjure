@@ -58,7 +58,7 @@
     ;(project to task time
     (let [projected-goals (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) goals))]
       ;revise task with revisable goals
-      (doseq [revisable (filter #(revisable? task %) goals)]
+      (doseq [revisable (filter #(revisable? task %) projected-goals)]
         ;revise goals and add to tasks
         (add-to-tasks state (revise revisable task))))
 

@@ -55,14 +55,16 @@
 
     ;filter beliefs matching concept content
     ;(project-to task time
-    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) beliefs))]
+    (info (str "beliefs:" (vec beliefs)))
+    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id state)) beliefs))]
+      (info (str "concept: " (:id state) " projected-beliefs: " (vec projected-beliefs)))
       (when (= (:source task) :input)
         (doseq [projected-anticipation (map #(project-eternalize-to (:occurrence task) % @nars-time) anticipations)]
           ;revise anticpation and add to tasks
           (add-to-tasks state (revise projected-anticipation task))))
-      (doseq [revisable (filter #(revisable? task %) beliefs)]
+      (doseq [revisable (filter #(revisable? task %) projected-beliefs)]
         ;revise beliefs and add to tasks
-        (add-to-tasks state (revise revisable task))))
+        (add-to-tasks state (revise task revisable))))
 
     ; check to see if revised or task is answer to question
     ;todo
