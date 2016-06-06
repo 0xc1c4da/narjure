@@ -82,13 +82,16 @@
 
 (defn draw-graph [[nodes edges node-width node-height]]
   (doseq [c edges]
-    (let [left (first (filter #(= (:from c) (:name %)) nodes))
-          right (first (filter #(= (:to c) (:name %)) nodes))
+    (let [prefer-id (fn [n] (if (= nil (:id n))
+                              (:name n)
+                              (:id n)))
+          left (first (filter #(= (:from c) (prefer-id %)) nodes))
+          right (first (filter #(= (:to c) (prefer-id %)) nodes))
           middle {:px (/ (+ (:px left) (:px right)) 2.0)
                   :py (/ (+ (:py left) (:py right)) 2.0)}
           pxtransform (fn [x] (+ (:px x) (/ node-width 2.0)))
           pytransform (fn [y] (+ (:py y) (/ node-height 2.0)))
-          target (if (= nil (:unidirectional c))
+          target (if (not= true (:unidirectional c))
                    right middle)]
       (q/line (pxtransform left) (pytransform left)
               (pxtransform target) (pytransform target))))
@@ -103,21 +106,25 @@
     (draw-graph g))
   ;concept graph
   (try (let [elems (apply vector (:priority-index (deref c-bag)))
-         nodes (for [i (range (count elems))]
-                 (let [elem (elems i)
-                       ratio (* 30.0 (+ 0.10 (/ i (count elems))))
-                       a 20.0
-                       id (:id elem)]
-                   (when (.contains (str id) (deref concept-filter))
-                     {:name        (str "\n" (narsese-print id) "\n"
-                                        (bag-format
-                                          (limit-string (str (:priority-index (@lense-taskbags id))) 20000)))
-                      :px          (+ 2000 (* a ratio (Math/cos ratio)))
-                      :py          (+ 200 (* a ratio (Math/sin ratio)))
-                      :displaysize 1.0
-                      :backcolor   [(- 255 (* (:priority elem) 255.0)) 255 255]
-                      :titlesize   2.0})))]
-     (draw-graph [(filter #(not= % nil) nodes) [] 10 10]))
+             nodes (for [i (range (count elems))]
+                     (let [elem (elems i)
+                           ratio (* 30.0 (+ 0.10 (/ i (count elems))))
+                           a 20.0
+                           id (:id elem)]
+                       (when (.contains (str id) (deref concept-filter))
+                         {:name        (str "\n" (narsese-print id) "\n"
+                                            (bag-format
+                                              (limit-string (str (:priority-index (@lense-taskbags id))) 20000)))
+                          :px          (+ 2000 (* a ratio (Math/cos ratio)))
+                          :py          (+ 200 (* a ratio (Math/sin ratio)))
+                          :displaysize 1.0
+                          :backcolor   [(- 255 (* (:priority elem) 255.0)) 255 255]
+                          :titlesize   2.0
+                          :id          id})))
+             edges (for [n nodes
+                         [k v] (@lense-termlinks (:id n))]
+                     {:from (:id n) :to k :unidirectional true})]
+     (draw-graph [(filter #(not= % nil) nodes) edges 10 10]))
        (catch Exception e (println e)))
   )
 
