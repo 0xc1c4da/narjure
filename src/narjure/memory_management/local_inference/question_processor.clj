@@ -33,22 +33,28 @@
     ;filter beliefs matching concept content
     ;project to task time
     ;select best ranked
-    (when (= (:statement question) (:id @state))
+    (if (= (:statement question) (:id @state))
       (let [projected-beliefs (map #(project-eternalize-to (:occurrence question) % @nars-time) (filter #(= (:statement %) (:id @state)) beliefs))]
-      (when (not-empty projected-beliefs)
+      (if (not-empty projected-beliefs)
         ;select best solution
         (let [solution (reduce #(max ((second (:truth %1)) (second (:truth %2)))) projected-beliefs)
               answerered-question (assoc question :solution solution)]
           (info (str "at if)"))
-          (if (or (= (:solution question) nil) (> (second (:truth solution)) (second (:truth (:solution question)))))
-
+          (if (or (= (:solution question) nil)
+                  (> (second (:truth (project-eternalize-to (:occurrence question) solution @nars-time)))
+                     (second (:truth (project-eternalize-to (:occurrence question) (:solution question) @nars-time)))))
             ;update budget and tasks
             (let [result (decrease-budget answerered-question)]
               (add-to-tasks state result old-item)
               ;if answer to user question ouput answer
               (when (user? question)
                 (info (str "result: " result))
-                (output-task [:solution-to (str (narsese-print (:statement question)) "?")] (:solution result))
-                ;(cast! (:message-display @state) [:task-msg task'])
-                )))))))
-    (add-to-tasks state question old-item)))
+                (output-task [:solution-to (str (narsese-print (:statement question)) "?")] (:solution result))))
+
+            (add-to-tasks state question old-item)        ;it was not better, we just add the question and dont replace the solution
+          ))
+        ;was empty so just add
+        (add-to-tasks state question old-item)
+      ))
+      (add-to-tasks state question old-item)                ;it has other content, so we just add it for general inference purposes (question derivation)
+    )))
