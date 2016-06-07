@@ -4,6 +4,7 @@
     [narjure.actor.utils :refer [defactor]]
     [nal.deriver :refer [inference]]
     [taoensso.timbre :refer [debug info]]
+    [narjure.global-atoms :refer :all]
     [narjure.debug-util :refer :all]
     [nal.term_utils :refer [syntactic-complexity]]
     [nal.deriver.truth :refer [expectation]])
@@ -21,6 +22,12 @@
 (defn make-evidence [e1 e2]
   (take max-evidence (interleave e1 e2)))
 
+(defn occurrence-penalty-tr [occ]
+  (let [k 0.01]
+    (if (= occ :eternal)
+      1.0
+      (/ 1.0 (+ 1.0 (* k (Math/abs (- @nars-time occ))))))))
+
 (defn do-inference-handler
   "Processes :do-inference-msg:
     generated derived results, budget and occurrence time for derived tasks.
@@ -35,7 +42,8 @@
           (cast! derived-load-reducer [:derived-sentence-msg der [(* (if (= nil (:truth task))
                                                                        1.0
                                                                        (expectation (:truth task)))
-                                                                     (/ 1.0 (syntactic-complexity (:statement task)))) 0.8 0.0] evidence]))))
+                                                                     (/ 1.0 (syntactic-complexity (:statement task)))
+                                                                     (occurrence-penalty-tr (:occurrence task))) 0.8 0.0] evidence]))))
     (catch Exception e (debuglogger search display (str "inference error " (.toString e))))))
 
 (defn shutdown-handler
