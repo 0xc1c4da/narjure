@@ -74,8 +74,11 @@
 
     ;best operation project goal to current time
     ; if above decision threshold then execute
-    (let [projected-goals (map #(project-eternalize-to @nars-time % @nars-time) (filter #(= (:statement %) (:statement task)) goals))]
-     (when (not-empty projected-goals)
+    (let [projected-goals (map #(project-eternalize-to @nars-time % @nars-time)
+                               (filter #(= (:statement %) (:statement task))
+                                       (filter #(= (:task-type %) :goal) ;re-getting the goals because we also want our just added goal
+                                               (apply vector (for [x (:priority-index (:tasks @state))] (:id x))))))]
+     (if (not-empty projected-goals)
        (let [goal (reduce #(max (confidence %)) projected-goals)]
          (when (and (operation? goal)
                     (= (:statement goal) (:id @state)))   ;execution really only in concept which is responsible for this goal!

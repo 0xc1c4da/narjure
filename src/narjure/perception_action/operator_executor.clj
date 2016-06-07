@@ -4,7 +4,8 @@
     [co.paralleluniverse.pulsar [core :refer [defsfn]]]
     [narjure.actor.utils :refer [defactor]]
     [taoensso.timbre :refer [debug info]]
-    [narjure.debug-util :refer :all])
+    [narjure.debug-util :refer :all]
+    [narjure.global-atoms :refer :all])
   (:refer-clojure :exclude [promise await]))
 
 (def aname :operator-executor)
@@ -13,9 +14,12 @@
   "Processes an :operator-execution-msg:
     executes operation with optionally supplied parameters
     if feedback msg required posts :sentence-msg to task creator"
-  [from [msg operator & params]]
-  ;todo
-  (debug aname "process-operator-execution-request-msg"))
+  [from [msg operationgoal]]
+  (let [feedback (assoc operationgoal :task-type :belief
+                                      :occurrence @nars-time
+                                      :budget [0.9 0.8 0.5])]
+    ; (cast! (whereis :task-creator) [:derived-sentence-msg feedback (:budget feedback) (:evidence feedback)]) ;derived-sentence cause we keep evidence trail
+    ))
 
 (defn shutdown-handler
   "Processes :shutdown-msg and shuts down actor"

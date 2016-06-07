@@ -38,7 +38,7 @@
       ;select best solution
       (let [solution (apply max-key confidence projected-beliefs)
             answerered-question (assoc question :solution solution)]
-        (info (str "at if)"))
+        ;(info (str "at if)"))
         (if (or (= (:solution question) nil)
                 (> (second (:truth (project-eternalize-to (:occurrence question) solution @nars-time)))
                    (second (:truth (project-eternalize-to (:occurrence question) (:solution question) @nars-time)))))
@@ -48,7 +48,7 @@
             ;if answer to user question ouput answer
             (when (and (user? question)
                        (= (:statement question) (:id @state)))
-              (info (str "result: " result))
+              ;(info (str "result: " result))
               (output-task [:answer-to (str (narsese-print (:statement question)) "?")] (:solution result))))
 
           (add-to-tasks state question old-item)        ;it was not better, we just add the question and dont replace the solution
