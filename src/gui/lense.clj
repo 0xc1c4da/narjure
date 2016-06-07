@@ -94,7 +94,12 @@
              pxtransform (fn [x] (+ (:px x) (/ node-width 2.0)))
              pytransform (fn [y] (+ (:py y) (/ node-height 2.0)))
              target (if (not= true (:unidirectional c))
-                      right middle)]
+                      right middle)
+             weight (if (not= nil (:stroke-weight c))
+                      (:stroke-weight c)
+                      1.0)]
+
+         (q/stroke-weight weight)
          (q/line (pxtransform left) (pytransform left)
                  (pxtransform target) (pytransform target))))))
   (doseq [a nodes]
@@ -125,7 +130,7 @@
                           :id          id})))
              edges (for [n nodes
                          [k v] (@lense-termlinks (:id n))]
-                     {:from (:id n) :to k :unidirectional true})]
+                     {:from (:id n) :to k :unidirectional true :stroke-weight 0.2})]
      (draw-graph [(filter #(not= % nil) nodes) edges 10 10]))
        (catch Exception e (println e)))
   )
