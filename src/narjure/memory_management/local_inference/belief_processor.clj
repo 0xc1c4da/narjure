@@ -45,7 +45,7 @@
     ;filter goals matching concept content
     ;project-to task time
     ;select best ranked
-    (let [projected-goals (map #(project-eternalize-to (:occurrence task) %  @nars-time) (filter #(= (:statement %) (:id @state)) goals))]
+    (let [projected-goals (map #(project-eternalize-to (:occurrence task) %  @nars-time) (filter #(= (:statement %) (:statement task)) goals))]
       (when (not-empty projected-goals)
         (let [goal (reduce #(max (confidence %)) projected-goals)]
           ;update budget and tasks
@@ -55,7 +55,9 @@
 
     ;filter beliefs matching concept content
     ;(project-to task time
-    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) beliefs))]
+
+    ;also allow revision in subterm concepts! this is why statement is compared to task statement, not to ID!!
+    (let [projected-beliefs (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:statement task)) beliefs))]
       (when (= (:source task) :input)
         (doseq [projected-anticipation (map #(project-eternalize-to (:occurrence task) % @nars-time) anticipations)]
           ;revise anticpation and add to tasks

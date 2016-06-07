@@ -56,23 +56,30 @@
 
     ;filter beliefs matching concept content
     ;(project to task time
-    (let [projected-goals (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:id @state)) goals))]
+    (let [projected-goals (map #(project-eternalize-to (:occurrence task) % @nars-time) (filter #(= (:statement %) (:statement task)) goals))]
       ;revise task with revisable goals
       (doseq [revisable (filter #(revisable? task %) projected-goals)]
         ;revise goals and add to tasks
-        (add-to-tasks state (revise revisable task) nil)))
+        (add-to-tasks state (revise revisable task) nil))
+      )
 
     ;add task to bag
     (add-to-tasks state task old-item)
 
-    ; check to see if revised or task is answer to quest
+
+    ; check to see if revised or task is answer to quest and increase budget accordingly
     ;todo
+    ;check whether it is fullfilled by belief and decrease budget accordingly
 
-    ;if operation project goal to current time
-    ; if above decision threshold then execute
-
-    (when (operation? task)
-      (let [projected (project-eternalize-to @nars-time task @nars-time)]
-        (when (execute? projected)
-         (cast! (whereis :operator-executor) [:operator-execution-msg task])))))
-  )
+    (try
+      ;best operation project goal to current time
+      ; if above decision threshold then execute
+      (let [projected-goals (map #(project-eternalize-to @narse-time % @nars-time) (filter #(= (:statement %) (:statement task)) goals))]
+       (when (not-empty projected-goals)
+         (let [goal (reduce #(max (confidence %)) projected-goals)]
+           (when (and (operation? goal)
+                      (= (:statement goal) (:id @state)))   ;execution really only in concept which is responsible for this goal!
+             (when (execute? projected)
+               (cast! (whereis :operator-executor) [:operator-execution-msg task]))))))
+      (except Exception e (debuglogger search display (str "execution error " (.toString e)))))
+    ))

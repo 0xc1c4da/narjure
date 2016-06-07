@@ -21,8 +21,8 @@
             {:name :concept-bag :px 775 :py 450}
             {:name :output :px 600 :py -400}])
 
-(def vertices [{:from :concept-manager :to :task-dispatcher}
-               {:from :concepts :to :concept-manager}
+(def vertices [{:from :concept-manager :to :task-dispatcher :unidirectional false}
+               {:from :concept-manager :to :concepts :unidirectional true}
                {:from :task-dispatcher :to :event-buffer :unidirectional true}
                {:from :concepts :to :general-inferencer :unidirectional true}
                {:from :concepts :to :operator-executor :unidirectional true}
@@ -35,6 +35,6 @@
                {:from :general-inferencer :to :derived-load-reducer :unidirectional true}
                {:from :derived-load-reducer :to :task-creator :unidirectional true}
                {:from :task-creator :to :task-dispatcher :unidirectional true}
-               {:from :concept-selector :to :concepts} :unidirectional true])
+               {:from :concept-selector :to :concepts :unidirectional true}])
 
 (def graph-actors [nodes vertices actor-level-width actor-level-height])
