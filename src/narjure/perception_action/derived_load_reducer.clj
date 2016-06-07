@@ -13,8 +13,8 @@
 (def display (atom '()))
 (def search (atom ""))
 
-(def max-derived-sentences 500)
-(def max-selections 10)
+(def max-derived-sentences 50)
+(def max-selections 20)
 (def bag (atom (b/default-bag max-derived-sentences)))
 
 (defn system-time-tick-handler
@@ -27,22 +27,15 @@
       (reset! bag bag')
       (cast! (whereis :task-creator) msg)
       (debuglogger search display [:forward msg])
-      ;(info (str "selected:" (:sentence element)))
       )))
 
 (defn derived-sentence-handler
   "adds sentence to input-bag and selects n senetences on system-time-tick"
   [from [msg sentence budget evidence]]
-  ;(info (str "adding: " (b/add-element @bag {:priority (first budget) :sentence [sentence budget evidence]})))
   (let [elem {:id sentence :priority (first budget) :sentence [sentence budget evidence]}]
     (debuglogger search display [:add elem])
     (swap! bag b/add-element elem)))
 
-(defn shutdown-handler
-  "Processes :shutdown-msg and shuts down actor"
-  [from msg]
-  (unregister!)
-  (shutdown!))
 
 (defn initialise
   "Initialises actor:
@@ -61,7 +54,6 @@
   (case type
     :derived-sentence-msg (derived-sentence-handler from message)
     :system-time-tick-msg (system-time-tick-handler)
-    :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
 (defn derived-load-reducer []

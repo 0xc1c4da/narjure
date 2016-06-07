@@ -42,12 +42,6 @@
        (cast! (:general-inferencer @state) [:do-inference-msg [(:id result1) (:id result2)]])))
     (catch Exception e (debuglogger search display (str "event select error " (.toString e))))))
 
-(defn shutdown-handler
-  "Processes :shutdown-msg and shuts down actor"
-  [from msg]
-  (unregister!)
-  (shutdown!))
-
 (defn initialise
   "Initialises actor:
       registers actor and sets actor state"
@@ -63,7 +57,6 @@
   ;(debuglogger display message) same as in concept_selector
   (case type
     :inference-tick-msg (inference-tick-handler from message)
-    :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
 (defn event-selector []

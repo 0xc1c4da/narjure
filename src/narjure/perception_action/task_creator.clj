@@ -133,11 +133,6 @@
            (when (event? sentence)
              (cast! (:task-dispatcher @state) [:task-msg (create-eternal-task derived-task)]))))))
 
-(defn shutdown-handler
-  "Processes :shutdown-msg and shuts down actor"
-  [from msg]
-  (unregister!)
-  (shutdown!))
 
 (defn msg-handler
   "Identifies message type and selects the correct message handler.
@@ -148,7 +143,6 @@
     :sentence-msg (sentence-handler from message)
     :derived-sentence-msg (derived-sentence-handler from message)
     :system-time-tick-msg (system-time-tick-handler)
-    :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
 (defn task-creator []

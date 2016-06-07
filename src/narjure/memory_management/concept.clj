@@ -19,7 +19,7 @@
     [nal.deriver.projection-eternalization :refer [project-eternalize-to]])
   (:refer-clojure :exclude [promise await]))
 
-(def max-tasks 10)
+(def max-tasks 20)
 (def display (atom '()))
 (def search (atom ""))
 

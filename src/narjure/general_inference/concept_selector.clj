@@ -37,12 +37,6 @@
          (debuglogger search display (str "Concept selected: " [:id (:id selected) :priority (:priority selected)])))))
        (catch Exception e (debuglogger search display (str "concept select error " (.toString e))))))
 
-(defn shutdown-handler
-  "Processes :shutdown-msg and shuts down actor"
-  [from msg]
-  (unregister!)
-(shutdown!))
-
 (defn initialise
   "Initialises actor:
       registers actor and sets actor state"
@@ -58,7 +52,6 @@
   ;(debuglogger display message) since tick is uninteresting we use what is selected
   (case type
     :inference-tick-msg (inference-tick-handler from message)
-    :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
 (defn concept-selector []

@@ -23,12 +23,6 @@
     (swap! e-bag b/add-element {:id task :priority (first (:budget task))})
     (catch Exception e (debuglogger search display (str "event add error " (.toString e))))))
 
-(defn shutdown-handler
-  "Processes :shutdown-msg and shuts down actor"
-  [from msg]
-  (unregister!)
-  (shutdown!))
-
 (defn initialise
   "Initialises actor: registers actor and sets actor state"
   [aname actor-ref]
@@ -43,7 +37,6 @@
   (debuglogger search display message)
   (case type
     :event-msg (event-handler from message)
-    :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
 (defn event-buffer []

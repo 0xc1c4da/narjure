@@ -46,12 +46,6 @@
                                                                      (occurrence-penalty-tr (:occurrence task))) 0.8 0.0] evidence]))))
     (catch Exception e (debuglogger search display (str "inference error " (.toString e))))))
 
-(defn shutdown-handler
-  "Processes :shutdown-msg and shuts down actor"
-  [from msg]
-  (unregister!)
-  (shutdown!))
-
 (defn initialise
   "Initialises actor:
       registers actor and sets actor state"
@@ -67,7 +61,6 @@
   (debuglogger search display message)
   (case type
     :do-inference-msg (do-inference-handler from message)
-    :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
 (defn general-inferencer []

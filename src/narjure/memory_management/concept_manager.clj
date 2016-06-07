@@ -55,12 +55,6 @@
     (swap! c-bag b/add-element item)
        (catch Exception e (debuglogger search display (str "budget update error " (.toString e))))))   ;it doesnt exist anymore
 
-(defn shutdown-handler
-  "Processes :shutdown-msg and shuts down actor"
-  [from msg]
-  (unregister!)
-  (shutdown!))
-
 (defn initialise
   "Initialises actor: registers actor and sets actor state"
   [aname actor-ref]
@@ -88,7 +82,6 @@
     :persist-state-msg (persist-state-handler from message)
     :load-state-msg (load-state-handler from message)
     :budget-update-msg (budget-update-handler from message)
-    :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
 (defn concept-manager []

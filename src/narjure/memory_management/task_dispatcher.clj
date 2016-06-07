@@ -38,13 +38,6 @@
       ))
   )
 
-(defn shutdown-handler
-  "Processes :shutdown-msg and shuts down actor"
-  [from msg]
-  (do
-    (unregister!)
-    (shutdown!)))
-
 (def display (atom '()))
 (def search (atom ""))
 
@@ -64,7 +57,6 @@
   (debuglogger search display message)
   (case type
     :task-msg (task-handler from message)
-    :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
 (def s (reify Server

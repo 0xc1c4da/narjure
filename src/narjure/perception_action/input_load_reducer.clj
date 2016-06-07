@@ -18,11 +18,6 @@
          (cast! (:task-creator @state) [:sentence-msg sentence]))
        (catch Exception e (debuglogger search display (str "parsing error " (.toString e))))))
 
-(defn shutdown-handler
-  "Processes :shutdown-msg and shuts down actor"
-  [from msg]
-  (unregister!)
-  (shutdown!))
 
 (defn initialise
   "Initialises actor:
@@ -39,7 +34,6 @@
   (debuglogger search display message)
   (case type
     :narsese-string-msg (narsese-string-handler from message)
-    :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
 (defn sentence-parser []

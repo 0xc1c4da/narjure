@@ -22,12 +22,6 @@
     (cast! (whereis :task-creator) [:derived-sentence-msg [feedback (:budget feedback) (:evidence feedback)]]) ;derived-sentence cause we keep evidence trail
     ))
 
-(defn shutdown-handler
-  "Processes :shutdown-msg and shuts down actor"
-  [from msg]
-  (unregister!)
-  (shutdown!))
-
 (def display (atom '()))
 (def search (atom ""))
 
@@ -46,12 +40,11 @@
   (debuglogger search display message)
   (case type
     :operator-execution-msg (operator-execution-handler from message)
-    :shutdown (shutdown-handler from message)
     (debug aname (str "unhandled msg: " type))))
 
 (defn operator-executor []
   (gen-server
     (reify Server
       (init [_] (initialise aname @self))
-      (terminate [_ cause] #_(info (str aname " terminated.")))
+      (terminate [_ cause])
       (handle-cast [_ from id message] (msg-handler from message)))))
