@@ -70,8 +70,9 @@
 
     ;if operation project goal to current time
     ; if above decision threshold then execute
+
     (when (operation? task)
-      (project-eternalize-to @nars-time task @nars-time)
-      (when (execute? task)
-        (cast! (:operator-executor @state) [:operator-execution-msg task]))))
+      (let [projected (project-eternalize-to @nars-time task @nars-time)]
+        (when (execute? projected)
+         (cast! (whereis :operator-executor) [:operator-execution-msg task])))))
   )

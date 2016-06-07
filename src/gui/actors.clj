@@ -23,18 +23,18 @@
 
 (def vertices [{:from :concept-manager :to :task-dispatcher}
                {:from :concepts :to :concept-manager}
-               {:from :task-dispatcher :to :event-buffer}
-               {:from :concepts :to :general-inferencer}
-               {:from :concepts :to :operator-executor}
-               {:from :operator-executor :to :task-creator}
-               {:from :event-selector :to :general-inferencer}
-               {:from :concept-selector :to :general-inferencer}
-               {:from :sentence-parser :to :task-creator}
+               {:from :task-dispatcher :to :event-buffer :unidirectional true}
+               {:from :concepts :to :general-inferencer :unidirectional true}
+               {:from :concepts :to :operator-executor :unidirectional true}
+               {:from :operator-executor :to :task-creator :unidirectional true}
+               {:from :event-selector :to :general-inferencer :unidirectional true}
+               {:from :concept-selector :to :general-inferencer :unidirectional true}
+               {:from :sentence-parser :to :task-creator :unidirectional true}
                ;{:from :sentence-parser :to :input-load-reducer}
                ;{:from :input-load-reducer :to :task-creator}
-               {:from :general-inferencer :to :derived-load-reducer}
-               {:from :derived-load-reducer :to :task-creator}
-               {:from :task-creator :to :task-dispatcher}
-               {:from :concept-selector :to :concepts}])
+               {:from :general-inferencer :to :derived-load-reducer :unidirectional true}
+               {:from :derived-load-reducer :to :task-creator :unidirectional true}
+               {:from :task-creator :to :task-dispatcher :unidirectional true}
+               {:from :concept-selector :to :concepts} :unidirectional true])
 
 (def graph-actors [nodes vertices actor-level-width actor-level-height])

@@ -16,12 +16,12 @@
   (take max-evidence (interleave e1 e2)))
 
 (defn add-to-tasks [state task old-item]
-  (info (str "old time: " old-item))
+  ;(info (str "old time: " old-item))
   (when (not= nil old-item)
     (let [[element bag] (b/get-by-id (:tasks @state) old-item)]
-      (info (str "have element " element))
+      ;(info (str "have element " element))
       (when (not= nil element)
-        (info (str "in when"))
+        ;(info (str "in when"))
         (set-state! (assoc @state :tasks bag)))))
   (set-state! (assoc @state :tasks (b/add-element (:tasks @state) {:id task :priority (first (:budget task))}))))
 

@@ -65,7 +65,8 @@
 (defn nameof [a]
   (if (string? a) a (name a)))
 
-(defn draw-actor [{:keys [name px py backcolor frontcolor displaysize titlesize]} node-width node-height]
+(defn draw-actor [{:keys [name px py backcolor frontcolor displaysize titlesize stroke-weight]} node-width node-height]
+  (q/stroke-weight (if (= nil stroke-weight) 1.0 stroke-weight))
   (apply q/fill (if (= backcolor nil) [255 255 255] backcolor))
   (q/rect px py node-width node-height)
   (apply q/fill (if (= frontcolor nil) [0 0 0] frontcolor))
@@ -97,11 +98,14 @@
                       right middle)
              weight (if (not= nil (:stroke-weight c))
                       (:stroke-weight c)
-                      1.0)]
-
-         (q/stroke-weight weight)
+                      0.5)]
+         (q/stroke-weight (* weight 2.0))
          (q/line (pxtransform left) (pytransform left)
-                 (pxtransform target) (pytransform target))))))
+                 (pxtransform target) (pytransform target))
+         (when (:unidirectional c)
+           (q/stroke-weight weight)
+           (q/line (pxtransform right) (pytransform right)
+                   (pxtransform middle) (pytransform middle)))))))
   (doseq [a nodes]
     (draw-actor a node-width node-height)))
 
@@ -127,10 +131,11 @@
                           :displaysize 1.0
                           :backcolor   [(- 255 (* (:priority elem) 255.0)) 255 255]
                           :titlesize   2.0
+                          :stroke-weight 0.5
                           :id          id})))
              edges (for [n nodes
                          [k v] (@lense-termlinks (:id n))]
-                     {:from (:id n) :to k :unidirectional true :stroke-weight 0.2})]
+                     {:from (:id n) :to k :unidirectional true :stroke-weight 0.125})]
      (draw-graph [(filter #(not= % nil) nodes) edges 10 10]))
        (catch Exception e (println e)))
   )
