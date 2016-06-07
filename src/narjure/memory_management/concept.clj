@@ -58,7 +58,8 @@
                                 (filter #(and (= (:statement (:id %)) (:id @state))
                                               (= (:task-type (:id %)) :belief)) tasks))]
      (when (not-empty projected-beliefs)
-       (let [belief (reduce #(max (confidence %)) projected-beliefs)]
+       ;(println projected-beliefs)
+       (let [belief (apply max-key confidence projected-beliefs)]
          (debuglogger search display ["selected belief:" belief "§"])
          (cast! (:general-inferencer @state) [:do-inference-msg [task belief]])
          )))

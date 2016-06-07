@@ -37,7 +37,7 @@
       (let [projected-beliefs (map #(project-eternalize-to (:occurrence question) % @nars-time) (filter #(= (:statement %) (:id @state)) beliefs))]
       (if (not-empty projected-beliefs)
         ;select best solution
-        (let [solution (reduce #(max ((second (:truth %1)) (second (:truth %2)))) projected-beliefs)
+        (let [solution (apply max-key confidence projected-beliefs)
               answerered-question (assoc question :solution solution)]
           (info (str "at if)"))
           (if (or (= (:solution question) nil)

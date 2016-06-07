@@ -37,7 +37,7 @@
       (let [projected-goals (map #(project-eternalize-to (:occurrence quest) % @nars-time) (filter #(= (:statement %) (:id @state)) goals))]
         (if (not-empty projected-goals)
           ;select best solution
-          (let [solution (reduce #(max ((second (:truth %1)) (second (:truth %2)))) projected-goals)
+          (let [solution (apply max-key confidence projected-goals)
                 answerered-quest (assoc quest :solution solution)]
             (info (str "at if)"))
             (if (or (= (:solution quest) nil)
