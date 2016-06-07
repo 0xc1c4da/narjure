@@ -18,7 +18,8 @@
   (let [feedback (assoc operationgoal :task-type :belief
                                       :occurrence @nars-time
                                       :budget [0.9 0.8 0.5])]
-    ; (cast! (whereis :task-creator) [:derived-sentence-msg feedback (:budget feedback) (:evidence feedback)]) ;derived-sentence cause we keep evidence trail
+    (output-task :execution operationgoal)
+    (cast! (whereis :task-creator) [:derived-sentence-msg [feedback (:budget feedback) (:evidence feedback)]]) ;derived-sentence cause we keep evidence trail
     ))
 
 (defn shutdown-handler

@@ -27,7 +27,7 @@
   (let [st (:statement task)]
     (if (and (= (first st) '-->)
                     (coll? (second st))
-                    (= (first (second st)) 'ext-set))
+                    (= (first (second st)) '*))
       (let [op (nth st 2)]
         (and (clojure.string/starts-with? (name op) "op_")))
       false)))
