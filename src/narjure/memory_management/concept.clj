@@ -7,13 +7,15 @@
     [taoensso.timbre :refer [debug info]]
     [narjure.global-atoms :refer :all]
     [narjure.bag :as b]
+    [clojure.core.unify :refer [unifier]]
     [narjure.debug-util :refer :all]
     [narjure.control-utils :refer :all]
+    [nal.term_utils :refer [syntactic-complexity]]
     [narjure.memory-management.local-inference.belief-processor :refer [process-belief]]
     [narjure.memory-management.local-inference.goal-processor :refer [process-goal]]
     [narjure.memory-management.local-inference.quest-processor :refer [process-quest]]
     [narjure.memory-management.local-inference.question-processor :refer [process-question]]
-    [nal.deriver.truth :refer [t-or confidence frequency]]
+    [nal.deriver.truth :refer [t-or confidence frequency expectation]]
     [nal.deriver.projection-eternalization :refer [project-eternalize-to]])
   (:refer-clojure :exclude [promise await]))
 
@@ -49,6 +51,31 @@
     (catch Exception e (debuglogger search display (str "task add error " (.toString e)))))
   )
 
+(defn unifies [b a]
+  (= a (unifier a b)))
+
+(defn qu-var-transform [term]
+  (if (coll? term)
+    (if (= (first term) 'qu-var)
+      (symbol (str "?" (second term)))
+      (apply vector (for [x term]
+                      (qu-var-transform x))))
+    term))
+
+(defn question-unifies [question solution]
+  (unifies (qu-var-transform question) solution))
+
+(defn solution-update-handler
+  ""
+  [from [_ oldtask newtask]]
+  (try
+    (let [concept-state @state
+          [_ bag2] (b/get-by-id (:tasks @state) {:id oldtask :priority (first (:budget oldtask))})
+          bag3 (b/add-element bag2 newtask)]
+    (set-state! (merge concept-state {:tasks bag3})))
+    (catch Exception e (debuglogger search display (str "solution update error " (.toString e)))))
+  )
+
 (defn belief-request-handler
   ""
   [from [_ task]]
@@ -62,6 +89,32 @@
        (let [belief (apply max-key confidence projected-beliefs)]
          (debuglogger search display ["selected belief:" belief "§"])
          (cast! (:general-inferencer @state) [:do-inference-msg [task belief]])
+
+         (try
+           ;1. check whether belief matches by unifying the question vars in task
+           (when (and (= (:task-type task) :question)
+                      (some #{'qu-var} (flatten (:statement task)))
+                      (question-unifies (:statement task) (:statement belief)))
+             ;2. if it unifies, check whether it is a better solution than the solution we have
+             (let [answer-fqual (fn [answer] (if (= nil answer)
+                                               0
+                                               (/ (expectation (:truth answer)) (syntactic-complexity (:statement answer)))))
+                   newqual (answer-fqual (project-eternalize-to (:occurence task) belief @nars-time))
+                   oldqual (answer-fqual (project-eternalize-to (:occurrence task) (:solution task) @nars-time))]        ;PROJECT!!
+               (when (> newqual oldqual)
+                 ;3. if it is a better solution, set belief as solution of task
+                 (let [budget (:budget task)
+                       new-prio (* (- 1.0 (expectation (:truth belief))) (first budget))
+                       new-budget [new-prio (second budget)]
+                       newtask (assoc task :solution belief :priority new-prio :budget new-budget)]
+                   ;4. print our result
+                   (output-task [:answer-to (str (narsese-print (:statement task)) "?")] (:solution newtask))
+                   ;5. send answer-update-msg OLD NEW to the task concept so that it can remove the old task bag entry
+                   ;and replace it with the one having the better solution. (reducing priority here though according to solution before send)
+                   (when-let [{c-ref :ref} ((:elements-map @c-bag) (:statement task))]
+                     (cast! c-ref [:solution-update-msg task newtask]))))))
+           (catch Exception e (debuglogger search display (str "what-question error " (.toString e)))))
+
          )))
        (catch Exception e (debuglogger search display (str "belief request error " (.toString e))))))
 
@@ -178,6 +231,7 @@
     :concept-state-request-msg (concept-state-handler from message)
     :set-concept-state-msg (set-concept-state-handler from message)
     :task-budget-update-msg (task-budget-update-handler from message)
+    :solution-update-msg (solution-update-handler from message)
     :shutdown (shutdown-handler from message)
     (debug (str "unhandled msg: " type))))
 
