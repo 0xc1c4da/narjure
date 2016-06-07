@@ -32,7 +32,7 @@
             evidence (make-evidence (:evidence task) (:evidence belief))
             derived-load-reducer (whereis :derived-load-reducer)]
         (doseq [der derived]
-          #_(cast! derived-load-reducer [:derived-sentence-msg der [(* (if (= nil (:truth task))
+          (cast! derived-load-reducer [:derived-sentence-msg der [(* (if (= nil (:truth task))
                                                                        1.0
                                                                        (expectation (:truth task)))
                                                                      (/ 1.0 (syntactic-complexity (:statement task)))) 0.8 0.0] evidence]))))

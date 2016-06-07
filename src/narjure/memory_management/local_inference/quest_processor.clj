@@ -33,28 +33,25 @@
     ;filter beliefs matching concept content
     ;project to task time
     ;select best ranked
-    (if (= (:statement quest) (:id @state))
-      (let [projected-goals (map #(project-eternalize-to (:occurrence quest) % @nars-time) (filter #(= (:statement %) (:id @state)) goals))]
-        (if (not-empty projected-goals)
-          ;select best solution
-          (let [solution (apply max-key confidence projected-goals)
-                answerered-quest (assoc quest :solution solution)]
-            (info (str "at if)"))
-            (if (or (= (:solution quest) nil)
-                    (> (second (:truth (project-eternalize-to (:occurrence quest) solution @nars-time)))
-                       (second (:truth (project-eternalize-to (:occurrence quest) (:solution quest) @nars-time)))))
-              ;update budget and tasks
-              (let [result (decrease-budget answerered-quest)]
-                (add-to-tasks state result old-item)
-                ;if answer to user quest ouput answer
-                (when (user? quest)
-                  (info (str "result: " result))
-                  (output-task [:solution-to (str (narsese-print (:statement quest)) "??")] (:solution result))))
+    (let [projected-goals (map #(project-eternalize-to (:occurrence quest) % @nars-time) (filter #(= (:statement %) (:statement quest)) goals))]
+      (if (not-empty projected-goals)
+        ;select best solution
+        (let [solution (apply max-key confidence projected-goals)
+              answerered-quest (assoc quest :solution solution)]
+          (info (str "at if)"))
+          (if (or (= (:solution quest) nil)
+                  (> (second (:truth (project-eternalize-to (:occurrence quest) solution @nars-time)))
+                     (second (:truth (project-eternalize-to (:occurrence quest) (:solution quest) @nars-time)))))
+            ;update budget and tasks
+            (let [result (decrease-budget answerered-quest)]
+              (add-to-tasks state result old-item)
+              ;if answer to user quest ouput answer
+              (when (and (user? quest)
+                         (= (:statement quest) (:id @state)))
+                (info (str "result: " result))
+                (output-task [:answer-to (str (narsese-print (:statement quest)) "@")] (:solution result))))
 
-              (add-to-tasks state quest old-item)        ;it was not better, we just add the question and dont replace the solution
-              ))
-          ;was empty so just add
-          (add-to-tasks state quest old-item)
-          ))
-      (add-to-tasks state quest old-item)                ;it has other content, so we just add it for general inference purposes (quest derivation)
-      )))
+            (add-to-tasks state quest old-item)        ;it was not better, we just add the question and dont replace the solution
+            ))
+        ;was empty so just add
+        (add-to-tasks state quest old-item)))))
