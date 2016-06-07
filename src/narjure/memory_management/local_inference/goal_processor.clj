@@ -71,15 +71,15 @@
     ;todo
     ;check whether it is fullfilled by belief and decrease budget accordingly
 
-    (try
-      ;best operation project goal to current time
-      ; if above decision threshold then execute
-      (let [projected-goals (map #(project-eternalize-to @narse-time % @nars-time) (filter #(= (:statement %) (:statement task)) goals))]
-       (when (not-empty projected-goals)
-         (let [goal (reduce #(max (confidence %)) projected-goals)]
-           (when (and (operation? goal)
-                      (= (:statement goal) (:id @state)))   ;execution really only in concept which is responsible for this goal!
-             (when (execute? projected)
-               (cast! (whereis :operator-executor) [:operator-execution-msg task]))))))
-      (except Exception e (debuglogger search display (str "execution error " (.toString e)))))
+
+    ;best operation project goal to current time
+    ; if above decision threshold then execute
+    (let [projected-goals (map #(project-eternalize-to @nars-time % @nars-time) (filter #(= (:statement %) (:statement task)) goals))]
+     (when (not-empty projected-goals)
+       (let [goal (reduce #(max (confidence %)) projected-goals)]
+         (when (and (operation? goal)
+                    (= (:statement goal) (:id @state)))   ;execution really only in concept which is responsible for this goal!
+           (when (execute? goal)
+             (cast! (whereis :operator-executor) [:operator-execution-msg goal]))))))
+
     ))
